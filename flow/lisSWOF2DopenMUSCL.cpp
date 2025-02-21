@@ -54,7 +54,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             FloodDT->Drc = dt_max;
-            activeCells->Drc = 0;
+            //activeCells->Drc = 0;
             tma->Drc = h->Drc;
             tmb->Drc = u->Drc;
             tmc->Drc = v->Drc;
@@ -65,7 +65,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         // do MUSCL (optional), Riemann etc, get back smallest dt
         // in the original code this is split in reconstruction/MUSCL and maincalcflux
 
-        doSWOFStV(dt_req_min, activeCells, h, u, v, gflowx, gflowy, hllx12_0, hllx21_1, hllx21_2, hlly21_1, hlly21_2);
+        doSWOFStV(dt_req_min, h, u, v, gflowx, gflowy, hllx12_0, hllx21_1, hllx21_2, hlly21_1, hlly21_2);
         // Saint Venand calculations for new h, u, v
         // called maincalcscheme in fullSWOF
 
@@ -86,7 +86,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             } while (dt1 > dt_req_min && step < 4);
 
 
-            doSWOFStV(dt_req_min, activeCells, h, u, v, gflowx, gflowy, hllx12_0, hllx21_1, hllx21_2, hlly21_1, hlly21_2);
+            doSWOFStV(dt_req_min, h, u, v, gflowx, gflowy, hllx12_0, hllx21_1, hllx21_2, hlly21_1, hlly21_2);
 
             //Heun, see SWOF doc
             #pragma omp parallel for num_threads(userCores)
@@ -133,14 +133,14 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 //------------------------------------------------------------------------------------------------------
 double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
-
+    /*
     // activeCells are all wet cells
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (h->Drc > F_minWH) {
             activeCells->Drc = 1;
 
-    //        if (SwitchWaveUser) {
+            if (SwitchWaveUser) {
                 // make more activecells bhecause else wave does not go on land
                 //and one dry cell more in all directions
                 if (c > 0 && c != MV(r,c-1)        )  activeCells->data[r][c-1] = 1;
@@ -151,16 +151,15 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
                 // if (c < _nrCols-2 && c != MV(r,c+2)) activeCells->data[r][c+2] = 1;
                 // if (r > 1 && r != MV(r-2,c)        ) activeCells->data[r-2][c] = 1;
                 // if (r < _nrRows-2 && r != MV(r+2,c)) activeCells->data[r+2][c] = 1;
-         //   }
+            }
         }
-        // if(DomainEdge->Drc > 0)
-        //     activeCells->Drc = 0;
     }}
-
+*/
     //do all flow and state calculations
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (activeCells->Drc > 0) {
+        //if (activeCells->Drc > 0) {
+        if (DomainEdge->Drc == 0) {
             double dx = _dx;//ChannelAdj->Drc;
             double dy = _dx;//DX->Drc;
             double H, Z, U, V;
@@ -521,12 +520,13 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
     return dt_req_min;
 }
 //-----------------------------------------------------------------------------------------------------------
-void TWorld::doSWOFStV(double dt, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v,
+void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v,
                         cTMap *gflowx, cTMap *gflowy, cTMap *hllx12_0, cTMap *hllx21_1, cTMap *hllx21_2, cTMap *hlly21_1, cTMap *hlly21_2)
 {
      #pragma omp parallel for num_threads(userCores)
      FOR_ROW_COL_MV_L {
-        if (activeCells->Drc > 0) {
+     //  if (activeCells->Drc > 0) {
+      //   if (h->Drc > F_minWH) {
            double dx = _dx;//ChannelAdj->Drc;_dx;//_dx
            double dy = _dx;//DX->Drc;//
            double Un = 0, Vn = 0;
@@ -542,22 +542,23 @@ void TWorld::doSWOFStV(double dt, cTMap *activeCells, cTMap *h, cTMap *u, cTMap 
                double qxn = h->Drc*u->Drc - tx*(hllx21_1->Drc + gflowx->Drc) - ty*hlly21_2->Drc;
                double qyn = h->Drc*v->Drc - tx*hllx21_2->Drc - ty*(hlly21_1->Drc + gflowy->Drc);
 
-               double vsq = sqrt(u->Drc*u->Drc + v->Drc*v->Drc);
-               double nsq1 = (N->Drc)*(N->Drc)*GRAV/std::pow(hn,4.0/3.0); //std::max(0.0001,std::pow(hn,4.0/3.0));
-               double nsq = nsq1*vsq*dt;
-
-              // Un = (qxn/(1.0+nsq))/std::max(0.0001,hn);
-              // Vn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
-               Un = (qxn/(1.0+nsq))/hn;
-               Vn = (qyn/(1.0+nsq))/hn;
-
                if (SwitchTimeavgV) {
+                   double nsq1 = (N->Drc)*(N->Drc)*GRAV/std::max(0.0001,std::pow(hn,4.0/3.0));
+                   double nsq = nsq1 * sqrt(u->Drc*u->Drc + v->Drc*v->Drc) * dt;
+
+                   Un = (qxn/(1.0+nsq))/std::max(0.0001,hn);
+                   Vn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
+
                    double fac = 0.5 + 0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn); // if hn > 1 fac = 1
                    fac = fac * exp(- std::max(1.0,dt) / nsq1);
                    Un = fac * u->Drc + (1.0-fac) *Un;
                    Vn = fac * v->Drc + (1.0-fac) *Vn;
+               } else {
+                   double nsq1 = (N->Drc)*(N->Drc)*GRAV/std::pow(hn,4.0/3.0);
+                   double nsq = nsq1*sqrt(u->Drc*u->Drc + v->Drc*v->Drc)*dt;
+                   Un = (qxn/(1.0+nsq))/hn;
+                   Vn = (qyn/(1.0+nsq))/hn;
                }
-
            } else {
                // hn < ha
                hn = h->Drc; // if no fluxes then also no change in h
@@ -590,7 +591,7 @@ void TWorld::doSWOFStV(double dt, cTMap *activeCells, cTMap *h, cTMap *u, cTMap 
            u->Drc = Un;
            v->Drc = Vn;
 
-        } //active cells
+    //    } //active cells
     }}
 }
 //-----------------------------------------------------------------------------------------------------------
