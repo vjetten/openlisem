@@ -6,16 +6,21 @@ IF(WIN32)
     SET(QWT_BUILD_DIR "C:/prgc/lisemgit/qwt/git")    # Adjust to your folder names
     SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # Adjust to your folder names
     SET(OSSL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgnutls-openssl.dll.a")
-    SET(OSSL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include/openssl")
-    SET(GDAL_INCLUDE_DIRS "${MINGW_BUILD_DIR}/include")
+    SET(OSSL_INCLUDE_DIR "${MINGW_BUILD_DIR}/include/openssl")
+    SET(GDAL_INCLUDE_DIR "${MINGW_BUILD_DIR}/include")
     SET(GDAL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgdal.dll.a")
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
+    SET(CURL_INCLUDE_DIR "${MINGW_BUILD_DIR}/include/curl")
 
     FIND_PATH(OMP_INCLUDE_DIRS
         NAMES omp.h
         PATHS "${MINGW_BUILD_DIR}/include"
     )
+FIND_PATH(OMP_INCLUDE_DIRS
+    NAMES omp.h
+    PATHS "${MINGW_BUILD_DIR}/include"
+)
 ENDIF()
 
 
@@ -29,7 +34,7 @@ IF(UNIX AND NOT CYGWIN)
     SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
     SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
     SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
-    SET(GDAL_INCLUDE_DIRS "/usr/include/gdal")
+    SET(GDAL_INCLUDE_DIR "/usr/include/gdal")
     SET(GDAL_LIBRARIES "/usr/lib/x86_64-linux-gnu/libgdal.so")
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.so")
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/include/")
@@ -37,11 +42,12 @@ ENDIF()
 
 # Include directories
 INCLUDE_DIRECTORIES(
-    ${GDAL_INCLUDE_DIRS}
-    #${OSSL_INCLUDE_DIRS}
+    ${GDAL_INCLUDE_DIR}
     ${QWT_INCLUDE_DIRS}
+
     ${OMP_INCLUDE_DIRS}
-    ${CURL_INCLUDE_DIRS}
+    ${OSSL_INCLUDE_DIR}
+    ${CURL_INCLUDE_DIR}
     SYSTEM
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/ui_full
@@ -54,7 +60,7 @@ find_package(OpenMP REQUIRED)
 #Find GDAL
 find_package(GDAL REQUIRED)
 
-find_package(CURL REQUIRED)
+#find_package(CURL REQUIRED)
 
 # Enable automatic handling of MOC, UIC, and RCC based on file type changes instead of timestamps
 set(CMAKE_AUTOMOC_DEPEND_FILTERS "moc" "*.h")
@@ -68,7 +74,7 @@ set_property(DIRECTORY PROPERTY CMAKE_CONFIGURE_DEPENDS "")
 
 # Compiler flags
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -Wno-var-tracking-assignments -std=c++11 ${OpenMP_CXX_FLAGS}")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -Wno-var-tracking-assignments -std=c++11 -fpermissive ${OpenMP_CXX_FLAGS}")
     IF(UNIX)
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wl,-rpath=${ORIGIN}./lib")
     ENDIF()

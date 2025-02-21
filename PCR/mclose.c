@@ -29,8 +29,8 @@ int Mclose(
 
   if (m->minMaxStatus == MM_WRONGVALUE)
   {
-    CsfSetVarTypeMV( &(m->raster.minVal), m->raster.cellRepr);
-    CsfSetVarTypeMV( &(m->raster.maxVal), m->raster.cellRepr);
+    CsfSetVarTypeMV( &(m->raster.minVal), (CSF_CR)m->raster.cellRepr);
+    CsfSetVarTypeMV( &(m->raster.maxVal), (CSF_CR)m->raster.cellRepr);
   }
 
   /* if write permission , write all header data to file */

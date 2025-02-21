@@ -35,5 +35,5 @@ Revision 1.3  1995/11/01 17:23:03  cees
 CSF_VS RgetValueScale(
 	const MAP *map) /* map handle */
 {
-	return(map->raster.valueScale);
+    return((CSF_VS)map->raster.valueScale);
 }
