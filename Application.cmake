@@ -7,6 +7,7 @@ IF(WIN32)
     SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # Adjust to your folder names
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
     SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
+    SET(CURL_INCLUDE_DIR "${MINGW_BUILD_DIR}/include/curl")
 
     # find_package takes care of all this
     #SET(OSSL_LIBRARIES "${MINGW_BUILD_DIR}/lib/libgnutls-openssl.dll.a")
@@ -62,7 +63,7 @@ INCLUDE_DIRECTORIES(
     ${OSSL_INCLUDE_DIRS}
     ${QWT_INCLUDE_DIRS}
     ${OMP_INCLUDE_DIRS}
-    ${CURL_INCLUDE_DIRS}
+    ${CURL_INCLUDE_DIR}
     SYSTEM
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/ui_full
@@ -81,7 +82,7 @@ set_property(DIRECTORY PROPERTY CMAKE_CONFIGURE_DEPENDS "")
 
 # Compiler flags
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -Wno-var-tracking-assignments -std=c++11 ${OpenMP_CXX_FLAGS}")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -Wno-var-tracking-assignments -std=c++11 -fpermissive ${OpenMP_CXX_FLAGS}")
     IF(UNIX)
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wl,-rpath=${ORIGIN}./lib")
     ENDIF()

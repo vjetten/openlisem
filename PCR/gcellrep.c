@@ -8,7 +8,7 @@
 CSF_CR RgetCellRepr(
 	const MAP *map) /* map handle */
 {
-	return(map->raster.cellRepr);
+    return((CSF_CR)map->raster.cellRepr);
 }
 
 /* get cell representation as set by RuseAs
@@ -19,5 +19,5 @@ CSF_CR RgetCellRepr(
 CSF_CR RgetUseCellRepr(
 	const MAP *map) /* map handle */
 {
-   	return(map->appCR);
+    return((CSF_CR)map->appCR);
 }

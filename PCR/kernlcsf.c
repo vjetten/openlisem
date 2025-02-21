@@ -110,7 +110,7 @@ void CsfRegisterMap(
     size_t j;
     /* double size */
     mapListLen *=2;
-    mapList=realloc(mapList,sizeof(MAP *)*mapListLen);
+    mapList=(MAP**)realloc(mapList,sizeof(MAP *)*mapListLen);
     if (mapList == NULL) {
      (void)fprintf(stderr,"CSF_INTERNAL_ERROR: Not enough memory to use CSF-files\n");
       exit(1);
