@@ -153,8 +153,8 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
                 // if (r < _nrRows-2 && r != MV(r+2,c)) activeCells->data[r+2][c] = 1;
          //   }
         }
-        if(DomainEdge->Drc > 0)
-            activeCells->Drc = 0;
+        // if(DomainEdge->Drc > 0)
+        //     activeCells->Drc = 0;
     }}
 
     //do all flow and state calculations
