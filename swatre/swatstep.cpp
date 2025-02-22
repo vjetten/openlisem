@@ -75,6 +75,7 @@ double TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, double _WH, cTMa
 
     double res = s->pixel[i_].wh*0.01; // cm to m
     _theta->Drc = s->pixel[i_].theta; // for pesticides ?
+
     Perc->Drc = s->pixel[i_].percolation*0.01;
 
     if (SwitchIncludeTile)
@@ -88,35 +89,38 @@ void TWorld::calcSinktermSWATRE(long i_,  PIXEL_INFO *pixel, double *h, double *
 {
     int r = pixel->r;
     int c = pixel->c;
+
     // ETafactor is calculated at model level, before hydrology
-    if (ETp->Drc*ETafactor >0 && Rain->Drc*3600000.0/_dt > rainfallETa_threshold) {
+    if (ETp->Drc*ETafactor > 0 && Rain->Drc*3600000.0/_dt > rainfallETa_threshold) {
 
         //double AreaSoil = FlowWidth->Drc * DX->Drc * (1-fractionImperm->Drc);//SoilWidthDX->Drc * DX->Drc;
-        double Cover_ = Cover->Drc;
-        double ETp_ = ETp->Drc * ETafactor * 0.01; // potential ETp in meter!
+        double ETp_ = ETp->Drc * ETafactor * 100; // potential ETp in meter/day to cm/day!
         double tot = 0;
         double etanet = ETp_;
         const ZONE *zone = pixel->profile->zone;
-       // double ETpshade = ETp_*(1-Cover_)+0.15*ETp_*(Cover_);
-        //double eta = 0;
 
         //transpiration under Cover from rootzone
+        etanet = ETp_*(Cover->Drc)*(1-fractionImperm->Drc);
         for (int j = 0; j < zone->nrNodes; j++) {
-            // van genuchten H50 = -3.5 m
-            double f = 1.0/(1.0+pow(h[j]/-350,1.5));
-            if (h[j] > -10) f = 0; // saturation
-            if (h[j] < -16000) f = 0; // wilting point -16000 cm
-            etanet = (ETp_* Cover_) * (1-fractionImperm->Drc);
-            S[j] =  etanet * f * zone->rootz[j];
+            S[j] = 0;
+            if (zone->rootz[j] > 0) {
+                // van genuchten H50 = -3.5 m
+                double f = 1.0/(1.0+pow(h[j]/-350,1.5));
+                if (h[j] > -10) f = 0; // near saturation
+                if (h[j] < -16000) f = 0; // wilting point -16000 cm
+                S[j] =  etanet * f * zone->rootz[j];
+            }
         }
 
         // add surface evaporation (1-Cover) to top node if no ponding
-        etanet = ETp_*(1-Cover_)*(1-fractionImperm->Drc);
-
+        if (SwitchLitter)
+            etanet = ETp_*(1-Cover->Drc)*(1-fractionImperm->Drc);
+        else
+            etanet = ETp_*(1-Litter->Drc)*(1-fractionImperm->Drc);
         if (h[0] > -16000) {
             double the = FindValue(h[0], pixel->profile->horizon[0], H_COL, THETA_COL);
             double theS = FindValue(0, pixel->profile->horizon[0], H_COL, THETA_COL);
-            S[0] += etanet * the/theS * 2.4;  //2.4 from mm/h to cm/day
+            S[0] += etanet * the/theS;
         }
 
         for (int j = 0; j < zone->nrNodes; j++) {
@@ -156,7 +160,6 @@ double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int
 // Z and H in cm; table units K in cm/day converted to cm/sec, lisem time in seconds
 // NOTE: dz is negative, disZ is negative!
 
-//void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction)
 void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
 {
     PIXEL_INFO *pixel = &s->pixel[i_];
@@ -187,7 +190,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
     memcpy(dz, p->zone->dz.data(), nN * sizeof(double));
     memcpy(disZ, p->zone->disnod.data(), nN * sizeof(double));
 
-    if (SwitchIncludeET && WH < 0) {
+    if (SwitchIncludeET && WH <= 0) {
         calcSinktermSWATRE(i_, pixel, h, S);
     }
     // get sinkterm S
@@ -230,8 +233,6 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
         for (int j = 0; j < nN; j++) {
              k[j] *= p->KsatCal[j];
         }        
-
-        Theta = (theta[0]+theta[1])/2; // for pesticides
 
         // average K for 1st to n-1 node, top node is done below
         // original swatre artithmetric mean, Vauclin nin Belmans says geometric mean!
@@ -406,8 +407,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
 
         //--- calculate tile drain ---//
         //TODO: CHECK THIS
-        if (SwitchIncludeTile && tnode > 0) //VJ 110825 tnode = -1 if cell has no drainage
-        {
+        if (SwitchIncludeTile && tnode > 0) {
             //options:
             qdrain =  k[tnode];
             // drainage is cond of the node in cm/sec
@@ -437,6 +437,16 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
         elapsedTime += dt;
 
     } // elapsedTime < lisemTimeStep
+
+    double sum = 0;
+    double n = 0;
+    for (int i = 0; i < nN; i++) {
+        if (p->zone->rootz[i] > 0){
+            sum += FindValue(h[i], p->horizon[i], H_COL, THETA_COL);
+            n += 1.0;
+        }
+    }
+    Theta = sum/n;
 
     //put new h back into h
     memcpy(pixel->h.data(), h, nN * sizeof(double));

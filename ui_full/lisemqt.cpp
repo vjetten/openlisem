@@ -950,6 +950,7 @@ void lisemqt::resetTabRainfall()
     E_biasCorrectionP->setValue(1.0);
 
     checkDailyET->setChecked(true);
+    //checkDailyETDistribution->setChecked(true);
     E_latitude->setText("");
     E_biasCorrectionET->setValue(1.0);
     E_rainfallETA_threshold->setValue(2.0);
@@ -1025,7 +1026,7 @@ void lisemqt::resetTabInfiltration()
     E_InfiltrationMethod->addItem("SWATRE");
     E_InfiltrationMethod->addItem("Green and Ampt");
     E_InfiltrationMethod->addItem("Smith and Parlange");
-    E_InfiltrationMethod->addItem("Richards equation (experimental)");
+    //E_InfiltrationMethod->addItem("Richards equation (experimental)");
     E_InfiltrationMethod->setCurrentIndex(1);
 
     checkInfilCompact->setChecked(false);

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1814</width>
-    <height>847</height>
+    <height>1076</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -695,8 +695,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>838</width>
-                <height>548</height>
+                <width>855</width>
+                <height>604</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">
@@ -2352,7 +2352,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>1013</width>
-                <height>807</height>
+                <height>803</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
@@ -2388,7 +2388,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>9</number>
+                  <number>1</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -3049,6 +3049,147 @@
                       <property name="verticalSpacing">
                        <number>4</number>
                       </property>
+                      <item row="1" column="1">
+                       <widget class="QDoubleSpinBox" name="E_biasCorrectionET">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="singleStep">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>1.000000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="label_126">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Correction factor</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="0" colspan="4">
+                       <widget class="QCheckBox" name="checkDailyET">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>ET is in mm/day: use Sine distribution to distrribute ET between sunrise and sunset</string>
+                        </property>
+                        <property name="checked">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="4" column="3">
+                       <widget class="QDoubleSpinBox" name="E_rainfallETA_threshold">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="decimals">
+                         <number>1</number>
+                        </property>
+                        <property name="minimum">
+                         <double>0.000000000000000</double>
+                        </property>
+                        <property name="maximum">
+                         <double>10.000000000000000</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>0.100000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>1.000000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="2">
+                       <widget class="QLineEdit" name="E_latitude">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>58.5</string>
+                        </property>
+                       </widget>
+                      </item>
                       <item row="0" column="0" colspan="4">
                        <layout class="QGridLayout" name="gridLayout_47">
                         <property name="spacing">
@@ -3084,7 +3225,7 @@
                         <item row="0" column="1">
                          <widget class="QLineEdit" name="E_ETName">
                           <property name="enabled">
-                           <bool>false</bool>
+                           <bool>true</bool>
                           </property>
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -3221,129 +3362,6 @@
                         </item>
                        </layout>
                       </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="label_126">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Correction factor</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="1">
-                       <widget class="QDoubleSpinBox" name="E_biasCorrectionET">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="singleStep">
-                         <double>0.010000000000000</double>
-                        </property>
-                        <property name="value">
-                         <double>1.000000000000000</double>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="0" colspan="4">
-                       <widget class="QCheckBox" name="checkDailyET">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Use a Sine distribution to divise daily ET between sunrise and sunset </string>
-                        </property>
-                        <property name="checked">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="0" colspan="2">
-                       <widget class="QLabel" name="label_5">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Average latitude area (Degrees):</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="2">
-                       <widget class="QLineEdit" name="E_latitude">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>22.25</string>
-                        </property>
-                       </widget>
-                      </item>
                       <item row="4" column="0" colspan="3">
                        <widget class="QLabel" name="label_57">
                         <property name="enabled">
@@ -3368,16 +3386,10 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="4" column="3">
-                       <widget class="QDoubleSpinBox" name="E_rainfallETA_threshold">
+                      <item row="3" column="0" colspan="2">
+                       <widget class="QLabel" name="label_5">
                         <property name="enabled">
                          <bool>true</bool>
-                        </property>
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
                         </property>
                         <property name="font">
                          <font>
@@ -3387,20 +3399,8 @@
                           <kerning>true</kerning>
                          </font>
                         </property>
-                        <property name="decimals">
-                         <number>1</number>
-                        </property>
-                        <property name="minimum">
-                         <double>0.000000000000000</double>
-                        </property>
-                        <property name="maximum">
-                         <double>10.000000000000000</double>
-                        </property>
-                        <property name="singleStep">
-                         <double>0.100000000000000</double>
-                        </property>
-                        <property name="value">
-                         <double>2.000000000000000</double>
+                        <property name="text">
+                         <string> - Latitude area for day length (Degrees):</string>
                         </property>
                        </widget>
                       </item>
@@ -3616,6 +3616,12 @@
                        <layout class="QHBoxLayout" name="horizontalLayout_9">
                         <item>
                          <widget class="QLabel" name="label_149">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
                           <property name="text">
                            <string> - </string>
                           </property>
@@ -4676,7 +4682,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>save matrix potential and theta as a map for each node (.001, .002 etc.)</string>
+                            <string>save h and theta as a map for each node (.001, .002 etc.; Warning: slow!)</string>
                            </property>
                           </widget>
                          </item>
@@ -9705,7 +9711,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Riemann solver: 1-Rusanov; 2-HLL; 3-HLL2; 4-HLL2c; 5-HLLc (def .4)</string>
+                            <string>Riemann solver: 1-Rusanov; 2-HLL; 3-HLL2; </string>
                            </property>
                            <property name="alignment">
                             <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -9729,7 +9735,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>0.0001</string>
+                            <string>1e-10</string>
                            </property>
                           </widget>
                          </item>
@@ -9864,10 +9870,10 @@
                             <number>1</number>
                            </property>
                            <property name="maximum">
-                            <number>5</number>
+                            <number>3</number>
                            </property>
                            <property name="value">
-                            <number>4</number>
+                            <number>3</number>
                            </property>
                           </widget>
                          </item>
@@ -15135,8 +15141,8 @@ p, li { white-space: pre-wrap; }
      <y>406</y>
     </hint>
     <hint type="destinationlabel">
-     <x>549</x>
-     <y>408</y>
+     <x>598</x>
+     <y>415</y>
     </hint>
    </hints>
   </connection>
@@ -15147,12 +15153,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>245</x>
-     <y>641</y>
+     <x>239</x>
+     <y>648</y>
     </hint>
     <hint type="destinationlabel">
-     <x>550</x>
-     <y>643</y>
+     <x>605</x>
+     <y>650</y>
     </hint>
    </hints>
   </connection>
@@ -15164,11 +15170,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>198</x>
-     <y>854</y>
+     <y>908</y>
     </hint>
     <hint type="destinationlabel">
-     <x>299</x>
-     <y>898</y>
+     <x>379</x>
+     <y>985</y>
     </hint>
    </hints>
   </connection>
@@ -15183,7 +15189,7 @@ p, li { white-space: pre-wrap; }
      <y>523</y>
     </hint>
     <hint type="destinationlabel">
-     <x>602</x>
+     <x>554</x>
      <y>524</y>
     </hint>
    </hints>
@@ -15199,7 +15205,7 @@ p, li { white-space: pre-wrap; }
      <y>523</y>
     </hint>
     <hint type="destinationlabel">
-     <x>674</x>
+     <x>626</x>
      <y>525</y>
     </hint>
    </hints>
@@ -15227,12 +15233,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>304</x>
-     <y>621</y>
+     <x>369</x>
+     <y>650</y>
     </hint>
     <hint type="destinationlabel">
      <x>485</x>
-     <y>622</y>
+     <y>651</y>
     </hint>
    </hints>
   </connection>
@@ -15279,8 +15285,8 @@ p, li { white-space: pre-wrap; }
      <y>509</y>
     </hint>
     <hint type="destinationlabel">
-     <x>549</x>
-     <y>511</y>
+     <x>598</x>
+     <y>518</y>
     </hint>
    </hints>
   </connection>
@@ -15295,8 +15301,8 @@ p, li { white-space: pre-wrap; }
      <y>406</y>
     </hint>
     <hint type="destinationlabel">
-     <x>584</x>
-     <y>408</y>
+     <x>633</x>
+     <y>415</y>
     </hint>
    </hints>
   </connection>
@@ -15311,8 +15317,8 @@ p, li { white-space: pre-wrap; }
      <y>478</y>
     </hint>
     <hint type="destinationlabel">
-     <x>590</x>
-     <y>600</y>
+     <x>148</x>
+     <y>469</y>
     </hint>
    </hints>
   </connection>
@@ -15327,7 +15333,7 @@ p, li { white-space: pre-wrap; }
      <y>523</y>
     </hint>
     <hint type="destinationlabel">
-     <x>638</x>
+     <x>590</x>
      <y>525</y>
     </hint>
    </hints>
@@ -15339,8 +15345,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>238</x>
-     <y>614</y>
+     <x>232</x>
+     <y>621</y>
     </hint>
     <hint type="destinationlabel">
      <x>498</x>
@@ -15375,8 +15381,8 @@ p, li { white-space: pre-wrap; }
      <y>478</y>
     </hint>
     <hint type="destinationlabel">
-     <x>548</x>
-     <y>595</y>
+     <x>628</x>
+     <y>493</y>
     </hint>
    </hints>
   </connection>
@@ -15407,7 +15413,7 @@ p, li { white-space: pre-wrap; }
      <y>695</y>
     </hint>
     <hint type="destinationlabel">
-     <x>638</x>
+     <x>590</x>
      <y>525</y>
     </hint>
    </hints>
@@ -15423,7 +15429,7 @@ p, li { white-space: pre-wrap; }
      <y>695</y>
     </hint>
     <hint type="destinationlabel">
-     <x>602</x>
+     <x>554</x>
      <y>524</y>
     </hint>
    </hints>
@@ -15435,12 +15441,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>238</x>
-     <y>614</y>
+     <x>232</x>
+     <y>621</y>
     </hint>
     <hint type="destinationlabel">
-     <x>550</x>
-     <y>616</y>
+     <x>605</x>
+     <y>623</y>
     </hint>
    </hints>
   </connection>
@@ -15451,12 +15457,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>238</x>
-     <y>614</y>
+     <x>232</x>
+     <y>621</y>
     </hint>
     <hint type="destinationlabel">
-     <x>578</x>
-     <y>616</y>
+     <x>633</x>
+     <y>623</y>
     </hint>
    </hints>
   </connection>
@@ -15471,8 +15477,8 @@ p, li { white-space: pre-wrap; }
      <y>509</y>
     </hint>
     <hint type="destinationlabel">
-     <x>584</x>
-     <y>511</y>
+     <x>633</x>
+     <y>518</y>
     </hint>
    </hints>
   </connection>
@@ -15499,12 +15505,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>245</x>
-     <y>641</y>
+     <x>239</x>
+     <y>648</y>
     </hint>
     <hint type="destinationlabel">
-     <x>578</x>
-     <y>643</y>
+     <x>633</x>
+     <y>650</y>
     </hint>
    </hints>
   </connection>
@@ -15547,8 +15553,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>245</x>
-     <y>641</y>
+     <x>239</x>
+     <y>648</y>
     </hint>
     <hint type="destinationlabel">
      <x>522</x>
@@ -15564,11 +15570,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>306</x>
-     <y>655</y>
+     <y>571</y>
     </hint>
     <hint type="destinationlabel">
      <x>501</x>
-     <y>656</y>
+     <y>572</y>
     </hint>
    </hints>
   </connection>
@@ -15580,11 +15586,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>306</x>
-     <y>655</y>
+     <y>571</y>
     </hint>
     <hint type="destinationlabel">
      <x>537</x>
-     <y>657</y>
+     <y>573</y>
     </hint>
    </hints>
   </connection>
@@ -15596,11 +15602,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>306</x>
-     <y>655</y>
+     <y>571</y>
     </hint>
     <hint type="destinationlabel">
      <x>573</x>
-     <y>657</y>
+     <y>573</y>
     </hint>
    </hints>
   </connection>
@@ -15612,11 +15618,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>306</x>
-     <y>655</y>
+     <y>571</y>
     </hint>
     <hint type="destinationlabel">
-     <x>395</x>
-     <y>678</y>
+     <x>486</x>
+     <y>594</y>
     </hint>
    </hints>
   </connection>
@@ -15675,12 +15681,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>256</x>
-     <y>670</y>
+     <x>347</x>
+     <y>705</y>
     </hint>
     <hint type="destinationlabel">
-     <x>260</x>
-     <y>691</y>
+     <x>289</x>
+     <y>735</y>
     </hint>
    </hints>
   </connection>
@@ -15691,12 +15697,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>383</x>
-     <y>666</y>
+     <x>474</x>
+     <y>705</y>
     </hint>
     <hint type="destinationlabel">
-     <x>396</x>
-     <y>689</y>
+     <x>436</x>
+     <y>735</y>
     </hint>
    </hints>
   </connection>
@@ -15723,8 +15729,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>489</y>
+     <x>357</x>
+     <y>513</y>
     </hint>
     <hint type="destinationlabel">
      <x>516</x>
@@ -15787,12 +15793,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>224</x>
-     <y>537</y>
+     <x>329</x>
+     <y>499</y>
     </hint>
     <hint type="destinationlabel">
-     <x>222</x>
-     <y>563</y>
+     <x>370</x>
+     <y>526</y>
     </hint>
    </hints>
   </connection>
@@ -15803,12 +15809,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>174</x>
-     <y>539</y>
+     <x>279</x>
+     <y>499</y>
     </hint>
     <hint type="destinationlabel">
      <x>173</x>
-     <y>571</y>
+     <y>526</y>
     </hint>
    </hints>
   </connection>
@@ -15823,8 +15829,40 @@ p, li { white-space: pre-wrap; }
      <y>470</y>
     </hint>
     <hint type="destinationlabel">
-     <x>222</x>
-     <y>492</y>
+     <x>302</x>
+     <y>436</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkDailyET</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_5</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>200</x>
+     <y>702</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>212</x>
+     <y>723</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkDailyET</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_latitude</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>440</x>
+     <y>697</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>448</x>
+     <y>720</y>
     </hint>
    </hints>
   </connection>

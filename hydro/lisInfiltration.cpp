@@ -174,7 +174,6 @@ void TWorld::Infiltration()
 
     //NOTE fact and fpot have a unit of m (not m/s)
     if (InfilMethod == INFIL_SWATRE) {
-        //InfilSwatre();
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             cell_InfilSwatre(i_, r, c);
@@ -559,7 +558,7 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
 //---------------------------------------------------------------------------
 void TWorld::cell_InfilSwatre(long i_, int r, int c)
 {
-
+/*
     // profile 0 is for impermeable surfaces
     if (ProfileID->Drc <= 0 || fractionImperm->Drc > 0.999) {
         fact->Drc = 0;
@@ -575,6 +574,9 @@ void TWorld::cell_InfilSwatre(long i_, int r, int c)
 
     double WHN = SwatreStep(i_, r, c, SwatreSoilModel, WHorig, TileDrainSoil, thetaTop);
     // thetatop is not used for now, meant for pesticides
+
+    Copy(*thetaTop,*ThetaI1a);
+    //for display
 
     //TODO test infil swatre for crusts and compaction
     if (SwitchInfilCrust) {
@@ -634,7 +636,7 @@ void TWorld::cell_InfilSwatre(long i_, int r, int c)
     InfilVol->Drc = fact->Drc * FlowWidth->Drc * DX->Drc;
     // calc infilvolume from fact
     // use flowwidth because impermeable is used separately
-
+*/
 }
 
 //---------------------------------------------------------------------------
@@ -721,6 +723,9 @@ void TWorld::InfilSwatre()
         // use flowwidth because impermeable is used separately
 
     }}
+
+    Copy(*thetaTop,*ThetaI1a);
+    //for display
 
     //find depth wetting front, estimated at depth where h is initial value, very crude
     Fill(*Lwmm,0);

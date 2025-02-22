@@ -84,6 +84,7 @@ void TWorld::GroundwaterFlow(void)
                 tma->Drc += GWout->Drc;
             }}
         }
+
         Copy(*tma,*GWout);
 
          //GWFlow2D(1.0);

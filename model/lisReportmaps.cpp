@@ -281,9 +281,11 @@ void TWorld::GetComboMaps()
 //       AddComboMap(0,"Diagonal Discharge","l/s",Qdiag,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     cl = 1;
     AddComboMap(0,"Overland flow Velocity","m/s",COMBO_V,LegendMap[cl],Legend[cl],false,false,1.0, 0.001);
- //   AddComboMap(0,"Flow Velocity","m/s",Uflood,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
- //   AddComboMap(0,"Flow Velocity","m/s",Vflood,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
+ cl=6;
+    AddComboMap(0,"Flow Velocity","m/s",Uflood,LegendMap[cl],Legend[cl],false,true,1.0, 0.01);
+    AddComboMap(0,"Flow Velocity","m/s",Vflood,LegendMap[cl],Legend[cl],false,true,1.0, 0.01);
  //   AddComboMap(0,"Flow Velocity","m/s",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
+    cl = 1;
     AddComboMap(0,"Overland flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.001); //VH
   //  cl = 6;
   //  AddComboMap(0,"timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
@@ -349,9 +351,11 @@ void TWorld::GetComboMaps()
             AddComboMap(0,"Slope Stability","m",FSlope,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
 
 
-        if (InfilMethod != INFIL_SWATRE) {
             cl = 3;
-            //AddComboMap(0,"Avg Moisture content layer 1","-",Thetaeff,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+        if (InfilMethod == INFIL_SWATRE) {
+            AddComboMap(0,"Avg Moisture content root zone","-",ThetaI1a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
+        }
+        if (InfilMethod != INFIL_SWATRE) {
             AddComboMap(0,"Avg Moisture content layer 1","-",ThetaI1a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
             if (SwitchTwoLayer)
                 AddComboMap(0,"Avg Moisture content layer 2","-",ThetaI2a,LegendMap[cl],Legend[cl],false,false,1.0,1.0);

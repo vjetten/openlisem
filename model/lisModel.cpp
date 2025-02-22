@@ -385,7 +385,7 @@ void TWorld::HydrologyProcesses()
 
     if (SwitchIncludeET) {
         if (SwitchDailyET)
-            ETafactor = getETaFactor(); // based on daylength is daily values
+            ETafactor = getETaFactor(); // based on daylength if daily values
         else
             ETafactor = 1.0;   // or just as is if ET smaller than day
     }

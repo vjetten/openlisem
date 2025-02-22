@@ -170,6 +170,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include ET")==0)                    checkET->setChecked(check);
         if (p1.compare("Use ET maps")==0)                   ETmaps = check;
         if (p1.compare("Daily ET")==0)                      checkDailyET->setChecked(check);
+        //if (p1.compare("Daily ET distribution")==0)         checkDailyETDistribution->setChecked(check);
         if (p1.compare("Daily ET latitude")==0)             E_latitude->setText(p);
         if (p1.compare("ET Bias Correction")==0)            E_biasCorrectionET->setValue(valc);
         if (p1.compare("Rainfall ET threshold")==0)         E_rainfallETA_threshold->setValue(valc);

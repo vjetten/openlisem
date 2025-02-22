@@ -87,7 +87,6 @@ void TWorld::TotalsHydro(void)
     // currently in canopy
 
     if (SwitchIncludeET) {
-       // double ETtot = MapTotal(*ETa);
         ETaTot = MapTotal(*ETaCum);
         ETaTotmm = ETaTot * 1000.0/nrCells;
 
