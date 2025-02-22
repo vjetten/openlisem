@@ -110,6 +110,7 @@ void TWorld::GridCell()
 // OBSOLETE not used
 void TWorld::addRainfallWH()
 {    
+    /*
     if (SwitchKinematic2D != K2D_METHOD_KINDYN) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
@@ -139,6 +140,7 @@ void TWorld::addRainfallWH()
             }
         }}
     }
+    */
 }
 //---------------------------------------------------------------------------
 // not used

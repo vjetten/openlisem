@@ -102,6 +102,9 @@ void TWorld::DoModel()
     // get time to calc run length
     startTime=omp_get_wtime()/60.0;
 
+    ETafactorTot = 0;
+
+
     try
     {
         DestroyData();
@@ -385,9 +388,9 @@ void TWorld::HydrologyProcesses()
 
     if (SwitchIncludeET) {
         if (SwitchDailyET)
-            ETafactor = getETaFactor(); // based on daylength if daily values
+            ETafactor = getETaFactor(); // based on daylength if daily values, converts from m/day to m/timestep directly
         else
-            ETafactor = 1.0;   // or just as is if ET smaller than day
+            ETafactor = 1.0;   // if not ETfactor can be 1,.0 because ET is already in m/timestep
     }
 
     // above ground

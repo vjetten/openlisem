@@ -90,11 +90,18 @@ void TWorld::calcSinktermSWATRE(long i_,  PIXEL_INFO *pixel, double *h, double *
     int r = pixel->r;
     int c = pixel->c;
 
+    if (Rain->Drc*3600000.0/_dt > rainfallETa_threshold) {
+        ETa->Drc = 0;
+        ETp->Drc = 0;
+        for (int j = 0; j < pixel->profile->zone->nrNodes; j++)
+            S[j] = 0;
+    }
+
     // ETafactor is calculated at model level, before hydrology
-    if (ETp->Drc*ETafactor > 0 && Rain->Drc*3600000.0/_dt > rainfallETa_threshold) {
+    if (ETp->Drc*ETafactor > 0) {
 
         //double AreaSoil = FlowWidth->Drc * DX->Drc * (1-fractionImperm->Drc);//SoilWidthDX->Drc * DX->Drc;
-        double ETp_ = ETp->Drc * ETafactor * 100; // potential ETp in meter/day to cm/day!
+        double ETp_ = ETp->Drc * ETafactor;// * 100; // potential ETp in meter/day to cm/day!
         double tot = 0;
         double etanet = ETp_;
         const ZONE *zone = pixel->profile->zone;
@@ -113,11 +120,8 @@ void TWorld::calcSinktermSWATRE(long i_,  PIXEL_INFO *pixel, double *h, double *
         }
 
         // add surface evaporation (1-Cover) to top node if no ponding
-        if (SwitchLitter)
-            etanet = ETp_*(1-Cover->Drc)*(1-fractionImperm->Drc);
-        else
-            etanet = ETp_*(1-Litter->Drc)*(1-fractionImperm->Drc);
-        if (h[0] > -16000) {
+        etanet = ETp_*(1-fractionImperm->Drc);
+        if (h[0] < -1) {
             double the = FindValue(h[0], pixel->profile->horizon[0], H_COL, THETA_COL);
             double theS = FindValue(0, pixel->profile->horizon[0], H_COL, THETA_COL);
             S[0] += etanet * the/theS;
@@ -126,6 +130,7 @@ void TWorld::calcSinktermSWATRE(long i_,  PIXEL_INFO *pixel, double *h, double *
         for (int j = 0; j < zone->nrNodes; j++) {
             tot += S[j];
         }
+if(r == 200 && c == 200) qDebug() << "swatre" << tot << S[0] << S[1] << S[2];
 
         ETa->Drc = tot;
         ETaCum->Drc += tot;

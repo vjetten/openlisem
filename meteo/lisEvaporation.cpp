@@ -145,6 +145,10 @@ void TWorld::GetETMapfromStations(double currenttime)
     bool sameET= false;
     // from time t to t+1 the ET is the ET of t
 
+    if (!SwitchDailyET) {
+        tt = 0.001*ETBiasCorrection/3600*_dt;  //now in m/timestep
+    }
+
     // if time is outside records then use map with zeros
     if (currenttime < ETSeries[0].time || currenttime > ETSeries[nrETseries-1].time) {
         DEBUG("run time outside ET records");
@@ -172,9 +176,10 @@ void TWorld::GetETMapfromStations(double currenttime)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             ETp->Drc = ETSeries[currentrow].intensity[(int) ETZone->Drc-1]*tt;
-
         }}
     } //sameET
+
+    // ET in m no timestep
    // report(*ETp,"etp");
     currentETrow = currentrow;
 }
@@ -182,7 +187,7 @@ void TWorld::GetETMapfromStations(double currenttime)
 void TWorld::GetETSatMap(double currenttime)
 {
     double tt = 0.001*ETBiasCorrection; //mm/day to m/day
-    bool noET = false;
+
     bool sameET= false;
 
     // from time t to t+1 the ET is the ET of t
@@ -234,19 +239,16 @@ double TWorld::getETaFactor()
     double hour = std::min(24.0,std::max(0.0, time/3600.0-day*24.0));
     double Ld = (2.0*acos(-tan(latitude*0.01745329) * tan(asin(0.397789 * sin(0.017214*(day-1)))))) * 3.8197186;
     double ETafactor = std::max(0.0,sin((-0.5-hour/Ld)*PI)) / Ld*_dt/3600.0*PI*0.5;
-
+//qDebug() << "Ld" << day << hour << Ld << ETafactor;
     return ETafactor;
 }
 //---------------------------------------------------------------------------
 void TWorld::cell_ETa(int r, int c)
 {
-    if (Rain->Drc* 3600000.0/_dt > rainfallETa_threshold) {
+    if (Rain->Drc*3600000.0/_dt > rainfallETa_threshold) {
         ETa->Drc = 0;
         ETp->Drc = 0;
     }
-
-  //      if (r==200 && c == 200)
-  //       qDebug() << time/60 << ETp->Drc << ETafactor << Rain->Drc*3600000.0/_dt;
 
     if (ETp->Drc*ETafactor > 0) {
         double Area = CHAdjDX->Drc;
@@ -336,43 +338,54 @@ void TWorld::cell_ETa(int r, int c)
                 tot = tot + eta;
             }
             //evap from dry soil surface
-            if (WH->Drc == 0) {
+            if (hmxWH->Drc == 0) {
                 double moist = (theta-thetar) * SoilDepth1->Drc;
                 eta = std::min(moist, ETp_*theta_e);
                 moist = moist - eta;
                 Thetaeff->Drc = moist/SoilDepth1->Drc + thetar;
                 tot = tot + eta;
             }
-        }
 
-        // evaporation for any ponded surfaces
-        if (WH->Drc > 0) {
-            double ETa_pond = ETp_;
-            double WHRunoff_ = WHrunoff->Drc;
-            double WH_ = WH->Drc;
+            // evaporation for any ponded surfaces
+            if (hmxWH->Drc > 0) {
+                double WH_ = 0;
+                double ETa_pond = ETp_;                
+                if (FloodDomain->Drc > 0) {
+                    WH_ = hmx->Drc;
+                } else {
+                    WH_ = WH->Drc;
+                }
 
-            ETa_pond = std::min(ETa_pond, WH_);
-            WH_ = WH_ - ETa_pond;
+                ETa_pond = std::min(ETa_pond, WH_);                
+                WH_ = WH_ - ETa_pond;
 
-            if (WH_ < WHstore->Drc) {
-                WHRunoff_ = 0;
-                WHstore->Drc = WH_;
-            } else {
-                WHRunoff_ = WH_- WHstore->Drc;
+                if (FloodDomain->Drc > 0) {
+                    hmx->Drc = WH_;
+                } else {
+                    WH->Drc = WH_;
+                }
+
+                // all this is done in surface storage after!
+                // double WHRunoff_ = WHrunoff->Drc;
+                // if (WH_ < WHstore->Drc) {
+                //     WHRunoff_ = 0;
+                //     WHstore->Drc = WH_;
+                // } else {
+                //     WHRunoff_ = WH_- WHstore->Drc;
+                // }
+
+                // WH->Drc = WHRunoff_ + WHstore->Drc;
+                // WHrunoff->Drc = WHRunoff_;
+                // MicroStoreVol->Drc = DX->Drc*WHstore->Drc*FlowWidth->Drc;
+                // WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
+
+                tot = tot + ETa_pond;
             }
-
-            WH->Drc = WHRunoff_ + WHstore->Drc;
-            WHrunoff->Drc = WHRunoff_;
-            MicroStoreVol->Drc = DX->Drc*WHstore->Drc*FlowWidth->Drc;
-            WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
-
-            tot = tot + ETa_pond;
         }
 
         // put total soil and surface Eta in Eta map
         ETa->Drc = tot;
         ETaCum->Drc += tot;
     }
-    //SoilETMBcorrection += MapTotal(*tma); // ET water coming from the soil, in m
 }
 

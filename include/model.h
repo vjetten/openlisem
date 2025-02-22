@@ -975,6 +975,7 @@ public:
     void cell_ETa(int r, int c);
     double getETaFactor();
     double ETafactor;
+    double ETafactorTot;
     void InfilEffectiveKsat();
     void InfilDynamicCrusting();
     void InfilSwatre();

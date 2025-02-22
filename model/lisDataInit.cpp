@@ -80,7 +80,7 @@ void TWorld::InitParameters(void)
 {       
     PBiasCorrection = getvaluedouble("Rainfall Bias Correction");
     ETBiasCorrection = getvaluedouble("ET Bias Correction");
-    rainfallETa_threshold = getvaluedouble("Rainfall ET threshold");
+    rainfallETa_threshold = getvaluedouble("Rainfall ET threshold"); // in mm
     rainIDIfactor = getvaluedouble("IDI factor");
 
     HinitValue = getvaluedouble("Initial matrix potential");
