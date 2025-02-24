@@ -130,7 +130,7 @@ void TWorld::calcSinktermSWATRE(long i_,  PIXEL_INFO *pixel, double *h, double *
         for (int j = 0; j < zone->nrNodes; j++) {
             tot += S[j];
         }
-if(r == 200 && c == 200) qDebug() << "swatre" << tot << S[0] << S[1] << S[2];
+//if(r == 200 && c == 200) qDebug() << "swatre" << tot << S[0] << S[1] << S[2];
 
         ETa->Drc = tot;
         ETaCum->Drc += tot;

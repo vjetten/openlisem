@@ -1,9 +1,16 @@
-Latest fixes and chnages:
+Latest fixes and changes:
 =========================
-250216 - v7.4.6 beta
+250222 - v7.4.6 beta R2
 - BUG FIX: reading pathnames sometimes result in "//"
 - BUG FIX: crusting SWATRE
-- optimized MUSCL 2D flow and 2nd order redone
+- BUG FIX: 2D flow gives MB error because of domain boundary, for now fixed by excluding the boundary
+- BUG FIX: MUSCL gave wrong water heigths and limited flow to neighbours, results now similar to 1st order 2D flow
+- BUG FIX: reading pathnames sometimes result in "//"
+- BUG FIX: crusting SWATRE
+- optimized MUSCL 2D flow and 2nd order redone, checked also user input wave
+- added evapotranspiration to Swatre as sinkterm
+- rewrote evapotranspiration for other hydrology
+- Riemann HLLc and HLLc2 (option 4 and 5) behave strangely, reoved fomr interface choiche, defaults to 3
 
 250121 - v7.4.5
 - BUG FIX: Delete all map and swatre data after no GUI run
