@@ -365,14 +365,15 @@ void calcMapValue(
 
 
 void checkMap(
+    cTMap const& mask,
     cTMap const& raster,
     int oper,
     double value,
     QString SS)
 {
-    for (int r = 0; r < raster.nrRows(); r++)
-        for (int c = 0; c < raster.nrCols(); c++)
-            if (!pcr::isMV(raster.data[r][c]))
+    for (int r = 0; r < mask.nrRows(); r++)
+        for (int c = 0; c < mask.nrCols(); c++)
+            if (!pcr::isMV(mask.data[r][c]))
             {
                 if (oper == LARGER && raster.data[r][c] > value)
                 {

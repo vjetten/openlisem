@@ -64,6 +64,23 @@ void TWorld::ChannelVelocityandDischarge()
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
 
+        double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
+        double FWO = ChannelWidthO->Drc;
+        //ChannelWH->Drc = Area/FWO;
+        double CHWH = Area/FWO;
+        double Perim = FWO+2*CHWH;
+        double Radius = (Perim > 0 ? Area/Perim : 0);
+        double sqrtgrad = std::max(sqrt(ChannelGrad->Drc), 0.001);
+        double N = ChannelN->Drc;
+
+        ChannelV->Drc = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
+        ChannelQ->Drc = ChannelV->Drc * Area;
+        ChannelAlpha->Drc = Area/std::pow(ChannelQ->Drc, 0.6);
+        //ChannelAlpha->Drc = pow(N/sqrtgrad * pow(Perim, 2.0/3.0),0.6);  // no difference
+
+        // Channel Waterheight not calculated yet!
+
+/*
         // calc velocity and Q
         ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
 
@@ -96,37 +113,10 @@ void TWorld::ChannelVelocityandDischarge()
         ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
         ChannelAlpha_ = pow(N/sqrtgrad * pow(Perim, 2.0/3.0),0.6);  // no difference
 
-
-        /* adjust N for flow in culvert, not used
-        ChannelNcul->Drc  = ChannelN->Drc;
-
-        if (SwitchCulverts) {
-            if (ChannelMaxQ->Drc > 0 ) {
-                double MaxQ = ChannelMaxQ->Drc;
-
-                ChannelNcul->Drc = (0.05+ChannelQ_/MaxQ) * 0.015; //0.015 is assumed to be the N of a concrete tube
-                //https://plainwater.com/water/circular-pipe-mannings-n/
-                // resistance increases with discharge, tube is getting fuller
-
-                double v2 = std::pow(Radius, 2.0/3.0)*sqrtgrad/ChannelNcul->Drc;
-                //max velocity not to exceed MaxQ, see excel
-                ChannelV_ = std::min(_CHMaxV,std::min(ChannelV_, v2));
-                //ChannelNcul->Drc = std::min(ChannelNcul->Drc,ChannelN->Drc);
-                ChannelQ_ = ChannelV_ * Area;
-
-                if (ChannelQ_ > MaxQ){
-                    ChannelV_ = MaxQ/Area;
-                    ChannelQ_ = MaxQ;
-                }
-                ChannelAlpha_ = Area/std::pow(ChannelQ_, 0.6);
-            }
-        }
-        */
-
         ChannelAlpha->Drc = ChannelAlpha_;
         ChannelQ->Drc = ChannelQ_;
         ChannelV->Drc = ChannelV_;
-
+*/
     }}
 }
 

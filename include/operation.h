@@ -87,7 +87,8 @@ void               calcMapValue        (cTMap& raster,
                                         double value2,
                                         int oper);
 
-void               checkMap            (cTMap const& raster,
+void               checkMap            (cTMap const& mask,
+                                        cTMap const& raster,
                                         int oper,
                                         double value,
                                         QString SS);

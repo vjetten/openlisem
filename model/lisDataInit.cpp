@@ -415,14 +415,14 @@ void TWorld::InitLULCInput(void)
 {
     //===== surface =====
     N = ReadMap(LDD,getvaluename("manning"));
-    checkMap(*N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
+    checkMap(*LDD, *N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
     calcValue(*N, nCalibration, MUL);
 
     Norg = NewMap(0);
     copy(*Norg, *N); //ed in sed trap... if trap is full go back to original N
 
     RR = ReadMap(LDD,getvaluename("RR"));
-    checkMap(*RR, SMALLER, 0.0, "Random roughness RR must be >= 0");
+    checkMap(*LDD, *RR, SMALLER, 0.0, "Random roughness RR must be >= 0");
     calcValue(*RR, RRCalibration, MUL);
 
     if (SwitchGridRetention) {
@@ -432,10 +432,10 @@ void TWorld::InitLULCInput(void)
 
     //===== interception =====
     LAI = ReadMap(LDD,getvaluename("lai"));
-    checkMap(*LAI, SMALLER, 0.0, "LAI must be >= 0");
+    checkMap(*LDD, *LAI, SMALLER, 0.0, "LAI must be >= 0");
     Cover = ReadMap(LDD,getvaluename("cover"));
-    checkMap(*Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
-    checkMap(*Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
+    checkMap(*LDD, *Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
+    checkMap(*LDD, *Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
 
     LeafDrain = NewMap(0);
     CStor = NewMap(0);
@@ -475,7 +475,7 @@ void TWorld::InitLULCInput(void)
     if (SwitchRoadsystem)
     {
         RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
-        checkMap(*RoadWidthDX, LARGER, _dx, "road width cannot be larger than gridcell size");       
+        checkMap(*LDD, *RoadWidthDX, LARGER, _dx, "road width cannot be larger than gridcell size");
     }
     else
         RoadWidthDX = NewMap(0);
@@ -515,8 +515,8 @@ void TWorld::InitLULCInput(void)
         LCStor = NewMap(0);
         LInterc = NewMap(0);
         Litter = ReadMap(LDD,getvaluename("litter"));
-        checkMap(*Litter, SMALLER, 0.0, "Litter cover fraction must be >= 0");
-        checkMap(*Litter, LARGER, 1.0, "Litter cover fraction must be <= 1.0");
+        checkMap(*LDD, *Litter, SMALLER, 0.0, "Litter cover fraction must be >= 0");
+        checkMap(*LDD, *Litter, LARGER, 1.0, "Litter cover fraction must be <= 1.0");
         LitterSmax = getvaluedouble("Litter interception storage");
     }
 
@@ -598,7 +598,7 @@ void TWorld::InitSoilInput(void)
     if (SwitchInfilCrust) {
         CrustFraction0 = NewMap(0);
         CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
-        checkMap(*CrustFraction, LARGER, 1.0, "crust fraction cannot be more than 1");
+        checkMap(*LDD, *CrustFraction, LARGER, 1.0, "crust fraction cannot be more than 1");
         copy(*CrustFraction0, *CrustFraction);
     } else {
         CrustFraction = NewMap(0);
@@ -606,7 +606,7 @@ void TWorld::InitSoilInput(void)
 
     if (SwitchInfilCompact) {
         CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
-        checkMap(*CompactFraction, LARGER, 1.0, "compacted area fraction cannot be more than 1");
+        checkMap(*LDD, *CompactFraction, LARGER, 1.0, "compacted area fraction cannot be more than 1");
     } else {
         CompactFraction = NewMap(0);
     }
@@ -1058,9 +1058,8 @@ void TWorld::InitChannel(void)
     // }
 
     ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth")); // bottom width in m
+    checkMap(*LDDChannel, *ChannelWidth, SMALLEREQUAL, 0, "Channel width must be larger than 0.");
 
-    //     ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
-    //ChannelWidth->checkMap(SMALLEREQUAL, 0, "Channel width must be larger than 0 in channel cells");
     ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
     cover(*ChannelWidth, *LDD,0);
     cover(*ChannelDepth, *LDD,0);
@@ -1074,21 +1073,21 @@ void TWorld::InitChannel(void)
         ChannelWidthO->Drc = ChannelWidth->Drc;
       //  ChannelDepthO->Drc = ChannelDepth->Drc;
 
-        SwitchChannelAdjustCHW = true;
-        if (SwitchChannelAdjustCHW && ChannelWidth->Drc  > 0.95* _dx) {
-            ChannelWidth->Drc = 0.95*_dx;
-            ChannelDepth->Drc *= ChannelWidthO->Drc/ChannelWidth->Drc; //(0.95*_dx);
-        }
+        // SwitchChannelAdjustCHW = true;
+        // if (SwitchChannelAdjustCHW && ChannelWidth->Drc  > 0.95* _dx) {
+        //     ChannelWidth->Drc = 0.95*_dx;
+        //     ChannelDepth->Drc *= ChannelWidthO->Drc/ChannelWidth->Drc; //(0.95*_dx);
+        // }
+        // if (ChannelWidth->Drc <= 0) {
+        //     ErrorString = QString("Map %1 contains channel cells with width = 0").arg(getvaluename("chanwidth"));
+        //     throw 1;
+        // }
 
-        if (ChannelWidth->Drc <= 0) {
-            ErrorString = QString("Map %1 contains channel cells with width = 0").arg(getvaluename("chanwidth"));
-            throw 1;
-        }
     }
 
     ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
     ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
-    checkMap(*ChannelGrad, LARGER, 1.0, "Channel Gradient must be SINE of slope angle (not tangent)");
+    checkMap(*LDDChannel,*ChannelGrad, LARGER, 1.0, "Channel Gradient must be SINE of slope angle (not tangent)");
     //calcValue(*ChannelGrad, 0.001, MAX);
     //VJ 171002 better to check and set Q to 0 in the code
     ChannelN = ReadMap(LDDChannel, getvaluename("chanman"));
@@ -1557,7 +1556,7 @@ void TWorld::InitErosion(void)
         return;
 
     PlantHeight = ReadMap(LDD,getvaluename("CH"));
-    checkMap(*PlantHeight, SMALLER, 0.0, "Cover fraction must be >= 0");
+    checkMap(*LDD, *PlantHeight, SMALLER, 0.0, "Cover fraction must be >= 0");
 
     StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
 
@@ -2585,7 +2584,7 @@ void TWorld::InitTiledrains(void)
         TileDiameter = NewMap(0);
         //TileInlet = ReadMap(LDDTile, getvaluename("tilesink"));
         TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
-        checkMap(*TileGrad, LARGER, 1.0, "Tile drain gradient must be SINE of slope angle (not tangent)");
+        checkMap(*LDDTile, *TileGrad, LARGER, 1.0, "Tile drain gradient must be SINE of slope angle (not tangent)");
         calcValue(*TileGrad, 0.001, MAX);
         TileN = ReadMap(LDDTile, getvaluename("tileman"));
         cover(*TileGrad, *LDD, 0);
