@@ -65,7 +65,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         // do MUSCL (optional), Riemann etc, get back smallest dt
         // in the original code this is split in reconstruction/MUSCL and maincalcflux
 
-        doSWOFStV(dt_req_min, h, u, v, gflowx, gflowy, hllx12_0, hllx21_1, hllx21_2, hlly21_1, hlly21_2);
+        doSWOFStV(dt_req_min, h, u, v);
         // Saint Venand calculations for new h, u, v
         // called maincalcscheme in fullSWOF
 
@@ -86,7 +86,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             } while (dt1 > dt_req_min && step < 4);
 
 
-            doSWOFStV(dt_req_min, h, u, v, gflowx, gflowy, hllx12_0, hllx21_1, hllx21_2, hlly21_1, hlly21_2);
+            doSWOFStV(dt_req_min, h, u, v);
 
             //Heun, see SWOF doc
             #pragma omp parallel for num_threads(userCores)
@@ -433,42 +433,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
             // if muscl H and h_x1 etc become Hx1l and hx1r
             // z is blocking to prevent flow when water is flat and Z is not flat, described in article SWOF
             // barrier is ourown additiona, to vcreate flood walls.
-    /*
-            //left and right hand side of c and c-1 (x and x1)
-            if (bc1) {
-                h_x1r = std::max(0.0, hx1r - std::max(0.0,  dz_x1 + fb_x1)); //rechts van c-1
-                h_xl  = std::max(0.0, hxl  - std::max(0.0, -dz_x1 + fb_x1)); //links van het midden
-            } else {
-                h_x1r=ux1r=vx1r=0.0;
-            } // if !inside = boundary
-            hll_x1 = F_Riemann(h_x1r,ux1r,vx1r, h_xl,uxl,vxl); // c-1 (x1 right) and c (x1 left)
 
-            //right and left hand side of c and c+1 (x and x2)
-            if (bc2) {
-                h_xr  = std::max(0.0, hxr  - std::max(0.0,  dz_x2 + fb_x2));
-                h_x2l = std::max(0.0, hx2l - std::max(0.0, -dz_x2 + fb_x2));
-            } else {
-                h_x2l=ux2l=vx2l=0.0;
-            }
-            hll_x2 = F_Riemann(h_xr,uxr,vxr, h_x2l,ux2l,vx2l); // c and c+1
-
-            if (br1) {
-                h_y1d = std::max(0.0, hy1d - std::max(0.0,  dz_y1 + fb_y1));
-                h_yu  = std::max(0.0, hyu  - std::max(0.0, -dz_y1 + fb_y1));
-            } else {
-                h_y1d=vy1d=uy1d=0.0;
-            }
-            hll_y1 = F_Riemann(h_y1d,vy1d,uy1d, h_yu,vyu,uyu); // r-1 (y1 down) and r (y up)
-            // v and u chnaged places for y comnpared to x ? why? is also in swof code
-
-            if (br2) {
-                h_yd  = std::max(0.0, hyd  - std::max(0.0,  dz_y2 + fb_y2));
-                h_y2u = std::max(0.0, hy2u - std::max(0.0, -dz_y2 + fb_y2));
-            } else {
-                h_y2u=vy2u=uy2u=0.0;
-            }
-            hll_y2 = F_Riemann(h_yd,vyd,uyd, h_y2u,vy2u,uy2u); // r and r+1
-    */
 
             //left and right hand side of c and c-1 (x and x1)
             h_x1r = std::max(0.0, hx1r - std::max(0.0,  dz_x1 + fb_x1)); //rechts van c-1
@@ -520,8 +485,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
     return dt_req_min;
 }
 //-----------------------------------------------------------------------------------------------------------
-void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v,
-                        cTMap *gflowx, cTMap *gflowy, cTMap *hllx12_0, cTMap *hllx21_1, cTMap *hllx21_2, cTMap *hlly21_1, cTMap *hlly21_2)
+void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v)
 {
      #pragma omp parallel for num_threads(userCores)
      FOR_ROW_COL_MV_L {
@@ -600,3 +564,39 @@ void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v,
 
 
 
+/*
+        //left and right hand side of c and c-1 (x and x1)
+        if (bc1) {
+            h_x1r = std::max(0.0, hx1r - std::max(0.0,  dz_x1 + fb_x1)); //rechts van c-1
+            h_xl  = std::max(0.0, hxl  - std::max(0.0, -dz_x1 + fb_x1)); //links van het midden
+        } else {
+            h_x1r=ux1r=vx1r=0.0;
+        } // if !inside = boundary
+        hll_x1 = F_Riemann(h_x1r,ux1r,vx1r, h_xl,uxl,vxl); // c-1 (x1 right) and c (x1 left)
+
+        //right and left hand side of c and c+1 (x and x2)
+        if (bc2) {
+            h_xr  = std::max(0.0, hxr  - std::max(0.0,  dz_x2 + fb_x2));
+            h_x2l = std::max(0.0, hx2l - std::max(0.0, -dz_x2 + fb_x2));
+        } else {
+            h_x2l=ux2l=vx2l=0.0;
+        }
+        hll_x2 = F_Riemann(h_xr,uxr,vxr, h_x2l,ux2l,vx2l); // c and c+1
+
+        if (br1) {
+            h_y1d = std::max(0.0, hy1d - std::max(0.0,  dz_y1 + fb_y1));
+            h_yu  = std::max(0.0, hyu  - std::max(0.0, -dz_y1 + fb_y1));
+        } else {
+            h_y1d=vy1d=uy1d=0.0;
+        }
+        hll_y1 = F_Riemann(h_y1d,vy1d,uy1d, h_yu,vyu,uyu); // r-1 (y1 down) and r (y up)
+        // v and u chnaged places for y comnpared to x ? why? is also in swof code
+
+        if (br2) {
+            h_yd  = std::max(0.0, hyd  - std::max(0.0,  dz_y2 + fb_y2));
+            h_y2u = std::max(0.0, hy2u - std::max(0.0, -dz_y2 + fb_y2));
+        } else {
+            h_y2u=vy2u=uy2u=0.0;
+        }
+        hll_y2 = F_Riemann(h_yd,vyd,uyd, h_y2u,vy2u,uy2u); // r and r+1
+*/
