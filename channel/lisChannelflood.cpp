@@ -343,7 +343,7 @@ void TWorld::ToFlood()
         {
             double frac = 1.0;//1-exp(-2.0*hmx->Drc/(WHrunoff->Drc+HMIN));
 
-            frac = std::max(std::min(frac, 1.0),0.0);
+           // frac = std::max(std::min(frac, 1.0),0.0);
             double dwh = frac * WHrunoff->Drc;
 
             hmx->Drc += dwh;
@@ -456,11 +456,11 @@ void TWorld::ChannelFlood(void)
             V->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
             Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
             Qn->Drc = 0;//V->Drc * WHrunoff->Drc * ChannelAdj->Drc;
-            // ??????????? why, wh
+            // Qn is the runoff water, must be zero in the flooded area, becomes Qflood
         }
     }}
 
-    Boundary2Ddyn();
+   // Boundary2Ddyn();
     // 2D boundary flow
 
     #pragma omp parallel for num_threads(userCores)

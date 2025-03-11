@@ -195,21 +195,22 @@ void TWorld::ChannelRainandInfil(void)
 void TWorld::ChannelFlow(void)
 {
 
-    // if (SwitchChannelKinwaveDt) {
-    //     if (_dt_user > _dtCHkin) {
-    //         double n = _dt_user/_dtCHkin;
-    //         _dt = _dt_user/n;
-    //     }
-    // }
+    if (SwitchChannelKinwaveDt) {
+        if (_dt_user > _dtCHkin) {
+            double n = _dt_user/_dtCHkin;
+            _dt = _dt_user/n;
+        }
+    }
 
-//    for (double t = 0; t < _dt_user; t+=_dt)
-//    {
+    for (double t = 0; t < _dt_user; t+=_dt)
+    {
      //   double sumvol = getMassCH(ChannelWaterVol);
 
         #pragma omp parallel num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             ChannelQn->Drc = 0;
             QinKW->Drc = 0;
+            tma->Drc = ChannelWaterVol->Drc;
         }}
 
         if (SwitchLinkedList) {
@@ -234,8 +235,8 @@ void TWorld::ChannelFlow(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             //  ChannelQ->Drc = ChannelQn->Drc;  // NOT because needed in erosion!
-            ChannelQn->Drc = std::min(QinKW->Drc+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
-            ChannelWaterVol->Drc += (QinKW->Drc - ChannelQn->Drc)*_dt;
+            ChannelQn->Drc = std::min(QinKW->Drc+tma->Drc/_dt, ChannelQn->Drc);
+            ChannelWaterVol->Drc = tma->Drc + (QinKW->Drc - ChannelQn->Drc)*_dt;
             ChannelWaterVol->Drc = std::max(0.0,ChannelWaterVol->Drc);
             // vol is previous + in - out
 
@@ -244,7 +245,7 @@ void TWorld::ChannelFlow(void)
             // new channel WH, use adjusted channelWidth
 
             double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
-            //ChannelAlpha->Drc = ChannelQn->Drc > 1e-6 ? Area/std::pow(ChannelQn->Drc, 0.6) : ChannelAlpha->Drc;
+            ChannelAlpha->Drc = ChannelQn->Drc > 1e-6 ? ChannelArea/std::pow(ChannelQn->Drc, 0.6) : ChannelAlpha->Drc;
 
             ChannelV->Drc = std::min(_CHMaxV, (ChannelArea > 1e-12 ? ChannelQn->Drc/ChannelArea : 0));
 
@@ -253,8 +254,8 @@ void TWorld::ChannelFlow(void)
             maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
         }}
        // correctMassBalanceCH(sumvol,ChannelWaterVol);
-   // }
-  //  _dt=_dt_user;
+    }
+    _dt=_dt_user;
 }
 
 void TWorld::ChannelSedimentFlow()
