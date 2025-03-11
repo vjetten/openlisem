@@ -114,7 +114,7 @@ void TWorld::ChannelFlowDetachmentNew()
 
         //when waterheight is insignificant, deposite all remaining sediment
         if(ChannelWH->Drc < HMIN) {
-            if(DO_SEDDEP == 0) {
+            if(DO_SEDDEP == 1) {
                 deposition += -SS;
                 ChannelSSConc->Drc = 0;
                 ChannelSSSed->Drc = 0;

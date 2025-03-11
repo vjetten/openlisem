@@ -396,7 +396,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Cohesion calibration")==0)              E_CalibrateCOH->setValue(valc);
         if (p1.compare("Cohesion Channel calibration")==0)      E_CalibrateCHCOH->setValue(valc);
         //if (p1.compare("Ucr Channel calibration")==0)    E_CalibrateCHUcr->setValue(valc);
-        if (p1.compare("SV calibration")==0)                    E_CalibrateCHSV->setValue(valc);
+       // if (p1.compare("SV calibration")==0)                    E_CalibrateCHSV->setValue(valc);
         if (p1.compare("Aggregate stability calibration")==0)   E_CalibrateAS->setValue(valc);
        // if (p1.compare("Particle Cohesion of Deposited Layer")==0) E_DepositedCohesion->setValue(valc);
         if (p1.compare("Sediment bulk density")==0)             E_BulkDens->setValue(valc);
@@ -1058,8 +1058,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Cohesion Channel calibration")==0) namelist[j].value = E_CalibrateCHCOH->text();
         if (p1.compare("Grain Size calibration D50")==0)   namelist[j].value = E_CalibrateD50->text();
         if (p1.compare("Grain Size calibration D90")==0)   namelist[j].value = E_CalibrateD90->text();
-        if (p1.compare("Ucr Channel calibration")==0) namelist[j].value = E_CalibrateCHUcr->text();
-        if (p1.compare("SV calibration")==0) namelist[j].value = E_CalibrateCHSV->text();
+       // if (p1.compare("Ucr Channel calibration")==0) namelist[j].value = E_CalibrateCHUcr->text();
+      //  if (p1.compare("SV calibration")==0) namelist[j].value = E_CalibrateCHSV->text();
         if (p1.compare("Aggregate stability calibration")==0) namelist[j].value = E_CalibrateAS->text();
         if (p1.compare("Splash Delivery Ratio")==0) namelist[j].value = E_SplashDelibery->text();
     //    if (p1.compare("Particle Cohesion of Deposited Layer")==0) namelist[j].value = E_DepositedCohesion->text();

@@ -195,15 +195,15 @@ void TWorld::ChannelRainandInfil(void)
 void TWorld::ChannelFlow(void)
 {
 
-    if (SwitchChannelKinwaveDt) {
-        if (_dt_user > _dtCHkin) {
-            double n = _dt_user/_dtCHkin;
-            _dt = _dt_user/n;
-        }
-    }
+    // if (SwitchChannelKinwaveDt) {
+    //     if (_dt_user > _dtCHkin) {
+    //         double n = _dt_user/_dtCHkin;
+    //         _dt = _dt_user/n;
+    //     }
+    // }
 
-    for (double t = 0; t < _dt_user; t+=_dt)
-    {
+    // for (double t = 0; t < _dt_user; t+=_dt)
+    // {
      //   double sumvol = getMassCH(ChannelWaterVol);
 
         #pragma omp parallel num_threads(userCores)
@@ -254,8 +254,8 @@ void TWorld::ChannelFlow(void)
             maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
         }}
        // correctMassBalanceCH(sumvol,ChannelWaterVol);
-    }
-    _dt=_dt_user;
+//     }
+//     _dt=_dt_user;
 }
 
 void TWorld::ChannelSedimentFlow()

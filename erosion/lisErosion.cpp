@@ -113,7 +113,7 @@ double TWorld::MaxConcentration(double watvol, double sedvol)
  * @param d : the grain size (in micrometer)
  * @return The settling velocity
  */
-double TWorld::GetSV(double d)
+double TWorld::GetSV(double d )
 {
     if (SwitchSV == 2) {
         double dm = d / 1e6;
@@ -372,12 +372,13 @@ void TWorld::cell_FlowDetachment(int r, int c)
         //### deposition ###
         if (minTC < 0) {
 
-            TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/erosionwh)) * erosionwv;
+            //TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/erosionwh)) * erosionwv;
+            TransportFactor = _dt*SettlingVelocitySS->Drc * DX->Drc * ChannelAdj->Drc;
             // in m3
             // deposition can occur on roads and on soil (so use flowwidth)
-
             deposition = minTC * TransportFactor;
             // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
+
             deposition = std::max(deposition, -Sed->Drc);
 
             if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
@@ -416,13 +417,9 @@ void TWorld::cell_FlowDetachment(int r, int c)
                 }
             }
 
-            //add deposition to soil layer
-            // if (SwitchUseMaterialDepth)
-            //     StorageDep->Drc += -deposition;
-
         } else
           //### detachment ###
-          if (maxTC > 0 && Y->Drc > 0) {
+          if (maxTC > 0 && CohesionSoil->Drc > 0) {
 
             TransportFactor = _dt*SettlingVelocitySS->Drc * DX->Drc * SoilWidthDX->Drc;
             // soilwidth is erodible surface
@@ -430,7 +427,7 @@ void TWorld::cell_FlowDetachment(int r, int c)
             // detachment can only come from soil, not roads (so do not use flowwidth)
             // units s * m/s * m * m = m3
 
-            detachment = maxTC * TransportFactor;//std::min(TransportFactor, erosionwv);
+            detachment = Y->Drc * maxTC * TransportFactor;//std::min(TransportFactor, erosionwv);
             // unit = kg/m3 * m3 = kg (/cell)
 
             // exceptions
@@ -449,32 +446,23 @@ void TWorld::cell_FlowDetachment(int r, int c)
             if (SwitchHouses)
                 detachment = (1-HouseCover->Drc)*detachment;
             // no flow det from house roofs
+
             if (SwitchSnowmelt)
                 detachment = (1-Snowcover->Drc) * detachment;
-            /* TODO: CHECK THIS no flow detachment on snow */
-            //is there erosion and sedimentation under the snowdeck?
 
-            // no flow detachment on hard surfaces
-            //if (SwitchRoadsystem || SwitchHardsurface)
-            //  detachment = (1-RoadWidthHSDX->Drc/_dx)*detachment;
-            if (SwitchRoadsystem)
-                detachment = (1-RoadWidthDX->Drc/_dx)*detachment;
-            if (SwitchHardsurface)
-                detachment = (1-HardSurface->Drc)*detachment;
-
-            //detachment = DetachMaterial(r,c,1,false,false,false, detachment);
-            // OBSOLETE, reacctivate when materiallayer is reinstalled
-            detachment *= Y->Drc;
-
-            if(Sed->Drc+detachment > MAXCONC * erosionwv)
-                detachment = MAXCONC * erosionwv - Sed->Drc;
-            // not more detachment then is possible to keep below diff(max concetrantion-sediment inf low)
+            detachment *= std::min(1.0, std::max(0.0, 1.0 - (RoadWidthHSDX->Drc/_dx)));
+            // no flow detachment on hard surfaces, map is 0 is not selected
 
             if (SwitchSedtrap && SedMaxVolume->Drc > 0)
                 detachment = 0;
 
             if (SwitchGridRetention && GridRetention->Drc > 0)
                 detachment = 0;
+
+            if(Sed->Drc+detachment > MAXCONC * erosionwv)
+                detachment = MAXCONC * erosionwv - Sed->Drc;
+            // not more detachment then is possible to keep below diff(max concetrantion-sediment inf low)
+
           } // minv > 0
 
         //### sediment balance

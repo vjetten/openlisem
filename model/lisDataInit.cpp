@@ -1252,7 +1252,7 @@ void TWorld::InitChannel(void)
 
         ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
         COHCHCalibration = getvaluedouble("Cohesion Channel calibration");
-        UcrCHCalibration = getvaluedouble("Ucr Channel calibration");
+        //UcrCHCalibration = getvaluedouble("Ucr Channel calibration");
         DirectEfficiency = getvaluedouble("Direct efficiency channel");
 
         FOR_ROW_COL_MV_CHL {
@@ -1616,7 +1616,7 @@ void TWorld::InitErosion(void)
     R_SigmaDiffusion = getvaluedouble("Sigma diffusion"); // same diffusion for river and OF
 
     SVCHCalibration = 1.0;
-    SVCHCalibration = getvaluedouble("SV calibration");
+    //SVCHCalibration = getvaluedouble("SV calibration");
 
 
 //    if (SwitchUse2Phase && SwitchUseGrainSizeDistribution) {
@@ -1666,9 +1666,9 @@ void TWorld::InitErosion(void)
     //splashb = NewMap(0);
 
     FOR_ROW_COL_MV {
-        SettlingVelocitySS->Drc = GetSV(D50->Drc/gsizeCalibrationD50);
+        SettlingVelocitySS->Drc = GetSV(D50->Drc);
         if (SwitchUse2Phase)
-            SettlingVelocityBL->Drc = GetSV(D90->Drc/gsizeCalibrationD90);
+            SettlingVelocityBL->Drc = GetSV(D90->Drc);
     }
 
     SplashStrength = NewMap(0);
