@@ -1028,7 +1028,7 @@ public:
     double fullSWOF2openMUSCL(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     double doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
 
-    void doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v, cTMap *gflowx, cTMap *gflowy, cTMap *hllx12_0, cTMap *hllx21_1, cTMap *hllx21_2, cTMap *hlly21_1, cTMap *hlly21_2);
+    void doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v);
 
     void ChannelSWOFopen();  //TODO not used
     void KinematicSWOFopen(cTMap *_h, cTMap *_V);

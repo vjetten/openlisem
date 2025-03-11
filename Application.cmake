@@ -3,10 +3,10 @@
 # Platform-specific configurations
 IF(WIN32)
     # QWT configuration for double axis display, note a double axis branch of qwt is used
-    SET(QWT_BUILD_DIR "C:/prgc/lisemgit/qwt/git")    # Adjust to your folder names
+    SET(QWT_BUILD_DIR "C:/prgc/lisemgit/qwt/qwt-multiaxes")    # Adjust to your folder names
     SET(MINGW_BUILD_DIR "c:/qt/msys64/mingw64")     # Adjust to your folder names
     SET(QWT_INCLUDE_DIRS "${QWT_BUILD_DIR}/src")
-    SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/lib/libqwt.dll.a")
+    SET(QWT_LIBRARIES "${QWT_BUILD_DIR}/build/lib/libqwt.dll.a")
     SET(CURL_INCLUDE_DIR "${MINGW_BUILD_DIR}/include/curl")
 
     # find_package takes care of all this
