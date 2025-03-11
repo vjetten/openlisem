@@ -342,30 +342,6 @@ void TWorld::InitStandardInput(void)
 
     ChannelAdj = NewMap(_dx);
     CHAdjDX = NewMap(0);
-
-
-    int nr = nrValidCells;
-    double *M1 = new double[nr];
-    double *M2 = new double[nr];
-    QVector <double> M3;
-    M3.resize(nrValidCells);
-    #pragma omp parallel for num_threads(userCores)
-    for(long i_ = 0; i_ < nr; i_++){
-        M1[i_] = 1.0;
-        M2[i_] = 2.0;
-        M3 << M1[i_] * M2[i_];
-        M1[i_] = M2[i_]*2;
-    }
-    #pragma omp parallel for num_threads(userCores)
-    for(long i_ = 0; i_ < nr; i_++){
-        M3[i_] = M1[i_] * 2;
-    }
-
-    qDebug() << "hier" << nr;
-
-    delete[] M1;
-    delete[] M2;
-    M3.clear();
 }
 //---------------------------------------------------------------------------
 void TWorld::InitMeteoInput(void)

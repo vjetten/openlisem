@@ -53,9 +53,6 @@ void TWorld::OverlandFlow(void)
         // dynamic wave overland flow
     } else {
 
-    // kinematic wave or kin wave with overflow
-    //if(SwitchKinematic2D == K2D_METHOD_KIN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
-
         CalcVelDisch();
         // overland flow velocity, discharge and alpha
         // V is needed in erosion
@@ -241,32 +238,12 @@ void TWorld::OverlandFlow2Ddyn(void)
     // Mixing of 2D runoff with channel water, V is used to determine how much flows into the channel
     // after this new ChannelHW and WHrunoff, and Susp sediment values ChannelSSSed and SSFlood->Drc
 
-    if (SwitchIncludeChannel) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            ChannelWaterVol->Drc = ChannelWH->Drc * ChannelDX->Drc * ChannelWidth->Drc;
-            WaterVolall->Drc = CHAdjDX->Drc*WHrunoff->Drc + MicroStoreVol->Drc;
-            // do not recalc floodvol, MB errors
-
-            // recalc channel water vol else big MB error
-            if(SwitchErosion)
-            {
-                SWOFSedimentLayerDepth(r,c,WHrunoff->Drc, V->Drc);
-                SWOFSedimentSetConcentration(r,c, WHrunoff);
-
-                RiverSedimentLayerDepth(r,c);
-                RiverSedimentMaxC(r, c);
-                // all concentrations, possible ChannelDep when surplus
-            }
-        }}
-    }
-
     startFlood = false;
     #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         if (WHrunoff->Drc > 0)//F_minWH)
             startFlood = true;
-    }
+    }}
 
     if(startFlood) {
         dtOF = fullSWOF2openMUSCL(WHrunoff, Uflood, Vflood, DEM);

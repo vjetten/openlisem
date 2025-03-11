@@ -84,7 +84,7 @@ void TWorld::SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        SWOFSedimentSetConcentration(r,c,h);
+        SWOFSedimentSetConcentration(r,c,h->Drc);
     }}
 }
 
@@ -405,9 +405,9 @@ void TWorld::SWOFSedimentCheckZero(int r, int c, cTMap * h)//,cTMap * u,cTMap * 
  *
  * @see MaxConcentration
  */
-void TWorld::SWOFSedimentSetConcentration(int r, int c, cTMap * h)
+void TWorld::SWOFSedimentSetConcentration(int r, int c, double h)
 {
-    if(h->Drc > he_ca)
+    if(h > he_ca)
     {
         if (SwitchUse2Phase)
             BLCFlood->Drc = MaxConcentration(CHAdjDX->Drc*BLDepthFlood->Drc, BLFlood->Drc);
@@ -814,7 +814,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
             } // 2 phase
         } // h > MIN_HEIGHT
 
-        SWOFSedimentSetConcentration(r,c,h);
+        SWOFSedimentSetConcentration(r,c,h->Drc);
 
     }}
 
