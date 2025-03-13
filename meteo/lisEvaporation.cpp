@@ -365,20 +365,6 @@ void TWorld::cell_ETa(int r, int c)
                     WH->Drc = WH_;
                 }
 
-                // all this is done in surface storage after!
-                // double WHRunoff_ = WHrunoff->Drc;
-                // if (WH_ < WHstore->Drc) {
-                //     WHRunoff_ = 0;
-                //     WHstore->Drc = WH_;
-                // } else {
-                //     WHRunoff_ = WH_- WHstore->Drc;
-                // }
-
-                // WH->Drc = WHRunoff_ + WHstore->Drc;
-                // WHrunoff->Drc = WHRunoff_;
-                // MicroStoreVol->Drc = DX->Drc*WHstore->Drc*FlowWidth->Drc;
-                // WaterVolall->Drc = CHAdjDX->Drc * (WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
-
                 tot = tot + ETa_pond;
             }
         }

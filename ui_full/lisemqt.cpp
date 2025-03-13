@@ -1212,7 +1212,7 @@ void lisemqt::resetAll()
 
     E_BeginTimeDay->setText("001:0000");
     E_EndTimeDay->setText("001:0720");
-    E_Timestep->setText("20");
+    E_Timestep->setText("10.0");
 
     checkWritePCRaster->setChecked(true);
 

@@ -1046,7 +1046,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
             d50m = D50->Drc/1000000.0;
             hs = SSDepthFlood->Drc;
             S = Grad->Drc;
-            w = ChannelAdj->Drc;
+            w = ChannelAdj->Drc*rillfactor;
             R = (w*h)/(2*h+w);
         } else
             if (type == 2) {
@@ -1258,7 +1258,7 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double U
             hb = BLDepthFlood->Drc;
             n = std::max(0.001, N->Drc);
             S = Grad->Drc;
-            w = ChannelAdj->Drc;
+            w = ChannelAdj->Drc*rillfactor;
             R = (w*h)/(2*h+w);
         }
 

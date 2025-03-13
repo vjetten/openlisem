@@ -1106,6 +1106,7 @@ public:
     // <= kinematic
 
     // => sediment stuff
+    double rillfactor;
     double GetSV(double d);
     void SplashDetachment();
     double MaxConcentration(double watvol, double sedvol);
@@ -1117,12 +1118,10 @@ public:
     double calcTCBedload(int r,int c, int _d, int method, double h, double U, int type);
     void SWOFSedimentCheckZero(int r, int c, cTMap * h);
     void SWOFSedimentSetConcentration(int r, int c, double h);
-    void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap *v, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentFlowInterpolation(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentDet(cTMap *dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentDetBL(double dt, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentDetSS(double dt, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
 
     void SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);

@@ -100,7 +100,6 @@ void TWorld::calcSinktermSWATRE(long i_,  PIXEL_INFO *pixel, double *h, double *
     // ETafactor is calculated at model level, before hydrology
     if (ETp->Drc*ETafactor > 0) {
 
-        //double AreaSoil = FlowWidth->Drc * DX->Drc * (1-fractionImperm->Drc);//SoilWidthDX->Drc * DX->Drc;
         double ETp_ = ETp->Drc * ETafactor;// * 100; // potential ETp in meter/day to cm/day!
         double tot = 0;
         double etanet = ETp_;

@@ -182,7 +182,7 @@ void TWorld::InitParameters(void)
         SwatrePrecision = 6;
         //SwitchGWChangeSD = true;
     }
-
+    rillfactor = 1.0;
     _CHMaxV = 20.0;
     if (SwitchChannelMaxV)
        _CHMaxV =  getvaluedouble("Channel Max V");
@@ -213,7 +213,6 @@ void TWorld::InitStandardInput(void)
         if (LDD->Drc == 0)
             SET_MV_REAL8(&LDD->Drc);
     }
-
 
     tm = NewMap(0); // temp map for aux calculations
     tma = NewMap(0); // temp map for aux calculations
@@ -278,7 +277,6 @@ void TWorld::InitStandardInput(void)
         report(*tanGrad,"tangrad.map");
     }
 
-
     if (SwitchCorrectDEM)
         CorrectDEM(DEM, Grad);
 
@@ -287,15 +285,7 @@ void TWorld::InitStandardInput(void)
         calcMap(*DEM, *Buffers, ADD);
     } 
 
-    // int cnt = 0;
-    // Outlet = NewMap(0);
-    // FOR_ROW_COL_MV {
-    //     if(LDD->Drc == 5) {
-    //         cnt++;
-    //         //qDebug() << "ldd" << r << c << cnt;
-    //         Outlet->Drc = cnt;
-    //     }
-    // }
+
     bool found = false;
     Outlet = ReadMap(LDD,getvaluename("outlet"));
     FOR_ROW_COL_MV {
@@ -427,7 +417,6 @@ void TWorld::InitLULCInput(void)
     if (SwitchGridRetention) {
         GridRetention = ReadMap(LDD, getvaluename("gridretention"));
     }
-
 
     //===== interception =====
     LAI = ReadMap(LDD,getvaluename("lai"));
@@ -1321,54 +1310,6 @@ void TWorld::InitFlood(void)
     dcr_.clear();
     if (Switch2DDiagonalFlow)
         DiagonalFlowDEM();
-
-    // OBSOLETE
-    // if (!SwitchSWOFopen) {
-    //FloodT = NewMap(0);
-    //     vs = NewMap(0);
-    //     us = NewMap(0);
-    //     z1r = NewMap(0);
-    //     z1l = NewMap(0);
-    //     z2r = NewMap(0);
-    //     z2l = NewMap(0);
-    //     h1r = NewMap(0);
-    //     h1l = NewMap(0);
-    //     h2r = NewMap(0);
-    //     h2l = NewMap(0);
-    //     v1r = NewMap(0);
-    //     v1l = NewMap(0);
-    //     v2r = NewMap(0);
-    //     v2l = NewMap(0);
-    //     u1r = NewMap(0);
-    //     u1l = NewMap(0);
-    //     u2r = NewMap(0);
-    //     u2l = NewMap(0);
-
-    //     delzc1 = NewMap(0);
-    //     delzc2 = NewMap(0);
-
-    //     f1 = NewMap(0);
-    //     f2 = NewMap(0);
-    //     f3 = NewMap(0);
-    //     cflx = NewMap(0);
-    //     cfly = NewMap(0);
-    //     g1 = NewMap(0);
-    //     g2 = NewMap(0);
-    //     g3 = NewMap(0);
-    //     f1o = NewMap(0);
-    //     f2o = NewMap(0);
-    //     f3o = NewMap(0);
-    //     g1o = NewMap(0);
-    //     g2o = NewMap(0);
-    //     g3o = NewMap(0);
-    //     h1d = NewMap(0);
-    //     h1g = NewMap(0);
-    //     h2d = NewMap(0);
-    //     h2g = NewMap(0);
-    //     delz1 = NewMap(0);
-    //     delz2 = NewMap(0);
-    //     prepareFloodZ(DEM);
-    // }
 
     if (SwitchErosion) {
         BLDepthFlood = NewMap(0);

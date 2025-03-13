@@ -275,7 +275,7 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("End time day");
     namelist[i].value = QString("120");
     namelist[i++].name = QString("End time");
-    namelist[i].value = QString("10");
+    namelist[i].value = QString("10.0");
     namelist[i++].name = QString("Timestep");
 
     //### METEO

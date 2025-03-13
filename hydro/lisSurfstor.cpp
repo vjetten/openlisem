@@ -87,7 +87,7 @@ void TWorld::GridCell()
         if(SwitchGridRetention)
             GridRetention->Drc = GridRetention->Drc/CHAdjDX->Drc;
 
-        FlowWidth->Drc = ChannelAdj->Drc;
+        FlowWidth->Drc = ChannelAdj->Drc * rillfactor;
         // water can flow everywhere, a house is permeable and a migh mannings n, roads are smooth
         // if hosues are part of the dem than the water automatically flows around it
     }}
