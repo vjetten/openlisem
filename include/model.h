@@ -1024,7 +1024,6 @@ public:
     double F_pitValue;
     bool prepareFlood, startFlood;
     int iter_n;
-    double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     double fullSWOF2openMUSCL(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     double doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
 
@@ -1082,7 +1081,7 @@ public:
     double mixing_coefficient, runoff_partitioning;
     double minReportFloodHeight;
     // boundary in 2D flow
-    double BoundaryQ;
+    double QBoundary;
     double BoundaryQs;
     double TimestepfloodMin, TimestepfloodLast;
     QVector <double> Qout;

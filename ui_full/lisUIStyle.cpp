@@ -51,7 +51,7 @@ void lisemqt::SetStyleUISize()
     if(_H < 1280) disp = 1;
     if(_H < 1080) disp = 0;
     if(_H < 800) disp = -1;
-    qDebug() <<"SetStyleUISize"<< _H << disp;
+   // qDebug() <<"SetStyleUISize"<< _H << disp;
 
     // do a bit of size tweaking for large displays
     QSize iSize = QSize(16,16);

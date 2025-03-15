@@ -256,8 +256,36 @@ void TWorld::OverlandFlow2Ddyn(void)
             Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
         }}
 
-     //   Boundary2Ddyn(WHrunoff, Uflood, Vflood);  // do the domain boundaries for Q, h and sediment
-
+       // Boundary2Ddyn(WHrunoff, Uflood, Vflood);  // do the domain boundaries for Q, h and sediment
+        Fill(*tma,0);
+        QBoundary = 0;
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            if (FlowBoundary->Drc > 0) {
+                if (c-1 >= 0 && MV(r,c-1) && !MV(r,c+1)) {
+                    if (Uflood->Drc < 0)
+                        tma->Drc = 1;
+                }
+                if (c+1 <= _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
+                    if (Uflood->Drc > 0)
+                        tma->Drc = 1;
+                }
+                if (r-1 >= 0 && MV(r-1,c) && !MV(r+1,c)) {
+                    if (Vflood->Drc < 0)
+                        tma->Drc = 1;
+                }
+                if (r+1 <= _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
+                    if (Vflood->Drc > 0)
+                        tma->Drc = 1;
+                }
+            }
+            if (tma->Drc == 1) {
+                tma->Drc = Qn->Drc;
+                QBoundary += Qn->Drc;
+            }
+        }}
+report(*tma,"flow.map");
+qDebug() << QBoundary;
         updateWHandHmx();
         // update all water levels and volumes and calculate partition flood and runoff for output
 

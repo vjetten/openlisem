@@ -322,16 +322,16 @@ void TWorld::Boundary2Ddyn(cTMap *h, cTMap *u, cTMap *v)
         K2DOutlets->Drc = 0;
     }}
 
-    BoundaryQ = 0;
+    QBoundary = 0;
     BoundaryQs = 0;
 
-    //#pragma omp parallel for reduction(+:BoundaryQ, BoundaryQs) num_threads(userCores)
+    //#pragma omp parallel for reduction(+:QBoundary, BoundaryQs) num_threads(userCores)
 
     // do not subtract outgoing flux from the volume, klike in the kin wave this is not necessary the flux is there and goes out
     // and will be calculte din the mass balance as outgoing
     FOR_ROW_COL_MV_L {
         if (K2DOutlets->Drc == 1 && h->Drc > 0) {
-            BoundaryQ += Q->Drc;
+            QBoundary += Q->Drc;
 
             if (SwitchErosion) {
                 double ds = std::min(SSFlood->Drc, SSCFlood->Drc*Q->Drc*_dt);
@@ -346,5 +346,5 @@ void TWorld::Boundary2Ddyn(cTMap *h, cTMap *u, cTMap *v)
         }
     }}
 
-    //qDebug() << BoundaryQ << MB;
+    //qDebug() << QBoundary << MB;
 }

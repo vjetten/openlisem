@@ -892,7 +892,7 @@ void TWorld::InitSoilInput(void)
 //---------------------------------------------------------------------------
 void TWorld::InitBoundary(void)
 {
-    BoundaryQ = 0;
+    QBoundary = 0;
     BoundaryQs = 0;
 
     // make a 1 cell edge around the domain, used to determine flood at the edge
@@ -934,27 +934,29 @@ void TWorld::InitBoundary(void)
     {
         // determine dynamically in function K2DDEMA
         // for flood DomainEdge is used
-        copy( *FlowBoundary, *DomainEdge);
+        FOR_ROW_COL_MV_L {
+            if(DomainEdge->Drc > 0) FlowBoundary->Drc = 1;
+        }}
     }
     if (FlowBoundaryType == 2 ) // user defined outflow (0 close, >0 outflow)
     {
         FlowBoundary = ReadMap(LDD,getvaluename("flowboundary"));
         // use flowboundary for domainedge
-        FOR_ROW_COL_MV {
-            if (FlowBoundary->Drc > 0)
-                FlowBoundary->Drc = DomainEdge->Drc;
+        FOR_ROW_COL_MV_L {
+            if (DomainEdge->Drc == 0)
+                FlowBoundary->Drc = 0;
             // this sets the cells to 1 row/col instead of a user sloppy digitizing
-        }
+        }}
     }
-    // always set outlet to 1
+    // always set outlet to 1?????????
     FOR_ROW_COL_MV {
         if(LDD->Drc == 5)
-            FlowBoundary->Drc = 1;
+            FlowBoundary->Drc = 0;
     }
     if (SwitchIncludeChannel) {
         FOR_ROW_COL_MV_CH {
             if(LDDChannel->Drc == 5)
-                FlowBoundary->Drc = 1;
+                FlowBoundary->Drc = 0;
         }
     }
    report(*FlowBoundary, "bound.map");

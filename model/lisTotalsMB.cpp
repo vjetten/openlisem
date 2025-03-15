@@ -267,7 +267,7 @@ void TWorld::TotalsFlow(void)
     Qtot_dt = 0;
     // sum all outflow in m3 for this timestep, Qtot is for all timesteps!
 
-    floodBoundaryTot += BoundaryQ*_dt;
+    floodBoundaryTot += QBoundary*_dt;
     Qboundtotmm = floodBoundaryTot*catchmentAreaFlatMM;
 
     // Add outlet overland flow, for all flow methods

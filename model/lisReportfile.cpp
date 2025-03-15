@@ -667,7 +667,7 @@ void TWorld::ReportTimeseriesNew(void)
             if (SwitchRainfall) out << sep << RainIntavg;
             if (SwitchSnowmelt) out << sep << SnowIntavg;
 
-            out << sep << QALL << sep << BoundaryQ*QUNIT;
+            out << sep << QALL << sep << QBoundary*QUNIT;
 
             if (SwitchIncludeChannel) {
                 out << sep << ChannelQn->Drc*QUNIT;
@@ -713,7 +713,7 @@ void TWorld::ReportTimeseriesNew(void)
         if (SwitchRainfall) out << sep << RainIntavg;
         if (SwitchSnowmelt) out << sep << SnowIntavg;
 
-        out << sep << QALL << sep << BoundaryQ*QUNIT;
+        out << sep << QALL << sep << QBoundary*QUNIT;
 
         FOR_ROW_COL_MV_OUTL
         {
@@ -1468,7 +1468,7 @@ void TWorld::ReportTimeseriesPCR(void)
 
         out << sep << QALL;
         if (FlowBoundaryType > 0)
-            out << sep << BoundaryQ*QUNIT;
+            out << sep << QBoundary*QUNIT;
 
         if (SwitchIncludeChannel) {
             out << sep << ChannelQn->Drc*QUNIT;
@@ -1597,7 +1597,7 @@ void TWorld::ReportTimeseriesCSV(void)
         out << sep << QALL;
 
         if (FlowBoundaryType > 0)
-            out << sep << BoundaryQ*QUNIT;
+            out << sep << QBoundary*QUNIT;
 
         if (SwitchIncludeChannel) {
             out << sep << ChannelQn->Drc*QUNIT;

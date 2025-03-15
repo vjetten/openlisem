@@ -435,7 +435,7 @@ void TWorld::ChannelFlood(void)
             startFlood = true;
     }}
 
-    dtflood = fullSWOF2open(hmx, Uflood, Vflood, DEM);
+    dtflood = fullSWOF2openMUSCL(hmx, Uflood, Vflood, DEM);
     // in kindyn hmx is the channel overflow/flood part of the surface water, the rest is kinwave WHrunoff
 
     //new flood domain
