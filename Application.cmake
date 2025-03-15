@@ -82,12 +82,12 @@ set_property(DIRECTORY PROPERTY CMAKE_CONFIGURE_DEPENDS "")
 
 # Compiler flags
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -Wno-var-tracking-assignments -std=c++11 -fpermissive ${OpenMP_CXX_FLAGS}")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -std=c++11 -fpermissive ${OpenMP_CXX_FLAGS}")
     IF(UNIX)
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wl,-rpath=${ORIGIN}./lib")
     ENDIF()
 ENDIF()
-
+#-Wno-var-tracking-assignments
 # Source files
 SET(APP_SOURCES
     fixesandbugs.txt

@@ -34,6 +34,7 @@
 #include "operation.h"
 #include "global.h"
 
+#define LIMIT(V,L) (V < 0.0 ? -1.0 : 1.0)*std::min(L,fabs(V))
 
 //----------------------------------------------------------------------------------------
 double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
@@ -219,40 +220,72 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
             }
 
             // boundary cell fluxes
-            if (DomainEdge->Drc) {
+            if (DomainEdge->Drc > 0) {
                 //if left does not exist and right exist estimate gradient
                 //H + (H - (h_x2+H)*0.5); which is 2H - 0.5h_x2 -0.5H = 1.5H-0.5h_x2
                 // checked in excel
                 if (c-1 >= 0 && MV(r,c-1) && !MV(r,c+1)) {
-                    double dh = H - (H+h_x2)*0.5;
-                    h_x1 = H + dh;
-                            //std::max(0.0, 1.5*H - 0.5*h_x2); // in fact etsimate of right hand boundary between MV and edge cell
+                    double dH = H - (H+h_x2)*0.5;
+                    h_x1 = std::max(0.0,H + dH*0.01);
                     if (h_x1 > he_ca) {
-                        double du = U - (U+u_x2)*0.5*; // average
-                        double dv = V - (V+v_x2)*0.5; // average
-                       // u_x1 = 1.5*U - 0.5*u_x2;
-                       // v_x1 = 1.5*V - 0.5*v_x2;
+                        double dh = fabs(1-H/h_x1);
+                        double dU = U - (U+u_x2)*0.5;
+                        double dV = V - (V+v_x2)*0.5;
+                        u_x1 = limiter(U + dU*0.01, U*dh);
+                        v_x1 = limiter(V + dV*0.01, V*dh);
+                        //u_x1 = LIMIT(u_x1,0.5);
+                        //v_x1 = LIMIT(v_x1,0.5);
+                    } else {
+                        // u_x1 = 0;
+                        // v_x1 = 0;
                     }
                 }
                 if (c+1 <= _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
-                    h_x2 = std::max(0.0, 1.5*H - 0.5*h_x1);
-                    if(h_x2 > he_ca) {
-                        u_x2 = 1.5*U - 0.5*u_x1;
-                        v_x2 = 1.5*V - 0.5*v_x1;
-                    }
+                    double dH = H - (H+h_x1)*0.5;
+                    h_x2 = std::max(0.0,H + dH*0.01);
+                       if (h_x2 > he_ca) {
+                        double dh = fabs(1-H/h_x2);
+                        double dU = U - (U+u_x1)*0.5;
+                        double dV = V - (V+v_x1)*0.5;
+                        u_x2 = limiter(U + dU*0.01, U*dh);
+                        v_x2 = limiter(V + dV*0.01, V*dh);
+                        //u_x2 = LIMIT(u_x2,0.5);
+                        //v_x2 = LIMIT(v_x2,0.5);
+                    }else {
+                           // u_x2 = 0;
+                           // v_x2 = 0;
+                       }
                 }
                 if (r-1 >= 0 && MV(r-1,c) && !MV(r+1,c)) {
-                    h_y1 = std::max(0.0, 1.5*H - 0.5*h_y2);
+                    double dH = H - (H+h_y2)*0.5;
+                    h_y1 = std::max(0.0,H + dH*0.01);
                     if (h_y1 > he_ca) {
-                        u_y1 = 1.5*U - 0.5*u_y2;
-                        v_y1 = 1.5*V - 0.5*v_y2;
+                        double dh = fabs(1-H/h_y1);
+                        double dU = U - (U+u_y2)*0.5;
+                        double dV = V - (V+v_y2)*0.5;
+                        u_y1 = limiter(U + dU*0.01, U*dh);
+                        v_y1 = limiter(V + dV*0.01, V*dh);
+                       // u_y1 = LIMIT(u_y1,0.5);
+                       // v_y1 = LIMIT(v_y1,0.5);
+                    }else {
+                        // u_y1 = 0;
+                        // v_y1 = 0;
                     }
                 }
                 if (r+1 <= _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
-                    h_y2 = std::max(0.0,1.5*H - 0.5*h_y1);
+                    double dH = H - (H+h_y1)*0.5;
+                    h_y2 = std::max(0.0,H + dH*0.01);
                     if (h_y2 > he_ca) {
-                        u_y2 = 1.5*U - 0.5*u_y1;
-                        v_y2 = 1.5*V - 0.5*v_y1;
+                        double dh = fabs(1-H/h_y2);
+                        double dU = U - (U+u_y1)*0.5;
+                        double dV = V - (V+v_y1)*0.5;
+                        u_y2 = limiter(U + dU*0.01, U*dh);
+                        v_y2 = limiter(V + dV*0.01, V*dh);
+                      //  u_y2 = LIMIT(u_y2,0.5);
+                      //  v_y2 = LIMIT(v_y2,0.5);
+                    }else {
+                        // u_y2 = 0;
+                        // v_y2 = 0;
                     }
                 }
             }

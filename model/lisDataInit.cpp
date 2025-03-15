@@ -957,8 +957,8 @@ void TWorld::InitBoundary(void)
                 FlowBoundary->Drc = 1;
         }
     }
- //  report(*FlowBoundary, "bound.map");
- //  report(*DomainEdge, "edge.map");
+   report(*FlowBoundary, "bound.map");
+   report(*DomainEdge, "edge.map");
 
 }
 //---------------------------------------------------------------------------

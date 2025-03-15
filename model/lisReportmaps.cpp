@@ -282,8 +282,8 @@ void TWorld::GetComboMaps()
     cl = 1;
     AddComboMap(0,"Overland flow Velocity","m/s",COMBO_V,LegendMap[cl],Legend[cl],false,false,1.0, 0.001);
  cl=6;
-    AddComboMap(0,"Flow Velocity","m/s",Uflood,LegendMap[cl],Legend[cl],false,true,1.0, 0.01);
-    AddComboMap(0,"Flow Velocity","m/s",Vflood,LegendMap[cl],Legend[cl],false,true,1.0, 0.01);
+    AddComboMap(0,"Flow Velocity U","m/s",Uflood,LegendMap[cl],Legend[cl],false,true,1.0, 0.01);
+    AddComboMap(0,"Flow Velocity V","m/s",Vflood,LegendMap[cl],Legend[cl],false,true,1.0, 0.01);
  //   AddComboMap(0,"Flow Velocity","m/s",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     cl = 1;
     AddComboMap(0,"Overland flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.001); //VH
