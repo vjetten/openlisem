@@ -356,7 +356,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>4</number>
+                  <number>5</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -3216,7 +3216,7 @@
                          <number>2</number>
                         </property>
                         <property name="singleStep">
-                         <number>0</number>
+                         <number>1</number>
                         </property>
                         <property name="value">
                          <number>1</number>

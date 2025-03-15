@@ -378,7 +378,8 @@ void TWorld::GWFlowSWAT(void)
     }}
 
 }
-
+//---------------------------------------------------------------------------
+// NOT USED
 double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     double timesum = 0;
@@ -572,22 +573,7 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         vxn = 0;
                         vyn = 0;
                     }
-                    if (FlowBoundaryType == 0 || (FlowBoundaryType == 2 && FlowBoundary->Drc == 0)) {
 
-                        if (DomainEdge->Drc == 4 && vxn < 0) {
-                            vxn = 0;
-                        }
-                        if (DomainEdge->Drc == 6 && vxn > 0) {
-                            vxn = 0;
-                        }
-                        if (DomainEdge->Drc == 2 && vyn > 0) {
-                            vyn = 0;
-                        }
-                        if (DomainEdge->Drc == 8 && vyn < 0) {
-                            vyn = 0;
-                        }
-
-                    }
                     if (vyn == 0 && vxn == 0)
                         hn = H;
 

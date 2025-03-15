@@ -157,7 +157,7 @@ void TWorld::OutputUI(void)
         op.SoilLossTot = (SoilLossTot)*0.001; // convert from kg to ton
         op.floodBoundarySedTot = floodBoundarySedTot; // not used
 
-        op.OutletQs.at(0)->append(SoilLossTot_dt); //timestep output in kg! SoilLossOutlet = sum of Qs*dt and channelQs*dt and boundaryQs
+        op.OutletQs.at(0)->append(SoilLossTot_dt); //timestep output in kg! SoilLossOutlet = sum of Qs*dt and channelQs*dt and QsBoundary
         op.OutletC.at(0)->append(Qtot_dt > MIN_FLUX? SoilLossTot_dt/Qtot_dt : 0);
         op.OutletQstot.replace(0,SoilLossTot*0.001);
     }

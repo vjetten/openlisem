@@ -414,8 +414,8 @@ void TWorld::TotalsSediment(void)
             ChannelSedTot = (SwitchUse2Phase ? MapTotal(*ChannelBLSed) : 0.0) + MapTotal(*ChannelSSSed);
         }
 
-        floodBoundarySedTot += BoundaryQs*_dt; // not used
-        SoilLossTot_dt += BoundaryQs*_dt;
+        floodBoundarySedTot += QsBoundary*_dt; // not used
+        SoilLossTot_dt += QsBoundary*_dt;
         // boundary sediment losses (kg) in cells that are not outlet, if open boundary else 0
         // calc as cells with velocity U and V directed outwards
 
@@ -541,7 +541,7 @@ void TWorld::MassBalance()
                      // rainfall + initial WH on surface if present, + baseflow and init baseflow + user defined inflow in channel + sideinflow through soil
     double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot;
                      // all interception + ETa + water on surface + water in channel + water in subsurface drains
-    double waterout = Qtot + IntercETaTot;// + floodBoundaryTot + ETaTotVol;
+    double waterout = Qtot + IntercETaTot + floodBoundaryTot;// + floodBoundaryTot + ETaTotVol;
     MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
 
    // qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot  << WaterVolTot << ChannelVolTot <<  Qtot ;

@@ -460,8 +460,8 @@ void TWorld::ChannelFlood(void)
         }
     }}
 
-  //  Boundary2Ddyn(hmx, Uflood, Vflood);
-    // 2D boundary flow
+    Boundary2Ddyn();
+    // 2D boundary flow, fill QBoundary and QsBoundary
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {

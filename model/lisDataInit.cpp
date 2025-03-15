@@ -893,24 +893,9 @@ void TWorld::InitSoilInput(void)
 void TWorld::InitBoundary(void)
 {
     QBoundary = 0;
-    BoundaryQs = 0;
+    QsBoundary = 0;
 
     // make a 1 cell edge around the domain, used to determine flood at the edge
-    // DomainEdge = NewMap(0);
-    // for (int r = 0; r < _nrRows-1; r++)
-    //     for (int c = 0; c < _nrCols-1; c++)
-    //         if(!pcr::isMV(LDD->data[r][c])) {
-    //             //use ldd logic for clarity, boundary cells always point inward
-    //             if (DomainEdge->Drc == 0 &&(pcr::isMV(LDD->data[r-1][c  ]) || r == 0)) DomainEdge->Drc = 8; // top cell flows downward
-    //             if (DomainEdge->Drc == 0 &&(pcr::isMV(LDD->data[r+1][c  ]) || r == _nrRows-1)) DomainEdge->Drc = 2; // bottom, cell flows upward
-    //             if (DomainEdge->Drc == 0 &&(pcr::isMV(LDD->data[r  ][c-1]) || c == 0)) DomainEdge->Drc = 4;
-    //             if (DomainEdge->Drc == 0 &&(pcr::isMV(LDD->data[r  ][c+1]) || c == _nrCols-1)) DomainEdge->Drc = 6;
-    //         }
-
-    // DomainEdge->Drc == 0 &&
-    // DomainEdge->Drc == 0 &&
-    // DomainEdge->Drc == 0 &&
-    // DomainEdge->Drc == 0 &&
     DomainEdge = NewMap(0);
     for (int r = 1; r < _nrRows-1; r++)
         for (int c = 1; c < _nrCols-1; c++)
