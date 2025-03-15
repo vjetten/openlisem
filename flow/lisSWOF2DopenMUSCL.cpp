@@ -220,7 +220,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
             }
 
             // boundary cell fluxes
-            if (DomainEdge->Drc > 0) {
+            if (FlowBoundary->Drc > 0) {
                 //if left does not exist and right exist estimate gradient
                 //H + (H - (h_x2+H)*0.5); which is 2H - 0.5h_x2 -0.5H = 1.5H-0.5h_x2
                 // checked in excel
@@ -231,13 +231,15 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
                         double dh = fabs(1-H/h_x1);
                         double dU = U - (U+u_x2)*0.5;
                         double dV = V - (V+v_x2)*0.5;
+                       // u_x1 = U+dU*dh;
+                        //v_x1 = V+dV*dh;
                         u_x1 = limiter(U + dU*0.01, U*dh);
                         v_x1 = limiter(V + dV*0.01, V*dh);
                         //u_x1 = LIMIT(u_x1,0.5);
                         //v_x1 = LIMIT(v_x1,0.5);
                     } else {
-                        // u_x1 = 0;
-                        // v_x1 = 0;
+                        u_x1 = 0;
+                        v_x1 = 0;
                     }
                 }
                 if (c+1 <= _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
@@ -247,13 +249,16 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
                         double dh = fabs(1-H/h_x2);
                         double dU = U - (U+u_x1)*0.5;
                         double dV = V - (V+v_x1)*0.5;
+                        //u_x2 = U+dU*dh;
+                        //v_x2 = V+dV*dh;
                         u_x2 = limiter(U + dU*0.01, U*dh);
                         v_x2 = limiter(V + dV*0.01, V*dh);
+
                         //u_x2 = LIMIT(u_x2,0.5);
                         //v_x2 = LIMIT(v_x2,0.5);
                     }else {
-                           // u_x2 = 0;
-                           // v_x2 = 0;
+                           u_x2 = 0;
+                           v_x2 = 0;
                        }
                 }
                 if (r-1 >= 0 && MV(r-1,c) && !MV(r+1,c)) {
@@ -263,13 +268,15 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
                         double dh = fabs(1-H/h_y1);
                         double dU = U - (U+u_y2)*0.5;
                         double dV = V - (V+v_y2)*0.5;
+                       // u_y1 = U+dU*dh;
+                       // v_y1 = V+dV*dh;
                         u_y1 = limiter(U + dU*0.01, U*dh);
                         v_y1 = limiter(V + dV*0.01, V*dh);
                        // u_y1 = LIMIT(u_y1,0.5);
                        // v_y1 = LIMIT(v_y1,0.5);
                     }else {
-                        // u_y1 = 0;
-                        // v_y1 = 0;
+                        u_y1 = 0;
+                        v_y1 = 0;
                     }
                 }
                 if (r+1 <= _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
@@ -281,11 +288,13 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMa
                         double dV = V - (V+v_y1)*0.5;
                         u_y2 = limiter(U + dU*0.01, U*dh);
                         v_y2 = limiter(V + dV*0.01, V*dh);
+                        //u_y2 = U+dU*dh;
+                        //v_y2 = V+dV*dh;
                       //  u_y2 = LIMIT(u_y2,0.5);
                       //  v_y2 = LIMIT(v_y2,0.5);
                     }else {
-                        // u_y2 = 0;
-                        // v_y2 = 0;
+                        u_y2 = 0;
+                        v_y2 = 0;
                     }
                 }
             }
