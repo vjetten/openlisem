@@ -440,6 +440,11 @@ void lisemqt::on_toolButton_ETmapShow_clicked()
 void lisemqt::showTextfile(QString name)
 {
    // Read text from file
+    if (!QFileInfo(name).exists()) {
+        QMessageBox::warning(this,"openLISEM",QString("Cannot find file!"));
+        return;
+    }
+
     QFile file(name);
     file.open(QIODevice::ReadOnly | QIODevice::Text);
     QTextStream in(&file);
@@ -804,4 +809,10 @@ void lisemqt::on_toolButton_clicked()
 {
     checkforpatch = true;
     CheckVersion();
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_checksatImage_toggled(bool checked)
+{
+    if (E_satImageName->text().isEmpty() || !QFileInfo(E_satImageName->text()).exists())
+        checksatImage->setChecked(false);
 }

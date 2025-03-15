@@ -80,8 +80,8 @@ void TWorld::ChannelFlowDetachmentNew()
         double SSTC = 0;
         double BLTC = 0;
         if (SwitchUse2Phase)
-            BLTC = calcTCBedload(r, c, 1, R_BL_Method, ChannelWH->Drc,ChannelV->Drc, 0);
-        SSTC = calcTCSuspended(r, c, 1, R_SS_Method, ChannelWH->Drc, ChannelV->Drc, 0);
+            BLTC = calcTCBedload(r, c, 1, R_BL_Method, ChannelWH->Drc, ChannelWidth->Drc, ChannelV->Drc, 0);
+        SSTC = calcTCSuspended(r, c, 1, R_SS_Method, ChannelWH->Drc, ChannelWidth->Drc, ChannelV->Drc, 0);
 
         //find transport capacity for bed and suspended layer
 

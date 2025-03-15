@@ -571,6 +571,8 @@ private slots:
     void on_toolButton_clicked();
 
 
+    void on_checksatImage_toggled(bool checked);
+
 private:
     QNetworkAccessManager *manager;
 

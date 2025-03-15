@@ -67,13 +67,20 @@ functions: \n
  * @see SWOFSedimentSetConcentration
  */
 
-void TWorld::SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v)
+void TWorld::SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
 {
     //sediment detachment or deposition
     // if (SwitchUse2Phase)
     //     SWOFSedimentDetBL(dt, h,u,v);
     // SWOFSedimentDetSS(dt, h,u,v);
-    SWOFSedimentDetNew(dt, h,u,v);
+
+    FOR_ROW_COL_MV_L {
+        double factor = 1.0;
+        u->Drc = u->Drc * factor;
+        v->Drc = v->Drc * factor;
+    }}
+
+    SWOFSedimentDetNew(dt, h, w , u, v);
     // susponded matter
     SWOFSedimentFlowInterpolation(dt, h,u,v, SSFlood, SSCFlood);
 
@@ -86,7 +93,7 @@ void TWorld::SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        SWOFSedimentSetConcentration(r,c,h->Drc);
+        SWOFSedimentSetConcentration(r,c,h->Drc, ChannelAdj->Drc);
     }}
 }
 
@@ -334,11 +341,11 @@ void TWorld::SWOFSedimentFlowInterpolation(double dt, cTMap *h, cTMap *u,cTMap *
  *
  * @see MaxConcentration
  */
-void TWorld::SWOFSedimentSetConcentration(int r, int c, double h)
+void TWorld::SWOFSedimentSetConcentration(int r, int c, double h, double w)
 {
     if(h > he_ca)
     {
-        double Area = ChannelAdj->Drc * DX->Drc * rillfactor;
+        double Area = w * DX->Drc;
         if (SwitchUse2Phase)
             BLCFlood->Drc = MaxConcentration(Area*BLDepthFlood->Drc, BLFlood->Drc);
         SSCFlood->Drc = MaxConcentration(Area*SSDepthFlood->Drc, SSFlood->Drc);
@@ -414,7 +421,7 @@ void TWorld::SWOFSedimentLayerDepth(int r , int c, double h, double velocity)
  * @see DetachMaterial
  */
 
-void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
+void TWorld::SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -426,21 +433,20 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v)
 
         double velocity = std::sqrt(u->Drc *u->Drc + v->Drc * v->Drc);
 
-
-        double wf = ChannelAdj->Drc;
+        double wf = w->Drc;
         double hf = h->Drc;
 
-        SWOFSedimentLayerDepth(r,c,hf, velocity);
+        SWOFSedimentLayerDepth(r,c, hf, velocity);
         //creates BLDepth and SSDepth, or if 1 layer ssdepth = h and bldepth = 0
 
         //calculate tranport capacity for bed load and suspended load
         // Bedload is based on D90, susp on D50
         if (SwitchUse2Phase) {
-           BLTCFlood->Drc = calcTCBedload(r, c, 1, FS_BL_Method, hf, velocity, 1);
+           BLTCFlood->Drc = calcTCBedload(r, c, 1, FS_BL_Method, hf, wf, velocity, 1);
            blwatervol = wf*DX->Drc * BLDepthFlood->Drc;
         }
 
-        SSTCFlood->Drc = calcTCSuspended(r, c, 1, FS_SS_Method, hf, velocity, 1);
+        SSTCFlood->Drc = calcTCSuspended(r, c, 1, FS_SS_Method, hf, wf, velocity, 1);
         sswatervol = wf*DX->Drc * SSDepthFlood->Drc;
 
         double deposition = 0;

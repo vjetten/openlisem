@@ -182,6 +182,9 @@ void TWorld::InitParameters(void)
         SwatrePrecision = 6;
         //SwitchGWChangeSD = true;
     }
+
+   // F_fluxLimiter = 2;
+
     rillfactor = 1.0;
     _CHMaxV = 20.0;
     if (SwitchChannelMaxV)

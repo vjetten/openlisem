@@ -256,7 +256,7 @@ void TWorld::OverlandFlow2Ddyn(void)
             Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
         }}
 
-      //  Boundary2Ddyn();  // do the domain boundaries for Q, h and sediment
+     //   Boundary2Ddyn(WHrunoff, Uflood, Vflood);  // do the domain boundaries for Q, h and sediment
 
         updateWHandHmx();
         // update all water levels and volumes and calculate partition flood and runoff for output

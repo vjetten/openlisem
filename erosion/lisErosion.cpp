@@ -345,7 +345,7 @@ void TWorld::cell_FlowDetachment(int r, int c)
     //transport capacity
     DETFlow->Drc = 0;
     DEP->Drc = 0;
-    TC->Drc = calcTCSuspended(r,c,-1, FS_SS_Method, WHrunoff->Drc, V->Drc, 2);
+    TC->Drc = calcTCSuspended(r,c,-1, FS_SS_Method, WHrunoff->Drc, FlowWidth->Drc, V->Drc, 2);
     // trasnport capacity. 2 = kin wave. 1 = 2d flow and 0 is river
 
     if (erosionwh < HMIN) {
@@ -1026,9 +1026,9 @@ void TWorld::SedimentSetMaterialDistribution()
  * @param type : channel (0) or flood (1) or overland (2)
  */
 
-double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double U, int type)
+double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double w, double U, int type)
 {
-    double R=0, hs=0, S = 0, w = 0, man = 0.01;
+    double R=0, hs=0, S = 0, man = 0.01;
     double d50m;
 
     if (type == 0) {
@@ -1036,7 +1036,6 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
         d50m = D50CH->Drc/1000000.0;
         hs = ChannelSSDepth->Drc;
         S = ChannelGrad->Drc;
-        w = ChannelWidth->Drc;
         R = (w*h)/(2*h+w);
         man = ChannelN->Drc;
 
@@ -1046,14 +1045,12 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
             d50m = D50->Drc/1000000.0;
             hs = SSDepthFlood->Drc;
             S = Grad->Drc;
-            w = ChannelAdj->Drc*rillfactor;
             R = (w*h)/(2*h+w);
         } else
             if (type == 2) {
                 // kin wave
                 hs = WHrunoff->Drc;
                 S = Grad->Drc;
-                w = FlowWidth->Drc;
             }
 
     //when water height is insignificant, transport capacity is zero
@@ -1241,16 +1238,16 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
  * @param _d : The grain class (only needed when grain size distribution is used)
  * @param method : the TC method used
  */
-double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double U, int type)
+double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double w, double U, int type)
 {
-    double R,  hb, n, S, w;
+    double R,  hb, n, S;
 
     if (type == 0) {
         //    h = ChannelWH->Drc;
         hb = ChannelBLDepth->Drc;
         n = std::max(0.001, ChannelN->Drc);
         S = ChannelGrad->Drc;
-        w = ChannelWidth->Drc;
+        //w = ChannelWidth->Drc;
         R = (w*h)/(2*h+w);
     } else
         if (type == 1) {
@@ -1258,7 +1255,7 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double U
             hb = BLDepthFlood->Drc;
             n = std::max(0.001, N->Drc);
             S = Grad->Drc;
-            w = ChannelAdj->Drc*rillfactor;
+           // w = ChannelAdj->Drc*rillfactor;
             R = (w*h)/(2*h+w);
         }
 

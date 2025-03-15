@@ -300,7 +300,7 @@ double TWorld::fullSWOF2open(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         if (step > 0) {
 
             if (SwitchErosion) {
-                SWOFSediment(dt_req_min, h,u,v);
+                SWOFSediment(dt_req_min, h, FlowWidth, u,v);
             }
 
             if (Switch2DDiagonalFlow) {

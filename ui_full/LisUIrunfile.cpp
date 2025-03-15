@@ -547,6 +547,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p, false);
         if (p1.compare("satImage file")==0) satImageFileName = p;
 
+        E_satImageName->setText(satImageFileDir+satImageFileName);
+        on_checksatImage_toggled(checksatImage->isChecked());
+
         if (p1.compare("mpegexe Directory")==0) {
             mencoderDir = QFileInfo(p).absoluteFilePath();
             if (!QFileInfo(mencoderDir).exists())

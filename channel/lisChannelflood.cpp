@@ -176,7 +176,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
         if(SwitchErosion)
         {
             SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drc);
-            SWOFSedimentSetConcentration(r,c, _h->Drc);
+            SWOFSedimentSetConcentration(r,c, _h->Drc, ChannelAdj->Drc);
 
             RiverSedimentLayerDepth(r, c);
             RiverSedimentMaxC(r, c);
@@ -314,7 +314,7 @@ void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
         if(SwitchErosion)
         {
             SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drc);
-            SWOFSedimentSetConcentration(r,c, _h->Drc);
+            SWOFSedimentSetConcentration(r,c, _h->Drc, ChannelAdj->Drc);
 
             RiverSedimentLayerDepth(r, c);
             RiverSedimentMaxC(r, c);
@@ -361,7 +361,7 @@ void TWorld::ToFlood()
                 Conc->Drc = 0;
 
                 SWOFSedimentLayerDepth(r,c,hmx->Drc, V->Drc);
-                SWOFSedimentSetConcentration(r,c,hmx->Drc);
+                SWOFSedimentSetConcentration(r,c,hmx->Drc, ChannelAdj->Drc);
                // Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
             }
         }
@@ -460,7 +460,7 @@ void TWorld::ChannelFlood(void)
         }
     }}
 
-   // Boundary2Ddyn();
+  //  Boundary2Ddyn(hmx, Uflood, Vflood);
     // 2D boundary flow
 
     #pragma omp parallel for num_threads(userCores)

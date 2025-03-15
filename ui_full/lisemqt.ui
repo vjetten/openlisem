@@ -9984,7 +9984,7 @@ p, li { white-space: pre-wrap; }
               <item row="3" column="2">
                <widget class="QToolButton" name="toolButton_satImageName">
                 <property name="enabled">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="text">
                  <string>...</string>
@@ -15082,22 +15082,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>checksatImage</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>toolButton_satImageName</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1057</x>
-     <y>245</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1765</x>
-     <y>247</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>radioRainFile</sender>
    <signal>toggled(bool)</signal>
    <receiver>E_RainfallName</receiver>
@@ -15185,7 +15169,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>198</x>
-     <y>908</y>
+     <y>938</y>
     </hint>
     <hint type="destinationlabel">
      <x>379</x>
@@ -15249,11 +15233,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>369</x>
-     <y>650</y>
+     <y>681</y>
     </hint>
     <hint type="destinationlabel">
      <x>485</x>
-     <y>651</y>
+     <y>682</y>
     </hint>
    </hints>
   </connection>
@@ -15412,8 +15396,8 @@ p, li { white-space: pre-wrap; }
      <y>722</y>
     </hint>
     <hint type="destinationlabel">
-     <x>395</x>
-     <y>699</y>
+     <x>486</x>
+     <y>672</y>
     </hint>
    </hints>
   </connection>
@@ -15696,12 +15680,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>347</x>
-     <y>705</y>
+     <x>438</x>
+     <y>736</y>
     </hint>
     <hint type="destinationlabel">
      <x>289</x>
-     <y>735</y>
+     <y>766</y>
     </hint>
    </hints>
   </connection>
@@ -15712,12 +15696,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>705</y>
+     <x>565</x>
+     <y>736</y>
     </hint>
     <hint type="destinationlabel">
      <x>436</x>
-     <y>735</y>
+     <y>766</y>
     </hint>
    </hints>
   </connection>
@@ -15728,12 +15712,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>328</x>
-     <y>496</y>
+     <x>372</x>
+     <y>527</y>
     </hint>
     <hint type="destinationlabel">
-     <x>396</x>
-     <y>492</y>
+     <x>433</x>
+     <y>527</y>
     </hint>
    </hints>
   </connection>
@@ -15748,8 +15732,8 @@ p, li { white-space: pre-wrap; }
      <y>513</y>
     </hint>
     <hint type="destinationlabel">
-     <x>516</x>
-     <y>498</y>
+     <x>538</x>
+     <y>527</y>
     </hint>
    </hints>
   </connection>
@@ -15792,12 +15776,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>183</x>
-     <y>464</y>
+     <x>267</x>
+     <y>490</y>
     </hint>
     <hint type="destinationlabel">
-     <x>198</x>
-     <y>492</y>
+     <x>307</x>
+     <y>527</y>
     </hint>
    </hints>
   </connection>

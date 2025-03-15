@@ -35,10 +35,10 @@ void lisemqt::SetStyleUISize()
          // Get the physical DPI
          qreal physicalDpi = screen->physicalDotsPerInch();
          qreal scaleFactor = screen->devicePixelRatio();
-          qDebug() << "Scale Factor:" << scaleFactor;
+         //  qDebug() << "Scale Factor:" << scaleFactor;
 
-         qDebug() << "Logical DPI:" << logicalDpi;
-         qDebug() << "Physical DPI:" << physicalDpi;
+         // qDebug() << "Logical DPI:" << logicalDpi;
+         // qDebug() << "Physical DPI:" << physicalDpi;
      }
 
 

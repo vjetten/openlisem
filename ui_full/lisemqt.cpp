@@ -1304,13 +1304,3 @@ void lisemqt::resizeMap()
 //---------------------------------------------------------------
 
 
-
-// void lisemqt::on_E_minWHflow_returnPressed()
-// {
-//     QDoubleValidator *validator = new QDoubleValidator(0.0, 1.0e10, 10, E_minWHflow);
-//     validator->setNotation(QDoubleValidator::ScientificNotation);
-//     E_minWHflow->setValidator(validator);
-// }
-
-
-

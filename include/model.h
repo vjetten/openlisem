@@ -1040,10 +1040,10 @@ public:
     vec4 F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    void dynOutflowPoints(void);
+    void dynOutflowPoints(cTMap *h);
     void OverlandFlow2Ddyn(void);
     void updateWHandHmx(void);
-    void Boundary2Ddyn();
+    void Boundary2Ddyn(cTMap *h, cTMap *u, cTMap *v);
     void SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);  //OBSOLETE
     void SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
     // <= 2D flow
@@ -1114,16 +1114,15 @@ public:
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentLayerDepth(int r , int c);
     void RiverSedimentMaxC(int r, int c);
-    double calcTCSuspended(int r,int c, int _d, int method, double h, double U, int type);
-    double calcTCBedload(int r,int c, int _d, int method, double h, double U, int type);
+    double calcTCSuspended(int r,int c, int _d, int method, double h, double w,  double U, int type);
+    double calcTCBedload(int r,int c, int _d, int method, double h, double w, double U, int type);
     void SWOFSedimentCheckZero(int r, int c, cTMap * h);
-    void SWOFSedimentSetConcentration(int r, int c, double h);
+    void SWOFSedimentSetConcentration(int r, int c, double h, double w);
     void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap *v, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentFlowInterpolation(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentDet(cTMap *dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSedimentFlowInterpolation(double dt, cTMap * h, cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
 
-    void SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);
     void correctMassBalance(double sum1, cTMap *M, double th);
     void correctMassBalanceSed(double sum1, cTMap *M, double th);
