@@ -241,13 +241,15 @@ void TWorld::OverlandFlow2Ddyn(void)
     startFlood = false;
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (WHrunoff->Drc > 0)//F_minWH)
+        if (WHrunoff->Drc > 0)
             startFlood = true;
     }}
 
     if(startFlood) {
         dtOF = fullSWOF2openMUSCL(WHrunoff, Uflood, Vflood, DEM);
         // separating muscl saves many checks for muscl in the loop: faster
+        TIMEDB(QString("Average dynamic timestep in flooded cells (dt %1 sec, n %2)").arg(dtOF,6,'f',3).arg(iter_n,4));
+        // some screen reporting
 
         // calc discharge flux form the last flux in the loop
         #pragma omp parallel for num_threads(userCores)
@@ -255,24 +257,23 @@ void TWorld::OverlandFlow2Ddyn(void)
             V->Drc = sqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
             Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
         }}
-if (SwitchChannel2DflowConnect)
-    ChannelOverflowIteration(WHrunoff, V);
-else
-    ChannelOverflow(WHrunoff, V);
-// Mixing of 2D runoff with channel water, V is used to determine how much flows into the channel
-// after this new ChannelHW and WHrunoff, and Susp sediment values ChannelSSSed and SSFlood->Drc
-
-        Boundary2Ddyn();
-        // do the domain boundaries for Q, h and sediment
-
-        updateWHandHmx();
-        // update all water levels and volumes and calculate partition flood and runoff for output
-
-        FloodMaxandTiming();
-
-        TIMEDB(QString("Average dynamic timestep in flooded cells (dt %1 sec, n %2)").arg(dtOF,6,'f',3).arg(iter_n,4));
-        // some screen reporting
     }
+
+    if (SwitchChannel2DflowConnect)
+    ChannelOverflowIteration(WHrunoff, V);
+    else
+    ChannelOverflow(WHrunoff, V);
+    // Mixing of 2D runoff with channel water, V is used to determine how much flows into the channel
+    // after this new ChannelHW and WHrunoff, and Susp sediment values ChannelSSSed and SSFlood->Drc
+
+    Boundary2Ddyn();
+    // do the domain boundaries for Q, h and sediment
+
+    updateWHandHmx();
+    // update all water levels and volumes and calculate partition flood and runoff for output
+
+    FloodMaxandTiming();
+
 }
 
 

@@ -23,6 +23,7 @@
 *************************************************************************/
 
 #include <memory>
+#include <QMessageBox>
 #include "io.h"
 #include "model.h"
 #include "operation.h"
@@ -464,6 +465,11 @@ void TWorld::GetRainfallMapfromStations(double currenttime)
                 for (int k = 0; k < stationID.size(); k++) {
                     if ((int) RainZone->Drc == RainfallSeries[currentrow].stationnr.at(k))
                         value = RainfallSeries[currentrow].intensity[k]*tt;
+                }
+                if (value == -1) {
+                    ErrorString = QString("rainzone ID found in map that doe snot exist in rainfall file.");
+                    DEBUG(ErrorString);
+                    throw 1;
                 }
                 Rain->Drc = value; //rain in m per timestep
 

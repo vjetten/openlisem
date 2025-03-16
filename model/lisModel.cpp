@@ -124,10 +124,25 @@ void TWorld::DoModel()
 
 
         //time vraiables in sec
-        double btd = getvaluedouble("Begin time day");
-        double btm = getvaluedouble("Begin time");
-        double etd = getvaluedouble("End time day");
-        double etm = getvaluedouble("End time");
+        // double btd = getvaluedouble("Begin time day");
+        // double btm = getvaluedouble("Begin time");
+        // double etd = getvaluedouble("End time day");
+        // double etm = getvaluedouble("End time");
+        double btd, etd, btm, etm;
+        QString beginTimeString = getvaluestring("Begin Time");
+        QString endTimeString = getvaluestring("End Time");
+        bool dayOk, minuteOk;
+        QStringList parts = beginTimeString.split(":");
+        if (parts.size() == 2) {
+            btd = parts[0].toInt(&dayOk);
+            btm = parts[1].toInt(&minuteOk);
+        }
+
+        parts = endTimeString.split(":");
+        if (parts.size() == 2) {
+            etd = parts[0].toInt(&dayOk);
+            etm = parts[1].toInt(&minuteOk);
+        }
 
         btd -= 1.0; // because day 1, minute 10 is in fact minute 10 in the first day
         etd -= 1.0;

@@ -560,29 +560,29 @@ void lisemqt::showTextfileOld(QString name)
     file.close();
 }
 //--------------------------------------------------------------------
-void lisemqt::on_E_EndTimeDay_returnPressed()
-{
-    int daye = E_EndTimeDay->text().split(":")[0].toInt();
-    int mine = E_EndTimeDay->text().split(":")[1].toInt();
-    daye = std::max(1,std::min(daye, 366));
-    if (mine > 1440) {
-        daye = mine/1440 + 1;
-        mine = mine % 1440;
-    }
-    E_EndTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
-}
+// void lisemqt::on_E_EndTimeDay_returnPressed()
+// {
+//     int daye = E_EndTimeDay->text().split(":")[0].toInt();
+//     int mine = E_EndTimeDay->text().split(":")[1].toInt();
+//     daye = std::max(1,std::min(daye, 366));
+//     if (mine > 1440) {
+//         daye = mine/1440 + 1;
+//         mine = mine % 1440;
+//     }
+//     E_EndTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
+// }
 //--------------------------------------------------------------------
-void lisemqt::on_E_BeginTimeDay_returnPressed()
-{
-       int daye = E_BeginTimeDay->text().split(":")[0].toInt();
-       int mine = E_BeginTimeDay->text().split(":")[1].toInt();
-       daye = std::max(1,std::min(daye, 366));
-       if (mine > 1440) {
-           daye = mine/1440 + 1;
-           mine = mine % 1440;
-       }
-       E_BeginTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
-}
+// void lisemqt::on_E_BeginTimeDay_returnPressed()
+// {
+//        int daye = E_BeginTimeDay->text().split(":")[0].toInt();
+//        int mine = E_BeginTimeDay->text().split(":")[1].toInt();
+//        daye = std::max(1,std::min(daye, 366));
+//        if (mine > 1440) {
+//            daye = mine/1440 + 1;
+//            mine = mine % 1440;
+//        }
+//        E_BeginTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
+// }
 //--------------------------------------------------------------------
 void lisemqt::on_checkStationaryBaseflow_toggled(bool checked)
 {
@@ -816,3 +816,70 @@ void lisemqt::on_checksatImage_toggled(bool checked)
     if (E_satImageName->text().isEmpty() || !QFileInfo(E_satImageName->text()).exists())
         checksatImage->setChecked(false);
 }
+//---------------------------------------------------------------------------
+
+void lisemqt::on_E_Timestep_editingFinished()
+{
+    bool ok;
+    double value = E_Timestep->text().toDouble(&ok);
+    if (ok) {
+        // Format to "005.0" style with leading zeros and one decimal place
+        QString formattedValue = QString::asprintf("%05.1f", value);
+        E_Timestep->setText(formattedValue);
+    } else {
+        E_Timestep->setText("Invalid input");
+    }
+}
+//---------------------------------------------------------------
+void lisemqt::on_E_BeginTimeDay_editingFinished()
+{
+    QString inputText = E_BeginTimeDay->text();
+    bool dayOk = false, minuteOk = false;
+    int days, minutes;
+
+    if (inputText.contains(":")) {
+        QStringList parts = inputText.split(":");
+        if (parts.size() == 2) {
+            days = parts[0].toInt(&dayOk);
+            minutes = parts[1].toInt(&minuteOk);
+        }
+    } else {
+        days = 1; dayOk = true;
+        minutes = inputText.toInt(&minuteOk);
+    }
+
+    if (dayOk && minuteOk) {
+        // Format days with leading zeros (3 digits) and minutes (4 digits)
+        QString formattedValue = QString::asprintf("%03d:%04d", days, minutes);
+        E_BeginTimeDay->setText(formattedValue);
+    } else {
+        E_BeginTimeDay->setText("Invalid input");
+    }
+
+}
+//---------------------------------------------------------------
+void lisemqt::on_E_EndTimeDay_editingFinished()
+{
+    QString inputText = E_EndTimeDay->text();
+    bool dayOk = false, minuteOk = false;
+    int days, minutes;
+
+    if (inputText.contains(":")) {
+        QStringList parts = inputText.split(":");
+        days = parts[0].toInt(&dayOk);
+        minutes = parts[1].toInt(&minuteOk);
+    } else {
+        days = 1; dayOk = true;
+        minutes = inputText.toInt(&minuteOk);
+    }
+
+    if (dayOk && minuteOk) {
+        // Format days with leading zeros (3 digits) and minutes (4 digits)
+        QString formattedValue = QString::asprintf("%03d:%04d", days, minutes);
+        E_EndTimeDay->setText(formattedValue);
+    } else {
+        E_EndTimeDay->setText("Invalid input");
+    }
+
+}
+//---------------------------------------------------------------

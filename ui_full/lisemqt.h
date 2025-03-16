@@ -519,9 +519,9 @@ private slots:
 
     void on_toolButton_ETmapShow_clicked();
 
-    void on_E_EndTimeDay_returnPressed();
+  //  void on_E_EndTimeDay_returnPressed();
 
-    void on_E_BeginTimeDay_returnPressed();
+ //   void on_E_BeginTimeDay_returnPressed();
 
     void on_checkStationaryBaseflow_toggled(bool checked);
 
@@ -572,6 +572,12 @@ private slots:
 
 
     void on_checksatImage_toggled(bool checked);
+
+    void on_E_Timestep_editingFinished();
+
+    void on_E_BeginTimeDay_editingFinished();
+
+    void on_E_EndTimeDay_editingFinished();
 
 private:
     QNetworkAccessManager *manager;

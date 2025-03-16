@@ -153,13 +153,16 @@
                  </font>
                 </property>
                 <property name="inputMask">
-                 <string>999.9</string>
+                 <string/>
                 </property>
                 <property name="text">
                  <string>10.0</string>
                 </property>
                 <property name="maxLength">
-                 <number>5</number>
+                 <number>32767</number>
+                </property>
+                <property name="cursorPosition">
+                 <number>4</number>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -203,13 +206,13 @@
                  </font>
                 </property>
                 <property name="inputMask">
-                 <string>999:9999</string>
+                 <string/>
                 </property>
                 <property name="text">
-                 <string>000:1200</string>
+                 <string>1:0200</string>
                 </property>
                 <property name="cursorPosition">
-                 <number>8</number>
+                 <number>6</number>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -275,13 +278,13 @@
                  </font>
                 </property>
                 <property name="inputMask">
-                 <string>999:9999</string>
+                 <string/>
                 </property>
                 <property name="text">
-                 <string>000:0000</string>
+                 <string>1:0000</string>
                 </property>
                 <property name="maxLength">
-                 <number>8</number>
+                 <number>32767</number>
                 </property>
                 <property name="alignment">
                  <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -356,7 +359,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>5</number>
+                  <number>0</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -9660,6 +9663,9 @@ p, li { white-space: pre-wrap; }
                  </font>
                 </property>
                 <property name="toolTip">
+                 <string/>
+                </property>
+                <property name="text">
                  <string/>
                 </property>
                </widget>

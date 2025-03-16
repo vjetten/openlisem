@@ -1025,7 +1025,7 @@ public:
     bool prepareFlood, startFlood;
     int iter_n;
     double fullSWOF2openMUSCL(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
-    double doSWOFMUSCLdt(double dt, double timesum, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
+    double doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
 
     void doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v);
 

@@ -54,13 +54,10 @@ void TWorld::Boundary2Ddyn()
             }
         }
     }}
-
+report(*tma,"bact");
     FOR_ROW_COL_MV_L {
         if (tma->Drc == 1) {
             double Q = Qn->Drc;
-            Q = std::min(Qn->Drc, (WaterVolall->Drc-MicroStoreVol->Drc)/_dt);
-            //WaterVolall->Drc -= Q*_dt;
-
             QBoundary += Q;
             // Qn based on vector combination Uflood and Vflood, calculated before
 

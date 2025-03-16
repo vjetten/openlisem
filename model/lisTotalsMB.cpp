@@ -55,9 +55,6 @@ void TWorld::TotalsHydro(void)
         // spatial avg area rainfall in mm
 
         rainfall = RainAvgmm/catchmentAreaFlatMM;
-//        FOR_ROW_COL_MV_L {
-//        RainTot += Rain->Drc*CHAdjDX->Drc;//   _dx*_dx; // in m3
-//        }}
         RainTot += ptot*_dx*_dx; // in m3
 
         oldrainpeak  = Rainpeak;
@@ -541,7 +538,7 @@ void TWorld::MassBalance()
                      // rainfall + initial WH on surface if present, + baseflow and init baseflow + user defined inflow in channel + sideinflow through soil
     double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot;
                      // all interception + ETa + water on surface + water in channel + water in subsurface drains
-    double waterout = Qtot + IntercETaTot + floodBoundaryTot;// + floodBoundaryTot + ETaTotVol;
+    double waterout = Qtot + IntercETaTot;// + floodBoundaryTot;//
     MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
 
    // qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot  << WaterVolTot << ChannelVolTot <<  Qtot ;
