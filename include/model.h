@@ -1042,7 +1042,7 @@ public:
    // void dynOutflowPoints(cTMap *h);
     void OverlandFlow2Ddyn(void);
     void updateWHandHmx(void);
-    void Boundary2Ddyn();
+    void Boundary2Ddyn(cTMap *h, cTMap *u, cTMap *v);
     void Boundary2DdynUV(cTMap * U, cTMap *V);
     void SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);  //OBSOLETE
     void SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);

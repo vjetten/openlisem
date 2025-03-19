@@ -26,7 +26,7 @@
 
 
 //---------------------------------------------------------------------------
-void TWorld::Boundary2Ddyn()
+void TWorld::Boundary2Ddyn(cTMap *h, cTMap *u, cTMap *v)
 {
     QBoundary = 0;
     QsBoundary = 0;
@@ -35,30 +35,31 @@ void TWorld::Boundary2Ddyn()
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (FlowBoundary->Drc > 0) {
-            //flow left bpoundary to the left etc
+            //flow left boundary to the left an hydraulic gradient pointing outside
             if (c-1 >= 0 && MV(r,c-1) && !MV(r,c+1)) {
-                if (Uflood->Drc < 0)
+                if (u->Drc < 0 && h->data[r][c+1]+DEM->data[r][c+1] > h->Drc+DEM->Drc)
                     tma->Drc = 1;
-            }
+            } else
             if (c+1 <= _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
-                if (Uflood->Drc > 0)
-                    tma->Drc = 1;
-            }
+                if (u->Drc > 0 && h->data[r][c-1]+DEM->data[r][c-1] > h->Drc+DEM->Drc)
+                    tma->Drc = 2;
+            } else
             if (r-1 >= 0 && MV(r-1,c) && !MV(r+1,c)) {
-                if (Vflood->Drc < 0)
-                    tma->Drc = 1;
-            }
+                if (v->Drc < 0 && h->data[r+1][c]+DEM->data[r+1][c] > h->Drc+DEM->Drc)
+                    tma->Drc = 3;
+            } else
             if (r+1 <= _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
-                if (Vflood->Drc > 0)
-                    tma->Drc = 1;
+                if (v->Drc > 0 && h->data[r-1][c]+DEM->data[r-1][c] > h->Drc+DEM->Drc)
+                    tma->Drc = 4;
             }
         }
     }}
 //report(*tma,"bact");
+int k = 0;
     FOR_ROW_COL_MV_L {
-        if (tma->Drc == 1) {
-            double Q = Qn->Drc;
-            QBoundary += Q;
+        if (tma->Drc > 0) {
+k++;
+            QBoundary += Qn->Drc;
             // Qn based on vector combination Uflood and Vflood, calculated before
 
             if (SwitchErosion) {
@@ -72,7 +73,7 @@ void TWorld::Boundary2Ddyn()
             }
         }
     }}
-    qDebug() << "boundary flux m3/s" << QBoundary << QsBoundary;
+    qDebug() << "boundary flux m3/s" << QBoundary << k;
 }
 
 

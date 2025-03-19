@@ -52,6 +52,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     //        if (SwitchErosion)
     //            sumS = getMassSed(SSFlood, 0);
 
+
     do {
 
         #pragma omp parallel for num_threads(userCores)
@@ -125,39 +126,9 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
     } while (!stop);
 
-    double QB1, QB2, QB3, QB4 = 0;
-    double QBF = 0;
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (FlowBoundary->Drc > 0) {
-            if (c-1 >= 0 && MV(r,c-1) && !MV(r,c+1)) {
-                if (u->Drc < 0)
-                    QB1 = u->Drc*h->Drc*ChannelAdj->Drc;
-            } else
-                if (c+1 <= _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
-                    if (u->Drc > 0)
-                        QB2 = u->Drc*h->Drc*ChannelAdj->Drc;
-                } else
-                    if (r-1 >= 0 && MV(r-1,c) && !MV(r+1,c)) {
-                        if (v->Drc < 0)
-                            QB3 = v->Drc*h->Drc*ChannelAdj->Drc;
-                    } else
-                        if (r+1 <= _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
-                            if (v->Drc > 0)
-                                QB4 = v->Drc*h->Drc*ChannelAdj->Drc;
-                        }
-            QBF += fabs(QB1+QB2+QB3+QB4);
-        }
-    }}
-//sumh += QBF*_dt;
+
     correctMassBalance(sumh, h, 0);
 
-    QBoundary = QBF;
-    qDebug() << "boundary flux m3/s" << QBoundary << count;
-
-  //  correctMassBalance(sumh, h, 0);
-
-    //qDebug() << _dt/count << count << dt_req_min;
     iter_n = std::max(1,count);
     return(count > 0 ? _dt/count : _dt);
 
@@ -165,6 +136,9 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 //------------------------------------------------------------------------------------------------------
 double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
+    // boundary
+    double factor = 0.99*exp(-0.007*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
+    double factor2 = pow(factor,2/3); // manning reduction V=h^2/3
 
     //do all flow and state calculations
     #pragma omp parallel for num_threads(userCores)
@@ -352,6 +326,39 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                 }
             }
 */
+            if (FlowBoundary->Drc > 0) {
+
+                //if left does not exist and right exist estimate gradient
+                if (c-1 >= 0 && MV(r,c-1) && !MV(r,c+1)) {
+                    if (h_x2+z_x2 > H+Z) {
+                        h_x1 = factor*H;
+                        u_x1 = factor2*U;
+                        v_x1 = factor2*V;
+                        }
+                    }
+                    if (c+1 <= _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
+                        if (h_x1+z_x1 > H+Z){
+                        h_x2 = factor*H;
+                        u_x2 = factor2*U;
+                        v_x2 = factor2*V;
+                        }
+                    }
+                    if (r-1 >= 0 && MV(r-1,c) && !MV(r+1,c)) {
+                        if (h_y2+z_y2 > H+Z) {
+                        h_y1 = factor*H;
+                        u_y1 = factor2*U;
+                        v_y1 = factor2*V;
+                        }
+                    }
+                    if (r+1 <= _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
+                        if (h_y1+z_y1 > H+Z) {
+                        h_y2 = factor*H;
+                        u_y2 = factor2*U;
+                        v_y2 = factor2*V;
+                    }
+                }
+            }
+
             dz_x1 = (Z - z_x1);
             dz_x2 = (z_x2 - Z);
             dz_y1 = (Z - z_y1);
