@@ -54,7 +54,7 @@ void TWorld::Boundary2Ddyn()
             }
         }
     }}
-report(*tma,"bact");
+//report(*tma,"bact");
     FOR_ROW_COL_MV_L {
         if (tma->Drc == 1) {
             double Q = Qn->Drc;

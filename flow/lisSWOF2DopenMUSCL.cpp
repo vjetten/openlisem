@@ -35,6 +35,7 @@
 #include "global.h"
 
 #define LIMIT(V,L) (V < 0.0 ? -1.0 : 1.0)*std::min(L,fabs(V))
+#define SIGN(V)(V < 0 ? -1.0 : 1.0)
 
 //----------------------------------------------------------------------------------------
 double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
@@ -45,7 +46,8 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     double sumh = 0;
     bool stop;
     double dt_req_min = dt_max;
-
+    QBoundary = 0;
+    QsBoundary = 0;
   //  sumh = getMass(h, 0);
     //        if (SwitchErosion)
     //            sumS = getMassSed(SSFlood, 0);
@@ -107,8 +109,6 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             }}
         } // MUSCL
 
-        correctMassBalance(sumh, h, 0);
-
         if (SwitchErosion) {
             SWOFSediment(dt_req_min, h, FlowWidth, u,v);
         }
@@ -116,6 +116,37 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         if (Switch2DDiagonalFlow) {
             SWOFDiagonalFlowNew(dt_req_min, h, u, v);
         }
+
+        //Fill(*tma,0);
+        double QB1, QB2, QB3, QB4 = 0;
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            if (FlowBoundary->Drc > 0) {
+                //flow left bpoundary to the left etc
+                if (c-1 >= 0 && MV(r,c-1) && !MV(r,c+1)) {
+                    if (u->Drc < 0)
+                        QB1 = u->Drc*h->Drc*ChannelAdj->Drc;
+                }
+                if (c+1 <= _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
+                    if (u->Drc > 0)
+                        QB2 = u->Drc*h->Drc*ChannelAdj->Drc;
+                }
+                if (r-1 >= 0 && MV(r-1,c) && !MV(r+1,c)) {
+                    if (v->Drc < 0)
+                        QB3 = v->Drc*h->Drc*ChannelAdj->Drc;
+                }
+                if (r+1 <= _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
+                    if (v->Drc > 0)
+                        QB4 = v->Drc*h->Drc*ChannelAdj->Drc;
+                }
+            }
+        }}
+
+        QBoundary = QB1+QB2+QB3+QB4;
+        sumh += QBoundary*dt_req_min;
+        correctMassBalance(sumh, h, 0);
+
+        qDebug() << "boundary flux m3/s" << QBoundary << count;
 
 
         timesum += dt_req_min;
@@ -229,20 +260,22 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             // if there are barriers at the flowdomain edge, these should be done here!
             // calculate inner cell boundary and use that for outer cell value
             if (FlowBoundary->Drc > 0) {
-                double factor = 0.01;
+                double factor = 0.1;
                 //if left does not exist and right exist estimate gradient
                 if (c-1 >= 0 && MV(r,c-1) && !MV(r,c+1)) {
-                 //   z_x1 = 2*Z-z_x2;
+                   // z_x1 = 2*Z-z_x2;
                  //   if (SwitchFlowBarriers) z_x1 += FlowBarrierW->Drc;
-                    double dH = 0.5*(H-h_x2);
+                    double dH = 0.5*(H-h_x2); // diff right hand side of edge cell
                     h_x1 = std::max(0.0,H+dH*factor);
-
                     if (h_x1 > he_ca) {
                         double dh = fabs(1-H/h_x1);
                         double dU = (U-u_x2)*0.5;
                         double dV = (V-v_x2)*0.5;
                         u_x1 = limiter(U + dU*factor, U*dh);
                         v_x1 = limiter(V + dV*factor, V*dh);
+                        u_x1 = SIGN(u_x1)*(u_x1+2*U+u_x2)/4.0;
+                        v_x1 = SIGN(v_x1)*(v_x1+2*V+v_x2)/4.0;
+
                     //    u_x1 = LIMIT(u_x1,1.0);
                     //    v_x1 = LIMIT(v_x1,1.0);
                     } else {
@@ -251,16 +284,24 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                     }
                 }
                 if (c+1 <= _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
-                 //   z_x2 = 2*Z-z_x1;
-                 //   if (SwitchFlowBarriers) z_x2 += FlowBarrierE->Drc;
-                    double dH = (H-h_x1)*0.5;
+                   // z_x2 = 2*Z-z_x1;
+                    // double dH = (H-h_x1)*0.5;
+                    // h_x2 = std::max(0.0,H + dH*factor);
+                    // if (h_x2 > he_ca) {
+                    //     double dh = fabs(1-H/h_x2);
+                    //     double dU = (U-u_x1)*0.5;
+                    //     double dV = (V-v_x1)*0.5;
+
+                    double dH = (h_x1-H)*0.5;
                     h_x2 = std::max(0.0,H + dH*factor);
                     if (h_x2 > he_ca) {
                         double dh = fabs(1-H/h_x2);
-                        double dU = (U-u_x1)*0.5;
-                        double dV = (V-v_x1)*0.5;
+                        double dU = (u_x1-U)*0.5;
+                        double dV = (v_x1-V)*0.5;
                         u_x2 = limiter(U + dU*factor, U*dh);
                         v_x2 = limiter(V + dV*factor, V*dh);
+                        u_x2 = SIGN(u_x2)*(u_x1+2*U+u_x2)/4.0;
+                        v_x2 = SIGN(v_x2)*(v_x1+2*V+v_x2)/4.0;
                      //   u_x2 = LIMIT(u_x2,1.0);
                     //    v_x2 = LIMIT(v_x2,1.0);
                     }else {
@@ -279,6 +320,8 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                         double dV = (V-v_y2)*0.5;
                         u_y1 = limiter(U + dU*factor, U*dh);
                         v_y1 = limiter(V + dV*factor, V*dh);
+                        u_y1 = SIGN(u_y1)*(u_y1+2*U+u_y2)/4.0;
+                        v_y1 = SIGN(v_y1)*(v_y1+2*V+v_y2)/4.0;
                     //    u_y1 = LIMIT(u_y1,1.0);
                     //    v_y1 = LIMIT(v_y1,1.0);
                     }else {
@@ -287,18 +330,26 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                     }
                 }
                 if (r+1 <= _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
-                  //  z_y2 = 2*Z-z_y1;
-                  //  if (SwitchFlowBarriers) z_y2 += FlowBarrierS->Drc;
-                    double dH = (H-h_y1)*0.5;
+                   // z_y2 = 2*Z-z_y1;
+                    // double dH = (H-h_y1)*0.5;
+                    // h_y2 = std::max(0.0,H + dH*factor);
+                    // if (h_y2 > he_ca) {
+                    //     double dh = fabs(1-H/h_y2);
+                    //     double dU = (U-u_y1)*0.5;
+                    //     double dV = (V-v_y1)*0.5;
+
+                    double dH = (h_y1-H)*0.5;
                     h_y2 = std::max(0.0,H + dH*factor);
                     if (h_y2 > he_ca) {
                         double dh = fabs(1-H/h_y2);
-                        double dU = (U-u_y1)*0.5;
-                        double dV = (V-v_y1)*0.5;
+                        double dU = (u_y1-U)*0.5;
+                        double dV = (v_y1-V)*0.5;
                         u_y2 = limiter(U + dU*factor, U*dh);
                         v_y2 = limiter(V + dV*factor, V*dh);
+                        u_y2 = SIGN(u_y2)*(u_y1+2*U+u_y2)/4.0;
+                        v_y2 = SIGN(v_y2)*(v_y1+2*V+v_y2)/4.0;
                      //   u_y2 = LIMIT(u_y2,1.0);
-                        v_y2 = LIMIT(v_y2,1.0);
+                     //   v_y2 = LIMIT(v_y2,1.0);
                     }else {
                         u_y2 = 0;
                         v_y2 = 0;

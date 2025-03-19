@@ -266,7 +266,7 @@ void TWorld::OverlandFlow2Ddyn(void)
     // Mixing of 2D runoff with channel water, V is used to determine how much flows into the channel
     // after this new ChannelHW and WHrunoff, and Susp sediment values ChannelSSSed and SSFlood->Drc
 
-    Boundary2Ddyn();
+ //   Boundary2Ddyn();
     // do the domain boundaries for Q, h and sediment
 
     updateWHandHmx();
