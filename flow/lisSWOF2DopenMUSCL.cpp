@@ -224,7 +224,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             }
 /*
  * INTERESTING BUT THIS MAKES EVERYTHING WORSE
- * YOU ALWAYS FIRCE AN OUTFLOW
+ * YOU ALWAYS FIRCE AN OUTFLOW */
             // boundary cell fluxes
             // if there are barriers at the flowdomain edge, these should be done here!
             // calculate inner cell boundary and use that for outer cell value
@@ -305,7 +305,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                     }
                 }
             }
-*/
+
             dz_x1 = (Z - z_x1);
             dz_x2 = (z_x2 - Z);
             dz_y1 = (Z - z_y1);
