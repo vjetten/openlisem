@@ -98,7 +98,6 @@ void TWorld::OutputUI(void)
     //op.EndTime = EndTime/60.0;
     op.CatchmentArea = CatchmentArea;
 
-    op.Pmm.append((RainAvgmm)*3600/_dt); // + SnowAvgmm
     op.RainTotmm = RainTotmm;// + SnowTotmm;
     op.ETaTotmm = ETaTotmm;
     op.GWlevel = GWlevel;
@@ -164,9 +163,12 @@ void TWorld::OutputUI(void)
 
 
     //hydrographs
+    op.Pmm.append((RainAvgmm)*3600/_dt); // + SnowAvgmm
 
     // outlet 0 all flow
     op.OutletQ.at(0)->append(Qtot_dt * QUNIT/_dt); //Qtot_dt is in m3
+    op.Qbound.append(QBoundary*QUNIT);
+
     op.OutletQtot.replace(0,Qtot); // cumulative tot outflow
     op.OutletChannelWH.at(0)->append(0);
 

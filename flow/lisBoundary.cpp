@@ -26,11 +26,9 @@
 
 
 //---------------------------------------------------------------------------
-void TWorld::Boundary2Ddyn(cTMap *h, cTMap *u, cTMap *v)
+void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
 {
-    QBoundary = 0;
-    QsBoundary = 0;
-
+    // TODO barriers!
     Fill(*tma,0);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -54,77 +52,29 @@ void TWorld::Boundary2Ddyn(cTMap *h, cTMap *u, cTMap *v)
             }
         }
     }}
-//report(*tma,"bact");
-int k = 0;
+
     FOR_ROW_COL_MV_L {
         if (tma->Drc > 0) {
-k++;
-            QBoundary += Qn->Drc;
-            // Qn based on vector combination Uflood and Vflood, calculated before
+            double Q = sqrt(u->Drc*u->Drc + v->Drc*v->Drc)*h->Drc*_dx;
+            h->Drc = std::max(h->Drc - Q*dt, 0.0);
+            QBoundary += Q*dt;
 
             if (SwitchErosion) {
-                double ds = std::min(SSFlood->Drc, SSCFlood->Drc*Qn->Drc*_dt);
+                double ds = std::min(SSFlood->Drc, SSCFlood->Drc*Q*dt);
                 // because concentrations can be spurious take the min of the two
-                QsBoundary += ds/_dt; //in kg/s
+                QsBoundary += ds; //in kg/s
                 if (SwitchUse2Phase) {
-                    ds = std::min(BLFlood->Drc, BLCFlood->Drc*Qn->Drc*_dt);
-                    QsBoundary += ds/_dt;
+                    ds = std::min(BLFlood->Drc, BLCFlood->Drc*Q*dt);
+                    QsBoundary += ds;
                 }
             }
         }
     }}
-    qDebug() << "boundary flux m3/s" << QBoundary << k;
+
+    //qDebug() << "boundary flux m3/s" << QBoundary;
 }
 
 
-//---------------------------------------------------------------------------
-void TWorld::Boundary2DdynUV(cTMap * U, cTMap *V)
-{
-    Fill(*tma,0);
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (FlowBoundary->Drc > 0) {
-            //flow left bpoundary to the left etc
-            if (c-1 >= 0 && MV(r,c-1) && !MV(r,c+1)) {
-                if (U->Drc < 0)
-                    tma->Drc = 1;
-            }
-            if (c+1 <= _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
-                if (U->Drc > 0)
-                    tma->Drc = 1;
-            }
-            if (r-1 >= 0 && MV(r-1,c) && !MV(r+1,c)) {
-                if (V->Drc < 0)
-                    tma->Drc = 1;
-            }
-            if (r+1 <= _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
-                if (V->Drc > 0)
-                    tma->Drc = 1;
-            }
-        }
-    }}
-
-    FOR_ROW_COL_MV_L {
-        if (tma->Drc == 1) {
-          //  double Q = sqrt(U->Drc*U->Drc + V->Drc*V->Drc) *h->Drc * ChannelAdj->Drc;
-          //  Q = std::min(Qn->Drc, (WaterVolall->Drc-MicroStoreVol->Drc)/_dt);
-            //WaterVolall->Drc -= Q*_dt;
-
-       //     QBoundary += Q;
-            // Qn based on vector combination Uflood and Vflood, calculated before
-
-            // if (SwitchErosion) {
-            //     double ds = std::min(SSFlood->Drc, SSCFlood->Drc*Qn->Drc*_dt);
-            //     // because concentrations can be spurious take the min of the two
-            //     QsBoundary += ds/_dt; //in kg/s
-            //     if (SwitchUse2Phase) {
-            //         ds = std::min(BLFlood->Drc, BLCFlood->Drc*Qn->Drc*_dt);
-            //         QsBoundary += ds/_dt;
-            //     }
-            // }
-        }
-    }}
-}
 // OBSOLETE
 
 double TWorld::DEMFB(int r, int c, int rd, int cd, bool addwh)

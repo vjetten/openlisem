@@ -65,7 +65,7 @@ void lisemqt::setupPlot()
 
     PGraph = new QwtPlotCurve("Rainfall intensity");
     QGraph = new QwtPlotCurve("Discharge");
-    QbGraph = new QwtPlotCurve("Water Height boundary");
+    QbGraph = new QwtPlotCurve("Water flow boundary");
     QsGraph = new QwtPlotCurve("Sediment discharge");
     CGraph = new QwtPlotCurve("Concentration");
     QtileGraph = new QwtPlotCurve("Tile drain");
@@ -241,9 +241,9 @@ void lisemqt::initPlot()
     else
         HPlot->setAxisTitle(axisXB, "time (day)");
 
-//    if (checkChannelBaseflow->isChecked()) {
-//       QbGraph->attach(HPlot);
-//    }
+   if (E_FlowBoundary->value() > 0) {
+      QbGraph->attach(HPlot);
+   }
 
 //    if(checkIncludeTiledrains->isChecked()) {
 //        QtileGraph->attach(HPlot);
@@ -258,10 +258,11 @@ void lisemqt::initPlot()
         QsGraph->attach(HPlot);
         CGraph->attach(HPlot);
 
-         QGraph->setAxes(axisXB, axisYL1);
-         PGraph->setAxes(axisXB, axisYL2);
+        QGraph->setAxes(axisXB, axisYL1);
+        QbGraph->setAxes(axisXB, axisYL1);
+        PGraph->setAxes(axisXB, axisYL2);
         QsGraph->setAxes(axisXB, axisYR1);
-         CGraph->setAxes(axisXB, axisYR2);
+        CGraph->setAxes(axisXB, axisYR2);
 
         if (checkUnits_ls->isChecked())
             HPlot->setAxisTitle(axisYL1, "Q (l/s)");
@@ -278,8 +279,8 @@ void lisemqt::initPlot()
         HPlot->setAxesCount(QwtAxis::YRight, 1);
 
         QGraph->setAxes(axisXB, axisYL1);
+        QbGraph->setAxes(axisXB, axisYL1);
         PGraph->setAxes(axisXB, axisYR1);
-        QbGraph->setAxes(axisXB, axisYR1);
 
         if (checkUnits_ls->isChecked())
             HPlot->setAxisTitle(axisYL1, "Q (l/s)");
@@ -308,6 +309,7 @@ void lisemqt::showPlot()
 
     int index = OutletIndices.indexOf(this->outletpoint);
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
+    QbGraph->setSamples(op.Time,op.Qbound);
     PGraph->setSamples(op.Time,op.Pmm);
 
     // if (checkWaterUserIn->isChecked())
@@ -315,10 +317,10 @@ void lisemqt::showPlot()
 
     int _j = op.OutletQ[index]->count()-1; // last value index
 
-    // qmax[index] = std::max(qmax[index] , 1.1*op.OutletQ[index]->at(_j));
-
     for (int i = 0; i < OutletIndices.count(); i++)  {
-        qmax[i] = std::max(qmax[i] , 1.1*op.OutletQ[i]->at(_j));
+        qmax[i] = std::max(qmax[i], 1.1*op.OutletQ[i]->at(_j));
+        if (E_FlowBoundary->value() > 0)
+            qmax[i] = std::max(qmax[i], 1.1*op.Qbound[_j]);
 
         if (checkDoErosion->isChecked()) {
             qsmax[i] = std::max(qsmax[i] , 1.1*op.OutletQs[i]->at(_j));

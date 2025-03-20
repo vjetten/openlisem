@@ -34,8 +34,8 @@
 #include "operation.h"
 #include "global.h"
 
-#define LIMIT(V,L) (V < 0.0 ? -1.0 : 1.0)*std::min(L,fabs(V))
-#define SIGN(V)(V < 0 ? -1.0 : 1.0)
+//#define LIMIT(V,L) (V < 0.0 ? -1.0 : 1.0)*std::min(L,fabs(V))
+//#define SIGN(V)(V < 0 ? -1.0 : 1.0)
 
 //----------------------------------------------------------------------------------------
 double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
@@ -46,14 +46,14 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     double sumh = 0;
     bool stop;
     double dt_req_min = dt_max;
+
     QBoundary = 0;
     QsBoundary = 0;
-    sumh = getMass(h, 0);
-    //        if (SwitchErosion)
-    //            sumS = getMassSed(SSFlood, 0);
-
 
     do {
+        sumh = getMass(h, 0);
+        //if (SwitchErosion)
+        //sumS = getMassSed(SSFlood, 0);
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
@@ -78,15 +78,14 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         // 2nd order, with avg according to Heun, according to fullswof hean should allways be done!
         int step = 0;
         double dt1;
-        if (SwitchMUSCL) {   // && SwitchHeun) {
+
+        if (SwitchMUSCL) {
             do {
                 step++;
                 dt1 = dt_req_min;
 
                 dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
 
-                //if (dt_req_min == TimestepfloodMin)
-                //    step = 10;
             } while (dt1 > dt_req_min && step < 9);
 
             doSWOFStV(dt_req_min, h, u, v);
@@ -113,6 +112,11 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             SWOFSediment(dt_req_min, h, FlowWidth, u,v);
         }
 
+        if (FlowBoundaryType > 0) {
+            Boundary2Ddyn(dt_req_min, h, u, v);
+            // calc boundary flow and decrease waterlevel on boundary
+        }
+
         if (Switch2DDiagonalFlow) {
             SWOFDiagonalFlowNew(dt_req_min, h, u, v);
         }
@@ -124,10 +128,13 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         if(count > F_MaxIter)
         stop = true;
 
+
+        correctMassBalance(sumh, h, 0);
+
     } while (!stop);
 
-
-    correctMassBalance(sumh, h, 0);
+    QBoundary /= _dt;  //m3 to m3/s
+    QsBoundary /= _dt; // kg to kg/s
 
     iter_n = std::max(1,count);
     return(count > 0 ? _dt/count : _dt);
@@ -137,13 +144,13 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     // boundary
-    double factor = 0.99*exp(-0.007*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
-    double factor2 = pow(factor,2/3); // manning reduction V=h^2/3
+    double factor = exp(-0.005*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
+    double factor2 = pow(factor,0.667); // manning reduction V=h^2/3
 
     //do all flow and state calculations
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (h->Drc > he_ca) {
+     //   if (h->Drc > he_ca) {
             double dx = _dx; // do not do channeladj because the channelflood function does this already
             double dy = _dx;
             double H, Z, U, V;
@@ -551,26 +558,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             //  2e component [1]: Momentum flux direction of flow ( m4/s2)/(m) = m3/s2 = h*u*u)
             //  3d component [3]: Momentum flux perpendicular to flow ( (m4/s2)/(m) = m3/s2 = h*u*v)
             //  4th component[3]: celerity (time)
-/*
-            //left and right hand side of cells c and c-1 (x and x1)
-            h_x1r = std::max(0.0, hx1r - std::max(0.0,  dz_x1 + fb_x1)); //rechts van c-1
-            h_xl  = std::max(0.0, hxl  - std::max(0.0, -dz_x1 + fb_x1)); //links van het midden
-            hll_x1 = F_Riemann(h_x1r,ux1r,vx1r, h_xl,uxl,vxl); // c-1 (x1 right) and c (x1 left)
 
-            //right and left hand side of c and c+1 (x and x2)
-            h_xr  = std::max(0.0, hxr  - std::max(0.0,  dz_x2 + fb_x2));
-            h_x2l = std::max(0.0, hx2l - std::max(0.0, -dz_x2 + fb_x2));
-            hll_x2 = F_Riemann(h_xr,uxr,vxr, h_x2l,ux2l,vx2l); // c and c+1
-
-            // v and u chnaged places for y, so that parallel and perpendicuar to flow remain the same for x and y
-            h_y1d = std::max(0.0, hy1d - std::max(0.0,  dz_y1 + fb_y1));
-            h_yu  = std::max(0.0, hyu  - std::max(0.0, -dz_y1 + fb_y1));
-            hll_y1 = F_Riemann(h_y1d,vy1d,uy1d, h_yu,vyu,uyu); // r-1 (y1 down) and r (y up)
-
-            h_yd  = std::max(0.0, hyd  - std::max(0.0,  dz_y2 + fb_y2));
-            h_y2u = std::max(0.0, hy2u - std::max(0.0, -dz_y2 + fb_y2));
-            hll_y2 = F_Riemann(h_yd,vyd,uyd, h_y2u,vy2u,uy2u); // r and r+1
-*/
 
             //left and right hand side of c and c-1 (x and x1)
             if (bc1) {
@@ -621,7 +609,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             hllx21_2->Drc = hll_x2.v[2] - hll_x1.v[2];
             hlly21_1->Drc = hll_y2.v[1] - hll_y1.v[1];
             hlly21_2->Drc = hll_y2.v[2] - hll_y1.v[2];
-        }
+      //  }
     }} // all cells done
 
     //find smallest dt in domain
@@ -737,4 +725,25 @@ void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v)
             h_y2u=vy2u=uy2u=0.0;
         }
         hll_y2 = F_Riemann(h_yd,vyd,uyd, h_y2u,vy2u,uy2u); // r and r+1
+*/
+
+/*
+            //left and right hand side of cells c and c-1 (x and x1)
+            h_x1r = std::max(0.0, hx1r - std::max(0.0,  dz_x1 + fb_x1)); //rechts van c-1
+            h_xl  = std::max(0.0, hxl  - std::max(0.0, -dz_x1 + fb_x1)); //links van het midden
+            hll_x1 = F_Riemann(h_x1r,ux1r,vx1r, h_xl,uxl,vxl); // c-1 (x1 right) and c (x1 left)
+
+            //right and left hand side of c and c+1 (x and x2)
+            h_xr  = std::max(0.0, hxr  - std::max(0.0,  dz_x2 + fb_x2));
+            h_x2l = std::max(0.0, hx2l - std::max(0.0, -dz_x2 + fb_x2));
+            hll_x2 = F_Riemann(h_xr,uxr,vxr, h_x2l,ux2l,vx2l); // c and c+1
+
+            // v and u chnaged places for y, so that parallel and perpendicuar to flow remain the same for x and y
+            h_y1d = std::max(0.0, hy1d - std::max(0.0,  dz_y1 + fb_y1));
+            h_yu  = std::max(0.0, hyu  - std::max(0.0, -dz_y1 + fb_y1));
+            hll_y1 = F_Riemann(h_y1d,vy1d,uy1d, h_yu,vyu,uyu); // r-1 (y1 down) and r (y up)
+
+            h_yd  = std::max(0.0, hyd  - std::max(0.0,  dz_y2 + fb_y2));
+            h_y2u = std::max(0.0, hy2u - std::max(0.0, -dz_y2 + fb_y2));
+            hll_y2 = F_Riemann(h_yd,vyd,uyd, h_y2u,vy2u,uy2u); // r and r+1
 */

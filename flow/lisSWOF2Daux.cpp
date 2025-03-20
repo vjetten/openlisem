@@ -534,7 +534,6 @@ void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
         if(M->Drc > th)
             sum2 += M->Drc*CHAdjDX->Drc;
     }}
-    //sum2 = std::max(0.0, sum2);
 
     double Mcorr = sum2 > 0 ? (1.0+(sum1 - sum2)/sum2) : 1.0;
     #pragma omp parallel for num_threads(userCores)
