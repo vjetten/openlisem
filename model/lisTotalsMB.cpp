@@ -264,8 +264,10 @@ void TWorld::TotalsFlow(void)
     Qtot_dt = 0;
     // sum all outflow in m3 for this timestep, Qtot is for all timesteps!
 
-    floodBoundaryTot += QBoundary*_dt;
-    Qboundtotmm = floodBoundaryTot*catchmentAreaFlatMM;
+    if (FlowBoundaryType > 0) {
+        floodBoundaryTot += QBoundary*_dt;
+        Qboundtotmm = floodBoundaryTot*catchmentAreaFlatMM;
+    }
 
     // Add outlet overland flow, for all flow methods
     FOR_ROW_COL_MV_L {
@@ -538,7 +540,7 @@ void TWorld::MassBalance()
                      // rainfall + initial WH on surface if present, + baseflow and init baseflow + user defined inflow in channel + sideinflow through soil
     double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot;
                      // all interception + ETa + water on surface + water in channel + water in subsurface drains
-    double waterout = Qtot + IntercETaTot;// + floodBoundaryTot;//
+    double waterout = Qtot + IntercETaTot + floodBoundaryTot;//
     MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
 
    // qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot  << WaterVolTot << ChannelVolTot <<  Qtot ;

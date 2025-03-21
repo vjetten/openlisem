@@ -1120,18 +1120,12 @@ public:
     void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap *v, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentFlowInterpolation(double dt, cTMap * h, cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
-
     void SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);
-    void correctMassBalance(double sum1, cTMap *M, double th);
+    void correctMassBalance(double sum1, cTMap *M);
     void correctMassBalanceSed(double sum1, cTMap *M, double th);
-    double getMass(cTMap *M, double th);
+    double getMass(cTMap *M);
     double getMassSed(cTMap *M, double th);
-    //   double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
-    //   double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);
-    //   double GetDp(int r, int c,double p);
-    //   double GetTotalDW(int r, int c,QList<cTMap *> *M);
-    // <= sediment stuff
 
     // => SWATRE
     /// filenames for Swatre soil information
