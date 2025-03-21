@@ -1,6 +1,13 @@
 Latest fixes and changes:
 =========================
-250222 - v7.4.6 beta R2
+
+see Readme.txt for a complete list
+
+250321 - v7.4.6 beta R3-R5
+- BUG FIX: MUSCL not activated
+- Boundary flow for Dynamic Wave fixed and correct in output
+
+250222 - v7.4.6 beta R1-R2
 - BUG FIX: reading pathnames sometimes result in "//"
 - BUG FIX: crusting SWATRE
 - BUG FIX: 2D flow gives MB error because of domain boundary, for now fixed by excluding the boundary
@@ -34,12 +41,3 @@ Changes:
 - make LISEM update from server optional, and possible to reacitivate in advanced options
 - Updated help files
 - Save fontsize and dark lisem in openlisem.ini
-
-241203 - v7.4.4
-- Update system: lisem will check online in github if a newer version exists
-
-241125 - v7.4.3
-- BUG FIX: Swatre did not account for impermeable surfaces
-- BUG FIX: sign error in Swatre causing invcerse effect of initial h
-- culvert kin wave code extended to subsurface drains, to be tested
-- Interface advanced option: perimeter for overland flow is not just the width but w+2h (compatibility old versions)

@@ -2,7 +2,7 @@ openLISEM
 A spatial model for simulation of the full waterbalance, overland flow, flooding and sediment erosion, transport and deposition in all flows.
 
 ============
-Date: 250222
+Date: 250321
 ============
 
 This software is subject to a DISCLAIMER and released under the copyright model GPLv3
@@ -15,7 +15,11 @@ NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6, op
 
 LIST OF CHANGES and BUGFIXES:
 
-250222 - v7.4.6 beta R2
+250321 - v7.4.6 beta R3-R5
+- BUG FIX: MUSCL not activated
+- Boundary flow for Dynamic Wave fixed and correct in output
+
+250222 - v7.4.6 beta R1-R2
 - BUG FIX: reading pathnames sometimes result in "//"
 - BUG FIX: crusting SWATRE
 - BUG FIX: 2D flow gives MB error because of domain boundary, for now fixed by excluding the boundary
@@ -26,7 +30,6 @@ LIST OF CHANGES and BUGFIXES:
 - added evapotranspiration to Swatre as sinkterm
 - rewrote evapotranspiration for other hydrology
 - Riemann HLLc and HLLc2 (option 4 and 5) behave strangely, reoved fomr interface choiche, defaults to 3
-
 
 250121 - v7.4.5
 - BUG FIX: Delete all map and swatre data after no GUI run
