@@ -1188,7 +1188,6 @@ int showc;
     void MassBalance(void);
     void OutputUI(void);
     void reportAll(void);
-    void ReportTimeseriesNew(void);
     void ReportTimeseriesPCR(void);
     void ReportTimeseriesCSV(void);
     void ReportTotalSeries(void);
