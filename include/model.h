@@ -1192,7 +1192,6 @@ int showc;
     void ReportTimeseriesCSV(void);
     void ReportTotalSeries(void);
     void ReportMaps(void);
-    void ReportDump(void);
     void ReportMapSeries(void);
     void ReportTotalsNew(void);
     void ReportLandunits(void); //VJ 110107 report erosion stats per land unit

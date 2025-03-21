@@ -58,6 +58,7 @@ void TWorld::reportAll(void)
     // report hydrographs ande sedigraphs at all points in outpoint.map
 
     ReportTotalSeries();
+    // report catchment avreages per timestep
 
     if (!SwitchEndRun) {
         ReportMaps();
@@ -209,7 +210,7 @@ void TWorld::OutputUI(void)
             op.OutletQpeaktime.replace(j,time/60);
         }
     }
-
+/*
     //output maps
 
     #pragma omp parallel for num_threads(userCores)
@@ -290,6 +291,7 @@ void TWorld::OutputUI(void)
     if(SwitchInfiltration && InfilMethod != INFIL_SWATRE) {
         avgTheta();
     }
+*/
 }
 //---------------------------------------------------------------------------
 void TWorld::ReportTotalSeries(void)

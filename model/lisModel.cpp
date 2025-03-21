@@ -204,19 +204,9 @@ void TWorld::DoModel()
             }
         }
 
-        // SwitchSnowmelt = false;
+        SwitchSnowmelt = false;
         // if (SwitchSnowmelt)
-        // {
-        //     SnowmeltSeries.clear();
-        //     SnowmeltSeriesMaps.clear();
-        //     snowmelttime.clear();
-        //
-        //     DEBUG("Get Snowmelt Data Information");
-        //     if (SwitchSnowmeltSatellite) {
-        //         GetSpatialMeteoData(snowmeltSatFileName, 2);
-        //     } else {
-        //         GetSnowmeltData(snowmeltFileName);
-        //     }
+
         // }
 
         if (SwitchDischargeUser)

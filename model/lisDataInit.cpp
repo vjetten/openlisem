@@ -895,6 +895,8 @@ void TWorld::InitBoundary(void)
     QBoundary = 0;
     QsBoundary = 0;
 
+    QBoundFlow = NewMap(0);
+
     // make a 1 cell edge around the domain, used to determine flood at the edge
     for (int r = 1; r < _nrRows-1; r++)
         for (int c = 1; c < _nrCols-1; c++)

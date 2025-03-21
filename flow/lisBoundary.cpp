@@ -40,18 +40,18 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
             if (c-1 >= 0 && MV(r,c-1) && !MV(r,c+1)) {
                 if (u->Drc < 0 && h->data[r][c+1]+DEM->data[r][c+1] > h->Drc+DEM->Drc)
                     tma->Drc = 1;
-            } else
+            }
             if (c+1 <= _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
                 if (u->Drc > 0 && h->data[r][c-1]+DEM->data[r][c-1] > h->Drc+DEM->Drc)
-                    tma->Drc = 2;
-            } else
+                    tma->Drc += 10;
+            }
             if (r-1 >= 0 && MV(r-1,c) && !MV(r+1,c)) {
                 if (v->Drc < 0 && h->data[r+1][c]+DEM->data[r+1][c] > h->Drc+DEM->Drc)
-                    tma->Drc = 3;
-            } else
+                    tma->Drc += 100;
+            }
             if (r+1 <= _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
                 if (v->Drc > 0 && h->data[r-1][c]+DEM->data[r-1][c] > h->Drc+DEM->Drc)
-                    tma->Drc = 4;
+                    tma->Drc += 1000;
             }
         }
     }}
@@ -60,14 +60,28 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
     FOR_ROW_COL_MV_L {
         if (tma->Drc > 0) {
             double Q = 0;
-            // if (tma->Drc <= 2)
-            //     Q = fabs(u->Drc)*h->Drc*ChannelAdj->Drc*dt;
-            // else
-            //     Q = fabs(v->Drc)*h->Drc*ChannelAdj->Drc*dt;
-            Q = sqrt(u->Drc*u->Drc + v->Drc*v->Drc)*h->Drc*ChannelAdj->Drc * dt;
+
+            if (tma->Drc == 1 || tma->Drc == 10) // only left or right
+                Q = fabs(u->Drc)*h->Drc*ChannelAdj->Drc*dt;
+            else
+            if (tma->Drc == 100 || tma->Drc == 1000) //pnly up or down
+                Q = fabs(v->Drc)*h->Drc*ChannelAdj->Drc*dt;
+            else
+                if (tma->Drc >= 101)
+                    Q = sqrt(u->Drc*u->Drc + v->Drc*v->Drc)*h->Drc*ChannelAdj->Drc * dt;
+            // if (tma->Drc == 101 || tma->Drc == 1001) // left and up or down
+            //     Q = Quv;
+            // if (tma->Drc == 110 || tma->Drc == 1010) // right and up or down
+            //     Q = Quv;
+            // if (tma->Drc == 110 || tma->Drc == 101) // left or right and up
+            //     Q = Quv;
+            // if (tma->Drc == 1010 || tma->Drc == 1001) // left or right and down
+            //     Q = Quv;
+
             Q = std::min(Q,  h->Drc*CHAdjDX->Drc);
             h->Drc = h->Drc - Q/CHAdjDX->Drc;
             QBoundary += Q;
+            QBoundFlow->Drc = Q/dt;
 
             if (SwitchErosion) {
                 double ds = std::min(SSFlood->Drc, SSCFlood->Drc*Q*dt);

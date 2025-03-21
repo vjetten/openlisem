@@ -340,6 +340,11 @@ void TWorld::TotalsFlow(void)
             Qm3total->Drc += ChannelQn->Drc * _dt;
             Qm3max->Drc = std::max(Qm3max->Drc, ChannelQn->Drc);
         }
+        if(FlowBoundaryType > 0) {
+            Qoutput->Drc += QBoundFlow->Drc * (QUnits == 1 ? 1.0 : 1000);
+            Qm3total->Drc += QBoundFlow->Drc * _dt;
+            Qm3max->Drc = std::max(Qm3max->Drc, QBoundFlow->Drc+ChannelQn->Drc);
+        }
 
         Qoutput->Drc = Qoutput->Drc < 1e-6 ? 0.0 : Qoutput->Drc;
     }}
