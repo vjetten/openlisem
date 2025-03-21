@@ -53,8 +53,6 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
                 if (v->Drc > 0 && h->data[r-1][c]+DEM->data[r-1][c] > h->Drc+DEM->Drc)
                     tma->Drc = 4;
             }
-            if (ChannelWidth->Drc > 0)
-                tma->Drc = 0;
         }
     }}
 
@@ -62,22 +60,23 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
     FOR_ROW_COL_MV_L {
         if (tma->Drc > 0) {
             double Q = 0;
-            if (tma->Drc <= 2)
-                Q = fabs(u->Drc)*h->Drc*ChannelAdj->Drc*dt;
-            else
-                Q = fabs(v->Drc)*h->Drc*ChannelAdj->Drc*dt;
-            //sqrt(u->Drc*u->Drc + v->Drc*v->Drc)*h->Drc*ChannelAdj->Drc;
-            double vol = h->Drc*CHAdjDX->Drc;
-            Q = std::min(Q, vol);
+            // if (tma->Drc <= 2)
+            //     Q = fabs(u->Drc)*h->Drc*ChannelAdj->Drc*dt;
+            // else
+            //     Q = fabs(v->Drc)*h->Drc*ChannelAdj->Drc*dt;
+            Q = sqrt(u->Drc*u->Drc + v->Drc*v->Drc)*h->Drc*ChannelAdj->Drc * dt;
+            Q = std::min(Q,  h->Drc*CHAdjDX->Drc);
             h->Drc = h->Drc - Q/CHAdjDX->Drc;
             QBoundary += Q;
 
             if (SwitchErosion) {
                 double ds = std::min(SSFlood->Drc, SSCFlood->Drc*Q*dt);
                 // because concentrations can be spurious take the min of the two
+                SSFlood->Drc -= ds;
                 QsBoundary += ds; //in kg/s
                 if (SwitchUse2Phase) {
                     ds = std::min(BLFlood->Drc, BLCFlood->Drc*Q*dt);
+                    BLFlood->Drc -= ds;
                     QsBoundary += ds;
                 }
             }

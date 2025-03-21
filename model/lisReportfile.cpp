@@ -181,10 +181,10 @@ void TWorld::OutputUI(void)
         op.OutletChannelWH.at(j)->append(std::isnan(channelwh)?0.0:channelwh); //? why nan
 
         if (SwitchIncludeChannel) {
-            op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * ChannelQn->Drc); //cumulative in m3/s
+            op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * (ChannelQn->Drc + QBoundary)); //cumulative in m3/s
             op.OutletQ.at(j)->append(ChannelQn->Drc*QUNIT);
         } else {
-            op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * Qn->Drc); //cumulative in m3/s
+            op.OutletQtot.replace(j,op.OutletQtot.at(j) + _dt * (Qn->Drc + QBoundary)); //cumulative in m3/s
             op.OutletQ.at(j)->append(Qn->Drc*QUNIT);
         }
 

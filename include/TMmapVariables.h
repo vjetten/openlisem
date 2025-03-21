@@ -411,7 +411,6 @@ cTMap
 *RunoffWaterVol,                //!<
 
 //*FloodZonePotential,                //!<
-*DomainEdge,                //!<
 *FloodDT,
 *Uflood,*Vflood,
 *hs, //*vs, *us,
