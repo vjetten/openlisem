@@ -1228,7 +1228,6 @@ protected:
     void AddComboMap(int listn, QString name, QString unit,cTMap * map,QList<double> ColorMap,
                      QList<QString> Colors, bool log = false,bool symcol = false, double scale = 1.0, double step = 1.0);
     void setLegendColors();
-    void CopyComboMap(int i, cTMap *map);
 
     QList<double> Colormap;
     QList<QString> Colors;

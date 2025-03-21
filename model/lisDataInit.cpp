@@ -1024,10 +1024,9 @@ void TWorld::InitChannel(void)
 
     // for 1D or 2D overland flow: channel outlet points are checked, leading
     // FOR_ROW_COL_MV_CH {
-    //     if(Outlet->Drc > 0 && LDDChannel->Drc != 5)
+    //     if((LDD->Drc == 5 && LDDChannel->Drc != 5) || (LDD->Drc != 5 && LDDChannel->Drc == 5))
     //     {
-    //         //qDebug() << r << c << LDDChannel->Drc << Outlet->Drc;
-    //         ErrorString = QString("Outlet points (outlet.map) do not coincide with Channel LDD endpoints: %1 %2.").arg(Outlet->Drc).arg(LDDChannel->Drc);
+    //         ErrorString = QString("Outlet points of ldd.map and lddchan.map do not coincide (the outlet has ldd value = 5). LDD endpoints: %1 %2.").arg(LDD->Drc).arg(LDDChannel->Drc);
     //         throw 1;
     //     }
     // }
@@ -1040,7 +1039,6 @@ void TWorld::InitChannel(void)
     cover(*ChannelDepth, *LDD,0);
 
     ChannelWidthO = NewMap(0);
- //   ChannelDepthO = NewMap(0);
 
     FOR_ROW_COL_MV_CH {
         ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems

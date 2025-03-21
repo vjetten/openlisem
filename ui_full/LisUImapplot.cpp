@@ -607,7 +607,6 @@ void lisemqt::showComboMap(int i)
     }
     else
     {
-
         MPlot->setAxisScale( QwtAxis::YRight, mi, ma);
         MPlot->setAxisScaleEngine( QwtAxis::YRight, new QwtLinearScaleEngine() );
     }

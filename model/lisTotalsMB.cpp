@@ -267,6 +267,7 @@ void TWorld::TotalsFlow(void)
     if (FlowBoundaryType > 0) {
         floodBoundaryTot += QBoundary*_dt;
         Qboundtotmm = floodBoundaryTot*catchmentAreaFlatMM;
+        Qtot_dt += QBoundary*_dt;
     }
 
     // Add outlet overland flow, for all flow methods
@@ -545,7 +546,8 @@ void TWorld::MassBalance()
                      // rainfall + initial WH on surface if present, + baseflow and init baseflow + user defined inflow in channel + sideinflow through soil
     double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot;
                      // all interception + ETa + water on surface + water in channel + water in subsurface drains
-    double waterout = Qtot + IntercETaTot + floodBoundaryTot;//
+    double waterout = Qtot + IntercETaTot;
+    // floodBoundaryTot is already in Qtot
     MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
 
    // qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot  << WaterVolTot << ChannelVolTot <<  Qtot ;

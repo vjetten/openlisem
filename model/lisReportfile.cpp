@@ -77,6 +77,7 @@ void TWorld::reportAll(void)
     report to screen, hydrographs and maps */
 void TWorld::OutputUI(void)
 {
+
     SwitchCorrectMB_WH = op.SwitchCorrectMB_WH;
     op.timestep = this->_dt/60.0;
 
@@ -210,8 +211,34 @@ void TWorld::OutputUI(void)
             op.OutletQpeaktime.replace(j,time/60);
         }
     }
-/*
+
     //output maps
+
+    // ONLY ONCE
+    if (runstep <= 1) {
+        copy(*op.baseMap, *ShadeBW);
+        copy(*op.baseMapDEM, *DEM);
+
+        if (SwitchIncludeChannel) {
+            copy(*op.channelMap, *LDDChannel);//*ChannelMaskExtended);
+        }
+        copy(*op.outletMap, *PointMap);
+
+        if (SwitchRoadsystem) {
+            FOR_ROW_COL_MV_L {
+                if (RoadWidthDX->Drc > 0.2*_dx)
+                    op.roadMap->Drc = RoadWidthDX->Drc;
+                else
+                    op.roadMap->Drc = 0;
+                //copy(*op.roadMap, *RoadWidthDX);
+            }}
+        }
+        if (SwitchHouses)
+            copy(*op.houseMap, *HouseCover);
+
+        if(SwitchHardsurface)
+            copy(*op.hardsurfaceMap,*HardSurface);
+    }
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -219,6 +246,10 @@ void TWorld::OutputUI(void)
         VH->Drc = COMBO_V->Drc * hmxWH->Drc;
         Lwmm->Drc = Lw->Drc *1000;
     }}
+
+    if(SwitchInfiltration && InfilMethod != INFIL_SWATRE) {
+        avgTheta();
+    }
 
     if(SwitchErosion)
     {
@@ -251,47 +282,6 @@ void TWorld::OutputUI(void)
             COMBO_BL->Drc = COMBO_BL->Drc  < 1e-6 ? 0 : COMBO_BL->Drc;
         }}
     }
-
-
-    // ONLY ONCE
-    if (runstep <= 1) {
-        copy(*op.baseMap, *ShadeBW);
-        copy(*op.baseMapDEM, *DEM);
-
-        if (SwitchIncludeChannel) {
-            copy(*op.channelMap, *LDDChannel);//*ChannelMaskExtended);
-        }
-        copy(*op.outletMap, *PointMap);
-
-        if (SwitchRoadsystem) {
-            FOR_ROW_COL_MV_L {
-                if (RoadWidthDX->Drc > 0.2*_dx)
-                    op.roadMap->Drc = RoadWidthDX->Drc;
-                else
-                    op.roadMap->Drc = 0;
-                //copy(*op.roadMap, *RoadWidthDX);
-            }}
-        }
-        if (SwitchHouses)
-            copy(*op.houseMap, *HouseCover);
-
-        if(SwitchHardsurface)
-            copy(*op.hardsurfaceMap,*HardSurface);
-
-//        if(SwitchFlowBarriers)
-//        {
-//            Fill(*tma,0.0);
-//            FOR_ROW_COL_MV {
-//                tma->Drc = std::max(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),FlowBarrierW->Drc),FlowBarrierS->Drc);
-//            }
-//            copy(*op.flowbarriersMap,*tma);
-//        }
-    }
-    // MAP DISPLAY VARIABLES
-    if(SwitchInfiltration && InfilMethod != INFIL_SWATRE) {
-        avgTheta();
-    }
-*/
 }
 //---------------------------------------------------------------------------
 void TWorld::ReportTotalSeries(void)
@@ -464,8 +454,8 @@ void TWorld::ReportTotalsNew(void)
     out << "\"Water across boundary (mm):\"," << op.Qboundtotmm<< "\n";
     out << "\"Total baseflow and side inflow (mm):\"," << op.BaseFlowTotmm << "\n";
     out << "\"Total peakflow (mm):\"," << op.PeakFlowTotmm << "\n";
-    out << "\"Total outflow (all flows) (mm):\"," << op.Qtotmm+op.Qboundtotmm << "\n";
-    out << "\"Total outflow (overland+channel+drains) (m3):\"," << op.Qtot<< "\n";
+    out << "\"Total outflow (overland+channel+drains+boundary) (mm):\"," << op.Qtotmm << "\n";
+    out << "\"Total outflow (overland+channel+drains+boundary) (m3):\"," << op.Qtot<< "\n";
     out << "\"Total boundary outflow (m3):\"," << op.floodBoundaryTot<< "\n";
     out << "\"Total storm drain discharge (m3):\"," << op.Qtiletot<< "\n";
     out << "\"Peak time precipitation (min):\"," << op.RainpeakTime<< "\n";
@@ -481,9 +471,6 @@ void TWorld::ReportTotalsNew(void)
         out << "\"Flow detachment (channels) (ton):\"," << op.ChannelDetTot<< "\n";
         out << "\"Deposition (channels) (ton):\"," << op.ChannelDepTot<< "\n";
         out << "\"Sediment (channels) (ton):\"," << op.ChannelSedTot<< "\n";
-    //    out << "\"Flow detachment (flood) (ton):\"," << op.FloodDetTot<< "\n";
-    //    out << "\"Deposition (flood) (ton):\"," << op.FloodDepTot<< "\n";
-    //    out << "\"Susp. Sediment (flood) (ton):\"," << op.FloodSedTot<< "\n";
         out << "\"Total soil loss (ton):\"," << op.SoilLossTot<< "\n";
         out << "\"Average soil loss (kg/ha):\"," << (op.SoilLossTot*1000.0)/(op.CatchmentArea/10000.0)<< "\n";
         out << "\n";
@@ -505,6 +492,53 @@ void TWorld::ReportTotalsNew(void)
 /// outputnames that start with "out" are series
 void TWorld::ReportMaps(void)
 {
+    //output maps
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        COMBO_V->Drc = V->Drc < 1e-5 ? 0 : V->Drc;
+        VH->Drc = COMBO_V->Drc * hmxWH->Drc;
+        Lwmm->Drc = Lw->Drc *1000;
+    }}
+
+    if(SwitchErosion)
+    {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            COMBO_SS->Drc = 0;
+            COMBO_BL->Drc = 0;
+            COMBO_TC->Drc = 0;
+
+            COMBO_SS->Drc += SSFlood->Drc;
+            COMBO_SS->Drc += Sed->Drc;
+
+            COMBO_TC->Drc += SSTCFlood->Drc;
+            COMBO_TC->Drc += TC->Drc;
+
+            if (SwitchUse2Phase) {
+                COMBO_BL->Drc += BLFlood->Drc;
+                COMBO_TC->Drc += BLTCFlood->Drc;
+            }
+
+            if(SwitchIncludeChannel)
+            {
+                COMBO_SS->Drc += ChannelSSSed->Drc;
+                if (SwitchUse2Phase)
+                    COMBO_BL->Drc += ChannelBLSed->Drc;
+                COMBO_TC->Drc += ChannelTC->Drc;
+            }
+
+            COMBO_SS->Drc = COMBO_SS->Drc  < 1e-6 ? 0 : COMBO_SS->Drc;
+            COMBO_BL->Drc = COMBO_BL->Drc  < 1e-6 ? 0 : COMBO_BL->Drc;
+        }}
+    }
+
+    // MAP DISPLAY VARIABLES
+    if(SwitchInfiltration && InfilMethod != INFIL_SWATRE) {
+        avgTheta();
+    }
+
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         tm->Drc = (RainCumFlat->Drc)*1000.0;// + SnowmeltCum->Drc*DX->Drc/_dx) * 1000.0; // m to mm
@@ -970,14 +1004,6 @@ void TWorld::setupHydrographData()
 //---------------------------------------------------------------------------
 void TWorld::ClearHydrographData()
 {
-//    for(int i =op.OutletIndices.length() - 1; i >-1 ; i--)
-//    {
-//        delete op.OutletQ.at(i);
-//        delete op.OutletQs.at(i);
-//        delete op.OutletC.at(i);
-//        delete op.OutletChannelWH.at(i);
-//    }
-
     op.OutletIndices.clear();
     op.OutletLocationX.clear();
     op.OutletLocationY.clear();
@@ -1099,7 +1125,6 @@ void TWorld::ReportTimeseriesPCR(void)
 
         if (SwitchIncludeChannel) {
             out << sep << ChannelQn->Drc*QUNIT;
-
             out << sep << ChannelWH->Drc;
         } else {
             out << sep << Qn->Drc*QUNIT;
@@ -1123,7 +1148,7 @@ void TWorld::ReportTimeseriesPCR(void)
     }}
 
 }
-
+//---------------------------------------------------------------------------
 void TWorld::ReportTimeseriesCSV(void)
 {
     int DIG = ReportDigitsOut;
