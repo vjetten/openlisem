@@ -119,7 +119,7 @@ void TWorld::cell_SurfaceStorage(int r, int c)
     // additional Fayna Yuu type storage in m3 per cell
     // if in a channel cell the store is taken from the channel flow (buffer)
     if (SwitchGridRetention && ChannelWidth->Drc == 0) {
-        dh = (GridRetention->Drc-GridRetentionAct->Drc)/(_dx*DX->Drc);
+        double dh = (GridRetention->Drc-GridRetentionAct->Drc)/(_dx*DX->Drc);
         if (dh > wh) {
             GridRetentionAct->Drc += WH->Drc*_dx*DX->Drc;
             wh = 0;

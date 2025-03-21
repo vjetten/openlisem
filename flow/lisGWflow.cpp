@@ -403,7 +403,7 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         SD = SoilDepth1init;
     }
 
-    sumh = getMass(h, 0);
+    sumh = getMass(h);
 
     if (sumh == 0)
         return 0;
@@ -609,7 +609,7 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
     } while (!stop);
 
-    correctMassBalance(sumh, h, 0);
+    correctMassBalance(sumh, h);
 
     //qDebug() << _dt/count << count << dt_req_min;
     iter_n = std::max(1,count);

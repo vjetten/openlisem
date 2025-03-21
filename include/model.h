@@ -1040,8 +1040,7 @@ public:
    // void dynOutflowPoints(cTMap *h);
     void OverlandFlow2Ddyn(void);
     void updateWHandHmx(void);
-    void Boundary2Ddyn(cTMap *h, cTMap *u, cTMap *v);
-    void Boundary2DdynUV(cTMap * U, cTMap *V);
+    void Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v);
     void SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);  //OBSOLETE
     void SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
     // <= 2D flow
@@ -1119,18 +1118,12 @@ public:
     void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap *v, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentFlowInterpolation(double dt, cTMap * h, cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
-
     void SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);
-    void correctMassBalance(double sum1, cTMap *M, double th);
+    void correctMassBalance(double sum1, cTMap *M);
     void correctMassBalanceSed(double sum1, cTMap *M, double th);
-    double getMass(cTMap *M, double th);
+    double getMass(cTMap *M);
     double getMassSed(cTMap *M, double th);
-    //   double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
-    //   double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);
-    //   double GetDp(int r, int c,double p);
-    //   double GetTotalDW(int r, int c,QList<cTMap *> *M);
-    // <= sediment stuff
 
     // => SWATRE
     /// filenames for Swatre soil information
@@ -1193,12 +1186,10 @@ int showc;
     void MassBalance(void);
     void OutputUI(void);
     void reportAll(void);
-    void ReportTimeseriesNew(void);
     void ReportTimeseriesPCR(void);
     void ReportTimeseriesCSV(void);
     void ReportTotalSeries(void);
     void ReportMaps(void);
-    void ReportDump(void);
     void ReportMapSeries(void);
     void ReportTotalsNew(void);
     void ReportLandunits(void); //VJ 110107 report erosion stats per land unit
@@ -1235,7 +1226,6 @@ protected:
     void AddComboMap(int listn, QString name, QString unit,cTMap * map,QList<double> ColorMap,
                      QList<QString> Colors, bool log = false,bool symcol = false, double scale = 1.0, double step = 1.0);
     void setLegendColors();
-    void CopyComboMap(int i, cTMap *map);
 
     QList<double> Colormap;
     QList<QString> Colors;

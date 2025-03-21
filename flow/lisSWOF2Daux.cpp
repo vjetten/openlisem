@@ -502,12 +502,12 @@ vec4 TWorld::F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,do
 
 //--------------------------------------------------------------------------------------------
 // correct mass balance
-double TWorld::getMass(cTMap *M, double th)
+double TWorld::getMass(cTMap *M)
 {
     double sum2 = 0;
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if(M->Drc > th)
+        if(M->Drc > 0)
             sum2 += M->Drc*CHAdjDX->Drc;
     }}
 return sum2;
@@ -525,21 +525,20 @@ double TWorld::getMassSed(cTMap *M, double th)
 }
 //---------------------------------------------------------------------------
 // correct mass balance
-void TWorld::correctMassBalance(double sum1, cTMap *M, double th)
+void TWorld::correctMassBalance(double sum1, cTMap *M)
 {
     double sum2 = 0;
 
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if(M->Drc > th)
+        if(M->Drc > 0)
             sum2 += M->Drc*CHAdjDX->Drc;
     }}
-    //sum2 = std::max(0.0, sum2);
 
     double Mcorr = sum2 > 0 ? (1.0+(sum1 - sum2)/sum2) : 1.0;
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if(M->Drc > th) {
+        if(M->Drc > 0) {
             M->Drc = M->Drc*Mcorr;            // <- distribution weighted to h
             M->Drc = std::max(M->Drc , 0.0);
         }

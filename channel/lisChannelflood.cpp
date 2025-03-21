@@ -419,13 +419,6 @@ void TWorld::ChannelFlood(void)
     // mix HWrunoff with hmx
     // if toflood before channeloverflow then MB error in sed
 
-    if (SwitchChannel2DflowConnect)
-        ChannelOverflowIteration(hmx, V);
-    else
-        ChannelOverflow(hmx, V);
-    // determine overflow water => hmx      
-    // hmx is flood water, WH is overlandflow, WHrunoff etc
-
     double dtflood = 0;
 
     startFlood = false;
@@ -460,8 +453,13 @@ void TWorld::ChannelFlood(void)
         }
     }}
 
-    Boundary2Ddyn(hmx, Uflood, Vflood);
-    // 2D boundary flow, fill QBoundary and QsBoundary
+
+    if (SwitchChannel2DflowConnect)
+        ChannelOverflowIteration(hmx, V);
+    else
+        ChannelOverflow(hmx, V);
+    // determine overflow water => hmx
+    // hmx is flood water, WH is overlandflow, WHrunoff etc
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {

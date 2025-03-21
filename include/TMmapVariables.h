@@ -42,6 +42,7 @@ cTMap
 *PointMap,                   //!< map with output points, values > 0 [-]
 *FlowBoundary,               //!< map with open boundary fior diffusive runoff (1) or closed boundary (0)
 *WaterSheds,                 //!< map with numbered siubcatchments, must be 1,2,3 ... n
+*QBoundFlow,
 
 *IDRainPoints,                   //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *RainZone,                   //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
@@ -405,14 +406,13 @@ cTMap
 *FloodDomain,                //!<
 *Buffers,                    //!<
 *GridRetention,                    //!<
-GridRetentionAct,
+*GridRetentionAct,
 *ChannelMaxQ,                //!<
 *ChannelMaxAlpha,                //!<
 *FloodWaterVol,                //!<
 *RunoffWaterVol,                //!<
 
 //*FloodZonePotential,                //!<
-*DomainEdge,                //!<
 *FloodDT,
 *Uflood,*Vflood,
 *hs, //*vs, *us,

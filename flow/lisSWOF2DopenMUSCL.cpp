@@ -34,8 +34,8 @@
 #include "operation.h"
 #include "global.h"
 
-#define LIMIT(V,L) (V < 0.0 ? -1.0 : 1.0)*std::min(L,fabs(V))
-#define SIGN(V)(V < 0 ? -1.0 : 1.0)
+//#define LIMIT(V,L) (V < 0.0 ? -1.0 : 1.0)*std::min(L,fabs(V))
+//#define SIGN(V)(V < 0 ? -1.0 : 1.0)
 
 //----------------------------------------------------------------------------------------
 double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
@@ -46,14 +46,12 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     double sumh = 0;
     bool stop;
     double dt_req_min = dt_max;
-    QBoundary = 0;
-    QsBoundary = 0;
-    sumh = getMass(h, 0);
-    //        if (SwitchErosion)
-    //            sumS = getMassSed(SSFlood, 0);
-
 
     do {
+
+        sumh = getMass(h);
+        //if (SwitchErosion)
+        //sumS = getMassSed(SSFlood, 0);
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
@@ -78,15 +76,14 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         // 2nd order, with avg according to Heun, according to fullswof hean should allways be done!
         int step = 0;
         double dt1;
-        if (SwitchMUSCL) {   // && SwitchHeun) {
+
+        if (SwitchMUSCL) {
             do {
                 step++;
                 dt1 = dt_req_min;
 
                 dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
 
-                //if (dt_req_min == TimestepfloodMin)
-                //    step = 10;
             } while (dt1 > dt_req_min && step < 9);
 
             doSWOFStV(dt_req_min, h, u, v);
@@ -124,10 +121,15 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         if(count > F_MaxIter)
         stop = true;
 
+        correctMassBalance(sumh, h);
+        // small mass balance corrections
     } while (!stop);
 
 
-    correctMassBalance(sumh, h, 0);
+    if (FlowBoundaryType > 0) {
+        Boundary2Ddyn(_dt, h, u, v);
+        // calc boundary flow and decrease waterlevel on boundary
+    }
 
     iter_n = std::max(1,count);
     return(count > 0 ? _dt/count : _dt);
@@ -137,13 +139,27 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     // boundary
-    double factor = 0.99*exp(-0.007*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
-    double factor2 = pow(factor,2/3); // manning reduction V=h^2/3
+    double factor = exp(-0.005*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
+    double factor2 = pow(factor,0.667); // manning reduction V=h^2/3
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        tmd->Drc = 0;
+        if (h->Drc > he_ca) {
+            tmd->Drc = 1;
+            // make more activecells bhecause else wave does not go on land
+            //and one dry cell more in all directions
+            if (c > 0 && c != MV(r,c-1)        )  tmd->data[r][c-1] = 1;
+            if (c < _nrCols-1 && !c != MV(r,c+1)) tmd->data[r][c+1] = 1;
+            if (r > 0 && r != MV(r-1,c)        )  tmd->data[r-1][c] = 1;
+            if (r < _nrRows-1 && r != MV(r+1,c))  tmd->data[r+1][c] = 1;
+        }
+    }}
 
     //do all flow and state calculations
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (h->Drc > he_ca) {
+        if (tmd->Drc == 1) {
             double dx = _dx; // do not do channeladj because the channelflood function does this already
             double dy = _dx;
             double H, Z, U, V;
@@ -224,108 +240,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                 u_y2 = U;
                 v_y2 = V;
             }
-/*
-            // boundary cell fluxes
-            // if there are barriers at the flowdomain edge, these should be done here!
-            // calculate inner cell boundary and use that for outer cell value
-            if (FlowBoundary->Drc > 0) {
-                double factor = 0.01;
-                //if left does not exist and right exist estimate gradient
-                if (c-1 >= 0 && MV(r,c-1) && !MV(r,c+1)) {
-                   // z_x1 = 2*Z-z_x2;
-                 //   if (SwitchFlowBarriers) z_x1 += FlowBarrierW->Drc;
-                    double dH = 0.5*(H-h_x2); // diff right hand side of edge cell
-                    h_x1 = std::min(std::max(0.0,H+dH*factor),H);
-                    if (h_x1 > he_ca) {
-                        double dh = fabs(1-H/h_x1);
-                        double dU = (U-u_x2)*0.5;
-                        double dV = (V-v_x2)*0.5;
-                        u_x1 = limiter(U + dU*factor, U*dh);
-                        v_x1 = limiter(V + dV*factor, V*dh);
 
-                       u_x1 = LIMIT(u_x1,U);
-                       v_x1 = LIMIT(v_x1,V);
-
-                    } else {
-                        u_x1 = 0;
-                        v_x1 = 0;
-                    }
-                }
-                if (c+1 <= _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
-                   // z_x2 = 2*Z-z_x1;
-                    // double dH = (H-h_x1)*0.5;
-                    // h_x2 = std::max(0.0,H + dH*factor);
-                    // if (h_x2 > he_ca) {
-                    //     double dh = fabs(1-H/h_x2);
-                    //     double dU = (U-u_x1)*0.5;
-                    //     double dV = (V-v_x1)*0.5;
-
-                    double dH = (h_x1-H)*0.5;
-                    h_x2 = std::min(std::max(0.0,H + dH*factor),H);
-                    if (h_x2 > he_ca) {
-                        double dh = fabs(1-H/h_x2);
-                        double dU = (u_x1-U)*0.5;
-                        double dV = (v_x1-V)*0.5;
-                        u_x2 = limiter(U + dU*factor, U*dh);
-                        v_x2 = limiter(V + dV*factor, V*dh);
-
-                        u_x2 = LIMIT(u_x2,U);
-                        v_x2 = LIMIT(v_x2,V);
-
-                    }else {
-                        u_x2 = 0;
-                        v_x2 = 0;
-                    }
-                }
-                if (r-1 >= 0 && MV(r-1,c) && !MV(r+1,c)) {
-                  //  z_y1 = 2*Z-z_y2;
-                  //  if (SwitchFlowBarriers) z_y1 += FlowBarrierN->Drc;
-                    double dH = (H-h_y2)*0.5;
-                    h_y1 = std::min(std::max(0.0,H + dH*factor),H);
-                    if (h_y1 > he_ca) {
-                        double dh = fabs(1-H/h_y1);
-                        double dU = (U-u_y2)*0.5;
-                        double dV = (V-v_y2)*0.5;
-                        u_y1 = limiter(U + dU*factor, U*dh);
-                        v_y1 = limiter(V + dV*factor, V*dh);
-
-                       u_y1 = LIMIT(u_y1,U);
-                       v_y1 = LIMIT(v_y1,V);
-
-                    }else {
-                        u_y1 = 0;
-                        v_y1 = 0;
-                    }
-                }
-                if (r+1 <= _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
-                   // z_y2 = 2*Z-z_y1;
-                    // double dH = (H-h_y1)*0.5;
-                    // h_y2 = std::max(0.0,H + dH*factor);
-                    // if (h_y2 > he_ca) {
-                    //     double dh = fabs(1-H/h_y2);
-                    //     double dU = (U-u_y1)*0.5;
-                    //     double dV = (V-v_y1)*0.5;
-
-                    double dH = (h_y1-H)*0.5;
-                    h_y2 = std::min(std::max(0.0,H + dH*factor), H);
-                    if (h_y2 > he_ca) {
-                        double dh = fabs(1-H/h_y2);
-                        double dU = (u_y1-U)*0.5;
-                        double dV = (v_y1-V)*0.5;
-                        u_y2 = limiter(U + dU*factor, U*dh);
-                        v_y2 = limiter(V + dV*factor, V*dh);
-
-                       u_y2 = LIMIT(u_y2,U);
-                       v_y2 = LIMIT(v_y2,V);
-                       u_y2 = U;
-                       v_y2 = V;
-                    }else {
-                        u_y2 = 0;
-                        v_y2 = 0;
-                    }
-                }
-            }
-*/
             if (FlowBoundary->Drc > 0) {
 
                 //if left does not exist and right exist estimate gradient
@@ -551,26 +466,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             //  2e component [1]: Momentum flux direction of flow ( m4/s2)/(m) = m3/s2 = h*u*u)
             //  3d component [3]: Momentum flux perpendicular to flow ( (m4/s2)/(m) = m3/s2 = h*u*v)
             //  4th component[3]: celerity (time)
-/*
-            //left and right hand side of cells c and c-1 (x and x1)
-            h_x1r = std::max(0.0, hx1r - std::max(0.0,  dz_x1 + fb_x1)); //rechts van c-1
-            h_xl  = std::max(0.0, hxl  - std::max(0.0, -dz_x1 + fb_x1)); //links van het midden
-            hll_x1 = F_Riemann(h_x1r,ux1r,vx1r, h_xl,uxl,vxl); // c-1 (x1 right) and c (x1 left)
 
-            //right and left hand side of c and c+1 (x and x2)
-            h_xr  = std::max(0.0, hxr  - std::max(0.0,  dz_x2 + fb_x2));
-            h_x2l = std::max(0.0, hx2l - std::max(0.0, -dz_x2 + fb_x2));
-            hll_x2 = F_Riemann(h_xr,uxr,vxr, h_x2l,ux2l,vx2l); // c and c+1
-
-            // v and u chnaged places for y, so that parallel and perpendicuar to flow remain the same for x and y
-            h_y1d = std::max(0.0, hy1d - std::max(0.0,  dz_y1 + fb_y1));
-            h_yu  = std::max(0.0, hyu  - std::max(0.0, -dz_y1 + fb_y1));
-            hll_y1 = F_Riemann(h_y1d,vy1d,uy1d, h_yu,vyu,uyu); // r-1 (y1 down) and r (y up)
-
-            h_yd  = std::max(0.0, hyd  - std::max(0.0,  dz_y2 + fb_y2));
-            h_y2u = std::max(0.0, hy2u - std::max(0.0, -dz_y2 + fb_y2));
-            hll_y2 = F_Riemann(h_yd,vyd,uyd, h_y2u,vy2u,uy2u); // r and r+1
-*/
 
             //left and right hand side of c and c-1 (x and x1)
             if (bc1) {
@@ -737,4 +633,25 @@ void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v)
             h_y2u=vy2u=uy2u=0.0;
         }
         hll_y2 = F_Riemann(h_yd,vyd,uyd, h_y2u,vy2u,uy2u); // r and r+1
+*/
+
+/*
+            //left and right hand side of cells c and c-1 (x and x1)
+            h_x1r = std::max(0.0, hx1r - std::max(0.0,  dz_x1 + fb_x1)); //rechts van c-1
+            h_xl  = std::max(0.0, hxl  - std::max(0.0, -dz_x1 + fb_x1)); //links van het midden
+            hll_x1 = F_Riemann(h_x1r,ux1r,vx1r, h_xl,uxl,vxl); // c-1 (x1 right) and c (x1 left)
+
+            //right and left hand side of c and c+1 (x and x2)
+            h_xr  = std::max(0.0, hxr  - std::max(0.0,  dz_x2 + fb_x2));
+            h_x2l = std::max(0.0, hx2l - std::max(0.0, -dz_x2 + fb_x2));
+            hll_x2 = F_Riemann(h_xr,uxr,vxr, h_x2l,ux2l,vx2l); // c and c+1
+
+            // v and u chnaged places for y, so that parallel and perpendicuar to flow remain the same for x and y
+            h_y1d = std::max(0.0, hy1d - std::max(0.0,  dz_y1 + fb_y1));
+            h_yu  = std::max(0.0, hyu  - std::max(0.0, -dz_y1 + fb_y1));
+            hll_y1 = F_Riemann(h_y1d,vy1d,uy1d, h_yu,vyu,uyu); // r-1 (y1 down) and r (y up)
+
+            h_yd  = std::max(0.0, hyd  - std::max(0.0,  dz_y2 + fb_y2));
+            h_y2u = std::max(0.0, hy2u - std::max(0.0, -dz_y2 + fb_y2));
+            hll_y2 = F_Riemann(h_yd,vyd,uyd, h_y2u,vy2u,uy2u); // r and r+1
 */

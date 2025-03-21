@@ -179,15 +179,17 @@ void TWorld::ChannelRainandInfil(void)
     }
 
     if (SwitchGridRetention) {
-        double dvol = GridRetention->Drc - GridRetentionAct->Drc;
-        if (dvol > ChannelWaterVol->Drc) {
-            GridRetentionAct->Drc += ChannelWaterVol->Drc;
-            ChannelWaterVol->Drc = 0;
-        } else
-            if (dvol > 0) {
-                GridRetentionAct->Drc = GridRetention->Drc;
-                ChannelWaterVol->Drc -= dvol;
-            }
+        FOR_ROW_COL_MV_CHL {
+            double dvol = GridRetention->Drc - GridRetentionAct->Drc;
+            if (dvol > ChannelWaterVol->Drc) {
+                GridRetentionAct->Drc += ChannelWaterVol->Drc;
+                ChannelWaterVol->Drc = 0;
+            } else
+                if (dvol > 0) {
+                    GridRetentionAct->Drc = GridRetention->Drc;
+                    ChannelWaterVol->Drc -= dvol;
+                }
+        }}
     }
 
     // add user channel inflow

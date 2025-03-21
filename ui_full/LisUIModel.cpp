@@ -465,14 +465,6 @@ void lisemqt::initOP()
 
     op.comboboxset = false;
 
-    // delete op.baseMap;
-    // delete op.baseMapDEM;
-    // delete op.channelMap;
-    // delete op.outletMap;
-    // delete op.roadMap;
-    // delete op.houseMap;
-    // delete op.hardsurfaceMap;
-    // delete op.Image;
 //the maps are pointers to the real maps, not copies
     op.baseMap = nullptr;
     op.baseMapDEM = nullptr;

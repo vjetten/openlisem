@@ -426,13 +426,6 @@ void TWorld::GetComboMaps()
 //---------------------------------------------------------------------------
 void TWorld::ClearComboMaps()
 {
-
-//    for(int i =op.ComboMapsSafe.length() - 1; i >-1 ; i--)
-//    {
-//        delete op.ComboMapsSafe.at(i);
-//    }
-//    op.ComboMapsSafe.clear();
-
     op.ComboLists.clear();
     op.ComboMaps.clear();
     op.ComboColorMap.clear();
@@ -474,13 +467,3 @@ void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList
     op.comboboxset = false;
 }
 
-void TWorld::CopyComboMap(int i, cTMap * map)
-{
-    op.ComboMaps.append(new cTMap);
-    op.ComboMaps.at(i)->MakeMap(LDD,0.0);
-    #pragma omp parallel num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        op.ComboMaps.at(i)->Drc = map->Drc;
-    }}
-    // copy the map content
-}

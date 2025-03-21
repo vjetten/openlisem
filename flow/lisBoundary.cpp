@@ -26,11 +26,12 @@
 
 
 //---------------------------------------------------------------------------
-void TWorld::Boundary2Ddyn(cTMap *h, cTMap *u, cTMap *v)
+void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
 {
     QBoundary = 0;
     QsBoundary = 0;
 
+    // TODO barriers!
     Fill(*tma,0);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -39,92 +40,69 @@ void TWorld::Boundary2Ddyn(cTMap *h, cTMap *u, cTMap *v)
             if (c-1 >= 0 && MV(r,c-1) && !MV(r,c+1)) {
                 if (u->Drc < 0 && h->data[r][c+1]+DEM->data[r][c+1] > h->Drc+DEM->Drc)
                     tma->Drc = 1;
-            } else
+            }
             if (c+1 <= _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
                 if (u->Drc > 0 && h->data[r][c-1]+DEM->data[r][c-1] > h->Drc+DEM->Drc)
-                    tma->Drc = 2;
-            } else
+                    tma->Drc += 10;
+            }
             if (r-1 >= 0 && MV(r-1,c) && !MV(r+1,c)) {
                 if (v->Drc < 0 && h->data[r+1][c]+DEM->data[r+1][c] > h->Drc+DEM->Drc)
-                    tma->Drc = 3;
-            } else
+                    tma->Drc += 100;
+            }
             if (r+1 <= _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
                 if (v->Drc > 0 && h->data[r-1][c]+DEM->data[r-1][c] > h->Drc+DEM->Drc)
-                    tma->Drc = 4;
+                    tma->Drc += 1000;
             }
         }
     }}
-//report(*tma,"bact");
-int k = 0;
+
+    #pragma omp parallel for reduction(+:QBoundary, QsBoundary) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (tma->Drc > 0) {
-k++;
-            QBoundary += Qn->Drc;
-            // Qn based on vector combination Uflood and Vflood, calculated before
+            double Q = 0;
+
+            if (tma->Drc == 1 || tma->Drc == 10) // only left or right
+                Q = fabs(u->Drc)*h->Drc*ChannelAdj->Drc*dt;
+            else
+            if (tma->Drc == 100 || tma->Drc == 1000) //pnly up or down
+                Q = fabs(v->Drc)*h->Drc*ChannelAdj->Drc*dt;
+            else
+                if (tma->Drc >= 101)
+                    Q = sqrt(u->Drc*u->Drc + v->Drc*v->Drc)*h->Drc*ChannelAdj->Drc * dt;
+            // if (tma->Drc == 101 || tma->Drc == 1001) // left and up or down
+            //     Q = Quv;
+            // if (tma->Drc == 110 || tma->Drc == 1010) // right and up or down
+            //     Q = Quv;
+            // if (tma->Drc == 110 || tma->Drc == 101) // left or right and up
+            //     Q = Quv;
+            // if (tma->Drc == 1010 || tma->Drc == 1001) // left or right and down
+            //     Q = Quv;
+
+            Q = std::min(Q,  h->Drc*CHAdjDX->Drc);
+            h->Drc = h->Drc - Q/CHAdjDX->Drc;
+            QBoundary += Q;
+            QBoundFlow->Drc = Q/dt;
 
             if (SwitchErosion) {
-                double ds = std::min(SSFlood->Drc, SSCFlood->Drc*Qn->Drc*_dt);
+                double ds = std::min(SSFlood->Drc, SSCFlood->Drc*Q*dt);
                 // because concentrations can be spurious take the min of the two
-                QsBoundary += ds/_dt; //in kg/s
+                SSFlood->Drc -= ds;
+                QsBoundary += ds; //in kg/s
                 if (SwitchUse2Phase) {
-                    ds = std::min(BLFlood->Drc, BLCFlood->Drc*Qn->Drc*_dt);
-                    QsBoundary += ds/_dt;
+                    ds = std::min(BLFlood->Drc, BLCFlood->Drc*Q*dt);
+                    BLFlood->Drc -= ds;
+                    QsBoundary += ds;
                 }
             }
         }
     }}
-    qDebug() << "boundary flux m3/s" << QBoundary << k;
+    QBoundary /= dt;  //m3 to m3/s
+    QsBoundary /= dt; // kg to kg/s
+
+    //qDebug() << "boundary flux m3/s" << QBoundary;
 }
 
 
-//---------------------------------------------------------------------------
-void TWorld::Boundary2DdynUV(cTMap * U, cTMap *V)
-{
-    Fill(*tma,0);
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (FlowBoundary->Drc > 0) {
-            //flow left bpoundary to the left etc
-            if (c-1 >= 0 && MV(r,c-1) && !MV(r,c+1)) {
-                if (U->Drc < 0)
-                    tma->Drc = 1;
-            }
-            if (c+1 <= _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
-                if (U->Drc > 0)
-                    tma->Drc = 1;
-            }
-            if (r-1 >= 0 && MV(r-1,c) && !MV(r+1,c)) {
-                if (V->Drc < 0)
-                    tma->Drc = 1;
-            }
-            if (r+1 <= _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
-                if (V->Drc > 0)
-                    tma->Drc = 1;
-            }
-        }
-    }}
-
-    FOR_ROW_COL_MV_L {
-        if (tma->Drc == 1) {
-          //  double Q = sqrt(U->Drc*U->Drc + V->Drc*V->Drc) *h->Drc * ChannelAdj->Drc;
-          //  Q = std::min(Qn->Drc, (WaterVolall->Drc-MicroStoreVol->Drc)/_dt);
-            //WaterVolall->Drc -= Q*_dt;
-
-       //     QBoundary += Q;
-            // Qn based on vector combination Uflood and Vflood, calculated before
-
-            // if (SwitchErosion) {
-            //     double ds = std::min(SSFlood->Drc, SSCFlood->Drc*Qn->Drc*_dt);
-            //     // because concentrations can be spurious take the min of the two
-            //     QsBoundary += ds/_dt; //in kg/s
-            //     if (SwitchUse2Phase) {
-            //         ds = std::min(BLFlood->Drc, BLCFlood->Drc*Qn->Drc*_dt);
-            //         QsBoundary += ds/_dt;
-            //     }
-            // }
-        }
-    }}
-}
 // OBSOLETE
 
 double TWorld::DEMFB(int r, int c, int rd, int cd, bool addwh)
@@ -147,23 +125,23 @@ double TWorld::DEMFB(int r, int c, int rd, int cd, bool addwh)
                 wh = 0;
                 dem = DEM->Drc;
             } else {
-               return 0;
+                return 0;
             }
         }
 
     } else
         if(INSIDE(r,c)) {
-        if(!pcr::isMV(LDD->Drc))
-        {
-            wh = 0;
-            dem = DEM->Drc;
-        } else {
-           return 0;  // returns always zero because demb r c is inside and not mv
-        }
+            if(!pcr::isMV(LDD->Drc))
+            {
+                wh = 0;
+                dem = DEM->Drc;
+            } else {
+                return 0;  // returns always zero because demb r c is inside and not mv
+            }
 
-    } else {
-        return 0;
-    }
+        } else {
+            return 0;
+        }
 
     if(OUTORMV(r+rd,c+cd))
     {
@@ -180,33 +158,33 @@ double TWorld::DEMFB(int r, int c, int rd, int cd, bool addwh)
     {
         return dem + std::max(wh,(FlowBarrierS->Drc));
     }
-    // else if(rd == 1 && cd == 1)
-    // {
-    //     return dem + std::max(wh,(std::max(std::max(FlowBarrierS->Drc,FlowBarrierE->Drc),std::max(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0)))));
-    // }
+    else if(rd == 1 && cd == 1)
+    {
+        return dem + std::max(wh,(std::max(std::max(FlowBarrierS->Drc,FlowBarrierE->Drc),std::max(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0)))));
+    }
     else if(rd == 0 && cd == 1)
     {
         return dem + std::max(wh,(FlowBarrierE->Drc));
     }
-    // else if(rd == -1 && cd == 1)
-    // {
-    //     return dem + std::max(wh,(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),std::max(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0)))));
-    // }
+    else if(rd == -1 && cd == 1)
+    {
+        return dem + std::max(wh,(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),std::max(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0)))));
+    }
     else if(rd == -1 && cd == 0)
     {
         return dem + std::max(wh,(FlowBarrierN->Drc));
     }
-    // else if(rd == -1 && cd == -1)
-    // {
-    //     return dem + std::max(wh,(std::max(std::max(FlowBarrierN->Drc,FlowBarrierW->Drc),std::max(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0)))));
-    // }
+    else if(rd == -1 && cd == -1)
+    {
+        return dem + std::max(wh,(std::max(std::max(FlowBarrierN->Drc,FlowBarrierW->Drc),std::max(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0)))));
+    }
     else if(rd == 0 && cd == -1)
     {
         return dem + std::max(wh,(FlowBarrierW->Drc));
     }else
-    //     if(rd == 1 && cd == -1)
-    // {
-    //     return dem + std::max(wh,(std::max(std::max(FlowBarrierS->Drc,FlowBarrierW->Drc),std::max(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0)))));
-    // }
+        if(rd == 1 && cd == -1)
+        {
+            return dem + std::max(wh,(std::max(std::max(FlowBarrierS->Drc,FlowBarrierW->Drc),std::max(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0)))));
+        }
     return 0;
 }
