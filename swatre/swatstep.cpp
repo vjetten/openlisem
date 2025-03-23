@@ -170,6 +170,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
     const PROFILE *p = pixel->profile;
     int r = pixel->r;
     int c = pixel->c;
+  //  qDebug() << i_ << r << c << p->profileId;
     int nN = p->zone->nrNodes;
     double dt = _dt/5;
     double WH = pixel->wh;
@@ -180,15 +181,6 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
     int tnode = pixel->tilenode;
     double impfrac = fractionImperm->Drc;//pixel->impfrac;
     NODE_ARRAY kavg, k, C, theta, thetaPrev, h, hPrev, dz, disZ, S;
-    // fixed arrays is fastest
-    // vectors is a lot slower!
-    // QVector <double> kavg;
-    // QVector <double> C;
-    // QVector <double> k;
-    // QVector <double> theta;
-    // QVector <double> thetaPrev;
-    // QVector <double> h;
-    // QVector <double> hPrev;
 
     memcpy(h, pixel->h.data(), nN * sizeof(double));
     memcpy(dz, p->zone->dz.data(), nN * sizeof(double));

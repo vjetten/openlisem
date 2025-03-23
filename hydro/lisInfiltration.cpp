@@ -644,7 +644,7 @@ void TWorld::cell_InfilSwatre(long i_, int r, int c)
 /// OBSOLETE we use cell_infilswatre
 void TWorld::InfilSwatre()
 {
-    #pragma omp parallel for num_threads(userCores)
+  //  #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
 
         // profile 0 is for impermeable surfaces

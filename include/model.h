@@ -508,6 +508,7 @@ public:
         SwitchRaindrum,
         SwitchAddBuildingsDEM,
         SwitchGridRetention,
+        SwitchGridRetentionChannel,
 
         //pesticide
         SwitchPesticide,
@@ -641,7 +642,7 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, MBeM3, Qtot, Qtot_dt, QTiletot, IntercTot, IntercETaTot, WaterVolTot, WaterVolSoilTileTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
+    double MB, MBeM3, Qtot, Qtot_dt, QTiletot, IntercTot, IntercETaTot, WaterVolTot, RetentionVolTot, WaterVolSoilTileTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
     double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowInit, BaseFlowInitmm, BaseFlowTotmm, PeakFlowTotmm, Qfloodout, QfloodoutTot, QuserInTot;
     double floodBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
     double IntercHouseTot, IntercHouseTotmm, IntercLitterTot, IntercLitterTotmm;
@@ -838,43 +839,6 @@ public:
 
     double LogNormalDist(double d50,double sigma, double d); // not used
     double DetachMaterial(int r,int c, int d,bool channel,bool flood,bool bl, double detachment); //not used
-    // int numgrainclasses;
-    // QString GrainMaps;
-    // QList<double> graindiameters;
-    // QList<double> settlingvelocities;
-    //double distD50;
-    //double distD90;   // void SedimentSetMaterialDistribution();//(int r,int c);
-    // QList<cTMap *> IW_D;
-    // QList<cTMap *> W_D;
-    // QList<cTMap *> RW_D;
-    // //flood sediment
-    // QList<cTMap *> BL_D; //bed load sediment for a certain grain size (see graindiameters)
-    // QList<cTMap *> SS_D; //suspended sediment for a certain grain size
-    // QList<cTMap *> BLC_D; //concentration
-    // QList<cTMap *> SSC_D; //concentration
-    // QList<cTMap *> BLTC_D; //transport capacity
-    // QList<cTMap *> SSTC_D; //transport capacity
-    // QList<cTMap *> BLD_D; //layer depth
-    // QList<cTMap *> SSD_D; //layer depth
-
-    // //river sediment
-    // QList<cTMap *> RBL_D;
-    // QList<cTMap *> RSS_D;
-    // QList<cTMap *> RBLC_D;
-    // QList<cTMap *> RSSC_D;
-    // QList<cTMap *> RBLTC_D;
-    // QList<cTMap *> RSSTC_D;
-    // QList<cTMap *> RBLD_D;
-    // QList<cTMap *> RSSD_D;
-    // //overland flow
-    // QList<cTMap *> Sed_D;
-    // QList<cTMap *> TC_D;
-    // QList<cTMap *> Conc_D;
-    // //used for advection in the 1d kinematic method
-    // QList<cTMap *> Tempa_D;
-    // QList<cTMap *> Tempb_D;
-    // QList<cTMap *> Tempc_D;
-    // QList<cTMap *> Tempd_D;
 
     //material that is available for detachment
     QList<cTMap *> StorageDep_D;
@@ -1127,6 +1091,7 @@ public:
 
     // => SWATRE
     /// filenames for Swatre soil information
+    QList <int> ProfileIDList;
     QString SwatreTableDir;
     QString SwatreTableName;
     QString initheadName;

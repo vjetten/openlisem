@@ -44,40 +44,36 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
     SOIL_MODEL *s = new SOIL_MODEL;
 
     s->minDt = swatreDT;
-    s->pixel = new PIXEL_INFO[(long)nrCells];
+    s->pixel = new PIXEL_INFO[nrValidCells];
 
     // set initial values
-    for (long i = 0; i < (long)nrCells; i++) {
-        s->pixel[i].profile = nullptr;
-        //s->pixel[i].dumpHid = 0;  //set to 1 for output of a pixel
-        s->pixel[i].tiledrain = 0;
-        s->pixel[i].wh = 0;
-        s->pixel[i].percolation = 0;
-        s->pixel[i].tilenode = -1;      // set tiledrain to 0, and tiledepth to -1 (above surface)        
-        //s->pixel[i].impfrac = 0;        // fraction roads, houses etc, for first node
-
-        s->pixel[i].corrKsOA = 1.0;
-        s->pixel[i].corrKsOB = 0.0;
-        s->pixel[i].corrKsDA = 1.0;
-        s->pixel[i].corrKsDB = 0.0;
-        s->pixel[i].corrPOA = 1.0;
-        s->pixel[i].corrPOB = 0.0;
-        s->pixel[i].corrPDA = 1.0;
-        s->pixel[i].corrPDB = 0.0;
-    }
-
-    // give each pixel a profile
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        int profnr = swatreProfileNr.indexOf((int)profileMap->Drc);
-
-        if (profnr > 0)
-            s->pixel[i_].profile = profileList[profnr];  // pointer to profile
-        // profile = <= 0 now set to impermeable
-        //s->pixel[i_].impfrac = fractionImperm->Drc;
-        // imnpfrac is the fraction impermeable, 1-impfrac is the infiltrating soil
         s->pixel[i_].r = r;
         s->pixel[i_].c = c;
+        s->pixel[i_].profile = nullptr;
+        s->pixel[i_].tiledrain = 0;
+        s->pixel[i_].wh = 0;
+        s->pixel[i_].percolation = 0;
+        s->pixel[i_].tilenode = -1;      // set tiledrain to 0, and tiledepth to -1 (above surface)
+        s->pixel[i_].corrKsOA = 1.0;
+        s->pixel[i_].corrKsOB = 0.0;
+        s->pixel[i_].corrKsDA = 1.0;
+        s->pixel[i_].corrKsDB = 0.0;
+        s->pixel[i_].corrPOA = 1.0;
+        s->pixel[i_].corrPOB = 0.0;
+        s->pixel[i_].corrPDA = 1.0;
+        s->pixel[i_].corrPDB = 0.0;
+    }}
+
+    // give each pixel a profile
+   // #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        int profilenr = (int)profileMap->Drc;
+        int profindex = swatreProfileNr.indexOf(profilenr);
+
+        if (profilenr > 0)
+            s->pixel[i_].profile = profileList[profindex];  // pointer to profile
 
         if (SwitchOMCorrection) {
             // these correction come from calculations based on Saxton and rawls
@@ -182,7 +178,8 @@ void  TWorld::FreeSwatreInfo(void)
                 if (profileList[i] != nullptr)
                     free(profileList[i]);
         }
-        free(profileList);
+        //free(profileList);
+        delete profileList;
         profileList = nullptr;
     }
 

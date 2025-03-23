@@ -196,6 +196,9 @@ void TWorld::InitParameters(void)
     if (wave == 2) SwitchKinematic2D = K2D_METHOD_DYN;
     if (wave < 2) SwitchWaveUser = false; // waveuser is an incoming wave at the boundary (tsunami type)
 
+    if (SwitchKinematic2D == K2D_METHOD_KIN)
+        FlowBoundaryType = 0;
+
     userCores = getvalueint("Nr user Cores");
     int cores = omp_get_max_threads();
     if (userCores == 0 || userCores > cores)
@@ -417,8 +420,11 @@ void TWorld::InitLULCInput(void)
     checkMap(*LDD, *RR, SMALLER, 0.0, "Random roughness RR must be >= 0");
     calcValue(*RR, RRCalibration, MUL);
 
+    RetentionVolTot = 0;
     if (SwitchGridRetention) {
         GridRetention = ReadMap(LDD, getvaluename("gridretention"));
+
+        GridRetentionAct = NewMap(0);
     }
 
     //===== interception =====
@@ -874,6 +880,7 @@ void TWorld::InitSoilInput(void)
 
         // read all Swatre profile maps
         ProfileID = ReadMap(LDD,getvaluename("profmap"));
+        ProfileIDList = countUnits(*ProfileID);
 
         if (SwitchGrassStrip)
             ProfileIDGrass = ReadMap(LDD,getvaluename("profgrass"));
@@ -886,7 +893,10 @@ void TWorld::InitSoilInput(void)
 
         // read the swatre tables and make the information structure ZONE etc
         // this does not make the profile information
+
         ReadSwatreInputNew();
+
+
     }
 }
 //---------------------------------------------------------------------------
