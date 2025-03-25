@@ -288,8 +288,12 @@ void TWorld::InitStandardInput(void)
 
     if (SwitchBuffers) {
         Buffers = ReadMap(LDD, getvaluename("buffers"));
-        calcMap(*DEM, *Buffers, ADD);
-    } 
+        FOR_ROW_COL_MV_L {
+            if(!pcr::isMV(Buffers->Drc))
+                DEM->Drc += Buffers->Drc;
+        }}
+    //    calcMap(*DEM, *Buffers, ADD);
+    }
 
 
     bool found = false;

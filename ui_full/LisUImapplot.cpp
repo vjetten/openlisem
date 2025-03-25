@@ -339,11 +339,11 @@ double lisemqt::fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_R
 }
 //---------------------------------------------------------------------------
 // fill the current raster data structure with new data, called each run step
-double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterData *_RD)//, double type)
+double lisemqt::fillDrawMapDataRGB(cTRGBMap *_M, QwtMatrixRasterData *_RD)//, double type)
 {
     double maxV = -1e20;
     RGBData.clear();  //QVector double
-
+qDebug() << "fill data image";
     if (_M == nullptr)
         return (maxV);
 
@@ -352,8 +352,8 @@ double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterDa
         for(int c=0; c < _M->nrCols(); c++)
         {
 
-            if(true)// !pcr::isMV(_M->dataR[r][c]))
-            {
+         //   if(true)// !pcr::isMV(_M->dataR[r][c]))
+           // {
                 double value = 0;
                 char * valuechar = ((char*)(&value));
                 valuechar[0] = _M->dataR[r][c];//*rc;//(*base->data[r][c]);
@@ -371,11 +371,11 @@ double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterDa
 
                 RGBData << value;
                 maxV = std::max(maxV, 1.0);
-            }
-            else
-            {
-                RGBData << (double)-1e20;
-            }
+//            }
+  //          else
+    //        {
+      //          RGBData << (double)-1e20;
+        //    }
         }
 
     // set intervals for rasterdata, x,y,z min and max
@@ -949,7 +949,7 @@ void lisemqt::showImageMap()
     {
         // set intervals for rasterdata, x,y,z min and max
 //        double res = fillDrawMapDataRGB(op.baseMapDEM,op.Image, RImage);
-        double res = fillDrawMapDataRGB(op.baseMap,op.Image, RImage);
+        double res = fillDrawMapDataRGB(op.Image, RImage);
         RImage->setInterval( Qt::ZAxis, QwtInterval( 0.0, 1.0));
         baseMapImage->setData(RImage);
     }

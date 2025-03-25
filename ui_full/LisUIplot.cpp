@@ -65,11 +65,12 @@ void lisemqt::setupPlot()
 
     PGraph = new QwtPlotCurve("Rainfall intensity");
     QGraph = new QwtPlotCurve("Discharge");
-    if (E_FlowBoundary->value() > 0)
-        QbGraph = new QwtPlotCurve("Water flow boundary");
     QsGraph = new QwtPlotCurve("Sediment discharge");
     CGraph = new QwtPlotCurve("Concentration");
-    QtileGraph = new QwtPlotCurve("Tile drain");
+    if (E_FlowBoundary->value() > 0)
+        QbGraph = new QwtPlotCurve("Water flow boundary");
+    if(checkIncludeTiledrains->isChecked())
+        QtileGraph = new QwtPlotCurve("Tile drain");
 
     PGraph->attach(HPlot);
     QGraph->attach(HPlot);
@@ -127,9 +128,11 @@ void lisemqt::setupPlot()
         QbGraph->setStyle(QwtPlotCurve::Lines);
     }
 
-    QtileGraph->setPen(pen3);
-    QtileGraph->setAxes(axisXB, QwtAxis::YLeft);
-    QtileGraph->setStyle(QwtPlotCurve::Lines);
+    if(checkIncludeTiledrains->isChecked()) {
+        QtileGraph->setPen(pen3);
+        QtileGraph->setAxes(axisXB, QwtAxis::YLeft);
+        QtileGraph->setStyle(QwtPlotCurve::Lines);
+    }
 
     QsGraph->setPen(pen4);
     QsGraph->setAxes(axisXB, QwtAxis::YRight);
@@ -234,10 +237,12 @@ void lisemqt::initPlot()
 {
     HPlot->setTitle("Hydrograph Outlet");
 
-    QbGraph->detach();
+    if (E_FlowBoundary->value() > 0)
+        QbGraph->detach();
     QsGraph->detach();
     CGraph->detach();
-    QtileGraph->detach();
+    if(checkIncludeTiledrains->isChecked())
+        QtileGraph->detach();
 
     if (checkEventBased->isChecked())
         HPlot->setAxisTitle(axisXB, "time (min)");
