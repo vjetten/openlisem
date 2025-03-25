@@ -343,39 +343,30 @@ double lisemqt::fillDrawMapDataRGB(cTRGBMap *_M, QwtMatrixRasterData *_RD)//, do
 {
     double maxV = -1e20;
     RGBData.clear();  //QVector double
-qDebug() << "fill data image";
+
     if (_M == nullptr)
         return (maxV);
-
+   qDebug() << "rgb" << _M->nrRows() << _M->nrCols();
     // copy map data into vector for the display structure
     for(int r = _M->nrRows()-1; r >= 0; r--)
-        for(int c=0; c < _M->nrCols(); c++)
-        {
+        for(int c=0; c < _M->nrCols(); c++) {
+            double value = 0;
+            char * valuechar = ((char*)(&value));
+            valuechar[0] = _M->dataR[r][c];
+            if(_M->bands > 1)
+            {
+                valuechar[1] = _M->dataG[r][c];//*rg;
+                valuechar[2] = _M->dataB[r][c];//*rb;
+                //   valuechar[3] = base->data[r][c]*255;
+            }else
+            {
+                valuechar[1] = _M->dataR[r][c];
+                valuechar[2] = _M->dataR[r][c];
+                //  valuechar[3] = base->data[r][c]*255;
+            }
 
-         //   if(true)// !pcr::isMV(_M->dataR[r][c]))
-           // {
-                double value = 0;
-                char * valuechar = ((char*)(&value));
-                valuechar[0] = _M->dataR[r][c];//*rc;//(*base->data[r][c]);
-                if(_M->bands > 1)
-                {
-                    valuechar[1] = _M->dataG[r][c];//*rg;
-                    valuechar[2] = _M->dataB[r][c];//*rb;
-                 //   valuechar[3] = base->data[r][c]*255;
-                }else
-                {
-                    valuechar[1] = _M->dataR[r][c];
-                    valuechar[2] = _M->dataR[r][c];
-                  //  valuechar[3] = base->data[r][c]*255;
-                }
-
-                RGBData << value;
-                maxV = std::max(maxV, 1.0);
-//            }
-  //          else
-    //        {
-      //          RGBData << (double)-1e20;
-        //    }
+            RGBData << value;
+            maxV = std::max(maxV, 1.0);
         }
 
     // set intervals for rasterdata, x,y,z min and max
@@ -947,9 +938,7 @@ void lisemqt::showImageMap()
 {
     if (startplot && checksatImage->isChecked())
     {
-        qDebug() << "hier";
-        // set intervals for rasterdata, x,y,z min and max
-//        double res = fillDrawMapDataRGB(op.baseMapDEM,op.Image, RImage);
+        qDebug() << op.Image;
         double res = fillDrawMapDataRGB(op.Image, RImage);
         RImage->setInterval( Qt::ZAxis, QwtInterval( 0.0, 1.0));
         baseMapImage->setData(RImage);

@@ -660,8 +660,8 @@ void lisemqt::on_toolButton_satImageName_clicked()
     {
         QFileInfo fi(path);
         satImageFileName = fi.fileName();
-        satImageFileDir = CheckDir(fi.absolutePath(), false);//Dir().path());
-        E_satImageName->setText( satImageFileDir + satImageFileName );
+        satImageFileDir = CheckDir(fi.absolutePath(), false);
+        E_satImageName->setText( satImageFileDir + satImageFileName );        
     }
 }
 //---------------------------------------------------------------------------
@@ -813,8 +813,13 @@ void lisemqt::on_toolButton_clicked()
 //---------------------------------------------------------------------------
 void lisemqt::on_checksatImage_toggled(bool checked)
 {
-    if (E_satImageName->text().isEmpty() || !QFileInfo(E_satImageName->text()).exists())
+    if (checked && !E_satImageName->text().isEmpty() && !QFileInfo(E_satImageName->text()).exists()) {
         checksatImage->setChecked(false);
+    }
+    if (checked && E_satImageName->text().isEmpty()) {
+        checksatImage->setChecked(false);
+    }
+
 }
 //---------------------------------------------------------------------------
 

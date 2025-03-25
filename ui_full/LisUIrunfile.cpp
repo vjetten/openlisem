@@ -555,10 +555,8 @@ void lisemqt::ParseInputData()
         }
 
         if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p, false);
-        if (p1.compare("satImage file")==0) satImageFileName = p;
-
-        E_satImageName->setText(satImageFileDir+satImageFileName);
-        on_checksatImage_toggled(checksatImage->isChecked());
+        if (p1.compare("satImage File")==0) satImageFileName = p;
+       // E_satImageName->setText(satImageFileDir+satImageFileName);
 
         if (p1.compare("mpegexe Directory")==0) {
             mencoderDir = QFileInfo(p).absoluteFilePath();
@@ -604,6 +602,8 @@ void lisemqt::ParseInputData()
             }
         }
     }
+
+    // RUN a number of checks
 
     if (checkRainfall->isChecked()) {
         E_RainsatName->setText(RainSatFileDir + RainSatFileName);
@@ -655,6 +655,7 @@ void lisemqt::ParseInputData()
             E_DischargeInName->setText(DischargeinDir + DischargeinFileName);
         }
     }
+
 //    E_SnowmeltName->setText(SnowmeltFileDir + SnowmeltFileName);
 //    if (!QFileInfo(E_SnowmeltName->text()).exists())
 //    {
@@ -662,36 +663,13 @@ void lisemqt::ParseInputData()
 //        E_SnowmeltName->setText(ETFileDir + SnowmeltFileName);
 //    }
 
-    E_satImageName->setText(satImageFileDir +satImageFileName);
-    if (!QFileInfo(E_satImageName->text()).exists())
-    {
-        satImageFileDir = "";//QString(E_WorkDir + "maps/");
+    E_satImageName->setText(satImageFileDir+satImageFileName);
+   // on_checksatImage_toggled(checksatImage->isChecked());
+    if (!QFileInfo(E_satImageName->text()).exists()) {
+        satImageFileDir = "";
         satImageFileName = "";
         E_satImageName->setText("");
-        //E_satImageName->setText(satImageFileDir + satImageFileName);
     }
-
-    // int days = daystart.toInt();
-    // int mins = minstart.toInt();
-    // int daye = dayend.toInt();
-    // int mine = minend.toInt();
-
-    // days = std::max(1,std::min(days, 366));
-    // daye = std::max(1,std::min(daye, 366));
-    // //qDebug() << days << mins << daye << mine;
-    // if (!checkEventBased->isChecked()) {
-    //     if (mins > 1440) {
-    //        days = mins/1440 + 1;
-    //        mins = mins % 1440;
-    //     }
-    //     if (mine > 1440) {
-    //         daye = mine/1440 + 1;
-    //         mine = mine % 1440;
-    //     }
-    // }
-
-    // E_BeginTimeDay->setText(QString("%1:%2").arg(days,3, 10, QLatin1Char('0')).arg(mins,4, 10, QLatin1Char('0')));
-    // E_EndTimeDay->setText(QString("%1:%2").arg(daye,3, 10, QLatin1Char('0')).arg(mine,4, 10, QLatin1Char('0')));
 
     //****====------====****//
 
@@ -752,13 +730,13 @@ QString lisemqt::CheckDir(QString p, bool makeit)
 
     path = QDir(p).fromNativeSeparators(p);
     path = QDir(path).absoluteFilePath(path);
+
     if (!path.endsWith("/"))
         path = path + '/';
 
     if (!QDir(path).exists()) {
         if (makeit) {
             QDir(path).mkpath(path);
-            //qDebug() << "NOTE: Result dir created !";
         } else {
             QMessageBox::warning(this,"openLISEM",QString("The following directory does not exist:\n%1\nUsing the work directory, check your pathnames").arg(path));
             path.clear();
@@ -1024,7 +1002,8 @@ void lisemqt::updateModelData()
       //  if (p1.compare("Snowmelt file")==0) namelist[j].value = SnowmeltFileName;
 
         if (p1.compare("satImage Directory")==0)            namelist[j].value = satImageFileDir;
-        if (p1.compare("satImage file")==0)                 namelist[j].value = satImageFileName;
+        if (p1.compare("satImage File")==0)                 namelist[j].value = satImageFileName;
+
         if (p1.compare("Advanced Options")==0)              namelist[j].value.setNum((int)checkAdvancedOptions->isChecked());
 
         if (p1.compare("mpegexe Directory")==0)             namelist[j].value = mencoderDir;

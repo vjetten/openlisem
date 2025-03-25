@@ -220,6 +220,9 @@ void TWorld::OutputUI(void)
         copy(*op.baseMap, *ShadeBW);
         copy(*op.baseMapDEM, *DEM);
 
+        if(SwitchImage)
+          op.Image = RGB_Image;
+
         if (SwitchIncludeChannel) {
             copy(*op.channelMap, *LDDChannel);//*ChannelMaskExtended);
         }
@@ -1015,10 +1018,6 @@ void TWorld::ClearHydrographData()
     op.OutletChannelWH.clear();
     op.OutletQtot.clear();
     op.OutletQstot.clear();
-    // if(SwitchImage)
-    // {
-    //     op.Image = RGB_Image;
-    // }
 }
 //---------------------------------------------------------------------------
 void TWorld::ReportTimeseriesPCR(void)

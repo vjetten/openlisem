@@ -119,14 +119,14 @@ QString TWorld::CheckDir(QString p, bool makeit)
 {
     QString path;
     path = QDir(p).fromNativeSeparators(p); // changes "\\" to "/"
-    path = QDir(path).absoluteFilePath(path) + "/"; // absoluteFilePath does not have a sparator at the end, so add it
+    path = QDir(path).absoluteFilePath(path);
+    if (!path.endsWith("/"))
+        path = path + "/";
 
-    if (!QDir(path).exists())
-    {
+    if (!QDir(path).exists()) {
         if (makeit) {
             QDir(path).mkpath(path);
-            DEBUG("NOTE: Result dir created !");
-            //qDebug() << "NOTE: Result dir created !";
+            DEBUG(QString("NOTE: %1 created !").arg(path));
         }
         else
             path.clear();
@@ -228,8 +228,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Report digits out")==0)                 ReportDigitsOut = iii;
         if (p1.compare("Report end run")==0)                    SwitchEndRun = iii == 1;
         if (p1.compare("Include Satellite Image")==0)           SwitchImage = iii == 1;
-        if (p1.compare("Erosion map units (0/1/2)")==0)  ErosionUnits = iii;
-        if (p1.compare("Report discharge units")==0) QUnits = iii;
+        if (p1.compare("Erosion map units (0/1/2)")==0)     ErosionUnits = iii;
+        if (p1.compare("Report discharge units")==0)        QUnits = iii;
 
         // meteo
         if (p1.compare("Include Rainfall")==0)         SwitchRainfall = iii == 1;
@@ -485,7 +485,7 @@ void TWorld::ParseRunfileData(void)
         if (SwitchImage)
         {
             if (p1.compare("satImage Directory")==0) satImageFileDir = CheckDir(p);
-            if (p1.compare("satImage file")==0) satImageFileName = satImageFileDir + "/" + p;
+            if (p1.compare("satImage File")==0) satImageFileName = p;// = satImageFileDir + "/" + p;
         }
 
         // OUTPUT FILES

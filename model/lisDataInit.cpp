@@ -64,6 +64,7 @@ void TWorld::GetInputData(void)
     //find domain boundaries
 
     InitShade();
+
     InitImages();
 
     //## read and initialize all tile drain system maps and variables
@@ -2454,20 +2455,16 @@ void TWorld::FindStationaryBaseFlow()
     report(*BaseFlowInitialVolume,"baseflowinitm3s.map");
     report(*BaseFlowInflow,"baseinflow.map");
 
-
     BaseFlowInit = MapTotal(*BaseFlowInitialVolume);
 
 }
 //---------------------------------------------------------------------------
 void TWorld::InitImages()
 {
-    if(SwitchImage && QFileInfo(satImageFileName).exists())
-
-    {
+    if(SwitchImage && QFileInfo(satImageFileDir + satImageFileName).exists()) {
         DEBUG("Reading background satellite inage");
-        cTRGBMap *image = readRasterImage(satImageFileName);
+        RGB_Image = readRasterImage(satImageFileDir+satImageFileName);
         //        qDebug() << "sat image" <<  image->cellSize()  << image->nrCols() << image->nrRows();
-        this->RGB_Image = image;
     }
 }
 //---------------------------------------------------------------------------
@@ -2476,7 +2473,7 @@ void TWorld::InitTiledrains(void)
 {
     if (SwitchIncludeTile || SwitchIncludeStormDrains) {
 
-        //switch tile is soil draimn and switch drain is urban drains
+        //switch tile is soil drain and switch drain is urban drains
 
         // channel vars and maps that must be there even if channel is switched off
         TileVolTot = 0;

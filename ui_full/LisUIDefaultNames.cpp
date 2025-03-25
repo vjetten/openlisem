@@ -192,7 +192,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include Satellite Image");
     namelist[i++].name = QString("satImage Directory");
-    namelist[i++].name = QString("Satellite Image");
+    namelist[i++].name = QString("satImage File");
     namelist[i++].name = QString("mpegexe Directory");
 
     //###
