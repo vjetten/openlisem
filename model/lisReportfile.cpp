@@ -168,6 +168,7 @@ void TWorld::OutputUI(void)
 
     // outlet 0 all flow
     op.OutletQ.at(0)->append(Qtot_dt * QUNIT/_dt); //Qtot_dt is in m3
+
     op.Qbound.append(QBoundary*QUNIT);
 
     op.OutletQtot.replace(0,Qtot); // cumulative tot outflow

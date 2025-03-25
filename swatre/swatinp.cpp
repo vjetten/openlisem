@@ -154,8 +154,8 @@ void TWorld::ReadSwatreInputNew(void)
 
     zone->disnod[zone->nrNodes] = 0.5 * zone->dz[zone->nrNodes-1];
 
-   for (int i = 0; i <= zone->nrNodes; i++)
-        qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i] << "root" << zone->rootz[i];
+  // for (int i = 0; i <= zone->nrNodes; i++)
+    //    qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i] << "root" << zone->rootz[i];
 
     //  count and check valid profiles
     QStringList checkList; // temp list to check for double profile nrs

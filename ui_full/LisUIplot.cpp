@@ -65,7 +65,8 @@ void lisemqt::setupPlot()
 
     PGraph = new QwtPlotCurve("Rainfall intensity");
     QGraph = new QwtPlotCurve("Discharge");
-    QbGraph = new QwtPlotCurve("Water flow boundary");
+    if (E_FlowBoundary->value() > 0)
+        QbGraph = new QwtPlotCurve("Water flow boundary");
     QsGraph = new QwtPlotCurve("Sediment discharge");
     CGraph = new QwtPlotCurve("Concentration");
     QtileGraph = new QwtPlotCurve("Tile drain");
@@ -120,9 +121,11 @@ void lisemqt::setupPlot()
     PGraph->setPen(pen2);
     PGraph->setAxes(axisXB, QwtAxis::YRight);
 
-    QbGraph->setPen(pen3);
-    QbGraph->setAxes(axisXB, QwtAxis::YLeft);
-    QbGraph->setStyle(QwtPlotCurve::Lines);
+    if (E_FlowBoundary->value() > 0) {
+        QbGraph->setPen(pen3);
+        QbGraph->setAxes(axisXB, QwtAxis::YLeft);
+        QbGraph->setStyle(QwtPlotCurve::Lines);
+    }
 
     QtileGraph->setPen(pen3);
     QtileGraph->setAxes(axisXB, QwtAxis::YLeft);
@@ -231,7 +234,7 @@ void lisemqt::initPlot()
 {
     HPlot->setTitle("Hydrograph Outlet");
 
-   // QbGraph->detach();
+    QbGraph->detach();
     QsGraph->detach();
     CGraph->detach();
     QtileGraph->detach();
@@ -259,7 +262,8 @@ void lisemqt::initPlot()
         CGraph->attach(HPlot);
 
         QGraph->setAxes(axisXB, axisYL1);
-        QbGraph->setAxes(axisXB, axisYL1);
+        if (E_FlowBoundary->value() > 0)
+            QbGraph->setAxes(axisXB, axisYL1);
         PGraph->setAxes(axisXB, axisYL2);
         QsGraph->setAxes(axisXB, axisYR1);
         CGraph->setAxes(axisXB, axisYR2);
@@ -279,7 +283,8 @@ void lisemqt::initPlot()
         HPlot->setAxesCount(QwtAxis::YRight, 1);
 
         QGraph->setAxes(axisXB, axisYL1);
-        QbGraph->setAxes(axisXB, axisYL1);
+        if (E_FlowBoundary->value() > 0)
+            QbGraph->setAxes(axisXB, axisYL1);
         PGraph->setAxes(axisXB, axisYR1);
 
         if (checkUnits_ls->isChecked())
@@ -309,7 +314,8 @@ void lisemqt::showPlot()
 
     int index = OutletIndices.indexOf(this->outletpoint);
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
-    QbGraph->setSamples(op.Time,op.Qbound);
+    if (E_FlowBoundary->value() > 0)
+        QbGraph->setSamples(op.Time,op.Qbound);
     PGraph->setSamples(op.Time,op.Pmm);
 
     // if (checkWaterUserIn->isChecked())

@@ -907,6 +907,7 @@ void TWorld::InitBoundary(void)
 
     QBoundFlow = NewMap(0);
 
+    Fill(*tma,0);
     // make a 1 cell edge around the domain, used to determine flood at the edge
     for (int r = 1; r < _nrRows-1; r++)
         for (int c = 1; c < _nrCols-1; c++)
@@ -924,14 +925,13 @@ void TWorld::InitBoundary(void)
         if(c == 0)          tma->Drc = 4;
         if(c == _nrCols-1)  tma->Drc = 6;
     }
-    FlowBoundary = NewMap(0);
 
+    FlowBoundary = NewMap(0);
     if(FlowBoundaryType == 1) // potential outflow everywhere
     {
-        // determine dynamically in function K2DDEMA
-        // for flood tma is used
         FOR_ROW_COL_MV_L {
-            if(tma->Drc > 0) FlowBoundary->Drc = 1;
+            if(tma->Drc > 0)
+                FlowBoundary->Drc = 1;
         }}
     }
     if (FlowBoundaryType == 2 ) // user defined outflow (0 close, >0 outflow)
