@@ -3,6 +3,10 @@ Latest fixes and changes:
 
 see Readme.txt for a complete list
 
+250325 - v7.4.6 beta R6
+- gridretention in overland flow and channel, also for kinematic wave
+- TODO: image not loaded?
+
 250321 - v7.4.6 beta R3-R5
 - BUG FIX: MUSCL not activated
 - Boundary flow for Dynamic Wave fixed and correct in output

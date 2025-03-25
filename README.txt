@@ -15,9 +15,10 @@ NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6, op
 
 LIST OF CHANGES and BUGFIXES:
 
-250321 - v7.4.6 beta R3-R5
+250325 - v7.4.6 beta R3-R6
 - BUG FIX: MUSCL not activated
 - Boundary flow for Dynamic Wave fixed and correct in output
+- grid retention for overland flow and channelflow (also for kinematic wave)
 
 250222 - v7.4.6 beta R1-R2
 - BUG FIX: reading pathnames sometimes result in "//"
