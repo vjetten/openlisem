@@ -100,8 +100,8 @@ void TWorld::ReadSwatreInputNew(void)
    while(swatreProfileDef.last() == "###")
         swatreProfileDef.removeLast();
 
-  //  for(int i; i < swatreProfileDef.count(); i++)
-    //    qDebug() << swatreProfileDef[i];
+   // for(int i; i < swatreProfileDef.count(); i++)
+   //     qDebug() << swatreProfileDef[i];
 
     // read and make nodes
     zone = new ZONE;
@@ -155,7 +155,7 @@ void TWorld::ReadSwatreInputNew(void)
     zone->disnod[zone->nrNodes] = 0.5 * zone->dz[zone->nrNodes-1];
 
   // for (int i = 0; i <= zone->nrNodes; i++)
-  //      qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i] << "root" << zone->rootz[i];
+    //    qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i] << "root" << zone->rootz[i];
 
     //  count and check valid profiles
     QStringList checkList; // temp list to check for double profile nrs
@@ -167,7 +167,7 @@ void TWorld::ReadSwatreInputNew(void)
     }
     sizeProfileList = nrProfileList;
 
-   // qDebug() << "nr profiles" << nrProfileList << checkList.count();
+    //qDebug() << "nr profiles" << nrProfileList << checkList.count();
 
     if (nrProfileList == 0)
         Error(QString("SWATRE: no profiles read from %1").arg(SwatreTableName));
@@ -184,9 +184,10 @@ void TWorld::ReadSwatreInputNew(void)
             DEBUG(QString("Warning SWATRE: profile id %1 defined more than once").arg(swatreProfileNr[i+1]));
     }
 
-    profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1)); // why realloc instead of malloc?
- //   profileList = (PROFILE **)malloc(sizeof(PROFILE *)*(nrProfileList+1));
+  //   profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1)); // why realloc instead of malloc?
+    //profileList = (PROFILE **)malloc(sizeof(PROFILE *)*(nrProfileList+1));
     // profile list is a list of pointers to PROFILE
+    profileList = new PROFILE*[nrProfileList + 1];
 
     nrProfileList = 0;
     for (int i = zone->nrNodes+1; i < swatreProfileDef.count(); i++) {
@@ -198,6 +199,15 @@ void TWorld::ReadSwatreInputNew(void)
             nrProfileList++;
         }
     }
+
+    for (int i = 0; i < ProfileIDList.count(); i++) {
+        if (ProfileIDList[i]> 0 && !swatreProfileNr.contains(ProfileIDList[i])) {
+            Error(QString("SWATRE: map profile nr %1 does not exist in profile table: %2").arg(ProfileIDList[i]).arg(SwatreTableName));
+        }
+    }
+
+
+
 }
 //----------------------------------------------------------------------------------------------
 // for reference:
@@ -221,6 +231,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
     p = new PROFILE;
 
     p->profileId = swatreProfileDef[pos].toInt(&ok, 10);
+    //qDebug() <<  pos << p->profileId;
     if (!ok)
         Error(QString("SWATRE: read error: error in profile id %1 definition").arg(p->profileId));
 

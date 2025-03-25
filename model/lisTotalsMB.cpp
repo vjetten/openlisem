@@ -260,6 +260,10 @@ void TWorld::TotalsFlow(void)
 
     }
 
+    if (SwitchGridRetention) {
+        RetentionVolTot = MapTotal(*GridRetentionAct);
+    }
+
     //=== all discharges ===//
     Qtot_dt = 0;
     // sum all outflow in m3 for this timestep, Qtot is for all timesteps!
@@ -544,7 +548,7 @@ void TWorld::MassBalance()
     // Mass Balance water, all in m3
     double waterin = RainTot + WHinitVolTot + BaseFlowTot + BaseFlowInit + QuserInTot;// - QSideVolTot;
                      // rainfall + initial WH on surface if present, + baseflow and init baseflow + user defined inflow in channel + sideinflow through soil
-    double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot;
+    double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot + RetentionVolTot;
                      // all interception + ETa + water on surface + water in channel + water in subsurface drains
     double waterout = Qtot + IntercETaTot;
     // floodBoundaryTot is already in Qtot

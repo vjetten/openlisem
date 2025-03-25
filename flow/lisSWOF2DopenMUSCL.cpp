@@ -46,10 +46,10 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     double sumh = 0;
     bool stop;
     double dt_req_min = dt_max;
+    sumh = getMass(h);
 
     do {
 
-        sumh = getMass(h);
         //if (SwitchErosion)
         //sumS = getMassSed(SSFlood, 0);
 
@@ -121,10 +121,10 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         if(count > F_MaxIter)
         stop = true;
 
-        correctMassBalance(sumh, h);
         // small mass balance corrections
     } while (!stop);
 
+    correctMassBalance(sumh, h);
 
     if (FlowBoundaryType > 0) {
         Boundary2Ddyn(_dt, h, u, v);

@@ -168,6 +168,7 @@ void TWorld::OutputUI(void)
 
     // outlet 0 all flow
     op.OutletQ.at(0)->append(Qtot_dt * QUNIT/_dt); //Qtot_dt is in m3
+
     op.Qbound.append(QBoundary*QUNIT);
 
     op.OutletQtot.replace(0,Qtot); // cumulative tot outflow
@@ -945,7 +946,6 @@ void TWorld::setupHydrographData()
     op.OutletLocationX.append(0);
     op.OutletLocationY.append(0);
     op.OutletQ.append(new QVector<double>);
-  // op.OutletQb.append(new QVector<double>);
     op.OutletQs.append(new QVector<double>);
     op.OutletC.append(new QVector<double>);
     op.OutletChannelWH.append(new QVector<double>);
@@ -963,7 +963,6 @@ void TWorld::setupHydrographData()
             op.OutletLocationX.append(r);
             op.OutletLocationY.append(c);
             op.OutletQ.append(new QVector<double>);
-           // op.OutletQb.append(new QVector<double>);
             op.OutletQs.append(new QVector<double>);
             op.OutletC.append(new QVector<double>);
             op.OutletChannelWH.append(new QVector<double>);
@@ -1008,19 +1007,18 @@ void TWorld::ClearHydrographData()
     op.OutletLocationX.clear();
     op.OutletLocationY.clear();
     op.OutletQ.clear();
-  //  op.OutletQb.clear();
     op.OutletQs.clear();
     op.OutletC.clear();
+    op.Qbound.clear();
     op.OutletQpeak.clear();
     op.OutletQpeaktime.clear();
     op.OutletChannelWH.clear();
     op.OutletQtot.clear();
     op.OutletQstot.clear();
-    if(SwitchImage)
-    {
-        op.has_image = true;
-        op.Image = RGB_Image;
-    }
+    // if(SwitchImage)
+    // {
+    //     op.Image = RGB_Image;
+    // }
 }
 //---------------------------------------------------------------------------
 void TWorld::ReportTimeseriesPCR(void)

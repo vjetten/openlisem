@@ -119,7 +119,6 @@ struct output{
     QList<double> comboStep;
 
     bool comboboxset;
-    bool has_image;
     bool SwitchCorrectMB_WH;
 
     QString runfilename;

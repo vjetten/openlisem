@@ -70,7 +70,7 @@
        <enum>QTabWidget::TabPosition::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -359,7 +359,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>4</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -4370,7 +4370,7 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string>Sub gridcell retention: small trenches, pits, Fanja Juu etc. (needs gridretention.map)</string>
+                         <string>User defined gridcell retention in m3 (needs gridretention.map)</string>
                         </property>
                        </widget>
                       </item>
@@ -4453,7 +4453,7 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string>Grasstrips (needs graswidt.map, ksatgras.map, poregras.map and cohgras.map)</string>
+                         <string>Vegetation strips (needs graswidt.map, ksatgras.map, poregras.map and cohgras.map)</string>
                         </property>
                        </widget>
                       </item>

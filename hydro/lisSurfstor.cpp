@@ -106,73 +106,37 @@ void TWorld::GridCell()
     }
 }
 //---------------------------------------------------------------------------
-/// Adds new rainfall after interception to runoff water height or flood waterheight
-// OBSOLETE not used
-void TWorld::addRainfallWH()
-{    
-    /*
-    if (SwitchKinematic2D != K2D_METHOD_KINDYN) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;
-            // add net to water rainfall on soil surface (in m)
-        }}
-        // Switch floodinitial is false if not 2D flow
-        if (SwitchFloodInitial) {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                if (hmxInit->Drc > 0) {
-                    hmxInit->Drc += RainNet->Drc;// + Snowmeltc->Drc;
-                    WH->Drc = hmxInit->Drc;
-                }
-            }}
-        }
-    }
-
-    if (SwitchKinematic2D == K2D_METHOD_KINDYN) {
-        // TODO: hmx is the flooded part when we have kin wave + flooding, else this is not used, floodDomain = 0
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            if (FloodDomain->Drc > 0) {
-                hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc;
-                if (SwitchFloodInitial && hmxInit-> Drc > 0)
-                    hmx->Drc = hmxInit->Drc;
-            }
-        }}
-    }
-    */
-}
-//---------------------------------------------------------------------------
-// not used
-void TWorld::SurfaceStorage()
-{
-    #pragma omp parallel num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        cell_SurfaceStorage(r, c);
-    }}
-}
-//---------------------------------------------------------------------------
 void TWorld::cell_SurfaceStorage(int r, int c)
 {    
 
     double wh = WH->Drc;
-    double WHs = std::max(0.0, std::min(wh, MDS->Drc*(1-exp(-1.875*wh/(0.01*RR->Drc)))));
+    double mds = std::max(0.0, MDS->Drc*(1-exp(-1.875*wh/(0.01*RR->Drc))));
     // surface storage on rough surfaces
     // non-linear release fo water from depression storage
     // resembles curves from GIS surface tests, unpublished
 
     double retm = 0;
     // additional Fayna Yuu type storage in m3 per cell
-    if (SwitchGridRetention)
-        WHs += GridRetention->Drc;
+    // if in a channel cell the store is taken from the channel flow (buffer)
+    if (SwitchGridRetention && ChannelWidth->Drc == 0) {
+        double dh = (GridRetention->Drc-GridRetentionAct->Drc)/(_dx*DX->Drc);
+        if (dh > wh) {
+            GridRetentionAct->Drc += WH->Drc*_dx*DX->Drc;
+            wh = 0;
+         } else
+            if (dh > 0) {
+                GridRetentionAct->Drc = GridRetention->Drc;
+                wh -= dh;
+            }
+    }
 
-    WHrunoff->Drc = std::max(0.0, wh-WHs);
+    WHrunoff->Drc = std::max(0.0, wh-mds);
     // used to be ((wh - WHs)*SW + WHr*RW)/(SW+RW);
     // WH of overlandflow above surface storage
 
-    WHstore->Drc = WHs;
+    WHstore->Drc = std::min(mds, wh);
     // non moving microstorage
-    MicroStoreVol->Drc = DX->Drc*WHstore->Drc*FlowWidth->Drc; //RR is adjusted for roads so over entire flowwidth
+    MicroStoreVol->Drc = CHAdjDX->Drc*WHstore->Drc; //RR is adjusted for roads so over entire flowwidth
     // microstore vol in m3
 
     WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;

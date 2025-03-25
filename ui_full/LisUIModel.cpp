@@ -35,96 +35,53 @@
 #include "lisemqt.h"
 #include "global.h"
 
-#define ClearL(list) while (list.count()) {if (!list.isEmpty()) list.removeLast();}
-// #define Clear2D(list) for(int i = 0 ; i < list.count(); i++) {\
-//             while (list.at(i)->count()) {if (!list.at(i)->isEmpty())list.at(i)->removeLast();}\
-//             while (list.count()) {if (!list.isEmpty()) list.removeLast();}}
+//#define ClearL(list) while (list.count()) {if (!list.isEmpty()) list.removeLast();}
 
 // from CoPilot
-#define Clear(list) list.clear();QList<int>().swap(list)
-#define Cleard(list) list.clear();QList<double>().swap(list)
-#define Clear2D(list) for(auto vec : list){delete vec;}list.clear();QList<QVector<double>*>().swap(list)
+//#define Clear(list) list.clear(); //QList<int>().swap(list)
+//#define Cleard(list) list.clear();//QList<double>().swap(list)
+#define Clear2D(List) qDeleteAll(List.begin(), List.end());List.clear();
+//for(auto vec : list){delete vec;}list.clear();QList<QVector<double>*>().swap(list)
 
 void lisemqt::ClearOP()
 {
-    /*
-    QList<int> OutletIndices;
-    QList<int> OutletLocationX;
-    QList<int> OutletLocationY;
-    QList<QVector<double>*> OutletQ;
-    QList<QVector<double>*> Wavein;
-    QList<QVector<double>*> OutletQs;  //current kg/s
-    QList<QVector<double>*> OutletC;   // avg concetration
-    QList<QVector<double>*> OutletChannelWH;
-    QVector<double> OutletQpeak;
-    QVector<double> OutletQpeaktime;
-    QVector<double> OutletQtot;
-    QVector<double> OutletQstot;  // sum in kg
-    QVector<double> Pmm;
-    QVector<double> Time;
-    QVector <double> Qtile;
-    QVector <double> EndPointX;
-    QVector <double> EndPointY;
-    QVector <double> ObsPointX;
-    QVector <double> ObsPointY;
-    QVector <LDD_COORIN> lddch_;
-
-    // map pointers for display
-    cTMap *baseMap;
-    cTMap *baseMapDEM;
-    cTMap *channelMap;
-    cTMap *outletMap;
-    cTMap *roadMap;
-    cTMap *houseMap;
-    cTMap *hardsurfaceMap;
-    cTRGBMap *Image;
-
-    QList<int> ComboLists;
-    QList<cTMap *> ComboMaps;
-    QList<QList<double>> ComboColorMap;
-    QList<QList<QString>> ComboColors;
-    QList<bool> ComboLogaritmic;
-    QList<bool> ComboSymColor;
-    QStringList ComboMapNames;
-    QStringList ComboUnits;
-    QList<double> ComboScaling;
-    QList<double> userMinV;
-    QList<double> userMaxV;
-    QList<double> comboStep;
-    */
-
     Clear2D(op.OutletQ);
     Clear2D(op.Wavein);
     Clear2D(op.OutletQs);
     Clear2D(op.OutletC);
     Clear2D(op.OutletChannelWH);
 
-    Clear(op.OutletIndices);
-    Clear(op.OutletLocationX);
-    Clear(op.OutletLocationY);
-    Cleard(op.OutletQpeak);
-    Cleard(op.OutletQpeaktime);
-    Cleard(op.OutletQtot);
-    Cleard(op.OutletQstot);
-    Cleard(op.Pmm);
-    Cleard(op.Time);
-    Cleard(op.Qtile);
-    Cleard(op.EndPointX);
-    Cleard(op.EndPointY);
-    Cleard(op.ObsPointX);
-    Cleard(op.ObsPointY);
-    ClearL(op.lddch_);
-    // Clear(op.ComboLists);
-    // qDeleteAll(op.ComboMaps.begin(), op.ComboMaps.end());
-    // op.ComboMapNames.clear();
-    // op.ComboUnits.clear();
-    // Clear(op.ComboLogaritmic);
-    // Clear(op.ComboSymColor);
-    // Clear(op.ComboScaling);
-    // Clear(op.userMinV);
-    // Clear(op.userMaxV);
-    // Clear(op.comboStep);
-    // Clear(op.comboStep);
+    // Clear(op.OutletIndices);
+    // Clear(op.OutletLocationX);
+    // Clear(op.OutletLocationY);
+    // Cleard(op.OutletQpeak);
+    // Cleard(op.OutletQpeaktime);
+    // Cleard(op.OutletQtot);
+    // Cleard(op.OutletQstot);
+    // Cleard(op.Pmm);
+    // Cleard(op.Time);
+    // Cleard(op.Qtile);
+    // Cleard(op.EndPointX);
+    // Cleard(op.EndPointY);
+    // Cleard(op.ObsPointX);
+    // Cleard(op.ObsPointY);
+
+    op.OutletIndices.clear();
+    op.OutletLocationX.clear();
+    op.OutletLocationY.clear();
+    op.OutletQpeak.clear();
+    op.OutletQpeaktime.clear();
+    op.OutletQtot.clear();
+    op.OutletQstot.clear();
+    op.Pmm.clear();
+    op.Time.clear();
+    op.Qtile.clear();
+    op.EndPointX.clear();
+    op.EndPointY.clear();
+    op.ObsPointX.clear();
+    op.ObsPointY.clear();
+    op.lddch_.clear();
+
     delete op.baseMap;
     delete op.baseMapDEM;
     delete op.channelMap;
@@ -158,25 +115,31 @@ void lisemqt::runmodel()
         // destroy ALL maps
         qDeleteAll(W->maplistCTMap.begin(),W->maplistCTMap.end());
         W->maplistCTMap.clear();
-        // destroy all networlk structures
-        ClearL(W->cr_);
-        ClearL(W->crch_);
-        ClearL(W->crlinkedldd_);
-        ClearL(W->crlinkedlddch_);
-        ClearL(W->crldd5_);
-        ClearL(W->crlddch5_);
-        ClearL(W->crout_);
-        ClearL(W->dcr_);
-        ClearL(W->crtile_);
+        // destroy all network structures
+        W->cr_.clear();
+        W->crch_.clear();
+        W->crlinkedldd_.clear();
+        W->crlinkedlddch_.clear();
+        W->crldd5_.clear();
+        W->crlddch5_.clear();
+        W->crout_.clear();
+        W->dcr_.clear();
+        W->crtile_.clear();
 
         QVector <double> zero;
         zero.clear();
         PGraph->setSamples(zero,zero);
         QGraph->setSamples(zero,zero);
-        //QbGraph->setSamples(zero,zero);
+
         QsGraph->setSamples(zero,zero);
         CGraph->setSamples(zero,zero);
-        QtileGraph->setSamples(zero,zero);
+
+        if(checkIncludeTiledrains->isChecked())
+            QtileGraph->setSamples(zero,zero);
+
+        if (E_FlowBoundary->value() > 0)
+            QbGraph->setSamples(zero,zero);
+
         HPlot->replot();
 
         ClearOP(); // clear most of the op structure
@@ -443,7 +406,6 @@ void lisemqt::initOP()
     op.OutletLocationX.clear();
     op.OutletLocationY.clear();
     op.OutletQ.clear();
-   // op.OutletQb.clear();
     op.OutletQs.clear();
     op.OutletC.clear();
     op.OutletQpeak.clear();
@@ -451,8 +413,6 @@ void lisemqt::initOP()
     op.OutletChannelWH.clear();
     op.OutletQtot.clear();
     op.OutletQstot.clear();
-    op.has_image = false;
-    op.Image = nullptr;
 
     op.ComboMaps.clear();
     op.ComboColorMap.clear();
@@ -504,7 +464,6 @@ void lisemqt::initOP()
     op.FloodAreaMax = 0;
     op.BaseFlowTotmm = 0;
     op.IntercLitterTotmm = 0;
-    //op.WaterVolTotchannelmm = 0;
     op.Qtotmm = 0;
     op.IntercTotmm = 0;
     op.IntercHouseTotmm = 0;
