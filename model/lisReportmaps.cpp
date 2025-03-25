@@ -60,6 +60,8 @@ void TWorld::setupDisplayMaps()
         delete op.roadMap;
         delete op.houseMap;
         delete op.hardsurfaceMap;
+        if (SwitchImage)
+            delete op.Image;
     }
 
     op.baseMap = new cTMap();
@@ -69,6 +71,8 @@ void TWorld::setupDisplayMaps()
     op.roadMap = new cTMap();
     op.houseMap = new cTMap();
     op.hardsurfaceMap = new cTMap();
+    if (SwitchImage)
+        op.Image = new cTRGBMap();
 
     op.baseMap->MakeMap(LDD, 0);
     op.baseMapDEM->MakeMap(LDD, 0);

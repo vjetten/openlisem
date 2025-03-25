@@ -115,7 +115,7 @@ void lisemqt::runmodel()
         // destroy ALL maps
         qDeleteAll(W->maplistCTMap.begin(),W->maplistCTMap.end());
         W->maplistCTMap.clear();
-        // destroy all networlk structures
+        // destroy all network structures
         W->cr_.clear();
         W->crch_.clear();
         W->crlinkedldd_.clear();

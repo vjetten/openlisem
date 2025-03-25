@@ -947,6 +947,7 @@ void lisemqt::showImageMap()
 {
     if (startplot && checksatImage->isChecked())
     {
+        qDebug() << "hier";
         // set intervals for rasterdata, x,y,z min and max
 //        double res = fillDrawMapDataRGB(op.baseMapDEM,op.Image, RImage);
         double res = fillDrawMapDataRGB(op.Image, RImage);
