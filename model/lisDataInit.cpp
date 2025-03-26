@@ -896,40 +896,41 @@ void TWorld::InitBoundary(void)
     QsBoundary = 0;
 
     QBoundFlow = NewMap(0);
+    DomainEdge = NewMap(0);
 
     // make a 1 cell edge around the domain, used to determine flood at the edge
     for (int r = 1; r < _nrRows-1; r++)
         for (int c = 1; c < _nrCols-1; c++)
             if(!pcr::isMV(LDD->data[r][c]))
             {
-                if (tma->Drc == 0 && pcr::isMV(LDD->data[r-1][c  ])) tma->Drc = 8; // use ldd logic for clarity
-                if (tma->Drc == 0 && pcr::isMV(LDD->data[r+1][c  ])) tma->Drc = 2;
-                if (tma->Drc == 0 && pcr::isMV(LDD->data[r  ][c-1])) tma->Drc = 4;
-                if (tma->Drc == 0 && pcr::isMV(LDD->data[r  ][c+1])) tma->Drc = 6;
+                if (DomainEdge->Drc == 0 && pcr::isMV(LDD->data[r-1][c  ])) DomainEdge->Drc = 8; // use ldd logic for clarity
+                if (DomainEdge->Drc == 0 && pcr::isMV(LDD->data[r+1][c  ])) DomainEdge->Drc = 2;
+                if (DomainEdge->Drc == 0 && pcr::isMV(LDD->data[r  ][c-1])) DomainEdge->Drc = 4;
+                if (DomainEdge->Drc == 0 && pcr::isMV(LDD->data[r  ][c+1])) DomainEdge->Drc = 6;
             }
     // if ldd touches the edge
     FOR_ROW_COL_MV {
-        if(r == 0)          tma->Drc = 8;
-        if(r == _nrRows-1)  tma->Drc = 2;
-        if(c == 0)          tma->Drc = 4;
-        if(c == _nrCols-1)  tma->Drc = 6;
+        if(r == 0)          DomainEdge->Drc = 8;
+        if(r == _nrRows-1)  DomainEdge->Drc = 2;
+        if(c == 0)          DomainEdge->Drc = 4;
+        if(c == _nrCols-1)  DomainEdge->Drc = 6;
     }
     FlowBoundary = NewMap(0);
 
     if(FlowBoundaryType == 1) // potential outflow everywhere
     {
         // determine dynamically in function K2DDEMA
-        // for flood tma is used
+        // for flood DomainEdge is used
         FOR_ROW_COL_MV_L {
-            if(tma->Drc > 0) FlowBoundary->Drc = 1;
+            if(DomainEdge->Drc > 0) FlowBoundary->Drc = 1;
         }}
     }
     if (FlowBoundaryType == 2 ) // user defined outflow (0 close, >0 outflow)
     {
         FlowBoundary = ReadMap(LDD,getvaluename("flowboundary"));
-        // use flowboundary for tma
+        // use flowboundary for DomainEdge
         FOR_ROW_COL_MV_L {
-            if (tma->Drc == 0)
+            if (DomainEdge->Drc == 0)
                 FlowBoundary->Drc = 0;
             // this sets the cells to 1 row/col instead of a user sloppy digitizing
         }}

@@ -231,7 +231,7 @@ void lisemqt::initPlot()
 {
     HPlot->setTitle("Hydrograph Outlet");
 
-   // QbGraph->detach();
+    QbGraph->detach();
     QsGraph->detach();
     CGraph->detach();
     QtileGraph->detach();
