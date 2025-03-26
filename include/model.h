@@ -831,7 +831,7 @@ public:
     void InitScreenChanNetwork();
     void CorrectDEM(cTMap *h, cTMap * g);
     void DiagonalFlowDEM();
-    void InitPesticide(void);
+
     // <= initiatlisation
 
 
@@ -1119,7 +1119,6 @@ public:
     HORIZON *ReadHorizonNew(QString tablePath, QString tableName);
     LUT *ReadSoilTableNew(QString fileName);
     void checkFileForInvalidLetters(const QString &filePath);
-    void cell_InfilSwatre(long i_, int r, int c);
     double SwatreStep(long i_, int r, int c, SOIL_MODEL *s, double _WH, cTMap *_drain, cTMap *_theta);
     void HeadCalc(const PROFILE *p, double *h, bool *isPonded, bool fltsat,
                   const double *thetaPrev, const double *hPrev, const double *kavg, const double *dimoca,

@@ -554,91 +554,6 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
     return std::max(0.0,fact_out);
 
 }
-
-//---------------------------------------------------------------------------
-void TWorld::cell_InfilSwatre(long i_, int r, int c)
-{
-/*
-    // profile 0 is for impermeable surfaces
-    if (ProfileID->Drc <= 0 || fractionImperm->Drc > 0.999) {
-        fact->Drc = 0;
-        InfilVol->Drc = 0;
-        return;
-    }
-
-    double WHorig;
-    if (FloodDomain->Drc == 0)
-        WHorig = WH->Drc;
-    else
-        WHorig = hmx->Drc;
-
-    double WHN = SwatreStep(i_, r, c, SwatreSoilModel, WHorig, TileDrainSoil, thetaTop);
-    // thetatop is not used for now, meant for pesticides
-
-    Copy(*thetaTop,*ThetaI1a);
-    //for display
-
-    //TODO test infil swatre for crusts and compaction
-    if (SwitchInfilCrust) {
-        if (SwitchDynamicCrusting && ProfileIDCrust->Drc > 0) {
-            CrustFraction->Drc = std::min(1.0, CrustFraction0->Drc + (1.0-exp(-0.2*std::max(0.0, RainCumCrust->Drc*1000-5.0))));
-        }
-        if (ProfileIDCrust->Drc > 0 && CrustFraction->Drc > 0) {
-            tma->Drc = 0;
-            tmb->Drc = 0;
-
-            double WHcrust = SwatreStep(i_, r, c, SwatreSoilModelCrust, WHorig, tma, tmb);
-            // calculate crust SWATRE and get the soil moisture of the top node
-
-            WHN = WHcrust*CrustFraction->Drc + WHN*(1-CrustFraction->Drc);
-            // weighed average
-
-            thetaTop->Drc = tmb->Drc*CrustFraction->Drc + thetaTop->Drc*(1-CrustFraction->Drc);
-        }
-    }
-
-    if (SwitchInfilCompact) {
-        if (ProfileIDCompact->Drc > 0 &&  CompactFraction->Drc > 0) {
-            tma->Drc = 0;
-            tmb->Drc = 0;
-
-            double WHcompact = SwatreStep(i_, r, c, SwatreSoilModelCompact, WHorig, tma, tmb);
-            // calculate crust SWATRE and get the soil moisture of the top node
-
-            WHN = WHcompact*CompactFraction->Drc + WHN*(1-CompactFraction->Drc);
-            // weighted average
-
-            thetaTop->Drc = tmb->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
-        }
-    }
-
-    if (SwitchGrassStrip) {
-        if (ProfileIDGrass->Drc > 0 &&  GrassFraction->Drc > 0) {
-            tma->Drc = 0;
-            tmb->Drc = 0;
-
-            double WHgrass = SwatreStep(i_, r, c, SwatreSoilModelGrass, WHorig, tma, tmb);
-            // calculate crust SWATRE and get the soil moisture of the top node
-
-            WHN = WHgrass*GrassFraction->Drc + WHN*(1-GrassFraction->Drc);
-            // weighted average
-
-            thetaTop->Drc = tmb->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
-        }
-    }
-
-    if (FloodDomain->Drc == 0)
-        WH->Drc = WHN;
-    else
-        hmx->Drc = WHN;
-
-    fact->Drc = (WHorig - WHN);
-    InfilVol->Drc = fact->Drc * FlowWidth->Drc * DX->Drc;
-    // calc infilvolume from fact
-    // use flowwidth because impermeable is used separately
-*/
-}
-
 //---------------------------------------------------------------------------
 /// SWATRE infiltration, takes WH and calculateds new WH and infiltration surplus for kin wave
 /// OBSOLETE we use cell_infilswatre
@@ -649,7 +564,7 @@ void TWorld::InfilSwatre()
 
         // profile 0 is for impermeable surfaces
         if (ProfileID->Drc <= 0 || fractionImperm->Drc > 0.999) {
-            fact->Drc = 0;
+    //        fact->Drc = 0;
             InfilVol->Drc = 0;
             continue;
         }
@@ -717,8 +632,8 @@ void TWorld::InfilSwatre()
         else
             hmx->Drc = WHN;
 
-        fact->Drc = (WHorig - WHN);
-        InfilVol->Drc = fact->Drc * FlowWidth->Drc * DX->Drc;
+        double fact = (WHorig - WHN);
+        InfilVol->Drc = fact * FlowWidth->Drc * DX->Drc;
         // calc infilvolume from fact
         // use flowwidth because impermeable is used separately
 

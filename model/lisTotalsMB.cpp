@@ -500,40 +500,6 @@ void TWorld::TotalsSediment(void)
         // so this is the total loos through the outlets and boundaries
 
     }
-
-
-    if (SwitchPesticide)
-    {
-        FOR_ROW_COL_MV
-        {
-            // = WHoutavg->Drc*_dx*DX->Drc*C->Drc*1000*1000*1000; //µg
-            PDisMixing->Drc = CM->Drc*epsil->Drc*poro->Drc*_dx*_dx*1000*1000*1000; //µg
-            PSorMixing->Drc = CS->Drc*epsil->Drc*rhob->Drc*_dx*_dx*1000*1000*1000; //µg
-            PInfilt->Drc = pestiinf->Drc*CM->Drc*_dx*_dx*_dt*1000*1000*1000; //µg
-            PStorage->Drc= WHstore->Drc*_dx*_dx*C->Drc*1000*1000*1000; //µg
-            PRunoffSpatial->Drc = Pest->Drc*1000*1000*1000; //µg
-
-            //            PRunoffSpatialex->Drc= WHoutavg->Drc*_dx*DX->Drc*C_Kexplicit->Drc*1000*1000*1000; //µg
-            //            PDisMixingex->Drc = CM_Kexplicit->Drc*epsil->Drc*poro->Drc*_dx*DX->Drc*1000*1000*1000; //µg
-            //            PSorMixingex->Drc = CS_Kexplicit->Drc*epsil->Drc*rhob->Drc*_dx*DX->Drc*1000*1000*1000; //µg
-            //            PInfiltex->Drc = pestiinf->Drc*CM_Kexplicit->Drc*_dx*DX->Drc*_dt*1000*1000*1000; //µg
-
-        }
-
-        Pestdetach += mapTotal(*Pdetach); //KCM
-        PestCinfilt += mapTotal(*PCinfilt); //fc
-        PestCfilmexit += mapTotal(*PCfilmexit); //KC
-        //PestLossTotOutlet += Qn->DrcOutlet*C->DrcOutlet*_dt*1000*1000*1000; //µg  //DrcOutlet obsolete
-        PestRunoffSpatial = mapTotal(*PRunoffSpatial);
-        PestDisMixing = mapTotal(*PDisMixing);
-        PestSorMixing = mapTotal(*PSorMixing);
-        PestInfilt += mapTotal(*PInfilt);
-        PestStorage = mapTotal(*PStorage);
-
-    }
-
-    //SedimentSetMaterialDistribution();
-
 }
 //---------------------------------------------------------------------------
 void TWorld::MassBalance()

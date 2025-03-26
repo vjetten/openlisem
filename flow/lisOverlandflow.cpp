@@ -352,24 +352,4 @@ void TWorld::OverlandFlow1D(void)
             KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
         }
     }
-
-    // route other stuff
-    if (SwitchPesticide) {
-        // calc pesticide flux going in kin wave as Qp = Q*C
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-           Qp->Drc =  Qn->Drc * C->Drc;
-        }}
-
-        KinematicSubstance(crlinkedldd_, LDD, Q, Qn, Qp, Qpn, Alpha, DX, Pest);
-
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            //C->Drc = ConcentrationP(WaterVolall->Drc, Pest->Drc);
-            C->Drc = Qn->Drc > MIN_FLUX ? Qpn->Drc/Qn->Drc : 0;
-            C_N->Drc = C->Drc;
-            //qDebug()<< "ds overlandflow"<< C->Drc;
-            //qDebug()<< "ds overlandflow"<< Pest->Drc;
-        }}
-    }   
 }

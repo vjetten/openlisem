@@ -122,7 +122,6 @@ void TWorld::InitParameters(void)
 
     WaveCalibration = getvaluedouble("Boundary water level calibration");
 
-
     //ChnTortuosity = 1.0;
     ChnTortuosity = getvaluedouble("Channel tortuosity");
     if (ChnCalibration == 0)
@@ -1751,11 +1750,10 @@ void TWorld::IntializeData(void)
     InfilVol = NewMap(0);
     InfilmmCum = NewMap(0);
     InfilVolCum = NewMap(0);
-    fact = NewMap(0); // used in SWATRE
+  //  fact = NewMap(0);
     Ksateff = NewMap(0);
     Poreeff = NewMap(0);
     Thetaeff = NewMap(0);
-    FFull = NewMap(0);
     Perc = NewMap(0);
     PercmmCum = NewMap(0);
     Fcum = NewMap(0);
@@ -1810,18 +1808,6 @@ void TWorld::IntializeData(void)
         }}
         WHbound = NewMap(0);
         WHboundRain = NewMap(0);
-    }
-
-    K2DOutlets = NewMap(0);
-
-    if(SwitchPesticide)
-    {
-        K2DQP = NewMap(0);
-        K2DQPX = NewMap(0);
-        K2DQPY = NewMap(0);
-        K2DP = NewMap(0);
-        K2DPC = NewMap(0);
-        K2DPCN = NewMap(0);
     }
 
     QinKW = NewMap(0);
@@ -1919,159 +1905,6 @@ void TWorld::IntializeData(void)
     if (SwitchChannelBaseflowStationary)
         FindStationaryBaseFlow();
 
-}
-//---------------------------------------------------------------------------
-void TWorld::InitPesticide(void)
-{
-
-    if (SwitchPesticide)
-    {
-        //### pesticides maps
-        PestMassApplied = 0.0;
-        PestLossTotOutlet = 0.0;
-        PestFluxTotOutlet = 0.0;
-        PestRunoffSpatial = 0.0;
-        PestDisMixing = 0.0;
-        PestSorMixing = 0.0;
-        PestInfilt = 0.0;
-        PestStorage = 0.0;
-        MaxVup = 0.0;
-        PestRunoffSpatialex = 0.0;
-        PestDisMixingex = 0.0;
-        PestSorMixingex = 0.0;
-        PestInfiltex = 0.0;
-        PestLossTotOutletex = 0.0;
-        Maxsolubility=530e-3; // max solubility kg/m3 metolachlor
-        Pestdetach = 0.0;
-        PestCinfilt=0.0;
-        PestCfilmexit=0.0;
-
-        KD=NewMap(0);
-        kr=NewMap(0);
-        rhob=NewMap(0);
-        pestiinf=NewMap(0);
-        pestiinfold=NewMap(0);
-        poro=NewMap(0);
-        PCA=NewMap(0);
-        epsil=NewMap(0);
-        Kfilm=NewMap(0);
-        K1=NewMap(0);
-        AX=NewMap(0);
-
-        C=NewMap(0);
-        C_Kn=NewMap(0);
-        CS=NewMap(0);
-        CM=NewMap(0);
-        Qp=NewMap(0);
-        Qpn=NewMap(0);
-        Pest=NewMap(0);
-        PCinfilt=NewMap(0);
-        PCfilmexit=NewMap(0);
-
-        C_N=NewMap(0);
-        CM_N=NewMap(0);
-        CS_N=NewMap(0);
-
-        C_K=NewMap(0);
-        C_Kold=NewMap(0);
-        CM_K=NewMap(0);
-        CS_K=NewMap(0);
-
-        Fkold=NewMap(0);
-        Fk=NewMap(0);
-        Fmk=NewMap(0);
-        flagpest=NewMap(0);
-
-        PMassApplied=NewMap(0);
-        PRunoffSpatial=NewMap(0);
-        PDisMixing=NewMap(0);
-        PSorMixing=NewMap(0);
-        PInfilt=NewMap(0);
-        PStorage=NewMap(0);
-
-        PRunoffSpatialex=NewMap(0);
-        PDisMixingex=NewMap(0);
-        PSorMixingex=NewMap(0);
-        PInfiltex=NewMap(0);
-
-        Pdetach=NewMap(0);
-    }
-    if (SwitchPesticide)
-    {
-        N_SPK=1;
-
-        //test Joyce papier
-        //PCA=NewMap(0.000180); //kg/m²
-        //epsil=NewMap(0.25E-2); //m
-        //KD=NewMap(0.00941);//m3/kg
-        //kr=NewMap(0.000833333); // /s
-        //poro=NewMap(0.47);
-        //Kfilm=NewMap(1.16667E-5); // m/s
-
-        // test 5-22
-        PCA=NewMap(0.0000174); //kg/m²
-        epsil=NewMap(0.001); //m
-        KD=NewMap(0.00617);//m3/kg
-        //KD=NewMap(0.0);//m3/kg
-        kr=NewMap(0.0012); // /s
-        poro=NewMap(0.37);
-        Kfilm=NewMap(1.16667E-5); // m/s
-
-        // qDebug()<< "initial " ;
-
-        FOR_ROW_COL_MV
-        {
-            PMassApplied->Drc = PCA->Drc*_dx*_dx*1000*1000*1000; //*SnowmeltZone->Drc; //µg for partial appli //DX
-            rhob->Drc=2.65E3*(1.0-poro->Drc);// soil bulk density g/m3 rhob=NewMap(1404.5); // kg/m3
-            C_N->Drc= 0.0; // initialisation for t=0 kg/m3
-            // partial application
-            //            CM_N->Drc= (PCA->Drc*SnowmeltZone->Drc)/(epsil->Drc*poro->Drc + rhob->Drc*epsil->Drc*KD->Drc); // initialisation for t=0 kg/kg
-
-            //VJ             CM_N->Drc= PCA->Drc*poro->Drc/epsil->Drc + (1-poro->Drc)*PCA->Drc/epsil->Drc*KD->Drc*rhob->Drc; // initialisation for t=0 kg/kg
-            CM_N->Drc= (PCA->Drc)/(epsil->Drc*poro->Drc + rhob->Drc*epsil->Drc*KD->Drc); // initialisation for t=0 kg/kg
-            CS_N->Drc = CM_N->Drc*KD->Drc; // ! initialisation for t=0 kg/m3
-            //     qDebug()<< "initial C:"<< C->Drc << "cm"<< CM->Drc << "CS"<< CS->Drc;
-
-            // no sorption
-            // CS_N->Drc=0.0;
-            // CM_N->Drc=(PCA->Drc)/(epsil->Drc*poro->Drc);
-
-            PDisMixing->Drc = CM_N->Drc*epsil->Drc*poro->Drc*_dx*_dx*1000*1000*1000; //µg
-            PSorMixing->Drc = CS_N->Drc*epsil->Drc*rhob->Drc*_dx*_dx*1000*1000*1000; //µg
-        }
-
-        PestMassApplied = mapTotal(*PMassApplied);
-        PestDisMixing = mapTotal(*PDisMixing);
-        PestSorMixing = mapTotal(*PSorMixing);
-
-        if(Switchheaderpest)
-        {
-            Switchheaderpest=false;
-            QFile fout("massbalancenew.txt");
-            fout.open(QIODevice::WriteOnly | QIODevice::Text);
-            QTextStream out(&fout);
-            out.setRealNumberPrecision(3);
-            out.setFieldWidth(0);
-            out.setRealNumberNotation(QTextStream::FixedNotation);
-            out << "time" << " " << "PestMassApplied" << " " << "PestDisMixing" << " " << "PestSorMixing" << " " << "PestLossTotOutlet" << " " << "PestRunoffSpatial"
-                << " " << "PestInfilt" << " " << "MBp" << " "
-                << "RainTot" << " " << "WaterVolSoilTot" << " " << "IntercTot" << " " << "InfilTot" << " " << "Qtot*1000*1000" << " "
-                << "flux1" << " " << "flux2" << " "<< "flux3" << " "<< "flux4" << " "<< "flux5" << " "<< "flux6" <<" "<< "pestiinf*pow(10.0,9)"<<" "<<"CM*pow(10.0,6)"<<" "
-                << "CS*pow(10.0,6"<<" "<< "fact*1000"<< " "<< "InfilVol*1000*1000"<<" "<<"Qn*pow(10.0,6)" << " "<< "PDisMixing" << " "<< "poro"
-                << " "<< "epsil"<< " "<< "DX" << " "<< "switchrunoff" << " "<< "K1"<< " "<< "Q*pow(10.0,6)"<< " "<< "C*pow(10.0,10)"<< " "<< "iterconv"
-                << " "<< "WHoutavg" << " "<< "WHoutavgold"<< " " << "MBpex" << " " << "InfilVol"<< " " << "InfilVolold";
-            out << "\n";
-
-            out << "EI" << " " << PestMassApplied << " " << PestDisMixing << " " << PestSorMixing << " " << "PestLossTotOutlet" << " " << "PestRunoffSpatial"
-                << " " << "PestInfilt" << " " << PestMassApplied-PestDisMixing-PestSorMixing << " "
-                << "RainTot" << " " << "WaterVolSoilTot" << " " << "IntercTot" << " " << "InfilTot" << " " << "Qtot*1000*1000" << " "
-                << "flux1" << " " << "flux2" << " "<< "flux3" << " "<< "flux4" << " "<< "flux5" << " "<< "flux6" <<" "<< "pestiinf"<< " "<<"CM"<<" "
-                << "CS"<<" "<< "fact"<< " "<< "InfilVol"<<" "<<"Qn" << " "<< "PDisMixing" << " "<< "poro"
-                << " "<< "epsil"<< " "<< "DX" << " "<< "switchrunoff" << " "<< "K1"<< " "<< "Q*pow(10.0,6)"<< " "<< "C*pow(10.0,10)" << " "<< "iterconv"
-                << " "<< "WHoutavg" << " "<< "WHoutavgold" << " " << "MBpex"<< " " << "InfilVol"<< " " << "InfilVolold"<< " " << "Vup" << " " << "Vup_old" << " "<< "Cold";
-            out << "\n";
-        }
-    }
 }
 //---------------------------------------------------------------------------
 //TODO: are all switches and options initialised here?
