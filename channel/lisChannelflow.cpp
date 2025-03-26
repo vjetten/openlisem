@@ -166,8 +166,6 @@ void TWorld::ChannelRainandInfil(void)
     }}
 
     // subtract infiltration, no infil in culverts
-// TODO: no infiltration if moisture content or GW does not allow this
-// TODO: infiltration has to change moisture in surrounding soil
     if (SwitchChannelInfil) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
@@ -177,6 +175,20 @@ void TWorld::ChannelRainandInfil(void)
                 ChannelWaterVol->Drc -= inf;
                 ChannelInfilVol->Drc = inf; // do not make infiltration cumulative, that is done in totals
             }
+        }}
+    }
+
+    if (SwitchGridRetention) {
+        FOR_ROW_COL_MV_CHL {
+            double dvol = GridRetention->Drc - GridRetentionAct->Drc;
+            if (dvol > ChannelWaterVol->Drc) {
+                GridRetentionAct->Drc += ChannelWaterVol->Drc;
+                ChannelWaterVol->Drc = 0;
+            } else
+                if (dvol > 0) {
+                    GridRetentionAct->Drc = GridRetention->Drc;
+                    ChannelWaterVol->Drc -= dvol;
+                }
         }}
     }
 

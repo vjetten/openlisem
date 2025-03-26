@@ -174,71 +174,13 @@ cTMap
 *TC,                         //!< transport capacity [kg/m^3]
 *Conc,                       //!< sediment concentration in flow [kg/m^3]
 *Sed,                        //!< sediment content of flow [kg]
-//*CG,                         //!< parameter Govers in TC equation
-//*DG,                         //!< parameter Govers in TC equation
 *SettlingVelocitySS,           //!< settling velocity according to Stokes [m/s]
 *SettlingVelocityBL,           //!< settling velocity according to Stokes [m/s]
-*PCA,                        //!< applied dose [kg/m2]
-*epsil,                      //!< mixing layer depth (m]
-*KD,                         //!< soil water partition coefficient [m3/kg]
-*kr,                         //!< rate at which solute desorb [min-1]
-*rhob,                       //!< soil bulk density [kg/m3]
-*C,                          //!< Pesticide concentration in dissolved form in runoff water [kg/m3]
-*CM,                         //!< Pesticide concentration in dissolved form in the mixing zone [kg/m3]
-*CS,                         //!< Pesticide concentration in sorbed form in the mixing zone [kg/m3]
-*C_N,
-*pietje,
-*CM_N,
-*CS_N,
-*C_K,
-*C_Kold,
-*CM_K,
-*CS_K,
-*Qp,
-*Qpn,
-*C_Kn,
-*K1,
-*Kfilm,
-*pestiinf,
-*pestiinfold,
-*poro,
-*AX,
-*Fkold,
-*Fk,
-*Fmk,
-*flagpest,
-*PMassApplied,
-*PRunoffSpatial,
-*PDisMixing,
-*PSorMixing,
-*PInfilt,
-*PStorage,
-*PRunoffSpatialex,
-*PDisMixingex,
-*PSorMixingex,
-*PInfiltex,
-*Qin,
-*Sin,
-*Pest,
-*Fin,
-*Pdetach,
-*PCinfilt,
-*PCfilmexit,
-*K2DQP,                         //!<
-*K2DQPX,                         //!<
-*K2DQPY,                         //!<
-*K2DP,                          //!<
-*K2DPC,                          //!<
-*K2DPCN,                          //!<
-
-*K2DOutlets,                    //!<
-//*K2DQ,                          //!<
 
 // infiltration
 *Fcum,                       //!< cumulative infiltration [m]
 //*FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
-*FFull,                      //!< map flagging when the soil is full
-*fact,                       //!< actual infiltration rate [m/s]
+//*fact,                       //!< actual infiltration rate [m/s]
 //*fpot,                       //!< potential infiltration rate [m/s]
 //*InfilVolKinWave,            //!< volume infiltrated in the kin wave (slope and channel) in this timestep [m^3]
 *InfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
@@ -407,6 +349,7 @@ cTMap
 *FloodDomain,                //!<
 *Buffers,                    //!<
 *GridRetention,                    //!<
+*GridRetentionAct,
 *ChannelMaxQ,                //!<
 *ChannelMaxAlpha,                //!<
 *FloodWaterVol,                //!<
