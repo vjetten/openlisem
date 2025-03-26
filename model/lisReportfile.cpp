@@ -22,19 +22,6 @@
 **
 *************************************************************************/
 
-/*!
-  \file lisReportfile.cpp
-  \brief reporting maps, hydrographs, outlet/area totals and land unit stats
-
-functions: \n
-- void TWorld::OutputUI() fill output structure 'op' with results to talk to the interface.\n
-- void TWorld::reportAll() \n
-
-- void TWorld::ReportTotalsNew() report totals to text file\n
-- void TWorld::ReportMaps() report maps and mapseries\n
-- void TWorld::CountLandunits() make a list of landunit numbers\n
-- void TWorld::ReportLandunits() report text data per landunit\n
- */
 
 #include <algorithm>
 #include "lisemqt.h"
@@ -45,8 +32,8 @@ functions: \n
 #define QUNIT (QUnits == 1 ? 1.0 : 1000)
 
 //---------------------------------------------------------------------------
-/// report to disk: timeseries at output points, totals, map series and land unit stats
-void TWorld::reportAll(void)
+/// report to file: timeseries at output points, totals, map series and land unit stats
+void TWorld::reportToFile(void)
 {
     ReportTotalsNew();
     // report totals to a text file
@@ -60,22 +47,104 @@ void TWorld::reportAll(void)
     ReportTotalSeries();
     // report catchment averages per timestep
 
-    if (!SwitchEndRun) {
+    // spatial output, maps and mapseries
+    if (!SwitchEndRun) {        
         ReportMaps();
         ReportMapSeries();
     }
     // report all maps and mapseries
 
-    ReportLandunits();
-    // reportc stats per landunit class
+    ReportErosionLandunits();
+    // report stats per landunit class
 
     FloodStatistics();
     // report buildings submerged in flood level classes in 5cm intervals
 }
 //---------------------------------------------------------------------------
+void TWorld::setupHydrographData()
+{
+    // clear first
+    op.OutletIndices.clear();
+    op.OutletLocationX.clear();
+    op.OutletLocationY.clear();
+    op.OutletQ.clear();
+    op.OutletQs.clear();
+    op.OutletC.clear();
+    op.Qbound.clear();
+    op.OutletQpeak.clear();
+    op.OutletQpeaktime.clear();
+    op.OutletChannelWH.clear();
+    op.OutletQtot.clear();
+    op.OutletQstot.clear();
+
+    //get the sorted locations and index numbers of the outlet points
+    QList<int> nr;
+    //int maxnr = 0;
+
+    //0 is reserved for total outflow (channel and overland flow)
+    nr.append(0);
+    op.OutletIndices.append(0);
+    op.OutletLocationX.append(0);
+    op.OutletLocationY.append(0);
+    op.OutletQ.append(new QVector<double>);
+    op.OutletQs.append(new QVector<double>);
+    op.OutletC.append(new QVector<double>);
+    op.OutletChannelWH.append(new QVector<double>);
+    op.OutletQpeak.append(0);
+    op.OutletQpeaktime.append(0);
+    op.OutletQtot.append(0);
+    op.OutletQstot.append(0);
+
+    FOR_ROW_COL_MV
+    {
+        if(PointMap->Drc > 0)
+        {
+            nr.append((int)PointMap->Drc);
+            op.OutletIndices.append((int)PointMap->Drc);
+            op.OutletLocationX.append(r);
+            op.OutletLocationY.append(c);
+            op.OutletQ.append(new QVector<double>);
+            op.OutletQs.append(new QVector<double>);
+            op.OutletC.append(new QVector<double>);
+            op.OutletChannelWH.append(new QVector<double>);
+            op.OutletQpeak.append(0);
+            op.OutletQpeaktime.append(0);
+            op.OutletQtot.append(0);
+            op.OutletQstot.append(0);
+        }
+    }
+
+    QList<int> tx;
+    QList<int> ty;
+    tx.clear();
+    tx.append(op.OutletLocationX);
+    ty.clear();
+    ty.append(op.OutletLocationY);
+    op.OutletLocationX.clear();
+    op.OutletLocationY.clear();
+
+    std::sort(nr.begin(), nr.end());
+    for(int i = 0; i < nr.length(); i++)
+    {
+        int j;
+        for(j = 0; j < nr.length(); j++)
+        {
+            if(op.OutletIndices.at(j) == nr.at(i))
+            {
+                break;
+            }
+        }
+        op.OutletLocationX.append(tx.at(j));
+        op.OutletLocationY.append(ty.at(j));
+    }
+    op.OutletIndices.clear();
+    op.OutletIndices.append(nr);
+
+}
+//---------------------------------------------------------------------------
 /** fill output structure 'op' with results to talk to the interface:
     report to screen, hydrographs */
-void TWorld::OutputUI(void)
+void TWorld::reportToUI(void)
 {
     SwitchCorrectMB_WH = op.SwitchCorrectMB_WH;
     op.timestep = this->_dt/60.0;
@@ -416,534 +485,6 @@ void TWorld::ReportTotalsNew(void)
     fp.close();
 }
 //---------------------------------------------------------------------------
-/// Report maps for totals and mapseries (like report in PCRaster)
-/// output filenames are fixed, cannot be changed by the user
-/// outputnames that start with "out" are series
-void TWorld::ReportMaps(void)
-{
-    if(SwitchInfiltration && InfilMethod != INFIL_SWATRE) {
-        avgTheta();
-    }
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        COMBO_V->Drc = V->Drc < 1e-5 ? 0 : V->Drc;
-        VH->Drc = COMBO_V->Drc * hmxWH->Drc;
-        Lwmm->Drc = Lw->Drc *1000;
-    }}
-
-    if(SwitchErosion)
-    {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            COMBO_SS->Drc = 0;
-            COMBO_BL->Drc = 0;
-            COMBO_TC->Drc = 0;
-
-            COMBO_SS->Drc += SSFlood->Drc;
-            COMBO_SS->Drc += Sed->Drc;
-
-            COMBO_TC->Drc += SSTCFlood->Drc;
-            COMBO_TC->Drc += TC->Drc;
-
-            if (SwitchUse2Phase) {
-                COMBO_BL->Drc += BLFlood->Drc;
-                COMBO_TC->Drc += BLTCFlood->Drc;
-            }
-
-            if(SwitchIncludeChannel)
-            {
-                COMBO_SS->Drc += ChannelSSSed->Drc;
-                if (SwitchUse2Phase)
-                    COMBO_BL->Drc += ChannelBLSed->Drc;
-                COMBO_TC->Drc += ChannelTC->Drc;
-            }
-
-            COMBO_SS->Drc = COMBO_SS->Drc  < 1e-6 ? 0 : COMBO_SS->Drc;
-            COMBO_BL->Drc = COMBO_BL->Drc  < 1e-6 ? 0 : COMBO_BL->Drc;
-        }}
-    }
-
-    // MAP DISPLAY VARIABLES
-    if(SwitchInfiltration && InfilMethod != INFIL_SWATRE) {
-        avgTheta();
-    }
-
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        tm->Drc = (RainCumFlat->Drc)*1000.0;// + SnowmeltCum->Drc*DX->Drc/_dx) * 1000.0; // m to mm
-    }}
-    report(*tm, rainfallMapFileName);
-
-    report(*InterceptionmmCum, interceptionMapFileName);
-
-    report(*InfilmmCum, infiltrationMapFileName);
-
-   // report(*runoffTotalCell, runoffMapFileName); // in mm, total runoff from cell (but there is also runon!)
-
-    report(*Qm3total, runoffMapFileName); // in m3 total for this run
-
-    report(*WHmax, floodWHmaxFileName);
-    // report(*floodHmxMax, floodWHmaxFileName);  // BOTH overland flow and flood for all combinations
-
-    report(*Qm3max,"qm3smax.map");
-
-    // max velocity on land in m/s
-    report(*floodVMax, floodMaxVFileName);  // BOTH overland flow and flood for all combinations
-    report(*floodVHMax, floodMaxVHFileName);  // momentum of all flow
-
-    if (SwitchIncludeChannel)
-    {
-        report(*ChannelQntot, channelDischargeMapFileName);
-        // total flow in river, cumulative during run, in m3 !!!
-
-        report(*maxChannelflow, floodMaxQFileName);
-        report(*maxChannelWH, floodMaxChanWHFileName);
-    }
-
-    if (SwitchIncludeStormDrains || SwitchIncludeTile)
-    {
-        report(*TileWaterVol, tileWaterVolfilename);
-       //report(*TileQmax, tileQmaxfilename);
-    }
-
-    report(*floodTime, floodTimeFileName);
-    report(*floodTimeStart, floodFEWFileName);
-
-    if (SwitchGWflow)
-        report(*GWWH,"groundwater.map");
-
-    //===== SEDIMENT =====
-    if(SwitchErosion)
-    {
-        double factor = 1.0;
-        if(ErosionUnits == 2)
-            factor = 1.0/(_dx*_dx);  //kg/m2
-        else
-            if (ErosionUnits == 0)
-                factor = 10.0/(_dx*_dx); //ton/ha
-
-        // all detachment combined
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            tm->Drc =std::max(0.0,TotalSoillossMap->Drc)*factor;
-            tma->Drc =std::min(0.0,TotalSoillossMap->Drc)*factor;
-        }}
-        report(*tm, totalErosionFileName);
-        // all deposition combined
-        report(*tma, totalDepositionFileName);
-        // all channel depostion combined
-
-        if (SwitchIncludeChannel)
-        {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                if (ChannelWidth->Drc > 0) {
-                    tm->Drc =std::max(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc)*factor;
-                    tma->Drc =std::min(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc)*factor;
-                } else {
-                    tm->Drc = 0;
-                    tma->Drc = 0;
-                }
-            }}
-            report(*tm, totalChanErosionFileName);
-            report(*tma, totalChanDepositionFileName);
-        }
-
-        //copy(*tm, *TotalSoillossMap);
-        //calcValue(*tm, factor, MUL);
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            tm->Drc = TotalSoillossMap->Drc  * factor;
-        }}
-        report(*tm, totalSoillossFileName);
-
-        // total sediment
-
-    }
-}
-//---------------------------------------------------------------------------
-void TWorld::ReportMapSeries(void)
-{
-    //discharge l/s or m3/s
-    if (SwitchOutrunoff)
-        report(*Qoutput, Outrunoff);
-    // water height m
-    if (SwitchOutwh)
-        report(*hmxWH, Outwh);
-    // interception mmtile
-    if (SwitchOutInt)
-        report(*InterceptionmmCum, OutInt);
-    // velovity m/s
-    if (SwitchOutvelo)
-        report(*V, Outvelo);
-
-    // infiltration mm
-    if (SwitchOutinf)
-        report(*InfilmmCum, Outinf);
-
-    if (SwitchOutss)
-    {
-        //calcMapValue(*tm, *WHstore, 1000, MUL);// in mm
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            tm->Drc = WHstore->Drc  * 1000;
-        }}
-        report(*tm, Outss);
-    }
-
-    if (SwitchIncludeTile|| SwitchIncludeStormDrains)
-    {
-        if (SwitchOutTiledrain)
-        {
-           // calcMapValue(*tm, *TileQn, 1000, MUL);
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                tm->Drc = TileQn->Drc  * 1000;
-            }}
-            report(*tm, OutTiledrain); //in l/s
-        }
-        if (SwitchOutTileVol)
-        {
-            // report(*TileV, "tilev"); //in m3/s
-            report(*TileWaterVol, OutTileVol); //in m3
-        }
-    }
-
-    if (SwitchOutTheta) {
-        if (SwitchInfiltration && InfilMethod != INFIL_SWATRE) { //InfilMethod != INFIL_NONE
-            report(*ThetaI1a, "th1l");//OutTheta1);
-            if (SwitchTwoLayer)
-                report(*ThetaI2a, "th2l");//OutTheta2);
-        }
-    }
-
-    if (SwitchOutGW && SwitchGWflow) {
-            report(*GWWH, OutGW);
-    }
-
-    //===== SEDIMENT =====
-    if(SwitchErosion)
-    {
-        double factor = 1.0;
-        if(ErosionUnits == 2)
-            factor = 1.0/(_dx*_dx);  //kg/m2
-        else
-            if (ErosionUnits == 0)
-                factor = 10.0/(_dx*_dx); //ton/ha               
-
-        if (SwitchOutDet) {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                tm->Drc =std::max(0.0,TotalSoillossMap->Drc)*factor;
-            }}
-            report(*tm, Outeros); // in units
-        }
-
-        // all deposition combined
-
-        if (SwitchOutDep) {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                tm->Drc =std::min(0.0,TotalSoillossMap->Drc)*factor;
-            }}
-            report(*tm, Outdepo); // in units
-        }
-
-        if (SwitchOutSL) {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                tm->Drc =TotalSoillossMap->Drc*factor;
-            }}
-            report(*tm, OutSL);      // in user units
-        }
-
-        // total sediment
-        if (SwitchOutSed) {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                tm->Drc = (COMBO_SS->Drc + COMBO_BL->Drc)*factor;
-            }}
-            report(*tm, OutSed);      // in user units
-        }
-        if (SwitchOutConc) report(*TotalConc, Outconc);  // in g/l
-        if (SwitchOutTC) report(*COMBO_TC, Outtc);      // in g/l
-
-        if(SwitchUse2Phase) {
-            if (SwitchOutSedSS) {
-                #pragma omp parallel for num_threads(userCores)
-                FOR_ROW_COL_MV_L {
-                    tm->Drc = COMBO_SS->Drc*factor;
-                }}
-            report(*tm, OutSedSS);      // in user units
-            }
-            if (SwitchOutSedBL) {
-                #pragma omp parallel for num_threads(userCores)
-                FOR_ROW_COL_MV_L {
-                    tm->Drc = COMBO_BL->Drc*factor;
-                }}
-                report(*tm, OutSedBL);      // in user units
-            }
-        }
-    }
-}
-//---------------------------------------------------------------------------
-/// Land unit statistics: count nr land units in classifiedfile
-// VJ 110110 count nr of land units in classified file
-void TWorld::CountLandunits(void)
-{
-    if (!SwitchErosion)
-        return;
-
-    int i, j;
-    for (i = 0; i < NRUNITS; i++)
-    {
-        unitList[i].nr = 0;
-        unitList[i].var0 = 0;
-        unitList[i].var1 = 0;
-        unitList[i].var2 = 0;
-        unitList[i].var3 = 0;
-        unitList[i].var4 = 0;
-        unitList[i].var5 = 0;
-    }
-
-    i = 0;
-    FOR_ROW_COL_MV
-    {
-        bool found = false;
-
-        for(j = 0; j <= i; j++)
-            if ((long)LandUnit->Drc == unitList[j].nr)
-                found = true;
-
-        if(!found && i < NRUNITS)
-        {
-             unitList[i].nr = (long)LandUnit->Drc;
-             i++;
-        }
-    }
-    landUnitNr = i;
-}
-//---------------------------------------------------------------------------
-/// Report the erosion totals per land unit
-void TWorld::ReportLandunits(void)
-{
-    if (!SwitchErosion)
-        return;
-
-    #pragma omp parallel for num_threads(userCores)
-    for (int i = 0; i < landUnitNr; i++)//landUnitNr; i++)
-    {
-        unitList[i].var0 = 0;
-        unitList[i].var1 = 0;
-        unitList[i].var2 = 0;
-        unitList[i].var3 = 0;
-    }
-
-   #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        //variables are kg/cell convert to ton/cell
-        for (int i = 0; i < landUnitNr; i++)
-            if (unitList[i].nr == (int)LandUnit->Drc) {
-                unitList[i].var0 += CellArea->Drc/10000;//ha
-             //   unitList[i].var1 += std::max(0.0,TotalSoillossMap->Drc/1000); //ton/cell
-             //   unitList[i].var2 += std::min(0.0,TotalSoillossMap->Drc/1000);
-                unitList[i].var1 += TotalSoillossMap->Drc/1000;
-            }
-    }}
-
-
-    QString name;
-    name = resultDir + totalLandunitFileName;//QFileInfo(totalLandunitFileName).baseName()+"-"+op.timeStartRun+".csv";
-    QFile fout(name);
-    fout.open(QIODevice::WriteOnly | QIODevice::Text);
-    QTextStream out(&fout);
-    out.setRealNumberPrecision(3);
-    out.setRealNumberNotation(QTextStream::FixedNotation);
-
-    // out << "Landunit,Area,Detachment,Deposition,Soil Loss\n";
-    // out << "#,ha,ton,ton,ton\n";
-    out << "Landunit,Area,Soil Loss\n";
-    out << "#,ha,ton\n";
-    for (int i = 0; i < landUnitNr; i++)
-        out << unitList[i].nr << ","
-            << unitList[i].var0 << ","
-            << unitList[i].var1 << "\n";
-          //  << unitList[i].var2 << ","
-          //  << unitList[i].var3 << "\n";
-    fout.close();
-
-}
-//---------------------------------------------------------------------------
-void TWorld::FloodStatistics(void)
-{
-    if(SwitchKinematic2D == K2D_METHOD_KIN)
-        return;
-
-    #pragma omp parallel for num_threads(userCores)
-    for (int i = 0; i < NRUNITS; i++)
-    {
-        floodList[i].nr = i;
-        floodList[i].var0 = 0.05*i; //depth 5 cm intervals
-        floodList[i].var1 = 0;
-        floodList[i].var2 = 0;
-        floodList[i].var3 = 0;
-        floodList[i].var4 = 0;
-        floodList[i].var5 = 0;
-        floodList[i].var6 = 0;
-    }
-
-    int nr = 0;
-    FOR_ROW_COL_MV_L {
-        double area = _dx*_dx;
-        if(floodHmxMax->Drc > 0)  //floodHmxMax has zero under treshold
-        {
-            int i = 0;
-            while (floodList[i].var0 < floodHmxMax->Drc && i < NRUNITS)
-                i++;
-            if (i > 0)
-                i--;
-            nr = std::max(nr, i);
-            //qDebug() << nr << i << floodHmxMax->Drc;
-            floodList[i].var1 += area; // area flooded in this class
-            floodList[i].var2 += area*floodHmxMax->Drc; // vol flooded in this class
-            floodList[i].var3 = std::max(floodTime->Drc/60.0,floodList[i].var3); // max time in this class
-            floodList[i].var4 = std::max(floodTimeStart->Drc/60.0,floodList[i].var4); // max time in this class
-            if (SwitchHouses)
-                floodList[i].var5 += HouseCover->Drc*area;
-            if (SwitchRoadsystem)
-                floodList[i].var6 += RoadWidthDX->Drc*DX->Drc; // WRONG: all road pixels is the surface, not the length
-        }
-    }}
-
-    QFile fp(resultDir + floodStatsFileName);
-    if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
-        return;
-
-    double totarea = 0;
-    double totvol = 0;
-    double totbuild = 0;
-    double totroad = 0;
-    for (int i = 1; i < nr+1; i++)
-    {
-        totarea += floodList[i].var1;
-        totvol += floodList[i].var2;
-        totbuild += floodList[i].var5;
-        totroad += floodList[i].var6;
-    }
-
-    QTextStream out(&fp);
-    out.setRealNumberPrecision(2);
-    out.setRealNumberNotation(QTextStream::FixedNotation);
-
-    out << "\"LISEM run with:," << op.runfilename << "\"" << "\n";
-    out << "\"results at time (day:min):\"" << op.time/1440 << ":" << long(op.time) % 1440 <<"\n";
-    // "\"results at time (min):\"" << op.time << "\n";
-    out << "class,Depth,Area,Volume,Duration,Start,Structures,Roads\n";
-    out << "#,m,m2,m3,h,h,m2,m2\n";
-    out << "total" << ",>0.05," << totarea << "," << totvol << ",,," << totbuild << "," << totroad <<"\n";
-    for (int i = 1; i < nr+1; i++)
-        out << i << ","
-            << floodList[i].var0 << ","
-            << floodList[i].var1 << ","
-            << floodList[i].var2 << ","
-            << floodList[i].var3 << ","
-            << floodList[i].var4 << ","
-            << floodList[i].var5 << ","
-            << floodList[i].var6
-            << "\n";
-
-    fp.flush();
-    fp.close();
-
-}
-//---------------------------------------------------------------------------
-void TWorld::setupHydrographData()
-{
-    ClearHydrographData();
-
-
-    //get the sorted locations and index numbers of the outlet points
-    QList<int> nr;
-    //int maxnr = 0;
-
-    //0 is reserved for total outflow (channel and overland flow)
-    nr.append(0);
-    op.OutletIndices.append(0);
-    op.OutletLocationX.append(0);
-    op.OutletLocationY.append(0);
-    op.OutletQ.append(new QVector<double>);
-    op.OutletQs.append(new QVector<double>);
-    op.OutletC.append(new QVector<double>);
-    op.OutletChannelWH.append(new QVector<double>);
-    op.OutletQpeak.append(0);
-    op.OutletQpeaktime.append(0);
-    op.OutletQtot.append(0);
-    op.OutletQstot.append(0);
-
-    FOR_ROW_COL_MV
-    {
-        if(PointMap->Drc > 0)
-        {
-            nr.append((int)PointMap->Drc);
-            op.OutletIndices.append((int)PointMap->Drc);
-            op.OutletLocationX.append(r);
-            op.OutletLocationY.append(c);
-            op.OutletQ.append(new QVector<double>);
-            op.OutletQs.append(new QVector<double>);
-            op.OutletC.append(new QVector<double>);
-            op.OutletChannelWH.append(new QVector<double>);
-            op.OutletQpeak.append(0);
-            op.OutletQpeaktime.append(0);
-            op.OutletQtot.append(0);
-            op.OutletQstot.append(0);
-        }
-    }
-
-    QList<int> tx;
-    QList<int> ty;
-    tx.clear();
-    tx.append(op.OutletLocationX);
-    ty.clear();
-    ty.append(op.OutletLocationY);
-    op.OutletLocationX.clear();
-    op.OutletLocationY.clear();
-
-    std::sort(nr.begin(), nr.end());
-    for(int i = 0; i < nr.length(); i++)
-    {
-        int j;
-        for(j = 0; j < nr.length(); j++)
-        {
-            if(op.OutletIndices.at(j) == nr.at(i))
-            {
-                break;
-            }
-        }
-        op.OutletLocationX.append(tx.at(j));
-        op.OutletLocationY.append(ty.at(j));
-    }
-    op.OutletIndices.clear();
-    op.OutletIndices.append(nr);
-
-}
-//---------------------------------------------------------------------------
-void TWorld::ClearHydrographData()
-{
-    op.OutletIndices.clear();
-    op.OutletLocationX.clear();
-    op.OutletLocationY.clear();
-    op.OutletQ.clear();
-    op.OutletQs.clear();
-    op.OutletC.clear();
-    op.Qbound.clear();
-    op.OutletQpeak.clear();
-    op.OutletQpeaktime.clear();
-    op.OutletChannelWH.clear();
-    op.OutletQtot.clear();
-    op.OutletQstot.clear();
-}
-//---------------------------------------------------------------------------
 void TWorld::ReportTimeseriesPCR(void)
 {
     int nr = 0;
@@ -1196,3 +737,174 @@ void TWorld::ReportTimeseriesCSV(void)
     }}
 
 }
+//---------------------------------------------------------------------------
+/// Land unit statistics: count nr land units in classifiedfile
+// VJ 110110 count nr of land units in classified file
+void TWorld::CountLandunits(void)
+{
+    if (!SwitchErosion)
+        return;
+
+    int i, j;
+    for (i = 0; i < NRUNITS; i++)
+    {
+        unitList[i].nr = 0;
+        unitList[i].var0 = 0;
+        unitList[i].var1 = 0;
+        unitList[i].var2 = 0;
+        unitList[i].var3 = 0;
+        unitList[i].var4 = 0;
+        unitList[i].var5 = 0;
+    }
+
+    i = 0;
+    FOR_ROW_COL_MV
+    {
+        bool found = false;
+
+        for(j = 0; j <= i; j++)
+            if ((long)LandUnit->Drc == unitList[j].nr)
+                found = true;
+
+        if(!found && i < NRUNITS)
+        {
+             unitList[i].nr = (long)LandUnit->Drc;
+             i++;
+        }
+    }
+    landUnitNr = i;
+}
+//---------------------------------------------------------------------------
+/// Report the erosion totals per land unit
+void TWorld::ReportErosionLandunits(void)
+{
+    if (!SwitchErosion)
+        return;
+
+    #pragma omp parallel for num_threads(userCores)
+    for (int i = 0; i < landUnitNr; i++)//landUnitNr; i++)
+    {
+        unitList[i].var0 = 0;
+        unitList[i].var1 = 0;
+        unitList[i].var2 = 0;
+        unitList[i].var3 = 0;
+    }
+
+   #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        //variables are kg/cell convert to ton/cell
+        for (int i = 0; i < landUnitNr; i++)
+            if (unitList[i].nr == (int)LandUnit->Drc) {
+                unitList[i].var0 += CellArea->Drc/10000;//ha
+             //   unitList[i].var1 += std::max(0.0,TotalSoillossMap->Drc/1000); //ton/cell
+             //   unitList[i].var2 += std::min(0.0,TotalSoillossMap->Drc/1000);
+                unitList[i].var1 += TotalSoillossMap->Drc/1000;
+            }
+    }}
+
+
+    QString name;
+    name = resultDir + totalLandunitFileName;//QFileInfo(totalLandunitFileName).baseName()+"-"+op.timeStartRun+".csv";
+    QFile fout(name);
+    fout.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream out(&fout);
+    out.setRealNumberPrecision(3);
+    out.setRealNumberNotation(QTextStream::FixedNotation);
+
+    // out << "Landunit,Area,Detachment,Deposition,Soil Loss\n";
+    // out << "#,ha,ton,ton,ton\n";
+    out << "Landunit,Area,Soil Loss\n";
+    out << "#,ha,ton\n";
+    for (int i = 0; i < landUnitNr; i++)
+        out << unitList[i].nr << ","
+            << unitList[i].var0 << ","
+            << unitList[i].var1 << "\n";
+          //  << unitList[i].var2 << ","
+          //  << unitList[i].var3 << "\n";
+    fout.close();
+
+}
+//---------------------------------------------------------------------------
+void TWorld::FloodStatistics(void)
+{
+    if(SwitchKinematic2D == K2D_METHOD_KIN)
+        return;
+
+    #pragma omp parallel for num_threads(userCores)
+    for (int i = 0; i < NRUNITS; i++)
+    {
+        floodList[i].nr = i;
+        floodList[i].var0 = 0.05*i; //depth 5 cm intervals
+        floodList[i].var1 = 0;
+        floodList[i].var2 = 0;
+        floodList[i].var3 = 0;
+        floodList[i].var4 = 0;
+        floodList[i].var5 = 0;
+        floodList[i].var6 = 0;
+    }
+
+    int nr = 0;
+    FOR_ROW_COL_MV_L {
+        double area = _dx*_dx;
+        if(floodHmxMax->Drc > 0)  //floodHmxMax has zero under treshold
+        {
+            int i = 0;
+            while (floodList[i].var0 < floodHmxMax->Drc && i < NRUNITS)
+                i++;
+            if (i > 0)
+                i--;
+            nr = std::max(nr, i);
+            //qDebug() << nr << i << floodHmxMax->Drc;
+            floodList[i].var1 += area; // area flooded in this class
+            floodList[i].var2 += area*floodHmxMax->Drc; // vol flooded in this class
+            floodList[i].var3 = std::max(floodTime->Drc/60.0,floodList[i].var3); // max time in this class
+            floodList[i].var4 = std::max(floodTimeStart->Drc/60.0,floodList[i].var4); // max time in this class
+            if (SwitchHouses)
+                floodList[i].var5 += HouseCover->Drc*area;
+            if (SwitchRoadsystem)
+                floodList[i].var6 += RoadWidthDX->Drc*DX->Drc; // WRONG: all road pixels is the surface, not the length
+        }
+    }}
+
+    QFile fp(resultDir + floodStatsFileName);
+    if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;
+
+    double totarea = 0;
+    double totvol = 0;
+    double totbuild = 0;
+    double totroad = 0;
+    for (int i = 1; i < nr+1; i++)
+    {
+        totarea += floodList[i].var1;
+        totvol += floodList[i].var2;
+        totbuild += floodList[i].var5;
+        totroad += floodList[i].var6;
+    }
+
+    QTextStream out(&fp);
+    out.setRealNumberPrecision(2);
+    out.setRealNumberNotation(QTextStream::FixedNotation);
+
+    out << "\"LISEM run with:," << op.runfilename << "\"" << "\n";
+    out << "\"results at time (day:min):\"" << op.time/1440 << ":" << long(op.time) % 1440 <<"\n";
+    // "\"results at time (min):\"" << op.time << "\n";
+    out << "class,Depth,Area,Volume,Duration,Start,Structures,Roads\n";
+    out << "#,m,m2,m3,h,h,m2,m2\n";
+    out << "total" << ",>0.05," << totarea << "," << totvol << ",,," << totbuild << "," << totroad <<"\n";
+    for (int i = 1; i < nr+1; i++)
+        out << i << ","
+            << floodList[i].var0 << ","
+            << floodList[i].var1 << ","
+            << floodList[i].var2 << ","
+            << floodList[i].var3 << ","
+            << floodList[i].var4 << ","
+            << floodList[i].var5 << ","
+            << floodList[i].var6
+            << "\n";
+
+    fp.flush();
+    fp.close();
+
+}
+//---------------------------------------------------------------------------

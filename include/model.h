@@ -1148,15 +1148,15 @@ int showc;
     void TotalsFlow(void);
     void TotalsSediment(void);
     void MassBalance(void);
-    void OutputUI(void);
-    void reportAll(void);
+    void reportToUI(void);
+    void reportToFile(void);
     void ReportTimeseriesPCR(void);
     void ReportTimeseriesCSV(void);
     void ReportTotalSeries(void);
     void ReportMaps(void);
     void ReportMapSeries(void);
     void ReportTotalsNew(void);
-    void ReportLandunits(void); //VJ 110107 report erosion stats per land unit
+    void ReportErosionLandunits(void); //VJ 110107 report erosion stats per land unit
     void CountLandunits(void); //VJ 110107 report erosion stats per land unit
     void saveMBerror2file(bool start);
     void FloodMaxandTiming();
@@ -1182,7 +1182,7 @@ protected:
     double startTime;
     void setupDisplayMaps();
     void setupHydrographData();
-    void ClearHydrographData();
+
 
     //combobox map selection
     void GetComboMaps();

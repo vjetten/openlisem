@@ -137,22 +137,23 @@ SET(APP_SOURCES
     meteo/lisRainfall.cpp
     meteo/lisSnowmelt.cpp
     meteo/lisEvaporation.cpp
+
     model/main.cpp
     model/lisReportfile.cpp
     model/lisReportmaps.cpp
+    model/lisDisplayMaps.cpp
     model/lisRunfile.cpp
     model/lisTotalsMB.cpp
     model/lisModel.cpp
     model/lisDataInit.cpp
     model/lisDataFunctions.cpp
+
     flow/lisSWOF2Daux.cpp
-    #flow/lisSWOF2Dopen.cpp
     flow/lisSWOF2DopenMUSCL.cpp
     flow/lisTiledrainflow.cpp
     erosion/lisChannelErosion.cpp
     erosion/lisSWOF2DSediment.cpp
     erosion/lisErosion.cpp
-    pest/lisPesticide.cpp
     include/array.h
     include/CsfMap.h
     include/CsfRGBMap.h
