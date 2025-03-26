@@ -51,21 +51,6 @@ void lisemqt::ClearOP()
     Clear2D(op.OutletC);
     Clear2D(op.OutletChannelWH);
 
-    // Clear(op.OutletIndices);
-    // Clear(op.OutletLocationX);
-    // Clear(op.OutletLocationY);
-    // Cleard(op.OutletQpeak);
-    // Cleard(op.OutletQpeaktime);
-    // Cleard(op.OutletQtot);
-    // Cleard(op.OutletQstot);
-    // Cleard(op.Pmm);
-    // Cleard(op.Time);
-    // Cleard(op.Qtile);
-    // Cleard(op.EndPointX);
-    // Cleard(op.EndPointY);
-    // Cleard(op.ObsPointX);
-    // Cleard(op.ObsPointY);
-
     op.OutletIndices.clear();
     op.OutletLocationX.clear();
     op.OutletLocationY.clear();

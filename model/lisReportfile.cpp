@@ -58,7 +58,7 @@ void TWorld::reportAll(void)
     // report hydrographs ande sedigraphs at all points in outpoint.map
 
     ReportTotalSeries();
-    // report catchment avreages per timestep
+    // report catchment averages per timestep
 
     if (!SwitchEndRun) {
         ReportMaps();
@@ -74,10 +74,9 @@ void TWorld::reportAll(void)
 }
 //---------------------------------------------------------------------------
 /** fill output structure 'op' with results to talk to the interface:
-    report to screen, hydrographs and maps */
+    report to screen, hydrographs */
 void TWorld::OutputUI(void)
 {
-
     SwitchCorrectMB_WH = op.SwitchCorrectMB_WH;
     op.timestep = this->_dt/60.0;
 
@@ -211,80 +210,6 @@ void TWorld::OutputUI(void)
             op.OutletQpeak.replace(j,op.OutletQ.at(j)->at(op.OutletQ.at(j)->length()-1));
             op.OutletQpeaktime.replace(j,time/60);
         }
-    }
-
-    //output maps
-
-    // ONLY ONCE
-    if (runstep <= 1) {
-        copy(*op.baseMap, *ShadeBW);
-        copy(*op.baseMapDEM, *DEM);
-
-        if(SwitchImage)
-          op.Image = RGB_Image;
-
-        if (SwitchIncludeChannel) {
-            copy(*op.channelMap, *LDDChannel);//*ChannelMaskExtended);
-        }
-        copy(*op.outletMap, *PointMap);
-
-        if (SwitchRoadsystem) {
-            FOR_ROW_COL_MV_L {
-                if (RoadWidthDX->Drc > 0.2*_dx)
-                    op.roadMap->Drc = RoadWidthDX->Drc;
-                else
-                    op.roadMap->Drc = 0;
-                //copy(*op.roadMap, *RoadWidthDX);
-            }}
-        }
-        if (SwitchHouses)
-            copy(*op.houseMap, *HouseCover);
-
-        if(SwitchHardsurface)
-            copy(*op.hardsurfaceMap,*HardSurface);
-    }
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        COMBO_V->Drc = V->Drc < 1e-5 ? 0 : V->Drc;
-        VH->Drc = COMBO_V->Drc * hmxWH->Drc;
-        Lwmm->Drc = Lw->Drc *1000;
-    }}
-
-    if(SwitchInfiltration && InfilMethod != INFIL_SWATRE) {
-        avgTheta();
-    }
-
-    if(SwitchErosion)
-    {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            COMBO_SS->Drc = 0;
-            COMBO_BL->Drc = 0;
-            COMBO_TC->Drc = 0;
-
-            COMBO_SS->Drc += SSFlood->Drc;
-            COMBO_SS->Drc += Sed->Drc;
-
-            COMBO_TC->Drc += SSTCFlood->Drc;
-            COMBO_TC->Drc += TC->Drc;
-
-            if (SwitchUse2Phase) {
-                COMBO_BL->Drc += BLFlood->Drc;
-                COMBO_TC->Drc += BLTCFlood->Drc;
-            }
-
-            if(SwitchIncludeChannel)
-            {
-                COMBO_SS->Drc += ChannelSSSed->Drc;
-                if (SwitchUse2Phase)
-                    COMBO_BL->Drc += ChannelBLSed->Drc;
-                COMBO_TC->Drc += ChannelTC->Drc;
-            }
-
-            COMBO_SS->Drc = COMBO_SS->Drc  < 1e-6 ? 0 : COMBO_SS->Drc;
-            COMBO_BL->Drc = COMBO_BL->Drc  < 1e-6 ? 0 : COMBO_BL->Drc;
-        }}
     }
 }
 //---------------------------------------------------------------------------
@@ -496,8 +421,9 @@ void TWorld::ReportTotalsNew(void)
 /// outputnames that start with "out" are series
 void TWorld::ReportMaps(void)
 {
-    //output maps
-
+    if(SwitchInfiltration && InfilMethod != INFIL_SWATRE) {
+        avgTheta();
+    }
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         COMBO_V->Drc = V->Drc < 1e-5 ? 0 : V->Drc;
@@ -664,8 +590,7 @@ void TWorld::ReportMapSeries(void)
             tm->Drc = WHstore->Drc  * 1000;
         }}
         report(*tm, Outss);
-
-}
+    }
 
     if (SwitchIncludeTile|| SwitchIncludeStormDrains)
     {
@@ -684,7 +609,6 @@ void TWorld::ReportMapSeries(void)
             report(*TileWaterVol, OutTileVol); //in m3
         }
     }
-
 
     if (SwitchOutTheta) {
         if (SwitchInfiltration && InfilMethod != INFIL_SWATRE) { //InfilMethod != INFIL_NONE

@@ -81,6 +81,36 @@ void TWorld::setupDisplayMaps()
     op.roadMap->MakeMap(LDD, 0);
     op.houseMap->MakeMap(LDD, 0);
     op.hardsurfaceMap->MakeMap(LDD, 0);
+
+
+   // if (runstep <= 1) {
+        copy(*op.baseMap, *ShadeBW);
+        copy(*op.baseMapDEM, *DEM);
+
+        if(SwitchImage)
+          op.Image = RGB_Image;
+
+        if (SwitchIncludeChannel) {
+            copy(*op.channelMap, *LDDChannel);//*ChannelMaskExtended);
+        }
+        copy(*op.outletMap, *PointMap);
+
+        if (SwitchRoadsystem) {
+            FOR_ROW_COL_MV_L {
+                if (RoadWidthDX->Drc > 0.2*_dx)
+                    op.roadMap->Drc = RoadWidthDX->Drc;
+                else
+                    op.roadMap->Drc = 0;
+                //copy(*op.roadMap, *RoadWidthDX);
+            }}
+        }
+        if (SwitchHouses)
+            copy(*op.houseMap, *HouseCover);
+
+        if(SwitchHardsurface)
+            copy(*op.hardsurfaceMap,*HardSurface);
+   // }
+
 }
 //---------------------------------------------------------------------------
 void TWorld::setLegendColors()
