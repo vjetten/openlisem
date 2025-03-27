@@ -429,7 +429,7 @@ void TWorld::ParseRunfileData(void)
         SwitchGridRetention = false;
         SwitchGrassStrip = false;
     }
-
+qDebug() << "ret" << SwitchGridRetention;
     // start again and do the rest of the variables, map names etc.
     // choice of options in first loop determines what happens in this loop
     for (j = 0; j < nrrunnamelist; j++) {

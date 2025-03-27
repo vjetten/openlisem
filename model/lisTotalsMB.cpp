@@ -589,12 +589,5 @@ void TWorld::MassBalance()
         MBs = detachment > 0 ? (detachment + deposition  - sediment)/detachment*100 : 0;
     }
 
-    if (SwitchPesticide)
-    {
-        MBp = (PestMassApplied-PestLossTotOutlet-PestRunoffSpatial-PestDisMixing-PestSorMixing-PestInfilt-PestStorage)*100/PestMassApplied;
-        //MBpex = (PestMassApplied-PestLossTotOutletex-PestRunoffSpatialex-PestDisMixingex-PestSorMixingex-PestInfiltex)*100/PestMassApplied;
-        //(PestMassApplied-PestLossTotOutlet-PestRunoffSpatial-PestDisMixing-PestSorMixing-PestInfilt-PestStorage)*100/PestMassApplied
-        debug(QString("mbp: %1").arg(MBp));
-    }
 }
 //---------------------------------------------------------------------------

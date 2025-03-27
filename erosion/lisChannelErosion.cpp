@@ -187,8 +187,8 @@ void TWorld::ChannelFlowDetachmentNew()
             ChannelSed->Drc = SS;
             //total transport capacity (bed load + suspended load), used for output
 
-            if (SwitchUseMaterialDepth)
-                RStorageDep->Drc += -deposition;
+            // if (SwitchUseMaterialDepth)
+            //     RStorageDep->Drc += -deposition;
 
             //### do bedload
             if (SwitchUse2Phase) {
@@ -232,8 +232,8 @@ void TWorld::ChannelFlowDetachmentNew()
                         deposition = std::max(minTC * TransportFactor, -BL);
                         // cannot have more depo than sediment present
 
-                        if (SwitchUseMaterialDepth)
-                            RStorageDep->Drc += -deposition;
+                        // if (SwitchUseMaterialDepth)
+                        //     RStorageDep->Drc += -deposition;
 
                         BL += detachment;
                         BL += deposition;
@@ -275,12 +275,12 @@ void TWorld::RiverSedimentMaxC(int r, int c)
 
     double frac = ChannelSSDepth->Drc/ChannelWH->Drc;
     //maximum concentration
-    if(!SwitchUseGrainSizeDistribution)
-    {
-        _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc*frac, _SS->Drc);
-        if (SwitchUse2Phase)
-            _BLC->Drc = MaxConcentration(ChannelWaterVol->Drc*(1-frac), _BL->Drc);
-    }
+    // if(!SwitchUseGrainSizeDistribution)
+    // {
+    //     _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc*frac, _SS->Drc);
+    //     if (SwitchUse2Phase)
+    //         _BLC->Drc = MaxConcentration(ChannelWaterVol->Drc*(1-frac), _BL->Drc);
+    // }
 
     ChannelSed->Drc = (SwitchUse2Phase ? _BL->Drc : 0) + _SS->Drc;
     //total concentration

@@ -425,7 +425,7 @@ void TWorld::InitLULCInput(void)
     calcValue(*RR, RRCalibration, MUL);
 
     RetentionVolTot = 0;
-    if (pixel[i_]Retention) {
+    if (SwitchGridRetention) {
         GridRetention = ReadMap(LDD, getvaluename("gridretention"));
 
         GridRetentionAct = NewMap(0);
@@ -2016,7 +2016,6 @@ void TWorld::IntializeOptions(void)
     SwitchUseMaterialDepth = false;
 
     SwitchIncludeChannel = false;
-    //SwitchChannelBaseflow = false;
     SwitchGWflow = false;
     SwitchGW2Dflow =  false;
     SwitchGWSWOFflow =  false;

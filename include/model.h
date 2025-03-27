@@ -472,12 +472,13 @@ public:
         SwitchErosion,
         SwitchSlopeStability,
         SwitchKETimebased,
+        SwitchUse2Phase,
+
 
         // infiltration,
         SwitchInfilCompact,
         SwitchInfilCrust,
         SwitchDynamicCrusting,
-        SwitchGrassStrip,
         SwitchImpermeable,
         SwitchDumphead,
         SwitchGeometric,
@@ -510,6 +511,8 @@ public:
         SwitchConservation,
         SwitchGridRetention,
         SwitchSedtrap,
+        SwitchGrassStrip,
+
 
         // advanced
         SwitchAdvancedOptions,
@@ -531,14 +534,13 @@ public:
         SwitchChannelMaxV;
 
     // // TODO multi class sed
-    // bool SwitchAdvancedSed,
-    //      SwitchUseMaterialDepth,
-    //      SwitchNoBoundarySed,
-    //      SwitchUse2Phase,
-    //      SwitchUseGrainSizeDistribution,
-    //      SwitchEstimateGrainSizeDistribution,
-    //      SwitchReadGrainSizeDistribution,
-    //      SwitchD50CHavg;
+    bool SwitchAdvancedSed,
+         SwitchUseMaterialDepth,
+         SwitchNoBoundarySed,
+         SwitchUseGrainSizeDistribution,
+         SwitchEstimateGrainSizeDistribution,
+         SwitchReadGrainSizeDistribution,
+         SwitchD50CHavg;
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency

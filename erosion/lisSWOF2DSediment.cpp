@@ -494,8 +494,8 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap 
                 deposition  = std::max(TransportFactor*  minTC, -SS);
 
                 // exceptions
-                if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
-                    deposition = 0;
+                // if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
+                //     deposition = 0;
                 // prevent any activity on the boundary!
 
                 if (SwitchSedtrap && SedMaxVolume->Drc == 0 && N->Drc == SedTrapN) {
