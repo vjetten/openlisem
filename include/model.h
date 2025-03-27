@@ -901,7 +901,6 @@ public:
     // => not used, replaced by cell_[process]
     void Interception();
     void SoilWater();
-    void Infiltration();
     // <= not used
 
     double SoilWaterMass();

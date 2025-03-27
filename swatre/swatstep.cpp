@@ -60,6 +60,7 @@ dz and disZ are negative distances
 
 //--------------------------------------------------------------------------------
 // units in SWATRE are cm and K cm/sec
+//OBSOLETE
 double TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, double _WH, cTMap *_drain, cTMap *_theta)
 {
     double drainfraction = 0;

@@ -23,14 +23,15 @@
 *************************************************************************/
 /*!
   \file lisInfiltration.cpp
-  \brief Simplified infiltraton processes: Green and Ampt, Smith and Parlanage, both 1 and 2 layer. SWATRE has separate files.
+  \brief infiltraton processes: Green and Ampt, Smith and Parlanage,  1 and 2 layer. main SWATRE call
 
 functions: \n
 - void TWorld::InfilEffectiveKsat(void)
-- void TWorld::InfilSwatre(cTMap *_WH)
-- void TWorld::InfilMethods(cTMap * _Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull)
-- double TWorld::IncreaseInfiltrationDepth(int r, int c, double fact, double *L1p, double *L2p, double *FFullp)
-- void TWorld::Infiltration(void)
+- void TWorld::InfilDynamicCrusting()
+- void TWorld::cell_InfilMethods(int r, int c)
+- double TWorld::IncreaseInfiltrationDepthNew1(double fact_in, int r, int c)
+- double TWorld::IncreaseInfiltrationDepthNew2(double fact_in, int r, int c)
+- void TWorld::InfilSwatre()
  */
 
 #include <algorithm>
@@ -164,31 +165,6 @@ void TWorld::InfilDynamicCrusting()
 
     }}
 }
-//---------------------------------------------------------------------------
-// this function is not used!
-void TWorld::Infiltration()
-{
-    /*
-    if (!SwitchInfiltration)
-        return;
-
-    //NOTE fact and fpot have a unit of m (not m/s)
-    if (InfilMethod == INFIL_SWATRE) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            cell_InfilSwatre(i_, r, c);
-        }}
-    }
-    else
-    {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            cell_InfilMethods(r, c);
-        }}
-    }
-    */
-}
-
 //---------------------------------------------------------------------------
 // Infiltration by Green and Ampt,Smith and Parlange
 // All the same except for calculation of the potential infiltration fpot
@@ -555,8 +531,6 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
 
 }
 //---------------------------------------------------------------------------
-/// SWATRE infiltration, takes WH and calculateds new WH and infiltration surplus for kin wave
-/// OBSOLETE we use cell_infilswatre
 void TWorld::InfilSwatre()
 {
     #pragma omp parallel for num_threads(userCores)
@@ -564,7 +538,6 @@ void TWorld::InfilSwatre()
 
         // profile 0 is for impermeable surfaces
         if (ProfileID->Drc <= 0 || fractionImperm->Drc > 0.999) {
-    //        fact->Drc = 0;
             InfilVol->Drc = 0;
             continue;
         }
@@ -575,55 +548,72 @@ void TWorld::InfilSwatre()
         else
             WHorig = hmx->Drc;
 
-        double WHN = SwatreStep(i_, r, c, SwatreSoilModel, WHorig, TileDrainSoil, thetaTop);
-        // thetatop is not used for now, meant for pesticides
+        double drainfraction = 0;
+        if (SwitchIncludeTile)
+            drainfraction = TileWidth->Drc/_dx;
+        SwatreSoilModel->pixel[i_].wh = WHorig*100;    // WH is in m, convert to cm
+        SwatreSoilModel->pixel[i_].tiledrain = 0;
+
+        ComputeForPixel(i_, SwatreSoilModel, drainfraction);
+
+        double WHN = SwatreSoilModel->pixel[i_].wh*0.01;
+        thetaTop->Drc = SwatreSoilModel->pixel[i_].theta; // not used!
+        Perc->Drc= SwatreSoilModel->pixel[i_].percolation*0.01;
+        if (SwitchIncludeTile)
+            TileDrainSoil->Drc = SwatreSoilModel->pixel[i_].tiledrain*0.01;  // in m
 
         //TODO test infil swatre for crusts and compaction
         if (SwitchInfilCrust) {
             if (SwitchDynamicCrusting && ProfileIDCrust->Drc > 0) {
                 CrustFraction->Drc = std::min(1.0, CrustFraction0->Drc + (1.0-exp(-0.2*std::max(0.0, RainCumCrust->Drc*1000-5.0))));
             }
+
             if (ProfileIDCrust->Drc > 0 && CrustFraction->Drc > 0) {
-                tma->Drc = 0;
-                tmb->Drc = 0;
+                SwatreSoilModelCrust->pixel[i_].wh = WHorig*100;    // WH is in m, convert to cm
+                SwatreSoilModelCrust->pixel[i_].tiledrain = 0;
 
-                double WHcrust = SwatreStep(i_, r, c, SwatreSoilModelCrust, WHorig, tma, tmb);
-                // calculate crust SWATRE and get the soil moisture of the top node
+                ComputeForPixel(i_, SwatreSoilModelCrust, 0.0);
 
-                WHN = WHcrust*CrustFraction->Drc + WHN*(1-CrustFraction->Drc);
+                double WHcrust = SwatreSoilModel->pixel[i_].wh*0.01;
+
+                double thetacrust = SwatreSoilModel->pixel[i_].theta;
+
                 // weighed average
-
-                thetaTop->Drc = tmb->Drc*CrustFraction->Drc + thetaTop->Drc*(1-CrustFraction->Drc);
+                WHN = WHcrust*CrustFraction->Drc + WHN*(1-CrustFraction->Drc);
+                thetaTop->Drc = thetacrust*CrustFraction->Drc + thetaTop->Drc*(1-CrustFraction->Drc);
             }
         }
 
         if (SwitchInfilCompact) {
             if (ProfileIDCompact->Drc > 0 &&  CompactFraction->Drc > 0) {
-                tma->Drc = 0;
-                tmb->Drc = 0;
 
-                double WHcompact = SwatreStep(i_, r, c, SwatreSoilModelCompact, WHorig, tma, tmb);
-                // calculate crust SWATRE and get the soil moisture of the top node
+                SwatreSoilModelCompact->pixel[i_].wh = WHorig*100;    // WH is in m, convert to cm
+                SwatreSoilModelCompact->pixel[i_].tiledrain = 0;
 
-                WHN = WHcompact*CompactFraction->Drc + WHN*(1-CompactFraction->Drc);
+                ComputeForPixel(i_, SwatreSoilModelCompact, 0.0);
+
+                double WHcompact = SwatreSoilModelCompact->pixel[i_].wh*0.01;
+                double thetacompact = SwatreSoilModelCompact->pixel[i_].theta; // for pesticides ?
+
                 // weighted average
-
-                thetaTop->Drc = tmb->Drc*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
+                WHN = WHcompact*CompactFraction->Drc + WHN*(1-CompactFraction->Drc);
+                thetaTop->Drc = thetacompact*CompactFraction->Drc + thetaTop->Drc*(1-CompactFraction->Drc);
             }
         }
 
         if (SwitchGrassStrip) {
             if (ProfileIDGrass->Drc > 0 &&  GrassFraction->Drc > 0) {
-                tma->Drc = 0;
-                tmb->Drc = 0;
+                SwatreSoilModelGrass->pixel[i_].wh = WHorig*100;    // WH is in m, convert to cm
+                SwatreSoilModelGrass->pixel[i_].tiledrain = 0;
 
-                double WHgrass = SwatreStep(i_, r, c, SwatreSoilModelGrass, WHorig, tma, tmb);
-                // calculate crust SWATRE and get the soil moisture of the top node
+                ComputeForPixel(i_, SwatreSoilModelGrass, 0.0);
 
-                WHN = WHgrass*GrassFraction->Drc + WHN*(1-GrassFraction->Drc);
+                double WHgrass = SwatreSoilModelCompact->pixel[i_].wh*0.01;
+                double thetagrass = SwatreSoilModelCompact->pixel[i_].theta; // for pesticides ?
+
                 // weighted average
-
-                thetaTop->Drc = tmb->Drc*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
+                WHN = WHgrass*GrassFraction->Drc + WHN*(1-GrassFraction->Drc);
+                thetaTop->Drc = thetagrass*GrassFraction->Drc + thetaTop->Drc*(1-GrassFraction->Drc);
             }
         }
 
@@ -632,10 +622,8 @@ void TWorld::InfilSwatre()
         else
             hmx->Drc = WHN;
 
-        double fact = (WHorig - WHN);
-        InfilVol->Drc = fact * FlowWidth->Drc * DX->Drc;
-        // calc infilvolume from fact
-        // use flowwidth because impermeable is used separately
+        InfilVol->Drc = (WHorig - WHN) * FlowWidth->Drc * DX->Drc;
+        // use flowwidth because impermeable is done separately
 
     }}
 
@@ -644,14 +632,15 @@ void TWorld::InfilSwatre()
 
     //find depth wetting front, estimated at depth where h is initial value, very crude
     Fill(*Lwmm,0);
-    for (int i = 0; i < SwatreSoilModel->pixel[0].profile->zone->nrNodes; i++) {
-        cTMap *map = inith->at(i);
+    for (int j = 0; j < SwatreSoilModel->pixel[0].profile->zone->nrNodes; j++) {
+        cTMap *map = inith->at(j);
+
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            if (i > 0 && SwatreSoilModel->pixel[i_].h[i] > map->Drc+1.0) {
-                double l = SwatreSoilModel->pixel[0].profile->zone->endComp[i-1]*0.01; // in m
-                double l1 = SwatreSoilModel->pixel[0].profile->zone->endComp[i]*0.01; // in m
-                Lw->Drc = 0.5*(l+l1);
+            if (j > 0 && SwatreSoilModel->pixel[i_].h[j] > map->Drc+1.0) {
+                double l = SwatreSoilModel->pixel[i_].profile->zone->endComp[j-1]*10; // in mm
+                double l1 = SwatreSoilModel->pixel[i_].profile->zone->endComp[j]*10; // in mm
+                Lwmm->Drc = 0.5*(l+l1);
             }
         }}
     }
