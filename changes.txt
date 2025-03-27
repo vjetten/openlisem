@@ -3,13 +3,12 @@ Latest fixes and changes:
 
 see Readme.txt for a complete list
 
-250325 - v7.4.6 beta R6
-- gridretention in overland flow and channel, also for kinematic wave
-- TODO: image not loaded?
-
-250321 - v7.4.6 beta R3-R5
+250327 - v7.4.6 beta R3-R6
 - BUG FIX: MUSCL not activated
+- BUG FIX: background satellite image was not loaded properly
 - Boundary flow for Dynamic Wave fixed and correct in output
+- some efficiency gain in SWATRE
+- gridretention in overland flow and channel, also for kinematic wave
 
 250222 - v7.4.6 beta R1-R2
 - BUG FIX: reading pathnames sometimes result in "//"

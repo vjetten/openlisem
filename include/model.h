@@ -471,7 +471,6 @@ public:
         // erosion,
         SwitchErosion,
         SwitchSlopeStability,
-        SwitchSedtrap,
         SwitchKETimebased,
 
         // infiltration,
@@ -507,12 +506,10 @@ public:
         SwitchInfrastructure,
         SwitchRaindrum,
         SwitchAddBuildingsDEM,
-        SwitchGridRetention,
-        SwitchGridRetentionChannel,
 
-        //pesticide
-        SwitchPesticide,
-        Switchheaderpest,
+        SwitchConservation,
+        SwitchGridRetention,
+        SwitchSedtrap,
 
         // advanced
         SwitchAdvancedOptions,
@@ -533,15 +530,15 @@ public:
         SwitchChannelKinWave,
         SwitchChannelMaxV;
 
-    // TODO multi class sed
-    bool SwitchAdvancedSed,
-         SwitchUseMaterialDepth,
-         SwitchNoBoundarySed,
-         SwitchUse2Phase,
-         SwitchUseGrainSizeDistribution,
-         SwitchEstimateGrainSizeDistribution,
-         SwitchReadGrainSizeDistribution,
-         SwitchD50CHavg;
+    // // TODO multi class sed
+    // bool SwitchAdvancedSed,
+    //      SwitchUseMaterialDepth,
+    //      SwitchNoBoundarySed,
+    //      SwitchUse2Phase,
+    //      SwitchUseGrainSizeDistribution,
+    //      SwitchEstimateGrainSizeDistribution,
+    //      SwitchReadGrainSizeDistribution,
+    //      SwitchD50CHavg;
 
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency

@@ -425,7 +425,7 @@ void TWorld::InitLULCInput(void)
     calcValue(*RR, RRCalibration, MUL);
 
     RetentionVolTot = 0;
-    if (SwitchGridRetention) {
+    if (pixel[i_]Retention) {
         GridRetention = ReadMap(LDD, getvaluename("gridretention"));
 
         GridRetentionAct = NewMap(0);
@@ -2003,14 +2003,11 @@ void TWorld::IntializeOptions(void)
     SwitchSWOFopen = true;
     SwitchMUSCL = false;
     SwitchFloodInitial = false;
-    SwitchFlowBarriers = false;
-    SwitchBuffers = false;
     SwitchHeun = false;
     SwitchErosion = false;
     SwitchUse2Phase = false;
     SwitchUseGrainSizeDistribution = false;
     SwitchReadGrainSizeDistribution = false;
-    SwitchSedtrap = false;
     SwitchEfficiencyDET = 1;
     SwitchEfficiencyDETCH = 2;
     SwitchKETimebased = false;
@@ -2036,7 +2033,6 @@ void TWorld::IntializeOptions(void)
     SwitchHardsurface = false;
     SwitchInfilCompact = false;
     SwitchInfilCrust = false;
-    SwitchGrassStrip = false;
     SwitchDumphead = false;
     initSwatreStructure = false;  // check to flag when swatre 3D structure is created, needed to clean up data
     SwitchGeometric = true;
@@ -2044,8 +2040,16 @@ void TWorld::IntializeOptions(void)
     SwitchTwoLayer = false;
     SwitchThreeLayer = false;
 
-    SwitchPesticide = false;
-    Switchheaderpest = true;
+    SwitchConservation = false;
+    SwitchFlowBarriers = false;
+    SwitchBuffers = false;
+    SwitchSedtrap = false;
+    SwitchGridRetention = false;
+    SwitchGrassStrip = false;
+
+
+//    SwitchPesticide = false;
+//    Switchheaderpest = true;
 
     addedbaseflow = false;
 }

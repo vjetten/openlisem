@@ -241,8 +241,8 @@ void lisemqt::darkStyleUI()
     tabWidgetOptions->setTabIcon(3,QIcon(":/d_soil5.png"));
     tabWidgetOptions->setTabIcon(4,QIcon(":/d_water2.png"));
     tabWidgetOptions->setTabIcon(5,QIcon(":/d_river3.png"));
-    tabWidgetOptions->setTabIcon(6,QIcon(":/d_eros1bw.png"));
-    tabWidgetOptions->setTabIcon(7,QIcon(":/house.png"));
+    tabWidgetOptions->setTabIcon(6,QIcon(":/house.png"));
+    tabWidgetOptions->setTabIcon(7,QIcon(":/d_eros1bw.png"));
     tabWidgetOptions->setTabIcon(8,QIcon(":/d_advanced.png"));
     tabWidgetOptions->setTabIcon(9,QIcon(":/d_settings1.png"));
 

@@ -2,7 +2,7 @@ openLISEM
 A spatial model for simulation of the full waterbalance, overland flow, flooding and sediment erosion, transport and deposition in all flows.
 
 ============
-Date: 250321
+Date: 250327
 ============
 
 This software is subject to a DISCLAIMER and released under the copyright model GPLv3
@@ -17,6 +17,7 @@ LIST OF CHANGES and BUGFIXES:
 
 250325 - v7.4.6 beta R3-R6
 - BUG FIX: MUSCL not activated
+- BUG FIX: background image was not loaded properly
 - Boundary flow for Dynamic Wave fixed and correct in output
 - grid retention for overland flow and channelflow (also for kinematic wave)
 

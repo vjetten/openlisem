@@ -559,7 +559,7 @@ void lisemqt::SetToolBar()
     toolBar->addAction(saveasAct);
     toolBar->addSeparator();
 
-    shootscreenAct = new QAction(QIcon(":/2X/screenshots2X.png"), "make a screenshow of the current page", this);
+    shootscreenAct = new QAction(QIcon(":/2X/screenshots2X.png"), "make a screenshot of the current page", this);
     connect(shootscreenAct, SIGNAL(triggered()), this, SLOT(shootScreen()));
     toolBar->addAction(shootscreenAct);
 
@@ -568,7 +568,7 @@ void lisemqt::SetToolBar()
     connect(shootMscreenAct, SIGNAL(triggered()), this, SLOT(shootMScreen()));
     toolBar->addAction(shootMscreenAct);
 
-    makeMovieAct = new QAction(QIcon(":/2X/film.png"), "Save the run in multiple screenshots", this);
+    makeMovieAct = new QAction(QIcon(":/2X/film.png"), "Make a video from the saved screenshots AFTER a run", this);
     makeMovieAct->setCheckable(true);
     connect(makeMovieAct, SIGNAL(triggered()), this, SLOT(convertScreenshotsToVideo()));
     toolBar->addAction(makeMovieAct);
@@ -580,7 +580,7 @@ void lisemqt::SetToolBar()
     connect(fontDecreaseAct, SIGNAL(triggered()), this, SLOT(fontDecrease()));
     toolBar->addAction(fontDecreaseAct);
 
-    setBWAct = new QAction(QIcon(":/black-and-white.png"), "Save the run in multiple screenshots", this);
+    setBWAct = new QAction(QIcon(":/black-and-white.png"), "Toggle dark/light interface ", this);
     setBWAct->setCheckable(true);
     connect(setBWAct, SIGNAL(triggered()), this, SLOT(setBWUI()));
     toolBar->addAction(setBWAct);

@@ -192,6 +192,7 @@ void TWorld::reportToUI(void)
     op.ChannelVolTotmm = ChannelVolTotmm;
     op.BaseFlowTotmm = BaseFlowTotmm;
     op.PeakFlowTotmm = PeakFlowTotmm;
+    op.RetentionVolTot = RetentionVolTot;
 
     op.volFloodmm = floodVolTotmm;
     op.FloodTotMax = floodVolTotMax;
@@ -450,6 +451,7 @@ void TWorld::ReportTotalsNew(void)
     }
     out << "\"Water in channels (mm):\"," << op.ChannelVolTotmm<< "\n";
     out << "\"Water across boundary (mm):\"," << op.Qboundtotmm<< "\n";
+    out << "\"Water in rentention (m3):\"," << op.RetentionVolTot << "\n";
     out << "\"Total baseflow and side inflow (mm):\"," << op.BaseFlowTotmm << "\n";
     out << "\"Total peakflow (mm):\"," << op.PeakFlowTotmm << "\n";
     out << "\"Total outflow (overland+channel+drains+boundary) (mm):\"," << op.Qtotmm << "\n";

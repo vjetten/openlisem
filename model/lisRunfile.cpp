@@ -334,6 +334,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Storm drain shape")==0)                 SwitchStormDrainCircular      = iii == 1;
 
         // conservation
+        if (p1.compare("Include Mitigation/Conservation")==0)   SwitchConservation = iii == 1;
         if (p1.compare("Include Sediment traps")==0)            SwitchSedtrap =          iii == 1;
         if (p1.compare("Include grass strips")==0)              SwitchGrassStrip =       iii == 1;
         if (p1.compare("Timeplot as PCRaster")==0) {
@@ -420,6 +421,14 @@ void TWorld::ParseRunfileData(void)
     }
     // stationary baseflow and impermeable soil allowed (ignoring where the stationary flow comes form !
 
+
+    if (!SwitchConservation) {
+        SwitchFlowBarriers = false;
+        SwitchBuffers = false;
+        SwitchSedtrap = false;
+        SwitchGridRetention = false;
+        SwitchGrassStrip = false;
+    }
 
     // start again and do the rest of the variables, map names etc.
     // choice of options in first loop determines what happens in this loop
