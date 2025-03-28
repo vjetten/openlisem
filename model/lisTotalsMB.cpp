@@ -261,7 +261,12 @@ void TWorld::TotalsFlow(void)
     }
 
     if (SwitchGridRetention) {
-        RetentionVolTot = MapTotal(*GridRetentionAct);
+        RetentionVolTot = 0;
+        FOR_ROW_COL_MV_L {
+            if (GridRetentionAct->Drc > 0)
+                RetentionVolTot += GridRetentionAct->Drc;// MapTotal(*GridRetentionAct);
+        }}
+        qDebug() <<"ret" << RetentionVolTot;
     }
 
     //=== all discharges ===//

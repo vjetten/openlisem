@@ -124,6 +124,8 @@ public:
     bool checkforpatch;
     QString batchRunname;
 
+    bool flowboundary;
+
     bool isNewVersionAvailable(QString &GitHubVersion);
     QString getLatestVersionFromGitHub();
     void downloadPatch(QString latestVersion);

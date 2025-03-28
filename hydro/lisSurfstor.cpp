@@ -84,9 +84,6 @@ void TWorld::GridCell()
         MDS->Drc = std::max(0.0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
         MDS->Drc /= 1000; // convert to m
 
-        if(SwitchGridRetention)
-            GridRetention->Drc = GridRetention->Drc/CHAdjDX->Drc;
-
         FlowWidth->Drc = ChannelAdj->Drc * rillfactor;
         // water can flow everywhere, a house is permeable and a migh mannings n, roads are smooth
         // if hosues are part of the dem than the water automatically flows around it
@@ -115,19 +112,17 @@ void TWorld::cell_SurfaceStorage(int r, int c)
     // non-linear release fo water from depression storage
     // resembles curves from GIS surface tests, unpublished
 
-    double retm = 0;
-    // additional Fayna Yuu type storage in m3 per cell
-    // if in a channel cell the store is taken from the channel flow (buffer)
+ //   additional Fayna Yuu type storage in m3 per cell
+ //   if in a channel cell the store is taken from the channel flow (buffer)
     if (SwitchGridRetention && ChannelWidth->Drc == 0) {
-        double dh = (GridRetention->Drc-GridRetentionAct->Drc)/(_dx*DX->Drc);
-        if (dh > wh) {
-            GridRetentionAct->Drc += WH->Drc*_dx*DX->Drc;
-            wh = 0;
-         } else
-            if (dh > 0) {
-                GridRetentionAct->Drc = GridRetention->Drc;
-                wh -= dh;
-            }
+        double dvol = std::max(0.0,GridRetention->Drc - GridRetentionAct->Drc);
+        if(dvol > 0) {
+            double dh = dvol/CHAdjDX->Drc;
+            dh = std::min(wh, dh);
+            wh -= dh;
+            dvol = dh*CHAdjDX->Drc;
+            GridRetentionAct->Drc += dvol;
+        }
     }
 
     WHrunoff->Drc = std::max(0.0, wh-mds);

@@ -223,11 +223,11 @@ typedef struct LDD_COOR {
     int c;
 }  LDD_COOR;
 //---------------------------------------------------------------------------list
-typedef struct LDD_COORi {
+typedef struct LDD_COORldd {
     int r;
     int c;
     int ldd;
-}  LDD_COORi;
+}  LDD_COORldd;
 //---------------------------------------------------------------------------
 typedef struct LDD_COORIN {
     int r;
@@ -398,7 +398,7 @@ public:
     QVector <LDD_COOR> crlddch5_;
     QVector <LDD_COOR> crtile_;
     QVector <LDD_COORout> crout_;
-    QVector <LDD_COORi> dcr_;
+    QVector <LDD_COORldd> dcr_;
 
     // vector of soil structure
     QVector <SOIL_LIST> crSoil;

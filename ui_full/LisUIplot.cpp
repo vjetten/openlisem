@@ -67,7 +67,7 @@ void lisemqt::setupPlot()
     QGraph = new QwtPlotCurve("Discharge");
     QsGraph = new QwtPlotCurve("Sediment discharge");
     CGraph = new QwtPlotCurve("Concentration");
-    if (E_FlowBoundary->value() > 0)
+    if (flowboundary)
         QbGraph = new QwtPlotCurve("Water flow boundary");
     if(checkIncludeTiledrains->isChecked())
         QtileGraph = new QwtPlotCurve("Tile drain");
@@ -122,7 +122,7 @@ void lisemqt::setupPlot()
     PGraph->setPen(pen2);
     PGraph->setAxes(axisXB, QwtAxis::YRight);
 
-    if (E_FlowBoundary->value() > 0) {
+    if (flowboundary) {
         QbGraph->setPen(pen3);
         QbGraph->setAxes(axisXB, QwtAxis::YLeft);
         QbGraph->setStyle(QwtPlotCurve::Lines);
@@ -237,7 +237,7 @@ void lisemqt::initPlot()
 {
     HPlot->setTitle("Hydrograph Outlet");
 
-    if (E_FlowBoundary->value() > 0)
+    if (flowboundary)
         QbGraph->detach();
     QsGraph->detach();
     CGraph->detach();
@@ -249,7 +249,7 @@ void lisemqt::initPlot()
     else
         HPlot->setAxisTitle(axisXB, "time (day)");
 
-   if (E_FlowBoundary->value() > 0) {
+   if (flowboundary) {
       QbGraph->attach(HPlot);
    }
 
@@ -267,7 +267,7 @@ void lisemqt::initPlot()
         CGraph->attach(HPlot);
 
         QGraph->setAxes(axisXB, axisYL1);
-        if (E_FlowBoundary->value() > 0)
+        if (flowboundary)
             QbGraph->setAxes(axisXB, axisYL1);
         PGraph->setAxes(axisXB, axisYL2);
         QsGraph->setAxes(axisXB, axisYR1);
@@ -288,7 +288,7 @@ void lisemqt::initPlot()
         HPlot->setAxesCount(QwtAxis::YRight, 1);
 
         QGraph->setAxes(axisXB, axisYL1);
-        if (E_FlowBoundary->value() > 0)
+        if (flowboundary)
             QbGraph->setAxes(axisXB, axisYL1);
         PGraph->setAxes(axisXB, axisYR1);
 
@@ -319,7 +319,7 @@ void lisemqt::showPlot()
 
     int index = OutletIndices.indexOf(this->outletpoint);
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
-    if (E_FlowBoundary->value() > 0)
+    if (flowboundary)
         QbGraph->setSamples(op.Time,op.Qbound);
     PGraph->setSamples(op.Time,op.Pmm);
 
@@ -330,7 +330,7 @@ void lisemqt::showPlot()
 
     for (int i = 0; i < OutletIndices.count(); i++)  {
         qmax[i] = std::max(qmax[i], 1.1*op.OutletQ[i]->at(_j));
-        if (E_FlowBoundary->value() > 0)
+        if (flowboundary)
             qmax[i] = std::max(qmax[i], 1.1*op.Qbound[_j]);
 
         if (checkDoErosion->isChecked()) {
@@ -448,7 +448,7 @@ void lisemqt::showOutputData()
     label_ETatot->setText(format.arg(QString::number(op.ETaTotmm,'f',dig)));
     label_raintot->setText(format.arg(QString::number(op.RainTotmm,'f',dig)));
     label_watervoltot->setText(format.arg(QString::number(op.WaterVolTotmm,'f',dig)));
-    if (E_FlowBoundary->value() > 0) {
+    if (flowboundary) {
         label_99->setText("Boundary flow");
         label_stormdraintot->setText(format.arg(QString::number(op.Qboundtotmm,'f',dig)));
     }

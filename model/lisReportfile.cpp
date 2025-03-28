@@ -274,10 +274,12 @@ void TWorld::reportToUI(void)
 
     for(int j = 0; j < op.OutletIndices.length(); j++)
     {
-        bool peak = op.OutletQpeak.at(j) < op.OutletQ.at(j)->at(op.OutletQ.at(j)->length()-1);
-        if(peak)
+        double p = op.OutletQpeak.at(j);
+        double q = op.OutletQ.at(j)->last();  //at(op.OutletQ.at(j)->length()-1); // this point last in list
+
+        if(p < q)
         {
-            op.OutletQpeak.replace(j,op.OutletQ.at(j)->at(op.OutletQ.at(j)->length()-1));
+            op.OutletQpeak.replace(j,q);
             op.OutletQpeaktime.replace(j,time/60);
         }
     }

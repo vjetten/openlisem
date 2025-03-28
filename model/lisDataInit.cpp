@@ -427,7 +427,6 @@ void TWorld::InitLULCInput(void)
     RetentionVolTot = 0;
     if (SwitchGridRetention) {
         GridRetention = ReadMap(LDD, getvaluename("gridretention"));
-
         GridRetentionAct = NewMap(0);
     }
 
@@ -1425,7 +1424,7 @@ void TWorld::DiagonalFlowDEM()
 
         // make a list of pits
         if (tma->Drc > 0) {
-            LDD_COORi dclrc;
+            LDD_COORldd dclrc;
             dclrc.r = r;
             dclrc.c = c;
             dclrc.ldd = (int) tma->Drc;

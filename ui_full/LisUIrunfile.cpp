@@ -444,6 +444,10 @@ void lisemqt::ParseInputData()
     radioRainFile->setChecked(!Rainmaps);
     radioRainSatFile->setChecked(Rainmaps);
 
+    flowboundary = false;
+    if (E_FlowBoundary->value() > 0 && E_OFWaveType->currentIndex() > 0)
+        flowboundary = true;
+
     doChannelBaseflow = (checkGWflow->isChecked() || checkStationaryBaseflow->isChecked()) && checkIncludeChannel->isChecked();
 
     // obsolete

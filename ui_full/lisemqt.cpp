@@ -1056,7 +1056,7 @@ void lisemqt::resetTabChannel()
 //--------------------------------------------------------------------
 void lisemqt::resetTabFlow()
 {
-    E_FlowBoundary->setValue(1);
+    E_FlowBoundary->setValue(0);
     E_floodMinHeight->setValue(0.05);
     checkFloodInitial->setChecked(false);
     check2DDiagonalFlow->setChecked(true);

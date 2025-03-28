@@ -122,7 +122,7 @@ void lisemqt::runmodel()
         if(checkIncludeTiledrains->isChecked())
             QtileGraph->setSamples(zero,zero);
 
-        if (E_FlowBoundary->value() > 0)
+        if (flowboundary)
             QbGraph->setSamples(zero,zero);
 
         HPlot->replot();
