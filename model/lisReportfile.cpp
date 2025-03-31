@@ -670,19 +670,22 @@ void TWorld::ReportTimeseriesCSV(void)
             if (SwitchErosion) out << ",Qsall" << ",Qs" << ",C";
             out << "\n";
 
-            out << "min";
-            if (SwitchRainfall) out << ",mm/h";
-            if (SwitchSnowmelt) out << ",mm/h";
+            out << "min"; //time
+            if (SwitchRainfall) out << ",mm/h"; //rain
+            if (SwitchSnowmelt) out << ",mm/h"; // snow
             out << "," << unitS; // qall
             if (FlowBoundaryType > 0)
+                out << "," << unitS; //qbound
+            if (SwitchIncludeChannel)
+                out  << "," << unitS << ",m"; //qchannel
+            else
+                out  << "," << unitS; // Orunoff
+               // if (SwitchChannelBaseflow)
+                    //out << "," << unitS;
+            if (SwitchIncludeTile)
                 out << "," << unitS;
-            if (SwitchIncludeChannel) {
-                out  << "," << unitS << ",m";
-               // if (SwitchChannelBaseflow) out << "," << unitS;
-            } else
-                out  << "," << unitS;
-            if (SwitchIncludeTile) out << "," << unitS;
-            if (SwitchErosion) out << ",kg/s"<< ",kg/s" << ",g/l";
+            if (SwitchErosion)
+                out << ",kg/s"<< ",kg/s" << ",g/l";
             out << "\n";
             fout.close();
         }}

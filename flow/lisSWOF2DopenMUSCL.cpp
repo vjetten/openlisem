@@ -531,7 +531,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                 // h_y2u=h_y2;
                 // uy2u=u_y2;
                 // vy2u=v_y2;
-                qDebug() << h_y2u << vy2u <<uy2u;
+                //qDebug() << h_y2u << vy2u <<uy2u;
             }
             hll_y2 = F_Riemann(h_yd,vyd,uyd, h_y2u,vy2u,uy2u); // r and r+1
 

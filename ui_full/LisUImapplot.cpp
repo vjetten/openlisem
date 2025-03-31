@@ -938,7 +938,7 @@ void lisemqt::showImageMap()
 {
     if (startplot && checksatImage->isChecked())
     {
-        qDebug() << op.Image;
+        //qDebug() << op.Image;
         double res = fillDrawMapDataRGB(op.Image, RImage);
         RImage->setInterval( Qt::ZAxis, QwtInterval( 0.0, 1.0));
         baseMapImage->setData(RImage);

@@ -323,7 +323,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>1013</width>
-                <height>866</height>
+                <height>898</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
@@ -359,7 +359,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>10</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -7625,27 +7625,6 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="3" column="0" colspan="2">
-                          <widget class="QLineEdit" name="E_minWHflow">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>1e-10</string>
-                           </property>
-                          </widget>
-                         </item>
                          <item row="8" column="0" colspan="5">
                           <widget class="QCheckBox" name="checkNoSedBoundary">
                            <property name="sizePolicy">
@@ -7781,27 +7760,6 @@
                            </property>
                            <property name="value">
                             <number>3</number>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="3" column="2" colspan="3">
-                          <widget class="QLabel" name="label_63">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Minimum height (m) before flow is calculated in 2D</string>
                            </property>
                           </widget>
                          </item>
@@ -8382,37 +8340,6 @@
                    <string>Page</string>
                   </attribute>
                   <layout class="QGridLayout" name="gridLayout_56">
-                   <item row="10" column="0" colspan="3">
-                    <widget class="QCheckBox" name="checkKETimebased">
-                     <property name="enabled">
-                      <bool>true</bool>
-                     </property>
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>time based</string>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="14" column="1">
                     <widget class="QLabel" name="label_62">
                      <property name="sizePolicy">
@@ -9198,109 +9125,6 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
-                   <item row="11" column="0" colspan="6">
-                    <widget class="QComboBox" name="E_BLMethod">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <italic>false</italic>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="currentText">
-                      <string>2 - Van Rijn Simplified</string>
-                     </property>
-                     <property name="currentIndex">
-                      <number>1</number>
-                     </property>
-                     <property name="maxVisibleItems">
-                      <number>4</number>
-                     </property>
-                     <item>
-                      <property name="text">
-                       <string>1 - Govers</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>2 - Van Rijn Simplified</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>3 - Van Rijn Full</string>
-                      </property>
-                     </item>
-                     <item>
-                      <property name="text">
-                       <string>4 - Engelund and Hansen</string>
-                      </property>
-                     </item>
-                    </widget>
-                   </item>
-                   <item row="38" column="0" colspan="2">
-                    <widget class="QCheckBox" name="checkSeparateOutput">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>hydrographs as separate files </string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="21" column="0" colspan="6">
-                    <widget class="QCheckBox" name="checkPesticides">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="palette">
-                      <palette>
-                       <active/>
-                       <inactive/>
-                       <disabled/>
-                      </palette>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Include Pesticides</string>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="29" column="1">
                     <widget class="QLabel" name="label_14">
                      <property name="enabled">
@@ -9371,48 +9195,6 @@ p, li { white-space: pre-wrap; }
                      </property>
                     </widget>
                    </item>
-                   <item row="4" column="0" colspan="5">
-                    <widget class="QCheckBox" name="checkChannelWFinflow">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Include inflow into channel from saturated soil (Ksat based)</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="9" column="0">
-                    <widget class="QRadioButton" name="checkGWflowSWOF">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="font">
-                      <font>
-                       <pointsize>8</pointsize>
-                       <bold>false</bold>
-                       <underline>false</underline>
-                       <kerning>true</kerning>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>Pressure based Riemann (experimental!)</string>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="39" column="1">
                     <widget class="QDoubleSpinBox" name="E_CalibrateCHSV">
                      <property name="sizePolicy">
@@ -9462,6 +9244,224 @@ p, li { white-space: pre-wrap; }
                      </property>
                      <property name="text">
                       <string>Settling Velocity calibration</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="12" column="0">
+                    <widget class="QLineEdit" name="E_minWHflow">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>1e-10</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="12" column="1">
+                    <widget class="QLabel" name="label_63">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Minimum height (m) before flow is calculated in 2D</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="9" column="0" colspan="3">
+                    <widget class="QRadioButton" name="checkGWflowSWOF">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Pressure based Riemann (experimental!)</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="10" column="0" colspan="4">
+                    <widget class="QCheckBox" name="checkKETimebased">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>time based</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="21" column="0" colspan="7">
+                    <widget class="QCheckBox" name="checkPesticides">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Include Pesticides</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="11" column="0" colspan="7">
+                    <widget class="QComboBox" name="E_BLMethod">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <italic>false</italic>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="currentText">
+                      <string>2 - Van Rijn Simplified</string>
+                     </property>
+                     <property name="currentIndex">
+                      <number>1</number>
+                     </property>
+                     <property name="maxVisibleItems">
+                      <number>4</number>
+                     </property>
+                     <item>
+                      <property name="text">
+                       <string>1 - Govers</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>2 - Van Rijn Simplified</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>3 - Van Rijn Full</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>4 - Engelund and Hansen</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item row="38" column="0" colspan="3">
+                    <widget class="QCheckBox" name="checkSeparateOutput">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>hydrographs as separate files </string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0" colspan="7">
+                    <widget class="QCheckBox" name="checkChannelWFinflow">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Include inflow into channel from saturated soil (Ksat based)</string>
                      </property>
                     </widget>
                    </item>

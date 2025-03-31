@@ -931,17 +931,17 @@ void TWorld::cell_SWATRECalc(long i_)
 
     Perc->Drc = s.drain*_dt;
 
-    if (r == _nrRows/2 && c == _nrCols/2) {
-        qDebug() << WH0 << WH1 << s.Infact;
-        QString S;
-        QString S1;
-        for(int j = 0; j < nNodes; j++) {
-            S = S + QString(" %1").arg(s.h[j]);
-            S1 = S1 + QString(" %1").arg(s.theta[j]);
-        }
-       qDebug() << S;
-     //    qDebug() << S1;
-    }
+    // if (r == _nrRows/2 && c == _nrCols/2) {
+    //     qDebug() << WH0 << WH1 << s.Infact;
+    //     QString S;
+    //     QString S1;
+    //     for(int j = 0; j < nNodes; j++) {
+    //         S = S + QString(" %1").arg(s.h[j]);
+    //         S1 = S1 + QString(" %1").arg(s.theta[j]);
+    //     }
+    //    qDebug() << S;
+    //  //    qDebug() << S1;
+    // }
 
     // put the results back
     crSoil[i_] = s;

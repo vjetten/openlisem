@@ -367,7 +367,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use time avg V")==0)                    checkTimeavgV->setChecked(check);
         if (p1.compare("Correct MB with WH")==0)                checkMB_WH->setChecked(check);
         if (p1.compare("Flood max iterations")==0)              E_FloodMaxIter->setValue(iii);
-        if (p1.compare("Min WH flow")==0)                       E_minWHflow->setText(p);
+      //  if (p1.compare("Min WH flow")==0)                       E_minWHflow->setText(p);
         if (p1.compare("Use Channel Kinwave dt")==0)            checkKinWaveChannel->setChecked(check);
         if (p1.compare("Channel KinWave dt")==0)                E_ChannelKinWaveDt->setValue(valc);
         if (p1.compare("Use Channel Max V")==0)                 checkChanMaxVelocity->setChecked(check);
@@ -893,7 +893,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel 2D flow connect")==0)        namelist[j].value.setNum((int)checkChannel2DflowConnect->isChecked());
 //        if (p1.compare("Channel WF inflow")==0)              namelist[j].value.setNum((int)checkChannelWFinflow->isChecked());
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
-        if (p1.compare("Min WH flow")==0)                    namelist[j].value = E_minWHflow->text();
+    //    if (p1.compare("Min WH flow")==0)                    namelist[j].value = E_minWHflow->text();
         if (p1.compare("Timestep flood")==0)                 namelist[j].value = E_TimestepMinFlood->text();
         if (p1.compare("Use time avg V")==0)                 namelist[j].value.setNum((int) checkTimeavgV->isChecked());
         if (p1.compare("Correct MB with WH")==0)             namelist[j].value.setNum((int) checkMB_WH->isChecked());

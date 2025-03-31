@@ -37,19 +37,19 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
     FOR_ROW_COL_MV_L {
         if (FlowBoundary->Drc > 0) {
             //flow left boundary to the left an hydraulic gradient pointing outside
-            if (c-1 >= 0 && MV(r,c-1) && !MV(r,c+1)) {
+            if (c > 0 && MV(r,c-1) && !MV(r,c+1)) {
                 if (u->Drc < 0 && h->data[r][c+1]+DEM->data[r][c+1] > h->Drc+DEM->Drc)
                     tma->Drc = 1;
             }
-            if (c+1 <= _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
+            if (c < _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
                 if (u->Drc > 0 && h->data[r][c-1]+DEM->data[r][c-1] > h->Drc+DEM->Drc)
                     tma->Drc += 10;
             }
-            if (r-1 >= 0 && MV(r-1,c) && !MV(r+1,c)) {
+            if (r > 0 && MV(r-1,c) && !MV(r+1,c)) {
                 if (v->Drc < 0 && h->data[r+1][c]+DEM->data[r+1][c] > h->Drc+DEM->Drc)
                     tma->Drc += 100;
             }
-            if (r+1 <= _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
+            if (r < _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
                 if (v->Drc > 0 && h->data[r-1][c]+DEM->data[r-1][c] > h->Drc+DEM->Drc)
                     tma->Drc += 1000;
             }

@@ -154,7 +154,7 @@ void TWorld::InitParameters(void)
         F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
         F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
         F_scheme = std::min(3,F_scheme);
-        F_minWH = getvaluedouble("Min WH flow");   //HLL HLL2 Rusanov
+        F_minWH = he_ca;//getvaluedouble("Min WH flow");   //HLL HLL2 Rusanov
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
         SwitchLinkedList = getvalueint("Use linked List") == 1;
         SwitchPerimeterKW = getvalueint("Use Perimeter KW") == 1;
@@ -164,7 +164,7 @@ void TWorld::InitParameters(void)
         SwatrePrecision = 6;// getvaluedouble("SWATRE precision");
     } else {
         F_MaxIter = 200;
-        F_minWH = 0.00001;
+        F_minWH = he_ca;
         F_fluxLimiter = 1; //minmod, vanleer, albeda
         F_scheme = 3;   //Rusanov HLL HLL2 HLL2c
         F_pitValue = _dx/100;

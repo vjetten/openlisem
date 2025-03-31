@@ -67,9 +67,9 @@ void lisemqt::setupPlot()
     QGraph = new QwtPlotCurve("Discharge");
     QsGraph = new QwtPlotCurve("Sediment discharge");
     CGraph = new QwtPlotCurve("Concentration");
-    if (flowboundary)
+   // if (flowboundary)
         QbGraph = new QwtPlotCurve("Water flow boundary");
-    if(checkIncludeTiledrains->isChecked())
+    //if(checkIncludeTiledrains->isChecked())
         QtileGraph = new QwtPlotCurve("Tile drain");
 
     PGraph->attach(HPlot);
@@ -237,7 +237,7 @@ void lisemqt::initPlot()
 {
     HPlot->setTitle("Hydrograph Outlet");
 
-    if (flowboundary)
+    //if (flowboundary)
         QbGraph->detach();
     QsGraph->detach();
     CGraph->detach();
