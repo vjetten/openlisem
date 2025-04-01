@@ -930,9 +930,10 @@ void TWorld::InitBoundary(void)
         if(c == _nrCols-1)  DomainEdge->Drc = 6;
     }
 
-    FlowBoundary = NewMap(0);
-    if(FlowBoundaryType == 1) // potential outflow everywhere
-    {
+    if(FlowBoundaryType < 2)
+        FlowBoundary = NewMap(0);
+    if(FlowBoundaryType == 1) {
+        // potential outflow everywhere
         // determine dynamically in function K2DDEMA
         // for flood DomainEdge is used
         FOR_ROW_COL_MV_L {

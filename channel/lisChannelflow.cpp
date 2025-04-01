@@ -75,8 +75,9 @@ void TWorld::ChannelVelocityandDischarge()
         ChannelWH->Drc = CHWH;
         ChannelV->Drc = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
         ChannelQ->Drc = ChannelV->Drc * Area;
-        ChannelAlpha->Drc = Area/std::pow(ChannelQ->Drc, 0.6);
-        //ChannelAlpha->Drc = pow(N/sqrtgrad * pow(Perim, 2.0/3.0),0.6);  // no difference
+       //ChannelAlpha->Drc = ChannelQ->Drc/std::pow(Area, 0.6);
+        //Q=α(A)β
+        ChannelAlpha->Drc = pow(N/sqrtgrad * pow(Perim, 2.0/3.0),0.6);  // no difference
     }}
 }
 
@@ -177,21 +178,6 @@ void TWorld::ChannelRainandInfil(void)
             }
         }}
     }
-// double tot = 0;
-// int i = 0;
-//     if (SwitchGridRetention) {
-//         FOR_ROW_COL_MV_CHL {
-//             double dvol = std::max(0.0,GridRetention->Drc - GridRetentionAct->Drc);
-//             if(dvol > 0) {
-//                 dvol = std::min(dvol, ChannelWaterVol->Drc);
-//                 GridRetentionAct->Drc += dvol;
-//                 ChannelWaterVol->Drc -= dvol;
-//                 //qDebug() << i++ << dvol << GridRetention->Drc << GridRetentionAct->Drc;
-//             }
-//             tot = tot + GridRetentionAct->Drc;
-//         }}
-// qDebug() << tot;
-//     }
 
     // add user channel inflow
     if (SwitchDischargeUser) {
@@ -260,11 +246,14 @@ void TWorld::ChannelFlow(void)
                     if (dvol > 0) {
                         GridRetentionAct->Drc += dvol;
                         ChannelWaterVol->Drc -= dvol;
-                        ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
                         double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
-                        double Radius = (Area)/(ChannelWidth->Drc+2*ChannelWH->Drc);
-                        ChannelV->Drc = std::pow(Radius, 2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
-                        ChannelQn->Drc = ChannelV->Drc * Area;
+                        ChannelQn->Drc = ChannelAlpha->Drc * std::pow(Area, 0.6);
+                        // ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+                        // double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
+                        // double Radius = (Area)/(ChannelWidth->Drc+2*ChannelWH->Drc);
+                        // ChannelV->Drc = std::pow(Radius, 2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
+                        // ChannelQn->Drc = ChannelV->Drc * Area;
+                        // ChannelAlpha->Drc = Area > 1e-6 ? ChannelQ->Drc/std::pow(Area, 0.6) : 0.0;
                     }
                 }
             }
@@ -272,11 +261,9 @@ void TWorld::ChannelFlow(void)
             // recalc to Qn for erosion kin wave?
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
             // new channel WH, use adjusted channelWidth
-
-            double ChannelArea = ChannelWaterVol->Drc/ChannelDX->Drc;
-            ChannelAlpha->Drc = ChannelQn->Drc > 1e-6 ? ChannelArea/std::pow(ChannelQn->Drc, 0.6) : ChannelAlpha->Drc;
-
-            ChannelV->Drc = std::min(_CHMaxV, (ChannelArea > 1e-12 ? ChannelQn->Drc/ChannelArea : 0));
+            double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
+            ChannelAlpha->Drc = Area > 1e-6 ? ChannelQn->Drc/std::pow(Area, 0.6) : 0.0;
+            ChannelV->Drc = std::min(_CHMaxV, (Area > 1e-6 ? ChannelQn->Drc/Area : 0.0));
 
             // get the maximum for output
             maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
