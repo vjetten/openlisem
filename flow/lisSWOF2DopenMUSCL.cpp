@@ -141,7 +141,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
 {
     // boundary
     double factor = exp(-0.005*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
-    double factor2 = pow(factor,0.667); // manning reduction V=h^2/3
+    double factor2 = factor;//pow(factor,0.667); // manning reduction V=h^2/3
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -158,12 +158,19 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                 if (r > 0 && r != MV(r-1,c)        )  tmd->data[r-1][c] = 1;
                 if (r < _nrRows-1 && r != MV(r+1,c))  tmd->data[r+1][c] = 1;
             }
-            if (r == 0 || r == _nrRows-1)
-                tmd->Drc = 0;
-            if (c == 0 || c == _nrCols-1)
-                tmd->Drc = 0;
+            // if (r == 0 || r == _nrRows-1)
+            //     tmd->Drc = 0;
+            // if (c == 0 || c == _nrCols-1)
+            //     tmd->Drc = 0;
         }
     }}
+    if (FlowBoundaryType == 0) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            if (DomainEdge->Drc > 0)
+                tmd->Drc = 0;
+        }}
+    }
 
     //do all flow and state calculations
     #pragma omp parallel for num_threads(userCores)
