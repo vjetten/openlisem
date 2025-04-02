@@ -557,6 +557,7 @@ void TWorld::InfilSwatre()
         ComputeForPixel(i_, SwatreSoilModel, drainfraction);
 
         double WHN = SwatreSoilModel->pixel[i_].wh*0.01;
+       //qDebug() << i_ << WHN;
         thetaTop->Drc = SwatreSoilModel->pixel[i_].theta; // not used!
         Perc->Drc= SwatreSoilModel->pixel[i_].percolation*0.01;
         if (SwitchIncludeTile)

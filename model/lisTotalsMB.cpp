@@ -146,7 +146,7 @@ void TWorld::TotalsHydro(void)
         theta1tot = MapTotal(*ThetaI1a)/nrCells;
         if (SwitchTwoLayer)
             theta2tot = MapTotal(*ThetaI2a)/nrCells;
-      // qDebug() <<  theta1tot << theta2tot << nrCells;
+
     }
 
     //=== surf store ===//

@@ -148,8 +148,6 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
         tmd->Drc = 0;
         if (h->Drc > he_ca) {
             tmd->Drc = 1;
-            if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
-                tmd->Drc = 0;
             // make more activecells bhecause else wave does not go on land
             //and one dry cell more in all directions
             if (tmd->Drc == 1) {
@@ -158,19 +156,24 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                 if (r > 0 && r != MV(r-1,c)        )  tmd->data[r-1][c] = 1;
                 if (r < _nrRows-1 && r != MV(r+1,c))  tmd->data[r+1][c] = 1;
             }
-            // if (r == 0 || r == _nrRows-1)
-            //     tmd->Drc = 0;
-            // if (c == 0 || c == _nrCols-1)
-            //     tmd->Drc = 0;
         }
     }}
-    if (FlowBoundaryType == 0) {
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
+            tmd->Drc = 0;
+    }}
+
+//    if (FlowBoundaryType == 0) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            if (DomainEdge->Drc > 0)
+            if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
                 tmd->Drc = 0;
+            // if (DomainEdge->Drc > 0)
+            //     tmd->Drc = 0;
         }}
-    }
+    //}
 
     //do all flow and state calculations
     #pragma omp parallel for num_threads(userCores)
@@ -256,36 +259,38 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                 u_y2 = U;
                 v_y2 = V;
             }
+            double Hc = factor*H;
+            double Uc = factor2*U;
+            double Vc = factor2*V;
 
             if (FlowBoundary->Drc > 0) {
-
                 //if left does not exist and right exist estimate gradient
                 if (c > 0 && MV(r,c-1) && !MV(r,c+1)) {
                     if (h_x2+z_x2 > H+Z) {
-                        h_x1 = factor*H;
-                        u_x1 = factor2*U;
-                        v_x1 = factor2*V;
-                        }
+                        h_x1 = Hc;
+                        u_x1 = Uc;
+                        v_x1 = Vc;
                     }
-                    if (c < _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
-                        if (h_x1+z_x1 > H+Z){
-                        h_x2 = factor*H;
-                        u_x2 = factor2*U;
-                        v_x2 = factor2*V;
-                        }
+                }
+                if (c < _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
+                    if (h_x1+z_x1 > H+Z){
+                        h_x2 = Hc;
+                        u_x2 = Uc;
+                        v_x2 = Vc;
                     }
-                    if (r > 0 && MV(r-1,c) && !MV(r+1,c)) {
-                        if (h_y2+z_y2 > H+Z) {
-                        h_y1 = factor*H;
-                        u_y1 = factor2*U;
-                        v_y1 = factor2*V;
-                        }
+                }
+                if (r > 0 && MV(r-1,c) && !MV(r+1,c)) {
+                    if (h_y2+z_y2 > H+Z) {
+                        h_y1 = Hc;
+                        u_y1 = Uc;
+                        v_y1 = Vc;
                     }
-                    if (r < _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
-                        if (h_y1+z_y1 > H+Z) {
-                        h_y2 = factor*H;
-                        u_y2 = factor2*U;
-                        v_y2 = factor2*V;
+                }
+                if (r < _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
+                    if (h_y1+z_y1 > H+Z) {
+                        h_y2 = Hc;
+                        u_y2 = Uc;
+                        v_y2 = Vc;
                     }
                 }
             }

@@ -346,7 +346,7 @@ double lisemqt::fillDrawMapDataRGB(cTRGBMap *_M, QwtMatrixRasterData *_RD)//, do
 
     if (_M == nullptr)
         return (maxV);
-   qDebug() << "rgb" << _M->nrRows() << _M->nrCols();
+
     // copy map data into vector for the display structure
     for(int r = _M->nrRows()-1; r >= 0; r--)
         for(int c=0; c < _M->nrCols(); c++) {
