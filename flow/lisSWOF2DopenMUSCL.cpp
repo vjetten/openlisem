@@ -158,6 +158,10 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                 if (r > 0 && r != MV(r-1,c)        )  tmd->data[r-1][c] = 1;
                 if (r < _nrRows-1 && r != MV(r+1,c))  tmd->data[r+1][c] = 1;
             }
+            if (r == 0 || r == _nrRows-1)
+                tmd->Drc = 0;
+            if (c == 0 || c == _nrCols-1)
+                tmd->Drc = 0;
         }
     }}
 
@@ -478,7 +482,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                 h_x1r = std::max(0.0, hx1r - std::max(0.0,  dz_x1 + fb_x1)); //rechts van c-1
                 h_xl  = std::max(0.0, hxl  - std::max(0.0, -dz_x1 + fb_x1)); //links van het midden
             } else {
-               // h_x1r=ux1r=vx1r=0.0;
+                h_x1r=ux1r=vx1r=0.0;
                 // FOR REFERNCE, ALL ATTEMPTS GIVE NAN,
                 // h_x1r=H;
                 // ux1r=U;
@@ -494,7 +498,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                 h_xr  = std::max(0.0, hxr  - std::max(0.0,  dz_x2 + fb_x2));
                 h_x2l = std::max(0.0, hx2l - std::max(0.0, -dz_x2 + fb_x2));
             } else {
-              //  h_x2l=ux2l=vx2l=0.0;
+                h_x2l=ux2l=vx2l=0.0;
                 // h_x2l=H;
                 // ux2l=U;
                 // vx2l=V;
@@ -508,7 +512,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                 h_y1d = std::max(0.0, hy1d - std::max(0.0,  dz_y1 + fb_y1));
                 h_yu  = std::max(0.0, hyu  - std::max(0.0, -dz_y1 + fb_y1));
             } else {
-              //  h_y1d=vy1d=uy1d=0.0;
+                h_y1d=vy1d=uy1d=0.0;
                 // h_y1d=H;
                 // uy1d=U;
                 // vy1d=V;
@@ -523,8 +527,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                 h_yd  = std::max(0.0, hyd  - std::max(0.0,  dz_y2 + fb_y2));// lower side of upper cell
                 h_y2u = std::max(0.0, hy2u - std::max(0.0, -dz_y2 + fb_y2));// upper side of lower cell
             } else {
-              //  h_y2u=vy2u=uy2u=0.0;
-                //h_y2u = std::max(0.0, h_y2 - std::max(0.0, -dz_y2 + fb_y2));
+                h_y2u=vy2u=uy2u=0.0;
                 // h_y2u=H;
                 // uy2u=U;
                 // vy2u=V;

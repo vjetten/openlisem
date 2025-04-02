@@ -70,13 +70,12 @@ void TWorld::ChannelVelocityandDischarge()
         double CHWH = Area/FWO;
         double Perim = FWO+2*CHWH;
         double Radius = (Perim > 0 ? Area/Perim : 0);
-        double sqrtgrad = std::max(sqrt(ChannelGrad->Drc), 0.001);
+        double sqrtgrad = std::max(sqrt(ChannelGrad->Drc), 0.0001);
         double N = ChannelN->Drc;
         ChannelWH->Drc = CHWH;
         ChannelV->Drc = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
         ChannelQ->Drc = ChannelV->Drc * Area;
        //ChannelAlpha->Drc = ChannelQ->Drc/std::pow(Area, 0.6);
-        //Q=α(A)β
         ChannelAlpha->Drc = pow(N/sqrtgrad * pow(Perim, 2.0/3.0),0.6);  // no difference
     }}
 }
@@ -238,6 +237,11 @@ void TWorld::ChannelFlow(void)
             ChannelWaterVol->Drc = tma->Drc + (QinKW->Drc - ChannelQn->Drc)*_dt;
             ChannelWaterVol->Drc = std::max(0.0,ChannelWaterVol->Drc);
             // vol is previous + in - out
+            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+            // new channel WH, use adjusted channelWidth
+            double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
+            ChannelAlpha->Drc = Area > 1e-6 ? ChannelQn->Drc/std::pow(Area, 0.6) : 0.0;
+            ChannelV->Drc = std::min(_CHMaxV, (Area > 1e-6 ? ChannelQn->Drc/Area : 0.0));
 
             if (SwitchGridRetention) {
                 double dvol = std::max(0.0,GridRetention->Drc - GridRetentionAct->Drc);
@@ -246,24 +250,24 @@ void TWorld::ChannelFlow(void)
                     if (dvol > 0) {
                         GridRetentionAct->Drc += dvol;
                         ChannelWaterVol->Drc -= dvol;
+
                         double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
-                        ChannelQn->Drc = ChannelAlpha->Drc * std::pow(Area, 0.6);
-                        // ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
-                        // double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
-                        // double Radius = (Area)/(ChannelWidth->Drc+2*ChannelWH->Drc);
-                        // ChannelV->Drc = std::pow(Radius, 2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
-                        // ChannelQn->Drc = ChannelV->Drc * Area;
-                        // ChannelAlpha->Drc = Area > 1e-6 ? ChannelQ->Drc/std::pow(Area, 0.6) : 0.0;
+                        double FWO = ChannelWidthO->Drc;
+                        //ChannelWH->Drc = Area/FWO;
+                        double CHWH = Area/FWO;
+                        double Perim = FWO+2*CHWH;
+                        double Radius = (Perim > 0 ? Area/Perim : 0);
+                        double sqrtgrad = std::max(sqrt(ChannelGrad->Drc), 0.0001);
+                        double N = ChannelN->Drc;
+                        ChannelWH->Drc = CHWH;
+                        ChannelV->Drc = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
+                        ChannelQn->Drc = ChannelV->Drc * Area;
+                       //ChannelAlpha->Drc = ChannelQ->Drc/std::pow(Area, 0.6);
+                        ChannelAlpha->Drc = pow(N/sqrtgrad * pow(Perim, 2.0/3.0),0.6);  // no difference
                     }
                 }
             }
 
-            // recalc to Qn for erosion kin wave?
-            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
-            // new channel WH, use adjusted channelWidth
-            double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
-            ChannelAlpha->Drc = Area > 1e-6 ? ChannelQn->Drc/std::pow(Area, 0.6) : 0.0;
-            ChannelV->Drc = std::min(_CHMaxV, (Area > 1e-6 ? ChannelQn->Drc/Area : 0.0));
 
             // get the maximum for output
             maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);

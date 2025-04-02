@@ -911,7 +911,6 @@ void TWorld::InitBoundary(void)
     QBoundFlow = NewMap(0);
     DomainEdge = NewMap(0);
 
-    Fill(*tma,0);
     // make a 1 cell edge around the domain, used to determine flood at the edge
     for (int r = 1; r < _nrRows-1; r++)
         for (int c = 1; c < _nrCols-1; c++)
@@ -962,6 +961,7 @@ void TWorld::InitBoundary(void)
         }
     }
    report(*FlowBoundary, "flowbound.map");
+   report(*DomainEdge, "DomainEdge.map");
 
 }
 //---------------------------------------------------------------------------
