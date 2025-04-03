@@ -384,8 +384,7 @@ void TWorld::cell_Redistribution2(int r, int c)
             // avoid division by zero
             double dH = std::max(0.01, SoilDep1-Lw_);
             double dtheta = Percolation/dH;
-            if (r == 800 && c == 350)
-            qDebug() << Perc2 << theta2 << thetar2 << pore2;
+
             if (theta-dtheta < thetar)
                 dtheta = theta-thetar;
             Percolation = dtheta * dH;
@@ -397,12 +396,7 @@ void TWorld::cell_Redistribution2(int r, int c)
             Percolation = (pore2-theta2)*DL2;
             theta2 = theta2 + Percolation/DL2;
             theta2 = std::min(pore2,theta2);// superfluous
-            // if (std::isnan(theta)) {
-            //     qDebug()<< "in sd1" << ThetaS1->Drc  << Poreeff->Drc << ThetaR1->Drc;
-            // }
-    if (r == 800 && c == 350) {
-    qDebug() << dH << theta <<thetar<< theta2 << thetar2 << Percolation << Lw_;
-    }
+
         } // else Percolation is simply 0 and no change
 
         // 2) decrease L in soildep with flow into the unsat zone (SoilDep1-Lw)
@@ -424,43 +418,6 @@ void TWorld::cell_Redistribution2(int r, int c)
         // new Lw_
         theta = theta + Percolation/(SoilDep1-Lw_);
         // increase moisture under Lw
-
-        // if (std::isnan(theta)) {
-        //     qDebug()<< SoilDep1 << Percolation << dm << moistw << Lw_;
-        // }
-
-        // double store = (SoilDep1 - Lw_) * (pore-theta); // space in SD1 under Lw_
-        // if (Percolation <= store) {
-        //     // if percolation fits in store layer 1 under the Lw
-        //     theta = theta + Percolation/(SoilDep1-Lw_);
-
-        //     // cannot happen, you cannot have flow from L into the unsaturated zone that saturates the layer under Lw!
-        //     if (theta >= pore) {
-        //         theta = pore;
-        //         Lw_= SoilDep1;
-        //     }
-        //} else {
-            // some spills over in layer 2, Lw_ is in layer 1
-            // double m1 = (theta-thetar)*(SoilDep1-Lw_);
-            // double m2 = (theta2-thetar2)*DL2;
-
-            // double Perc1 = m1/(m1+m2)*Percolation;
-            // double Perc2 = m2/(m1+m2)*Percolation;
-
-            // theta = theta + Perc1/(SoilDep1-Lw_);
-            // theta2 = theta2 + Perc2/DL2;
-
-            // cannot happen!
-            // if (theta >= pore) {
-            //     theta = pore;
-            //     Lw_ = SoilDep1;
-            // }
-            // if (theta2 >= pore2) {
-            //     theta2 = pore2;
-            //     Lw_ = SoilDep2;
-            // }
-
-       // }
    } else {
         //Lw_ > SoilDep1, water from wetting szone into unsat below wetting zone in layer 2
 

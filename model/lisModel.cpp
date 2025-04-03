@@ -446,7 +446,7 @@ void TWorld::HydrologyProcesses()
                     Perc->Drc = cell_Percolation(r, c, 1.0);
            }}
         }
-report(*Lw,"Lw");
+
         // SWATRE infiltration
         if (InfilMethod == INFIL_SWATRE) {
             InfilSwatre();
