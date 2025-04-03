@@ -371,7 +371,7 @@ void TWorld::cell_Redistribution2(int r, int c)
         // theta1 decreases, theta2 increases
 
         // if there is room in layer 2
-        if (theta2 < pore2-0.01) {
+        if (theta2 < pore2-0.001) {
             double Perc1 = Ksateff->Drc * pow((theta-thetar)/(pore-thetar),   3.0+2.0/lambda1->Drc); // m/timestep
             double Perc2 = Ksat2->Drc * pow((theta2-thetar2)/(pore2-thetar2), 3.0+2.0/lambda2->Drc); // m/timestep
             Percolation = Aavg(Perc1, Perc2);
@@ -384,6 +384,8 @@ void TWorld::cell_Redistribution2(int r, int c)
             // avoid division by zero
             double dH = std::max(0.01, SoilDep1-Lw_);
             double dtheta = Percolation/dH;
+            if (r == 800 && c == 350)
+            qDebug() << Perc2 << theta2 << thetar2 << pore2;
             if (theta-dtheta < thetar)
                 dtheta = theta-thetar;
             Percolation = dtheta * dH;
@@ -398,6 +400,9 @@ void TWorld::cell_Redistribution2(int r, int c)
             // if (std::isnan(theta)) {
             //     qDebug()<< "in sd1" << ThetaS1->Drc  << Poreeff->Drc << ThetaR1->Drc;
             // }
+    if (r == 800 && c == 350) {
+    qDebug() << dH << theta <<thetar<< theta2 << thetar2 << Percolation << Lw_;
+    }
         } // else Percolation is simply 0 and no change
 
         // 2) decrease L in soildep with flow into the unsat zone (SoilDep1-Lw)

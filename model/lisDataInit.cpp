@@ -569,6 +569,37 @@ void TWorld::InitLULCInput(void)
     }
 }
 //---------------------------------------------------------------------------
+void TWorld::calcSoilPhysics(cTMap *Ksat, cTMap *lambda, cTMap *thfc, cTMap *thr,
+                             cTMap *psi, cTMap *psiae, double calk, double calpsi)
+{
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+
+        double logks = log(std::min(1000.0,std::max(0.5,Ksat->Drc))); //NOTE ln = log, log = log10
+        // see the excel file with the regression equations in auxfiles
+        // the regression fit has cm as output unit.
+        lambda->Drc = 0.0849*logks+0.159;
+        lambda->Drc = std::min(std::max(0.1,lambda->Drc),0.7);
+
+        psiae->Drc = exp( -0.3012*logks + 3.5164);
+        if (!SwitchPsiUser)
+            psi->Drc = exp(-0.3382*logks + 3.3425);
+
+        thr->Drc = 0.0673*exp(-0.238*logks);
+        thfc->Drc = -0.0519*logks + 0.3714;
+
+    }}
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        psi->Drc = std::max(psi->Drc, psiae->Drc);
+        psi->Drc *= 0.01*calpsi;
+        psiae->Drc *= 0.01;
+        Ksat->Drc *= calk;
+    }}
+
+}
+//---------------------------------------------------------------------------
 void TWorld::InitSoilInput(void)
 {
     // safeguard for deleting, set to null pointer
@@ -639,12 +670,15 @@ void TWorld::InitSoilInput(void)
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
 
         ThetaR1 = NewMap(0);
-        lambda1 = NewMap(0);
         psi1ae = NewMap(0);
         ThetaFC1 = NewMap(0);
-        vgalpha1 = NewMap(0);
-        vgn1 = NewMap(0);
+        lambda1 = NewMap(0);
+        if (SwitchPsiUser) {
+            Psi1 = ReadMap(LDD,getvaluename("psi1"));
 
+        calcSoilPhysics(Ksat1, lambda1, ThetaFC1, ThetaR1, Psi1, psi1ae, ksatCalibration, psiCalibration);
+
+ /*
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             //bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
@@ -659,37 +693,28 @@ void TWorld::InitSoilInput(void)
             lambda1->Drc = 0.0849*ks+0.159;
             lambda1->Drc = std::min(std::max(0.1,lambda1->Drc),0.7);
 
-            psi1ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+            psi1ae->Drc = exp( -0.3012*ks + 3.5164);
+            if (!SwitchPsiUser)
+                Psi1->Drc = exp(-0.3382*ks + 3.3425);
 
-            vgalpha1->Drc = 100*0.0119*exp(0.4657*ks);//(0.02*ks + 0.0095); // in m-1
-            vgn1->Drc = 0.2656*ks + 1.1042;
-            ThetaR1->Drc = 0.0673*exp(-0.238*log(ks));
-            ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;
-            // NOTE alpha must have the reverse units of H. If H is in m, alpha must be in 1/m
+            // vgalpha1->Drc = 100*0.0119*exp(0.4657*ks);//(0.02*ks + 0.0095); // in m-1
+            // vgn1->Drc = 0.2656*ks + 1.1042;
+
+            ThetaR1->Drc = 0.0673*exp(-0.238*ks);
+            ThetaFC1->Drc = -0.0519*ks + 0.3714;
+        // NOTE alpha must have the reverse units of H. If H is in m, alpha must be in 1/m
         }}
-        //report(*vgalpha1,"valpha.map");
-        //report(*vgn1,"vn.map");
 
-        if (SwitchPsiUser) {
-            Psi1 = ReadMap(LDD,getvaluename("psi1"));
-            calcValue(*Psi1, psiCalibration, MUL); //calibration of user input psi
-            calcValue(*Psi1, 0.01, MUL); //cm to m
-        } else {
-            Psi1 = NewMap(0);
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                Psi1->Drc = exp(-0.3382*log(std::max(0.5,Ksat1->Drc)) + 3.3425)*0.01;
-               // double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
-                //double psiae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
-                Psi1->Drc = std::max(Psi1->Drc, psi1ae->Drc);
-            }}
-        // MC - note that this regression can cause very high psi values. In Rawls et al 1983 large ranges of possible values are reported!
-        }
-        calcValue(*Psi1, psiCalibration, MUL);
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            Psi1->Drc = std::max(Psi1->Drc, psi1ae->Drc);
+            Psi1->Drc *= 0.01*psiCalibration;
+            psi1ae->Drc *= 0.01;
+        }}
+
         calcValue(*Ksat1, ksatCalibration, MUL);
             // apply calibration after all empirical relations
-
-
+*/
         if (nrSoilLayers == 2) {
             SwitchTwoLayer = true;
             SwitchThreeLayer = false;
@@ -719,41 +744,40 @@ void TWorld::InitSoilInput(void)
             ThetaR2 = NewMap(0);
             lambda2 = NewMap(0);             // lambda brooks corey
             psi2ae = NewMap(0);
-
             ThetaFC2 = NewMap(0);
-            vgalpha2 = NewMap(0);
-            vgn2 = NewMap(0);
+
+            calcSoilPhysics(Ksat2, lambda2, ThetaFC2, ThetaR2, Psi2, psi2ae, ksat2Calibration, psiCalibration);
+
+/*
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 // regression eq from data from Saxton and rawls 2006, excel file
                 double ks = log(std::min(1000.0,std::max(0.5,Ksat2->Drc)));
-                vgalpha2->Drc = 100*0.0119*exp(0.4657*ks);//(0.02*ks + 0.0095); // in m-1
-                vgn2->Drc = 0.2656*ks + 1.1042;
+               // vgalpha2->Drc = 100*0.0119*exp(0.4657*ks);//(0.02*ks + 0.0095); // in m-1
+               // vgn2->Drc = 0.2656*ks + 1.1042;
 
                 lambda2->Drc = 0.0849*ks+0.159;
                 lambda2->Drc = std::min(std::max(0.1,lambda2->Drc),0.7);
                 psi2ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
-                ThetaR2->Drc = 0.0673*exp(-0.238*log(ks));
-                ThetaFC2->Drc = -0.0519*log(ks) + 0.3714;
+                ThetaR2->Drc = 0.0673*exp(-0.238*ks);
+                ThetaFC2->Drc = -0.0519*ks + 0.3714;
             }}
 
             // wetting front psi
             if (SwitchPsiUser) {
                 Psi2 = ReadMap(LDD,getvaluename("psi2"));
-                //   calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
-                calcValue(*Psi2, 0.01, MUL);
             } else {
                 Psi2 = NewMap(0);
                 #pragma omp parallel for num_threads(userCores)
                 FOR_ROW_COL_MV_L {
-                    Psi2->Drc = exp(-0.3382*log(std::max(0.5,Ksat2->Drc)) + 3.3425)*0.01;
-                    //double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
-                    //double psi2ae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+                    Psi2->Drc = exp(-0.3382*log(std::max(0.5,Ksat2->Drc)) + 3.3425);
                     Psi2->Drc = std::max(Psi2->Drc,psi2ae->Drc);
                 }}
             }
+            calcValue(*Psi2, 0.01, MUL);
             calcValue(*Psi2, psiCalibration, MUL);
             calcValue(*Ksat2, ksat2Calibration, MUL);
+*/
         }
 
         if (SwitchThreeLayer)
@@ -787,39 +811,40 @@ void TWorld::InitSoilInput(void)
             lambda3 = NewMap(0);             // lambda brooks corey
             psi3ae = NewMap(0);
             ThetaFC3 = NewMap(0);
-            vgalpha3 = NewMap(0);
-            vgn3 = NewMap(0);
+
+            calcSoilPhysics(Ksat3, lambda3, ThetaFC3, ThetaR3, Psi3, psi3ae, ksat3Calibration, psiCalibration);
+/*
             FOR_ROW_COL_MV_L {
                 // regression eq from data from Saxton and rawls 2006, excel file
                 double ks = log(std::min(1000.0,std::max(0.5,Ksat3->Drc)));
-                vgalpha3->Drc = 100*0.015*exp(0.3816*ks);//(0.02*ks + 0.0095); // in m-1
-                vgn3->Drc = 0.2656*ks + 1.1042;
+              //  vgalpha3->Drc = 100*0.015*exp(0.3816*ks);//(0.02*ks + 0.0095); // in m-1
+              //  vgn3->Drc = 0.2656*ks + 1.1042;
 
                 lambda3->Drc = 0.0849*ks+0.159;
                 lambda3->Drc = std::min(std::max(0.1,lambda3->Drc),0.7);
 
                 psi3ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
                 ThetaR3->Drc = 0.0673*exp(-0.238*log(ks));
-                ThetaFC3->Drc = -0.0519*log(ks) + 0.3714;
+                ThetaFC3->Drc = -0.0519*ks + 0.3714;
             }}
 
             // wetting front psi
             if (SwitchPsiUser) {
                 Psi3 = ReadMap(LDD,getvaluename("psi3"));
                 //   calcValue(*Psi3, psiCalibration, MUL); //VJ 110712 calibration of psi
-                calcValue(*Psi3, 0.01, MUL);
+
             } else {
                 Psi3 = NewMap(0);
                 #pragma omp parallel for num_threads(userCores)
                 FOR_ROW_COL_MV_L {
-                    Psi3->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
-                    //double ks = std::max(0.5,std::min(1000.0,log(Ksat3->Drc)));
-                    //double psi3ae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
+                    Psi3->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425);
                     Psi3->Drc = std::max(Psi2->Drc,psi3ae->Drc);
                 }}
             }
+            calcValue(*Psi3, 0.01, MUL);
             calcValue(*Psi3, psiCalibration, MUL);
             calcValue(*Ksat3, ksat3Calibration, MUL);
+*/
         }
 
         if (SwitchInfilCrust) {
@@ -2535,6 +2560,43 @@ void TWorld::InitNewSoilProfile()
 {
     if(InfilMethod != INFIL_SOAP)
         return;
+    vgalpha1 = NewMap(0);
+    vgn1 = NewMap(0);
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        double ks = log(std::min(1000.0,std::max(0.5,Ksat1->Drc))); //NOTE ln = log, log = log10
+        // see the excel file with the regression equations in auxfiles
+        // the regression fit has cm as output unit.
+       vgalpha1->Drc = 100*0.0119*exp(0.4657*ks);//(0.02*ks + 0.0095); // in m-1
+       vgn1->Drc = 0.2656*ks + 1.1042;
+        // NOTE alpha must have the reverse units of H. If H is in m, alpha must be in 1/m
+    }}
+    if(SwitchTwoLayer) {
+        vgalpha2 = NewMap(0);
+        vgn2 = NewMap(0);
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            double ks = log(std::min(1000.0,std::max(0.5,Ksat2->Drc))); //NOTE ln = log, log = log10
+            // see the excel file with the regression equations in auxfiles
+            // the regression fit has cm as output unit.
+           vgalpha2->Drc = 100*0.0119*exp(0.4657*ks);//(0.02*ks + 0.0095); // in m-1
+           vgn2->Drc = 0.2656*ks + 1.1042;
+            // NOTE alpha must have the reverse units of H. If H is in m, alpha must be in 1/m
+        }}
+    }
+    if (SwitchThreeLayer) {
+        vgalpha3 = NewMap(0);
+        vgn3 = NewMap(0);
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            double ks = log(std::min(1000.0,std::max(0.5,Ksat3->Drc))); //NOTE ln = log, log = log10
+            // see the excel file with the regression equations in auxfiles
+            // the regression fit has cm as output unit.
+           vgalpha3->Drc = 100*0.0119*exp(0.4657*ks);//(0.02*ks + 0.0095); // in m-1
+           vgn3->Drc = 0.2656*ks + 1.1042;
+            // NOTE alpha must have the reverse units of H. If H is in m, alpha must be in 1/m
+        }}
+    }
 
     nN1_ = getvalueint("SoilWB nodes 1");
     nN2_ = 0;

@@ -430,7 +430,7 @@ void TWorld::HydrologyProcesses()
     if (SwitchInfiltration) {
         // non SWATRE infiltration, redistribution and percolation
         if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_SOAP) {
-            #pragma omp parallel for num_threads(userCores)
+          //  #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 cell_InfilMethods(r, c);
 
@@ -446,7 +446,7 @@ void TWorld::HydrologyProcesses()
                     Perc->Drc = cell_Percolation(r, c, 1.0);
            }}
         }
-
+report(*Lw,"Lw");
         // SWATRE infiltration
         if (InfilMethod == INFIL_SWATRE) {
             InfilSwatre();

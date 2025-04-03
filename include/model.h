@@ -830,7 +830,8 @@ public:
     void InitScreenChanNetwork();
     void CorrectDEM(cTMap *h, cTMap * g);
     void DiagonalFlowDEM();
-
+    void calcSoilPhysics(cTMap *Ksat, cTMap *lambda, cTMap *thfc, cTMap *thr,
+                                 cTMap *psi, cTMap *psiae, double calk, double calpsi);
     // <= initiatlisation
 
 

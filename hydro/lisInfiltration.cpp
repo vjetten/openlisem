@@ -131,6 +131,7 @@ void TWorld::InfilEffectiveKsat()
         }
 
     }}
+    report(*Ksateff,"ksateff.map");
 }
 //---------------------------------------------------------------------------
 // Calculate effective Ksat based on surface structure, impermeable etc.
