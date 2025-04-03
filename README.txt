@@ -2,7 +2,7 @@ openLISEM
 A spatial model for simulation of the full waterbalance, overland flow, flooding and sediment erosion, transport and deposition in all flows.
 
 ============
-Date: 250327
+Date: 250304
 ============
 
 This software is subject to a DISCLAIMER and released under the copyright model GPLv3
@@ -15,23 +15,22 @@ NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6, op
 
 LIST OF CHANGES and BUGFIXES:
 
-250325 - v7.4.6 beta R3-R6
+250304 - v7.4.6 beta R1-R7
+- BUG FIX: Field capacity and residual moisture were not properly calculated, causing errors in percolation, sometimes causing a stop in inifltration
 - BUG FIX: MUSCL not activated
 - BUG FIX: background image was not loaded properly
-- Boundary flow for Dynamic Wave fixed and correct in output
-- grid retention for overland flow and channelflow (also for kinematic wave)
-
-250222 - v7.4.6 beta R1-R2
 - BUG FIX: reading pathnames sometimes result in "//"
 - BUG FIX: crusting SWATRE
 - BUG FIX: 2D flow gives MB error because of domain boundary, for now fixed by excluding the boundary
 - BUG FIX: MUSCL gave wrong water heigths and limited flow to neighbours, results now similar to 1st order 2D flow
 - BUG FIX: reading pathnames sometimes result in "//"
 - BUG FIX: crusting SWATRE
+- Boundary flow for Dynamic Wave fixed and correct in output
+- Cell sized retention for overland flow and channelflow (also for kinematic wave)
 - optimized MUSCL 2D flow and 2nd order redone, checked also user input wave
 - added evapotranspiration to Swatre as sinkterm
 - rewrote evapotranspiration for other hydrology
-- Riemann HLLc and HLLc2 (option 4 and 5) behave strangely, reoved fomr interface choiche, defaults to 3
+- Riemann HLLc and HLLc2 (option 4 and 5) behave strangely, removed fomr interface choiche, defaults to 3
 
 250121 - v7.4.5
 - BUG FIX: Delete all map and swatre data after no GUI run

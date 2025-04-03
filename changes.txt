@@ -3,6 +3,9 @@ Latest fixes and changes:
 
 see Readme.txt for a complete list
 
+250403 - v7.4.6 beta R7
+- BUG FIX: Field capacity and residual moisture were not properly calculated, causing errors in percolation, sometimes causing a stop in inifltration
+
 250327 - v7.4.6 beta R3-R6
 - BUG FIX: MUSCL not activated
 - BUG FIX: background satellite image was not loaded properly

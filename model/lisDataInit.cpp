@@ -332,6 +332,7 @@ void TWorld::InitStandardInput(void)
                 newcr.r = r;
                 newcr.c = c;
                 newcr.nr = (int)PointMap->Drc ;
+                newcr.code.setNum((int)PointMap->Drc);
                 crout_ << newcr;
             }
         }

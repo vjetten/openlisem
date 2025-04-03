@@ -1,7 +1,7 @@
 <h2>2D Surface Flow</h2>
 <h3>Dynamic Wave parameters</h3>
 <p><strong>Flow boundary (for 2D flow):</strong></p>
-<p>0 - Closed boundary, outflow not allowed except in outflow points in outlet.map. Water can pool at the edges if the DEM is not perfect.<br />1 - Open Boundary: outflow to all sides possible of flood and overland flow. Outlets always allow outflow. (default)<br />2 - a user defined map (flowboundary.map) allows 2D outflow where the value is 1, and a closed boundary where the value = 0. A map filled with 1 is the same as unchecked, free outflow.</p>
+<p>0 - Closed boundary, outflow not allowed except in outflow points in endpoints of the channel LDD and surface LDD. Water can pool at the edges if the DEM is not perfect.<br />1 - Open Boundary: outflow to all sides possible of flood and overland flow. Outlets always allow outflow. (default)<br />2 - a user defined map (flowboundary.map) allows 2D outflow where the value is 1, and a closed boundary where the value = 0. A map filled with 1 is the same as unchecked, free outflow.</p>
 <p><strong>Courant factor</strong>: Determines minimum timestep, lower means smaller timesteps in the iteration are used. (def. 0.2, range 0.01- 0.5).</p>
 <p><strong>Minimum timestep</strong>: User defined minimum timestep for dynamic wave solution. In case of instability lower this value (def. 0.2 sec).</p>
 <p><strong>MUSCL-2nd order solution</strong>: use a <em>Monotonic Upstream-centered Scheme for Conservation Laws.</em> Water pressure and momentum are calculated on cell boundaries, interpolating from cell centres. Gives narrower flow but and can be more accurate in certain situations with high resolution DEMs. The loop is done twivce and the average flow is calculated, but this is also slower (def. on)</p>

@@ -419,7 +419,13 @@ void TWorld::ChannelFlood(void)
     // mix HWrunoff with hmx
     // if toflood before channeloverflow then MB error in sed
 
-    double dtflood = 0;
+
+    if (SwitchChannel2DflowConnect)
+        ChannelOverflowIteration(hmx, V);
+    else
+        ChannelOverflow(hmx, V);
+    // determine overflow water => hmx
+    // hmx is flood water, WH is overlandflow, WHrunoff etc
 
     startFlood = false;
     #pragma omp parallel for num_threads(userCores)
@@ -428,7 +434,7 @@ void TWorld::ChannelFlood(void)
             startFlood = true;
     }}
 
-    dtflood = fullSWOF2openMUSCL(hmx, Uflood, Vflood, DEM);
+    double dtflood = fullSWOF2openMUSCL(hmx, Uflood, Vflood, DEM);
     // in kindyn hmx is the channel overflow/flood part of the surface water, the rest is kinwave WHrunoff
 
     //new flood domain
@@ -452,14 +458,6 @@ void TWorld::ChannelFlood(void)
             // Qn is the runoff water, must be zero in the flooded area, becomes Qflood
         }
     }}
-
-
-    if (SwitchChannel2DflowConnect)
-        ChannelOverflowIteration(hmx, V);
-    else
-        ChannelOverflow(hmx, V);
-    // determine overflow water => hmx
-    // hmx is flood water, WH is overlandflow, WHrunoff etc
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
