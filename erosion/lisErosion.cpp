@@ -1038,7 +1038,6 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
         S = ChannelGrad->Drc;
         R = (w*h)/(2*h+w);
         man = ChannelN->Drc;
-        U *= TurbulenceFactor;
     } else
         if (type == 1) {
             // flood
