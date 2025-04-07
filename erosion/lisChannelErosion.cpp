@@ -129,7 +129,7 @@ void TWorld::ChannelFlowDetachmentNew()
                 TransportFactor =  _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
                 //TransportFactor = std::min(TransportFactor, ssdischarge * _dt);
 
-                deposition = TurbulenceFactor *std::max(TransportFactor * minTC,-SS); // in kg
+                deposition = std::max(TransportFactor * minTC,-SS); // in kg
                 // not more than SS present
 
             } else {

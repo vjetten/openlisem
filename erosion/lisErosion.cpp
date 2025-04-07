@@ -376,7 +376,7 @@ void TWorld::cell_FlowDetachment(int r, int c)
             TransportFactor = _dt*SettlingVelocitySS->Drc * DX->Drc * ChannelAdj->Drc;
             // in m3
             // deposition can occur on roads and on soil (so use flowwidth)
-            deposition = TurbulenceFactor*minTC * TransportFactor;
+            deposition = minTC * TransportFactor;
             // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
 
             deposition = std::max(deposition, -Sed->Drc);
@@ -1038,7 +1038,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
         S = ChannelGrad->Drc;
         R = (w*h)/(2*h+w);
         man = ChannelN->Drc;
-
+        U *= TurbulenceFactor;
     } else
         if (type == 1) {
             // flood

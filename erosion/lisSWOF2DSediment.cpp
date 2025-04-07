@@ -487,11 +487,10 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap 
             //deposition based on settling velocity
             if (minTC < 0) {
                 //NOTE use entire depth h for deposition of SS
-                //TransportFactor = (1-exp(-dt*TSettlingVelocitySS/h->Drc)) * sswatervol;
+                //TransportFactor = (1-exp(-dt*TSettlingVelocitySS/hf)) * sswatervol;
                 TransportFactor = dt * SettlingVelocitySS->Drc * wf*DX->Drc;
-              //  TransportFactor = std::min(TransportFactor, ssdischarge * dt);
 
-                deposition  = TurbulenceFactor* std::max(TransportFactor*  minTC, -SS);
+                deposition  = std::max(TransportFactor*  minTC, -SS);
 
                 // exceptions
                 // if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
