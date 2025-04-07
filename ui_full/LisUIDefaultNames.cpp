@@ -521,6 +521,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Detachment efficiency channel");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Direct efficiency channel");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Turbulence factor channel");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("River SS method");
     namelist[i].value = QString("0");

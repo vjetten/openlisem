@@ -380,6 +380,7 @@ void TWorld::TotalsSediment(void)
     // DetTot and DepTot are for MB
 
     SoilLossTot_dt = 0;
+    // everything that flows out with channelqs, qs and Qsboundary * _dt
 
     if (SwitchErosion)
     {
@@ -426,17 +427,39 @@ void TWorld::TotalsSediment(void)
             ChannelDetTot += MapTotal(*ChannelDetFlow);
             ChannelDepTot += MapTotal(*ChannelDep);
             ChannelSedTot = (SwitchUse2Phase ? MapTotal(*ChannelBLSed) : 0.0) + MapTotal(*ChannelSSSed);
+
+            FOR_ROW_COL_MV_CHL {
+                double sed = (SwitchUse2Phase ? ChannelBLSed->Drc : 0) + ChannelSSSed->Drc;
+                //total concentration
+                ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, sed);//ChannelSed->Drc);
+            }}
+            // upstream(LDDChannel, ChannelWaterVol, tma);
+            // upstream(LDDChannel, ChannelSSSed, tmb);
+
+            // FOR_ROW_COL_MV_CHL {
+            //     double water = 0.5*(ChannelWaterVol->Drc + tma->Drc);
+            //     ChannelWaterVol->Drc = water;
+            //     double sed = 0.5*(ChannelSSSed->Drc + tmb->Drc);
+            //     ChannelSSSed->Drc = sed;
+            //     ChannelConc->Drc = MaxConcentration(water,sed);
+
+            // }}
+
         }
 
-        floodBoundarySedTot += QsBoundary*_dt; // not used
-        SoilLossTot_dt += QsBoundary*_dt;
+        if (FlowBoundaryType > 0) {
+            floodBoundarySedTot += QsBoundary*_dt;        //reported
+            SoilLossTot_dt += QsBoundary*_dt;
+        }
         // boundary sediment losses (kg) in cells that are not outlet, if open boundary else 0
         // calc as cells with velocity U and V directed outwards
 
         // used for mass balance and screen output
-        FloodDetTot += (SwitchUse2Phase ? MapTotal(*BLDetFlood) : 0.0) + MapTotal(*SSDetFlood);
-        FloodDepTot += MapTotal(*DepFlood);
-        FloodSedTot = (SwitchUse2Phase ? MapTotal(*BLFlood) : 0.0) + MapTotal(*SSFlood);
+        if (SwitchKinematic2D > K2D_METHOD_KIN) {
+            FloodDetTot += (SwitchUse2Phase ? MapTotal(*BLDetFlood) : 0.0) + MapTotal(*SSDetFlood);
+            FloodDepTot += MapTotal(*DepFlood);
+            FloodSedTot = (SwitchUse2Phase ? MapTotal(*BLFlood) : 0.0) + MapTotal(*SSFlood);
+        }
 
         if (SwitchUse2Phase) {
             #pragma omp parallel for num_threads(userCores)
@@ -453,7 +476,7 @@ void TWorld::TotalsSediment(void)
         // variables are valid for both 1D and 2D flow dyn and diff
 
         FOR_ROW_COL_MV_L {
-            Qsoutput->Drc = Qsn->Drc + (SwitchIncludeChannel ? ChannelQsn->Drc : 0.0);
+            Qsoutput->Drc = Qsn->Drc + (SwitchIncludeChannel ? ChannelQsn->Drc : 0.0) + QsBoundary/_dt;
             // for reporting sed discharge screen
             // in kg/s, sum of overland flow and channel flow
         }}
@@ -478,15 +501,18 @@ void TWorld::TotalsSediment(void)
             TotalSoillossMap->Drc = DETSplashCum->Drc + DETFlowCum->Drc + DEPCum->Drc;
             TotalSoillossMap->Drc = fabs(TotalSoillossMap->Drc) < 1e-3 ? 0.0 : TotalSoillossMap->Drc;
             // 0.001 kg/cellarea = 1/cellarea g/m2
-
-            // TotalDepMap->Drc = std::min(0.0, TotalSoillossMap->Drc); // for table damage output per landunit
-            // TotalDetMap->Drc = std::max(0.0, TotalSoillossMap->Drc);
         }}
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L
         {
-            double sedall = Sed->Drc + (SwitchUse2Phase ? BLFlood->Drc : 0.0) + SSFlood->Drc +  (SwitchIncludeChannel ? ChannelSed->Drc : 0.0);
+            double sedall = Sed->Drc + (SwitchUse2Phase ? BLFlood->Drc : 0.0) + SSFlood->Drc;
+            if (SwitchIncludeChannel) {
+                sedall += ChannelSSSed->Drc;
+                if (SwitchUse2Phase)
+                    sedall += ChannelBLSed->Drc;
+            }
+            // Sed is kin wave, SSFlood and BL flood is dyn wave, chnnelsed = kin wave?
             double waterall = WaterVolall->Drc + (SwitchIncludeChannel ? ChannelWaterVol->Drc : 0.0);
             TotalConc->Drc = MaxConcentration(waterall ,sedall);
             // for output
@@ -558,23 +584,6 @@ void TWorld::MassBalance()
             //average error in m water height, added to WH in next timestep in infiltration
         }}
 
-        // channel correction => can be tricky?
-        // if (SwitchIncludeChannel) {
-        //     FOR_ROW_COL_MV_L {
-        //         tma->Drc = 0;
-        //         if (ChannelWH->Drc > 0)
-        //             tma->Drc = 1;
-        //     }}
-        //     tot = MapTotal(*tma);
-        //     dV = (waterin - waterout - waterstore)/tot;
-        //     FOR_ROW_COL_MV_CHL {
-        //         double dH = dV/(ChannelWidth->Drc*DX->Drc);
-        //         if (ChannelWH->Drc+dH > 0) ChannelWH->Drc += dH;
-        //         ChannelWaterVol->Drc = (ChannelWidth->Drc*ChannelDX->Drc)*ChannelWH->Drc;
-        //     }}
-        //     ChannelVolTot = MapTotal(*ChannelWaterVol);
-        //     waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot;
-        // }
         MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
         //qDebug() << "n " << MB;
     }

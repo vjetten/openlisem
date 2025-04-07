@@ -630,6 +630,7 @@ public:
     double StemflowFraction;
     double DirectEfficiency;
     double CanopyOpeness;
+    double TurbulenceFactor;
 
     //sed transport equations
     int FS_SS_Method;

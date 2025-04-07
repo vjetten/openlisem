@@ -77,31 +77,15 @@ void TWorld::ChannelFlowDetachmentNew()
         }
 
         //get transport capacity for bed/suspended load for a specific cell and grain size class
-        double SSTC = 0;
-        double BLTC = 0;
         if (SwitchUse2Phase)
-            BLTC = calcTCBedload(r, c, 1, R_BL_Method, ChannelWH->Drc, ChannelWidth->Drc, ChannelV->Drc, 0);
-        SSTC = calcTCSuspended(r, c, 1, R_SS_Method, ChannelWH->Drc, ChannelWidth->Drc, ChannelV->Drc, 0);
+            ChannelBLTC->Drc = calcTCBedload(r, c, 1, R_BL_Method, ChannelWH->Drc, ChannelWidth->Drc, ChannelV->Drc, 0);
+        ChannelSSTC->Drc = calcTCSuspended(r, c, 1, R_SS_Method, ChannelWH->Drc, ChannelWidth->Drc, ChannelV->Drc, 0);
 
         //find transport capacity for bed and suspended layer
-
-        ChannelSSTC->Drc = SSTC;
-        //double SSDepth = ChannelSSDepth->Drc;
-        double SSC = ChannelSSConc->Drc;
         double SS = ChannelSSSed->Drc;
-        double TSettlingVelocitySS = SettlingVelocitySS->Drc;
-
-        double BLDepth = 0;
-        double BLC = 0;
         double BL = 0;
-        double TSettlingVelocityBL = 0;
-
         if (SwitchUse2Phase) {
-            BLDepth = ChannelBLDepth->Drc;
-            TSettlingVelocityBL = SettlingVelocityBL->Drc;
-            BLC = ChannelBLConc->Drc;
             BL = ChannelBLSed->Drc;
-            ChannelBLTC->Drc = BLTC;
         }
 
         ChannelDetFlow->Drc = 0;
@@ -127,7 +111,7 @@ void TWorld::ChannelFlowDetachmentNew()
                     ChannelBLTC->Drc = 0;
                 }
 
-                ChannelSed->Drc = 0;
+                //ChannelSed->Drc = 0;
                 ChannelDep->Drc += deposition;
             }
         } else {
@@ -135,25 +119,23 @@ void TWorld::ChannelFlowDetachmentNew()
 
             //### do suspended first
 
-            maxTC = std::max(SSTC - SSC, 0.0);  // TC in kg/m3
-            minTC = std::min(SSTC - SSC, 0.0);
+            maxTC = std::max(ChannelSSTC->Drc - ChannelSSConc->Drc, 0.0);  // TC in kg/m3
+            minTC = std::min(ChannelSSTC->Drc - ChannelSSConc->Drc, 0.0);
 
             if (minTC < 0) {
                 //deposition
 
-                TransportFactor = (1-exp(-_dt*TSettlingVelocitySS/ChannelWH->Drc)) * sswatervol;
-             //   TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
+               // TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/ChannelWH->Drc)) * sswatervol;
+                TransportFactor =  _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
                 //TransportFactor = std::min(TransportFactor, ssdischarge * _dt);
 
-                deposition = std::max(TransportFactor * minTC,-SS); // in kg
+                deposition = TurbulenceFactor *std::max(TransportFactor * minTC,-SS); // in kg
                 // not more than SS present
 
             } else {
                 //  detachment
                 if(maxTC > 0 && ChannelCohesion->Drc >= 0) {
-
-                    TransportFactor = _dt*TSettlingVelocitySS * ChannelDX->Drc * ChannelWidth->Drc;
-                    //TransportFactor = std::min(TransportFactor, ssdischarge*_dt);
+                    TransportFactor = _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
                     // use discharge because standing water has no erosion
 
                     //NB ChannelWidth and ChannelWidth the same woith rect channel
@@ -184,7 +166,7 @@ void TWorld::ChannelFlowDetachmentNew()
             ChannelDep->Drc += deposition;
             ChannelDetFlow->Drc += detachment;
             ChannelTC->Drc = ChannelSSTC->Drc;
-            ChannelSed->Drc = SS;
+            //ChannelSed->Drc = SS;
             //total transport capacity (bed load + suspended load), used for output
 
             // if (SwitchUseMaterialDepth)
@@ -193,7 +175,7 @@ void TWorld::ChannelFlowDetachmentNew()
             //### do bedload
             if (SwitchUse2Phase) {
 
-                if(BLDepth < MIN_HEIGHT) {
+                if(ChannelBLDepth->Drc < MIN_HEIGHT) {
                     ChannelDep->Drc += -BL;
                     ChannelBLTC->Drc = 0;
                     ChannelBLConc->Drc = 0;
@@ -203,12 +185,12 @@ void TWorld::ChannelFlowDetachmentNew()
                   if (ChannelY->Drc > 0){
                     //there is BL
 
-                    maxTC = std::max(BLTC - BLC,0.0);
-                    minTC = std::min(BLTC - BLC,0.0);
+                    maxTC = std::max(ChannelBLTC->Drc - ChannelBLConc->Drc,0.0);
+                    minTC = std::min(ChannelBLTC->Drc - ChannelBLConc->Drc,0.0);
 
                     if (maxTC > 0 && ChannelY->Drc > 0) {
                         //### detachment
-                        TransportFactor = _dt*TSettlingVelocityBL * ChannelDX->Drc * ChannelWidth->Drc;
+                        TransportFactor = _dt*SettlingVelocityBL->Drc * ChannelDX->Drc * ChannelWidth->Drc;
                         //TransportFactor = std::min(TransportFactor, bldischarge*_dt);
                         // units s * m/s * m * m = m3
                         detachment = maxTC * std::min(TransportFactor, maxTC*sswatervol);
@@ -223,8 +205,8 @@ void TWorld::ChannelFlowDetachmentNew()
 
                     } else {
                         //### deposition
-                        if (BLDepth > MIN_HEIGHT)
-                            TransportFactor = (1-exp(-_dt*TSettlingVelocityBL/BLDepth)) * blwatervol;
+                        if (ChannelBLDepth->Drc > MIN_HEIGHT)
+                            TransportFactor = (1-exp(-_dt*SettlingVelocityBL->Drc/ChannelBLDepth->Drc)) * blwatervol;
                         else
                             TransportFactor =  1.0 * blwatervol;
 
@@ -238,7 +220,7 @@ void TWorld::ChannelFlowDetachmentNew()
                         BL += detachment;
                         BL += deposition;
                         ChannelBLSed->Drc = BL;
-                        ChannelSed->Drc += BL;
+                        //ChannelSed->Drc += BL;
                         ChannelDep->Drc += deposition;
                         ChannelDetFlow->Drc += detachment;
                         ChannelTC->Drc += ChannelBLTC->Drc;
@@ -268,23 +250,10 @@ void TWorld::ChannelFlowDetachmentNew()
  */
 void TWorld::RiverSedimentMaxC(int r, int c)
 {
-    cTMap * _BL = ChannelBLSed;
-    cTMap * _BLC = ChannelBLConc;
-    cTMap * _SS = ChannelSSSed;
-    cTMap * _SSC = ChannelSSConc;
-
-    double frac = ChannelSSDepth->Drc/ChannelWH->Drc;
-    //maximum concentration
-    // if(!SwitchUseGrainSizeDistribution)
-    // {
-    //     _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc*frac, _SS->Drc);
-    //     if (SwitchUse2Phase)
-    //         _BLC->Drc = MaxConcentration(ChannelWaterVol->Drc*(1-frac), _BL->Drc);
-    // }
-
-    ChannelSed->Drc = (SwitchUse2Phase ? _BL->Drc : 0) + _SS->Drc;
+    //ChannelSed->Drc = (SwitchUse2Phase ? ChannelBLSed->Drc : 0) + ChannelSSSed->Drc;
+    double sed = (SwitchUse2Phase ? ChannelBLSed->Drc : 0) + ChannelSSSed->Drc;
     //total concentration
-    ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, ChannelSed->Drc);
+    ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, sed);//ChannelSed->Drc);
 }
 
 //---------------------------------------------------------------------------

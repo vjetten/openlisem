@@ -56,35 +56,35 @@ void TWorld::cell_depositInfil(int r, int c)
     if (!SwitchErosion)
         return;
 
-    if(SwitchKinematic2D == K2D_METHOD_DYN) {
-        if(WH->Drc < 1e-6) {
-            DepFlood->Drc -= SSFlood->Drc;
-            SSFlood->Drc = 0;
-            SSCFlood->Drc = 0;
-            SSTCFlood->Drc = 0;
-            if (SwitchUse2Phase) {
-                DepFlood->Drc -= BLFlood->Drc;
-                BLFlood->Drc = 0;
-                BLCFlood->Drc = 0;
-                BLTCFlood->Drc = 0;
-            }
-            Conc->Drc = 0; // after dynwave conc is sum of SS and BL!
-        }
-    } else {
-        if (FloodDomain->Drc > 0) {
-            if(hmx->Drc < 1e-6) {
-                DepFlood->Drc -= SSFlood->Drc;
-                SSFlood->Drc = 0;
-                SSCFlood->Drc = 0;
-            }
-        } else {
-            if(WH->Drc < 1e-6) {
-                DEP->Drc -= Sed->Drc;
-                Sed->Drc = 0;
-                Conc->Drc = 0;
-            }
-        }
-    }
+    // if(SwitchKinematic2D == K2D_METHOD_DYN) {
+    //     if(WH->Drc < 1e-6) {
+    //         DepFlood->Drc -= SSFlood->Drc;
+    //         SSFlood->Drc = 0;
+    //         SSCFlood->Drc = 0;
+    //         SSTCFlood->Drc = 0;
+    //         if (SwitchUse2Phase) {
+    //             DepFlood->Drc -= BLFlood->Drc;
+    //             BLFlood->Drc = 0;
+    //             BLCFlood->Drc = 0;
+    //             BLTCFlood->Drc = 0;
+    //         }
+    //         Conc->Drc = 0; // after dynwave conc is sum of SS and BL!
+    //     }
+    // } else {
+    //     if (FloodDomain->Drc > 0) {
+    //         if(hmx->Drc < 1e-6) {
+    //             DepFlood->Drc -= SSFlood->Drc;
+    //             SSFlood->Drc = 0;
+    //             SSCFlood->Drc = 0;
+    //         }
+    //     } else {
+    //         if(WH->Drc < 1e-6) {
+    //             DEP->Drc -= Sed->Drc;
+    //             Sed->Drc = 0;
+    //             Conc->Drc = 0;
+    //         }
+    //     }
+    // }
 }
 //---------------------------------------------------------------------------
 /**
@@ -376,7 +376,7 @@ void TWorld::cell_FlowDetachment(int r, int c)
             TransportFactor = _dt*SettlingVelocitySS->Drc * DX->Drc * ChannelAdj->Drc;
             // in m3
             // deposition can occur on roads and on soil (so use flowwidth)
-            deposition = minTC * TransportFactor;
+            deposition = TurbulenceFactor*minTC * TransportFactor;
             // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
 
             deposition = std::max(deposition, -Sed->Drc);

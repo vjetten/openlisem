@@ -911,9 +911,9 @@ void TWorld::InitChannel(void)
     ChannelQb = NewMap(0); //baseflow
     ChannelQn = NewMap(0);
     ChannelQntot = NewMap(0);
-    ChannelSed = NewMap(0);
+   // ChannelSed = NewMap(0);
     ChannelQs = NewMap(0);
-    ChannelQsn = NewMap(0);
+    ChannelQsn = NewMap(0); // sum of SS flux andf BL flux
     ChannelQsr = NewMap(0);
     ChannelV = NewMap(0);//
     ChannelU = NewMap(0);//
@@ -1167,6 +1167,8 @@ void TWorld::InitChannel(void)
         COHCHCalibration = getvaluedouble("Cohesion Channel calibration");
         //UcrCHCalibration = getvaluedouble("Ucr Channel calibration");
         DirectEfficiency = getvaluedouble("Direct efficiency channel");
+
+        TurbulenceFactor = getvaluedouble("Turbulence factor channel");
 
         FOR_ROW_COL_MV_CHL {
             if (ChannelCohesion->Drc > 0)
@@ -1478,7 +1480,7 @@ void TWorld::InitErosion(void)
     FS_SigmaDiffusion = getvaluedouble("Sigma diffusion");
     R_SigmaDiffusion = getvaluedouble("Sigma diffusion"); // same diffusion for river and OF
 
-    SVCHCalibration = 1.0;
+    SVCHCalibration = 1;
     //SVCHCalibration = getvaluedouble("SV calibration");
 
 

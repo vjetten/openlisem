@@ -161,10 +161,13 @@ void TWorld::ToChannel()
             if (SwitchErosion)
             {
                 double dsed = fractiontochannel*Sed->Drc;
+                double maxsed = MAXCONC * ChannelWaterVol->Drc;
+                if (ChannelSSSed->Drc  + dsed > maxsed)
+                    dsed = maxsed - ChannelSSSed->Drc;
+
                 ChannelSSSed->Drc  += dsed;
                 //sediment diverted to the channel
                 Sed->Drc -= dsed;
-
                 Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
                 // adjust sediment in suspension
                 RiverSedimentLayerDepth(r,c);
@@ -351,5 +354,13 @@ void TWorld::OverlandFlow1D(void)
         } else {
             KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
         }
+        FOR_ROW_COL_MV_L {
+            if (Sed->Drc > MAXCONC * WaterVolall->Drc) {
+                double ss = Sed->Drc;
+                Sed->Drc = MAXCONC * WaterVolall->Drc;
+                double ds = ss - Sed->Drc;
+                DEP->Drc -= ds;
+            }
+        }}
     }
 }

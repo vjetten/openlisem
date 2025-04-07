@@ -50,9 +50,9 @@ void TWorld::ChannelFlowandErosion()
 
     ChannelVelocityandDischarge();  // maaings V Q Aplha
 
-    ChannelFlow();                  // channel kin wave for water
-
     ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
+
+    ChannelFlow();                  // channel kin wave for water
 
     ChannelSedimentFlow();          // kin wave for sediment and substances
 
@@ -326,7 +326,7 @@ void TWorld::ChannelSedimentFlow()
         KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
         if(SwitchUse2Phase) {
             KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
-        }
+        }                
     }
 
     if (SwitchIncludeRiverDiffusion) {
@@ -337,6 +337,14 @@ void TWorld::ChannelSedimentFlow()
     // recalc all totals fluxes and conc
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
+        if (ChannelSSSed->Drc > MAXCONC * ChannelWaterVol->Drc) {
+            double ss = ChannelSSSed->Drc;
+            ChannelSSSed->Drc = MAXCONC * ChannelWaterVol->Drc;
+            double ds = ss - ChannelSSSed->Drc;
+            ChannelDep->Drc -= ds;
+        }
+
+
         RiverSedimentLayerDepth(r,c);
         RiverSedimentMaxC(r,c);
         ChannelQsn->Drc = ChannelQSSsn->Drc + (SwitchUse2Phase ? ChannelQBLsn->Drc : 0);

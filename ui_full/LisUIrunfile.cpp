@@ -280,6 +280,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Detachment efficiency")==0)          E_EfficiencyDET->setCurrentIndex(iii-1);
         if (p1.compare("Detachment efficiency channel")==0)  E_EfficiencyDETCH->setCurrentIndex(iii-1);
         if (p1.compare("Direct efficiency channel")==0)      E_EfficiencyDirect->setValue(valc);         // user defined detachment efficiency
+        if (p1.compare("Turbulence factor channel")==0)      E_TurbulenceFactor->setValue(valc);         // user defined detachment efficiency
         if (p1.compare("Settling Velocity")==0)              E_settlingVelocity->setCurrentIndex(iii-1);
         if (p1.compare("Splash Delivery Ratio")==0)          E_SplashDelibery->setValue(valc);
         if (p1.compare("Splash equation")==0)                E_splashEquation->setValue(iii);
@@ -906,6 +907,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Detachment efficiency")==0)          namelist[j].value = QString::number(E_EfficiencyDET->currentIndex()+1);
         if (p1.compare("Detachment efficiency channel")==0)  namelist[j].value = QString::number(E_EfficiencyDETCH->currentIndex()+1);
         if (p1.compare("Direct efficiency channel")==0)      namelist[j].value = E_EfficiencyDirect->text();
+        if (p1.compare("Turbulence factor channel")==0)      namelist[j].value = E_TurbulenceFactor->text();
         if (p1.compare("Settling Velocity")==0)              namelist[j].value = QString::number(E_settlingVelocity->currentIndex()+1);
         if (p1.compare("Include diffusion")==0)              namelist[j].value.setNum((int)checkDiffusion->isChecked());
         if (p1.compare("Sigma diffusion")==0)                namelist[j].value = E_SigmaDiffusion->text();

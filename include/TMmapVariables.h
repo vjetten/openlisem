@@ -312,7 +312,7 @@ cTMap
 *ChannelInfM3,                //!<
 *ChannelDetFlow,             //!<
 *ChannelDep,                 //!<
-*ChannelSed,                 //!<
+//*ChannelSed,                 //!<
 *ChannelBLSed,                 //!<
 *ChannelSSSed,                 //!<
 *ChannelBLTC,                 //!<

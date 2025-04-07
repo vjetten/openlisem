@@ -5,6 +5,8 @@ see Readme.txt for a complete list
 
 250403 - v7.4.6 beta R7
 - BUG FIX: Field capacity and residual moisture were not properly calculated, causing errors in percolation, sometimes causing a stop in inifltration
+- Output to points now homoginized for water and sediment
+- Turbulence factor to limit deposition in channels (experimental)
 
 250327 - v7.4.6 beta R3-R6
 - BUG FIX: MUSCL not activated
