@@ -99,9 +99,9 @@ void TWorld::cell_depositInfil(int r, int c)
  */
 double TWorld::MaxConcentration(double watvol, double sedvol)
 {
-    double conc = 0;
-    if (watvol > 1e-6) {
-        conc = std::min(sedvol/watvol, MAXCONC);   // 1e-6 is 1 ml/m2 !!
+    double conc = 0;//MAXCONC;//0;
+    if (watvol > 1e-12) {
+        conc = std::min(sedvol/watvol, MAXCONC);
     }
     return conc;
 }
@@ -1070,7 +1070,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
         double om =  U*S;
         double omcr = 0.004;
         tc =  d50m/SettlingVelocitySS->Drc* 0.013/GRAV * 1.650 * std::max(0.0, om - omcr)/h ;
-        //    m/ (m/s)* m/s /m  dimensionless?
+        //    m/ (m/s)* kg* m/s /m  dimensionless?
 
     } else
         if(method == FSGOVERS)
@@ -1224,7 +1224,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                     tc = ps * qs/ (U * h);
 */
                 }
-    return std::max(std::min(tc,MAXCONC ),0.0);
+    return tc;//std::max(std::min(tc,MAXCONC ),0.0);
 }
 //--------------------------------------------------------------------------
 /**

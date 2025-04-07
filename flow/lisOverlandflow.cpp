@@ -164,7 +164,7 @@ void TWorld::ToChannel()
                 double maxsed = MAXCONC * ChannelWaterVol->Drc;
                 if (ChannelSSSed->Drc  + dsed > maxsed)
                     dsed = maxsed - ChannelSSSed->Drc;
-
+                if (dsed > 0) {
                 ChannelSSSed->Drc  += dsed;
                 //sediment diverted to the channel
                 Sed->Drc -= dsed;
@@ -172,6 +172,7 @@ void TWorld::ToChannel()
                 // adjust sediment in suspension
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r,c);
+                }
             }
         }
     }

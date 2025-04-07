@@ -57,7 +57,7 @@
 #define PI 3.14159265
 
 #define HMIN 1e-6
-#define DO_SEDDEP 0
+#define DO_SEDDEP 1
 #define GRAV 9.8067
 
 #define he_ca 1e-12

@@ -63,8 +63,8 @@ void TWorld::ChannelFlowDetachmentNew()
 {
     if (!SwitchErosion)
         return;
-//        report(*ChannelCohesion,"chcoh.map");
-    #pragma omp parallel for num_threads(userCores)
+
+    //   #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
 
         RiverSedimentLayerDepth(r,c);
@@ -136,11 +136,9 @@ void TWorld::ChannelFlowDetachmentNew()
                 //  detachment
                 if(maxTC > 0 && ChannelCohesion->Drc >= 0) {
                     TransportFactor = _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
-                    // use discharge because standing water has no erosion
 
                     //NB ChannelWidth and ChannelWidth the same woith rect channel
                     detachment = maxTC * std::min(TransportFactor, sswatervol);
-                    // cannot have more detachment than remaining capacity in flow
 
                     detachment *= ChannelY->Drc;
 
@@ -174,15 +172,15 @@ void TWorld::ChannelFlowDetachmentNew()
 
             //### do bedload
             if (SwitchUse2Phase) {
-
                 if(ChannelBLDepth->Drc < MIN_HEIGHT) {
-                    ChannelDep->Drc += -BL;
-                    ChannelBLTC->Drc = 0;
-                    ChannelBLConc->Drc = 0;
-                    ChannelBLSed->Drc = 0;
-
+                    if(DO_SEDDEP == 1) {
+                        ChannelDep->Drc += -BL;
+                        ChannelBLTC->Drc = 0;
+                        ChannelBLConc->Drc = 0;
+                        ChannelBLSed->Drc = 0;
+                    }
                 } else
-                  if (ChannelY->Drc > 0){
+                  if (ChannelCohesion->Drc > 0){
                     //there is BL
 
                     maxTC = std::max(ChannelBLTC->Drc - ChannelBLConc->Drc,0.0);
@@ -196,7 +194,7 @@ void TWorld::ChannelFlowDetachmentNew()
                         detachment = maxTC * std::min(TransportFactor, maxTC*sswatervol);
                         // unit = kg/m3 * m3 = kg
 
-                        detachment = ChannelY->Drc;//DetachMaterial(r,c,1,true,false,true, detachment);
+                        detachment *= ChannelY->Drc;//DetachMaterial(r,c,1,true,false,true, detachment);
                         // mult by Y and mixingdepth
                         // IN KG/CELL
 
@@ -205,10 +203,10 @@ void TWorld::ChannelFlowDetachmentNew()
 
                     } else {
                         //### deposition
-                        if (ChannelBLDepth->Drc > MIN_HEIGHT)
+                        //if (ChannelBLDepth->Drc > MIN_HEIGHT)
                             TransportFactor = (1-exp(-_dt*SettlingVelocityBL->Drc/ChannelBLDepth->Drc)) * blwatervol;
-                        else
-                            TransportFactor =  1.0 * blwatervol;
+                        // else
+                        //     TransportFactor =  1.0 * blwatervol;
 
                         // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
                         deposition = std::max(minTC * TransportFactor, -BL);
