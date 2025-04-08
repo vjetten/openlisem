@@ -240,8 +240,9 @@ void TWorld::ChannelFlow(void)
             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
             // new channel WH, use adjusted channelWidth
             double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
-            ChannelAlpha->Drc = Area > 1e-6 ? ChannelQn->Drc/std::pow(Area, 0.6) : 0.0;
-            ChannelV->Drc = std::min(_CHMaxV, (Area > 1e-6 ? ChannelQn->Drc/Area : 0.0));
+            ChannelV->Drc = std::min(_CHMaxV, (Area > 1e-12 ? ChannelQn->Drc/Area : 0.0));
+            //  ChannelAlpha->Drc = Area > 1e-6 ? ChannelQn->Drc/std::pow(Area, 0.6) : 0.0;
+              // DO NOT recalculate alpha becuase of erosion
 
             if (SwitchGridRetention) {
                 double dvol = std::max(0.0,GridRetention->Drc - GridRetentionAct->Drc);
@@ -262,12 +263,9 @@ void TWorld::ChannelFlow(void)
                         ChannelWH->Drc = CHWH;
                         ChannelV->Drc = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
                         ChannelQn->Drc = ChannelV->Drc * Area;
-                       //ChannelAlpha->Drc = ChannelQ->Drc/std::pow(Area, 0.6);
-                        ChannelAlpha->Drc = pow(N/sqrtgrad * pow(Perim, 2.0/3.0),0.6);  // no difference
                     }
                 }
             }
-
 
             // get the maximum for output
             maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);

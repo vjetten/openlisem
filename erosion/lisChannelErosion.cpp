@@ -127,7 +127,6 @@ void TWorld::ChannelFlowDetachmentNew()
 
                // TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/ChannelWH->Drc)) * sswatervol;
                 TransportFactor =  _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
-                //TransportFactor = std::min(TransportFactor, ssdischarge * _dt);
 
                 deposition = std::max(TransportFactor * minTC,-SS); // in kg
                 // not more than SS present
@@ -137,10 +136,7 @@ void TWorld::ChannelFlowDetachmentNew()
                 if(maxTC > 0 && ChannelCohesion->Drc >= 0) {
                     TransportFactor = _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
 
-                    //NB ChannelWidth and ChannelWidth the same woith rect channel
-                    detachment = maxTC * std::min(TransportFactor, sswatervol);
-
-                    detachment *= ChannelY->Drc;
+                    detachment = ChannelY->Drc * maxTC * TransportFactor; //std::min(TransportFactor, sswatervol);
 
                     if (SwitchCulverts && ChannelMaxQ->Drc > 0)
                         detachment = 0;
@@ -150,7 +146,7 @@ void TWorld::ChannelFlowDetachmentNew()
                     // multiply by Y
 
                     if(SS + detachment > MAXCONC * sswatervol)
-                        detachment = MAXCONC * sswatervol - SS;
+                       detachment = stdf::max(0.0,MAXCONC * sswatervol - SS);
 
                 } else {
                     detachment = 0;
@@ -189,8 +185,7 @@ void TWorld::ChannelFlowDetachmentNew()
                     if (maxTC > 0 && ChannelY->Drc > 0) {
                         //### detachment
                         TransportFactor = _dt*SettlingVelocityBL->Drc * ChannelDX->Drc * ChannelWidth->Drc;
-                        //TransportFactor = std::min(TransportFactor, bldischarge*_dt);
-                        // units s * m/s * m * m = m3
+                           // units s * m/s * m * m = m3
                         detachment = maxTC * std::min(TransportFactor, maxTC*sswatervol);
                         // unit = kg/m3 * m3 = kg
 
@@ -204,17 +199,11 @@ void TWorld::ChannelFlowDetachmentNew()
                     } else {
                         //### deposition
                         //if (ChannelBLDepth->Drc > MIN_HEIGHT)
-                            TransportFactor = (1-exp(-_dt*SettlingVelocityBL->Drc/ChannelBLDepth->Drc)) * blwatervol;
-                        // else
-                        //     TransportFactor =  1.0 * blwatervol;
+                        TransportFactor = (1-exp(-_dt*SettlingVelocityBL->Drc/ChannelBLDepth->Drc)) * blwatervol;
 
                         // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
                         deposition = std::max(minTC * TransportFactor, -BL);
                         // cannot have more depo than sediment present
-
-                        // if (SwitchUseMaterialDepth)
-                        //     RStorageDep->Drc += -deposition;
-
                         BL += detachment;
                         BL += deposition;
                         ChannelBLSed->Drc = BL;

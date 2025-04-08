@@ -62,6 +62,7 @@ void TWorld::OverlandFlow(void)
             FOR_ROW_COL_MV_L  {
                 cell_FlowDetachment(r, c);
                 // kine wave based flow detachment
+                //cell_FlowDetachmentContinuous(r,c);
             }}
         }
 

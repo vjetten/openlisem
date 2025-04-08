@@ -49,44 +49,6 @@ functions: \n
 #include "model.h"
 
 //---------------------------------------------------------------------------
-// deposit all sediment still in flow when infiltration causes WH to become minimum
-// DOES NOT WORK, MB errors
-void TWorld::cell_depositInfil(int r, int c)
-{
-    if (!SwitchErosion)
-        return;
-
-    // if(SwitchKinematic2D == K2D_METHOD_DYN) {
-    //     if(WH->Drc < 1e-6) {
-    //         DepFlood->Drc -= SSFlood->Drc;
-    //         SSFlood->Drc = 0;
-    //         SSCFlood->Drc = 0;
-    //         SSTCFlood->Drc = 0;
-    //         if (SwitchUse2Phase) {
-    //             DepFlood->Drc -= BLFlood->Drc;
-    //             BLFlood->Drc = 0;
-    //             BLCFlood->Drc = 0;
-    //             BLTCFlood->Drc = 0;
-    //         }
-    //         Conc->Drc = 0; // after dynwave conc is sum of SS and BL!
-    //     }
-    // } else {
-    //     if (FloodDomain->Drc > 0) {
-    //         if(hmx->Drc < 1e-6) {
-    //             DepFlood->Drc -= SSFlood->Drc;
-    //             SSFlood->Drc = 0;
-    //             SSCFlood->Drc = 0;
-    //         }
-    //     } else {
-    //         if(WH->Drc < 1e-6) {
-    //             DEP->Drc -= Sed->Drc;
-    //             Sed->Drc = 0;
-    //             Conc->Drc = 0;
-    //         }
-    //     }
-    // }
-}
-//---------------------------------------------------------------------------
 /**
  * @fn double TWorld::MaxConcentration(double watvol, double sedvol)
  * @brief Calculates concentration with a maximum of MAXCONC, changes sed vol and deposisition
@@ -476,6 +438,118 @@ void TWorld::cell_FlowDetachment(int r, int c)
     }
 
 }
+
+void TWorld::cell_FlowDetachmentContinuous(int r, int c)
+{
+    double erosionwh = WHrunoff->Drc;
+    double erosionwv = WHrunoff->Drc*CHAdjDX->Drc;
+
+    //transport capacity
+    DETFlow->Drc = 0;
+    DEP->Drc = 0;
+    TC->Drc = calcTCSuspended(r,c,-1, FS_SS_Method, WHrunoff->Drc, FlowWidth->Drc, V->Drc, 2);
+    // trasnport capacity. 2 = kin wave. 1 = 2d flow and 0 is river
+
+    if (erosionwh < HMIN) {
+        if(DO_SEDDEP == 1) {
+            DEP->Drc += -Sed->Drc;
+            Sed->Drc = 0;
+            Conc->Drc = 0;
+            TC->Drc = 0;
+        }
+    } else {
+        double deposition = 0;
+        double detachment = 0;
+
+        //### deposition ###
+        deposition = _dt*std::min(1.0, SettlingVelocitySS->Drc/WH->Drc) * -Sed->Drc;
+        // fraction of sediment always depostits
+        deposition = std::max(deposition, -Sed->Drc);
+
+        //if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
+        //   deposition = 0;
+        // prevent any activity on the boundary!
+
+        if (SwitchSedtrap && SedMaxVolume->Drc == 0 && N->Drc == SedTrapN) {
+            N->Drc = Norg->Drc;
+        }
+        // mannings N becomes normal when sedtrap is full
+
+        if (SwitchSedtrap && SedMaxVolume->Drc > 0) {
+            if (Sed->Drc > 0) {
+                double depvol = Sed->Drc/BulkDens; // m3
+                if (SedMaxVolume->Drc < depvol)
+                    depvol = SedMaxVolume->Drc;
+                if (SedMaxVolume->Drc > 0){
+                    deposition = -depvol*BulkDens;
+                }
+                SedMaxVolume->Drc = SedMaxVolume->Drc - depvol;
+                SedimentFilter->Drc += depvol*BulkDens;
+            }
+        }
+
+        if(SwitchGridRetention) {
+            if (Sed->Drc > 0) {
+                double depvol = Sed->Drc/BulkDens; // sed in m3
+                if (GridRetention->Drc < depvol)
+                    depvol = GridRetention->Drc;
+                if (GridRetention->Drc > 0){
+                    deposition = -depvol*BulkDens;  // deposition is all that goes into trench
+
+                }
+                GridRetention->Drc = GridRetention->Drc - depvol;
+            }
+        }
+
+        //### detachment ###
+        if (CohesionSoil->Drc > 0) {
+            double sed = std::max(0.0, Sed->Drc + deposition);
+            double conc = MaxConcentration(WaterVolall->Drc, sed);
+            detachment = Y->Drc * std::max(0.0, TC->Drc - conc) * _dt*SettlingVelocitySS->Drc * DX->Drc * SoilWidthDX->Drc;
+            // unit = kg/m3 * m3 = kg (/cell)
+
+            if (GrassFraction->Drc > 0)
+                detachment = (1-GrassFraction->Drc) * detachment;
+            // no flow detachment on grass strips
+
+            // Detachment edxceptions:
+            detachment = (1-StoneFraction->Drc) * detachment;
+            // no flow detachment on stony surfaces
+
+            if (SwitchHouses)
+                detachment = (1-HouseCover->Drc)*detachment;
+            // no flow det from house roofs
+
+            if (SwitchSnowmelt)
+                detachment = (1-Snowcover->Drc) * detachment;
+
+            detachment *= std::min(1.0, std::max(0.0, 1.0 - (RoadWidthHSDX->Drc/_dx)));
+            // no flow detachment on hard surfaces, map is 0 is not selected
+
+            if (SwitchSedtrap && SedMaxVolume->Drc > 0)
+                detachment = 0;
+
+            if (SwitchGridRetention && GridRetention->Drc > 0)
+                detachment = 0;
+
+            if(Sed->Drc+detachment > MAXCONC * erosionwv)
+                detachment = MAXCONC * erosionwv - Sed->Drc;
+            // not more detachment then is possible to keep below diff(max concetrantion-sediment inf low)
+        }
+
+        //### sediment balance
+        // add to sediment in flow (IN KG/CELL)
+        Sed->Drc += detachment;
+        Sed->Drc += deposition;
+        Sed->Drc = std::max(0.0, Sed->Drc);
+        DETFlow->Drc += detachment;
+        DEP->Drc += deposition;
+        Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
+
+    }
+
+}
+
 //---------------------------------------------------------------------------
 // NOT USED FOR NOW
 /**
@@ -1223,7 +1297,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                     tc = ps * qs/ (U * h);
 */
                 }
-    return tc;//std::max(std::min(tc,MAXCONC ),0.0);
+    return std::max(std::min(tc,MAXCONC ),0.0);
 }
 //--------------------------------------------------------------------------
 /**

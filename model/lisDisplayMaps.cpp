@@ -426,8 +426,8 @@ void TWorld::GetComboMaps()
         if (SwitchSedtrap)
             AddComboMap(1,"Sed trap","kg/m3",SedMaxVolume,LegendMap[cl],Legend[cl],false,false,1.0, step);
 
-        double factor_g = 1000/(_dx*_dx);
-        QString unit_g = "g/m2";
+        double factor_g = 1/(_dx*_dx);
+        QString unit_g = "kg/m2";
         AddComboMap(1,"Suspended sed.",unit_g,COMBO_SS,LegendMap[cl],Legend[cl],false,false,factor_g, step);
 
         AddComboMap(1,"TC suspended","kg/m3",COMBO_TC,LegendMap[cl],Legend[cl],false,false,1.0, step);

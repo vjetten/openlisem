@@ -3,6 +3,9 @@ Latest fixes and changes:
 
 see Readme.txt for a complete list
 
+250408 - v7.4.6 beta R8
+- BUG FIX: fixed error in kinematic wave sediment transport
+
 250403 - v7.4.6 beta R7
 - BUG FIX: Field capacity and residual moisture were not properly calculated, causing errors in percolation, sometimes causing a stop in inifltration
 - Output to points now homoginized for water and sediment
