@@ -155,7 +155,7 @@ void lisemqt::DefaultMapnames()
 
     DEFmaps.append("0;Storm drains/Tile drains");
     DEFmaps.append("2;LDD;lddtile.map;LDD of tile drain system (must be one system connected to the outlet);lddtile");
-    //DEFmaps.append("2;Sink;tileinlet.map;Sink holes connecting surface to tile drain system (size in m2);tilesink");
+    DEFmaps.append("2;Opening;tileinlet.map;size of openings connecting surface to tile drain system (in m2);tilesink");
     DEFmaps.append("2;Diameter;tilediameter.map;Tile drain pipe diameter (m);tilediameter");
     DEFmaps.append("2;Width;tilewidth.map;Tile drain pipe width, total in cell if more than one drain (m);tilewidth");
     DEFmaps.append("2;Height;tileheight.map;Tile drain pipe height (m);tileheight");
@@ -479,6 +479,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include storm drains");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Storm drain shape");
+    namelist[i].value = QString("20");
+    namelist[i++].name = QString("Drain inlet distance");
 
     //### EROSION
     namelist[i++].name = QString("");

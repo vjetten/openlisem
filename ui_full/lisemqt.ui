@@ -76,7 +76,7 @@
      <enum>QTabWidget::TabPosition::North</enum>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_input">
      <attribute name="title">
@@ -2397,7 +2397,7 @@
                 <enum>QTabWidget::TabShape::Rounded</enum>
                </property>
                <property name="currentIndex">
-                <number>0</number>
+                <number>6</number>
                </property>
                <property name="iconSize">
                 <size>
@@ -6920,89 +6920,7 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="3" column="0">
-                     <layout class="QHBoxLayout" name="horizontalLayout_10">
-                      <item>
-                       <widget class="QLabel" name="label_147">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>true</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string> - </string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QCheckBox" name="checkStormDrains">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Include subsurface storm drains:   </string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QRadioButton" name="checkStormDrainCirc">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Pipe</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QRadioButton" name="checkStormDrainRect">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Rectangular</string>
-                        </property>
-                        <property name="checked">
-                         <bool>false</bool>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                    <item row="4" column="0">
+                    <item row="7" column="0">
                      <widget class="QCheckBox" name="checkHardsurface">
                       <property name="enabled">
                        <bool>true</bool>
@@ -7024,6 +6942,107 @@
                       <property name="text">
                        <string>Include other hard surfaces (runways, parkinglots etc.)</string>
                       </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="0">
+                     <widget class="QFrame" name="tilebox">
+                      <layout class="QGridLayout" name="gridLayout_22">
+                       <property name="bottomMargin">
+                        <number>4</number>
+                       </property>
+                       <item row="0" column="3">
+                        <widget class="QRadioButton" name="checkStormDrainCirc">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="font">
+                          <font>
+                           <pointsize>8</pointsize>
+                           <bold>false</bold>
+                           <underline>false</underline>
+                           <kerning>true</kerning>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>Pipe</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="4">
+                        <widget class="QRadioButton" name="checkStormDrainRect">
+                         <property name="enabled">
+                          <bool>true</bool>
+                         </property>
+                         <property name="font">
+                          <font>
+                           <pointsize>8</pointsize>
+                           <bold>false</bold>
+                           <underline>false</underline>
+                           <kerning>true</kerning>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>Rectangular</string>
+                         </property>
+                         <property name="checked">
+                          <bool>false</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="2">
+                        <widget class="QCheckBox" name="checkStormDrains">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="font">
+                          <font>
+                           <pointsize>8</pointsize>
+                           <bold>false</bold>
+                           <underline>false</underline>
+                           <kerning>true</kerning>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string>Include subsurface storm drains:   </string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="1">
+                        <widget class="QLabel" name="label_147">
+                         <property name="font">
+                          <font>
+                           <pointsize>8</pointsize>
+                           <bold>true</bold>
+                           <underline>false</underline>
+                           <kerning>true</kerning>
+                          </font>
+                         </property>
+                         <property name="text">
+                          <string> - </string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="1" colspan="2">
+                        <widget class="QLabel" name="label_166">
+                         <property name="text">
+                          <string> -  Distance between street inlets (m): </string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="3">
+                        <widget class="QSpinBox" name="E_TileInletDistance">
+                         <property name="value">
+                          <number>20</number>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
                      </widget>
                     </item>
                    </layout>
@@ -15203,7 +15222,7 @@ p, li { white-space: pre-wrap; }
      <y>245</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1730</x>
+     <x>1668</x>
      <y>246</y>
     </hint>
    </hints>
@@ -15296,11 +15315,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>198</x>
-     <y>938</y>
+     <y>1100</y>
     </hint>
     <hint type="destinationlabel">
-     <x>379</x>
-     <y>985</y>
+     <x>448</x>
+     <y>1177</y>
     </hint>
    </hints>
   </connection>
@@ -15360,11 +15379,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>369</x>
-     <y>681</y>
+     <y>669</y>
     </hint>
     <hint type="destinationlabel">
      <x>485</x>
-     <y>682</y>
+     <y>670</y>
     </hint>
    </hints>
   </connection>
@@ -15807,12 +15826,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>438</x>
-     <y>736</y>
+     <x>518</x>
+     <y>724</y>
     </hint>
     <hint type="destinationlabel">
      <x>289</x>
-     <y>766</y>
+     <y>754</y>
     </hint>
    </hints>
   </connection>
@@ -15823,44 +15842,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>565</x>
-     <y>736</y>
+     <x>645</x>
+     <y>724</y>
     </hint>
     <hint type="destinationlabel">
      <x>436</x>
-     <y>766</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkStormDrains</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>checkStormDrainCirc</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>372</x>
-     <y>527</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>433</x>
-     <y>527</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkStormDrains</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>checkStormDrainRect</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>357</x>
-     <y>513</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>538</x>
-     <y>527</y>
+     <y>754</y>
     </hint>
    </hints>
   </connection>
@@ -15893,22 +15880,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>394</x>
      <y>403</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkRoadsystem</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>checkStormDrains</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>267</x>
-     <y>490</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>307</x>
-     <y>527</y>
     </hint>
    </hints>
   </connection>
@@ -15989,6 +15960,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>448</x>
      <y>720</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkRoadsystem</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>tilebox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>216</x>
+     <y>466</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>374</x>
+     <y>481</y>
     </hint>
    </hints>
   </connection>

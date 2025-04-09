@@ -2243,6 +2243,9 @@ void TWorld::InitTiledrains(void)
         TileWaterVol = NewMap(0);
         RunoffVolinToTile = NewMap(0);
         TileQ = NewMap(0);
+        TileQ1 = NewMap(0);
+        //TileA = NewMap(0);
+        TileA1 = NewMap(0);
         TileMaxQ = NewMap(0);
         TileQn = NewMap(0);
         Tileq = NewMap(0);
@@ -2271,17 +2274,18 @@ void TWorld::InitTiledrains(void)
         }
         crlinkedlddtile_= MakeLinkedList(LDDTile);
 
+        TileDrainDistance = getvaluedouble("Drain inlet distance");
 
         TileArea = NewMap(0);
         TileDiameter = NewMap(0);
-        //TileInlet = ReadMap(LDDTile, getvaluename("tilesink"));
+        TileInlet = ReadMap(LDDTile, getvaluename("tilesink"));
         TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
         checkMap(*LDDTile, *TileGrad, LARGER, 1.0, "Tile drain gradient must be SINE of slope angle (not tangent)");
         calcValue(*TileGrad, 0.001, MAX);
         TileN = ReadMap(LDDTile, getvaluename("tileman"));
         cover(*TileGrad, *LDD, 0);
         cover(*TileN, *LDD, 0);
-        //cover(*TileInlet, *LDD, 0);
+        cover(*TileInlet, *LDD, 0);
         TileWaterVolSoil = NewMap(0);
         TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
         TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
@@ -2292,10 +2296,6 @@ void TWorld::InitTiledrains(void)
         cover(*TileDiameter, *LDD, 0);
         cover(*TileWidth, *LDD, 0);
         cover(*TileHeight, *LDD, 0);
-
-        // FOR_ROW_COL_MV_TILE {
-        //     TileInlet->Drc = std::min(TileInlet->Drc, 0.9*_dx*_dx);
-        // }
 
         if (SwitchIncludeTile) {
             TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));

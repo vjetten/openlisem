@@ -335,7 +335,7 @@ void TWorld::OverlandFlow1D(void)
         WH->Drc = WHrunoff->Drc + WHstore->Drc;
         // add new average waterlevel (A/dx) to stored water
 
-        hmxWH->Drc = WH->Drc + hmx->Drc;//???? hmx here? why not
+        hmxWH->Drc = WH->Drc + hmx->Drc;
         //needed for totals and output
 
         WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;

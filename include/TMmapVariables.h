@@ -389,8 +389,10 @@ cTMap
 *TileWidth,                  //!< total width of drains in cell (m)
 *TileHeight,                 //!< height of drain (m)
 *TileDepth,                  //!< depth of tiles in soil below surface (m)
-//*TileInlet,               //!< sinkhole on surface connecting to tiledrains (m2)
+*TileInlet,               //!< sinkhole on surface connecting to tiledrains (m2)
 *TileQ,                      //!< water flux in drains m3/s
+*TileQin,
+*TileAin,
 *TileMaxQ,                      //!< water flux in drains m3/s
 *TileQn,                     //!< new water flux in drains m3/s
 //*TileQs,                     //!< sediment flux in drains kg/s

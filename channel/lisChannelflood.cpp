@@ -339,11 +339,8 @@ void TWorld::ToFlood()
 {
     #pragma omp parallel for  num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (hmx->Drc > HMIN && WHrunoff->Drc > HMIN) // && (WHrunoff->Drc > hmx->Drc))
-        {
-            double frac = 1.0;//1-exp(-2.0*hmx->Drc/(WHrunoff->Drc+HMIN));
-
-           // frac = std::max(std::min(frac, 1.0),0.0);
+        if (hmx->Drc > HMIN && WHrunoff->Drc > HMIN) {
+            double frac = 1.0;
             double dwh = frac * WHrunoff->Drc;
 
             hmx->Drc += dwh;

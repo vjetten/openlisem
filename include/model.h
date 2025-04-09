@@ -631,6 +631,7 @@ public:
     double DirectEfficiency;
     double CanopyOpeness;
     double TurbulenceFactor;
+    double TileDrainDistance;
 
     //sed transport equations
     int FS_SS_Method;
@@ -955,7 +956,6 @@ public:
     void OverlandFlow2D();
     void ToChannel();//int r, int c);
     void ToFlood();
-    void ToTiledrain();
     void ToTiledrainAll();
     // <= OF
 

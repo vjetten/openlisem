@@ -147,10 +147,11 @@ SET(APP_SOURCES
     model/lisModel.cpp
     model/lisDataInit.cpp
     model/lisDataFunctions.cpp
-
+    flow/lisKinematicSWMM.cpp
     flow/lisSWOF2Daux.cpp
     flow/lisSWOF2DopenMUSCL.cpp
     flow/lisTiledrainflow.cpp
+    flow/lisRouting.cpp
     erosion/lisChannelErosion.cpp
     erosion/lisSWOF2DSediment.cpp
     erosion/lisErosion.cpp

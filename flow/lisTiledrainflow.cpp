@@ -50,18 +50,11 @@ void TWorld::ToTiledrainAll()
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_TILEL {
-            //double fractiontotile = std::max(1.0, 2*0.09/CHAdjDX->Drc) * RoadWidthDX->Drc/_dx;
-            //or:
-            double fractiontotile  = std::min(1.0, _dt*V->Drc/(2*0.03/CHAdjDX->Drc)) * RoadWidthDX->Drc/_dx;
-            // 10x30cm = 0.03 m2, 2 is both sides of the street
-            //Street inlet is assumed to be a hole in the street
-            // fraction based on surface, simpel! or as velocity?
+            double fractiontotile  = 2.0 * TileInlet->Drc/RoadWidthDX->Drc * _dx/TileDrainDistance;
+            // evry cell has subtraction of water, base don the every hole fraction in the street
+            // if a road is divided over more cells, this probably overewstimates the entrance
 
-            double MaxVol;
-            if (SwitchStormDrainCircular)
-                MaxVol = DX->Drc*PI*TileDiameter->Drc*TileDiameter->Drc*0.25; //(pi r^2)
-            else
-                MaxVol = DX->Drc*TileWidth->Drc*TileHeight->Drc;
+            double MaxVol = DX->Drc*TileArea->Drc; //(pi r^2 or heightxwidth, done in datainit
 
             if (TileWaterVol->Drc >= MaxVol)
                 fractiontotile = 0;
@@ -70,54 +63,28 @@ void TWorld::ToTiledrainAll()
                 double dh = vol/CHAdjDX->Drc;
                 RunoffVolinToTile->Drc = vol;
                 // adjust water height
-                WHrunoff->Drc -= dh;
-                WH->Drc -= dh;
                 WaterVolall->Drc -= vol;
-            }
-        }}
-    }
-}
-//---------------------------------------------------------------------------
-// NOT USED, tileinlet not used
-//fraction of water and sediment flowing from the surface to the tiledrain system
-void TWorld::ToTiledrain()
-{
-    /*
-    if (SwitchIncludeStormDrains)  //SwitchIncludeTile ||
-    {
-        Fill(*RunoffVolinToTile,0);
-
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_TILEL {
-            //if(TileInlet->Drc > 0) {// &&
-            if (WHrunoff->Drc > 1e-6) {
-                double fractiontotile = 2 * std::max(1.0, std::min(0.0,TileInlet->Drc/CHAdjDX->Drc)) * RoadWidthDX->Drc/_dx;
-                // 2 is both sides of the street
-                // fraction based on surface, simpel!
-                //Street inlet is assumed to be a hole in the street
-
-                double MaxVol;
-                if (SwitchStormDrainCircular)
-                    MaxVol = DX->Drc*PI*TileDiameter->Drc*TileDiameter->Drc*0.25; //(pi r^2)
-                else
-                    MaxVol = DX->Drc*TileWidth->Drc*TileHeight->Drc;
-
-                if (TileWaterVol->Drc >= MaxVol)
-                    fractiontotile = 0;
-                else {
-                    double vol = fractiontotile*WaterVolall->Drc;//std::max(0.0,(WaterVolall->Drc-MicroStoreVol->Drc));
-                    //  vol = std::min(vol, MaxVol - TileWaterVol->Drc);
-                    double dh = vol/CHAdjDX->Drc;
-                    RunoffVolinToTile->Drc = vol;
-                    // adjust water height
-                    WHrunoff->Drc -= dh;
-                    WH->Drc -= dh;
-                    WaterVolall->Drc -= vol;
+                if (FloodDomain->Drc == 0) {
+                    if (WaterVolall->Drc < MicroStoreVol->Drc) {
+                        WHrunoff->Drc = 0;
+                        WHstore->Drc = dh;
+                        WH->Drc = dh;
+                    } else {
+                        WHrunoff->Drc -= dh;
+                        WH->Drc = dh + WHstore->Drc;
+                    }
+                } else {
+                    if (WaterVolall->Drc < MicroStoreVol->Drc) {
+                        hmx->Drc = 0;
+                        WHstore->Drc = dh;
+                    } else {
+                        hmx->Drc -= dh;
+                    }
                 }
+                hmxWH->Drc = WH->Drc + hmx->Drc;
             }
         }}
     }
-    */
 }
 //---------------------------------------------------------------------------
 // V, alpha and Q in the Tile
@@ -247,11 +214,11 @@ void TWorld::TileFlow(void)
 
    Fill(*QinKW, 0.0);
    // flag all new flux as missing value, needed in kin wave and replaced by new flux
-   FOR_ROW_COL_MV_TILE {
-      if (LDDTile->Drc == 5)
-            Kinematic(r,c, LDDTile, TileQ, TileQn, TileAlpha, DX, TileMaxQ, TileMaxAlpha);
-   }
-//   KinematicExplicit(crlinkedlddtile_, TileQ, TileQn, TileAlpha, DX, TileMaxQ, TileMaxAlpha);
+   // FOR_ROW_COL_MV_TILE {
+   //    if (LDDTile->Drc == 5)
+   //          Kinematic(r,c, LDDTile, TileQ, TileQn, TileAlpha, DX, TileMaxQ, TileMaxAlpha);
+   // }
+   KinematicExplicit(crlinkedlddtile_, TileQ, TileQn, TileAlpha, DX, TileMaxQ, TileMaxAlpha);
 
    cover(*TileQn, *LDD, 0); // avoid missing values around Tile for adding to Qn for output
 
