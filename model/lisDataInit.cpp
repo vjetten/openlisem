@@ -2243,9 +2243,8 @@ void TWorld::InitTiledrains(void)
         TileWaterVol = NewMap(0);
         RunoffVolinToTile = NewMap(0);
         TileQ = NewMap(0);
-        TileQ1 = NewMap(0);
-        //TileA = NewMap(0);
-        TileA1 = NewMap(0);
+        TileQin = NewMap(0);
+        TileAin = NewMap(0);
         TileMaxQ = NewMap(0);
         TileQn = NewMap(0);
         Tileq = NewMap(0);
@@ -2260,7 +2259,6 @@ void TWorld::InitTiledrains(void)
             if (LDDTile->Drc == 0)
                 SET_MV_REAL8(&LDDTile->Drc);
         }
-
 
         nrValidCellsTile = 0;
         FOR_ROW_COL_MV_TILE {

@@ -23,7 +23,7 @@
 *************************************************************************/
 
 #include "model.h"
-
+/*
 
 cTMap *TWorld::GetAvgIn(QVector <LDD_COORIN>_crlinked_ , cTMap *V)
 {
@@ -60,20 +60,38 @@ void TWorld::GetBoundary()
         double Afull = TileArea->Drc;
         double Qfull = std::pow(TileArea->Drc/TileDiameter,5.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
         double dxdt = _dx/_dt * Afull / Qfull;
-        double dq   = TileQ->Drc - TileQ1;
+        double dq   = 0;//TileQ->Drc - TileQ->Drc;
         double WT = 0.6;
         double WX = 0.6;
-        C1   = dxdt * WT / WX;  // WT = 0.6; WX = 0.6
-        C2   = (1.0 - WT) * (TileA1->Drc - TileA);
+        double C1   = dxdt * WT / WX;  // WT = 0.6; WX = 0.6
+        doublke C2   = (1.0 - WT) * (TileAin->Drc - TileA);
         C2   = C2 - WT * TileA;
         C2   = C2 * dxdt / WX;
-        C2   = C2 + (1.0 - WX) / WX * dq - qin;
-        C2   = C2 + q3 / WX;
+        C2   = C2 + (1.0 - WX) / WX * dq - TileQin->Drc;
+        C2   = C2;// + q3 / WX; // no external
+
+        aout = a2;
+
+        // --- solve continuity equation for aout
+        result = solveContinuity(qin, ain, &aout);
+
+        // --- report error if continuity eqn. not solved
+        if ( result == -1 )
+        {
+            report_writeErrorMsg(ERR_KINWAVE, Link[j].ID);
+            return 1;
+        }
+        if ( result <= 0 ) result = 1;
+
+        // --- compute normalized outlet flow from outlet area
+        qout = Beta1 * xsect_getSofA(pXsect, aout*Afull);
+        if ( qin > 1.0 ) qin = 1.0;
+
     }}
 
 }
 
-/*
+
 
 int kinwave_execute(int j, double* qinflow, double* qoutflow, double tStep)
 //
