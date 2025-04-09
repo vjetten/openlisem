@@ -146,7 +146,7 @@ void TWorld::ChannelFlowDetachmentNew()
                     // multiply by Y
 
                     if(SS + detachment > MAXCONC * sswatervol)
-                       detachment = stdf::max(0.0,MAXCONC * sswatervol - SS);
+                       detachment = std::max(0.0,MAXCONC * sswatervol - SS);
 
                 } else {
                     detachment = 0;

@@ -10,3 +10,9 @@
 <p>Apply<strong> Organic Matter</strong> correction and <strong>Density Factor</strong> correction based on pedotransfer functions of Saxton and Rawls (2006). This is a way to include an affect of landuse that miomics a change in organic matter and soil structure. Ksat and Porosity are increased by an increase in OM or a lower relative bulk density. A <em>decrease</em> in OM and an <em>increase</em> in relative density (more compact) will <em>decrease</em> Ksat and Porosity. The default values are OM=3.5% and BD=1350 kg/m<sup>3</sup>. The OM correction is a direct percentage (between -2.0 and +2.0% organic matter) and Desnity Factor is a value between 0.9 (loose soil) and 1.2 (heavily compacted soil). Needs input maps OMcorr.map and densfact.map with these ranges of values).</p>
 <p><strong>Compacted areas</strong><br />Cells which have a fraction of compacted area (compfrac.map) use the value in the maps ksatcomp.map (mm/h) and porosity porecomp.map (-) to affect infiltration in the top layer.</p>
 <p><strong>Crusts</strong><br />Cells which have a fraction of crusted area (crustfrac.map) use the value in the map ksatcrust.map (mm/h) and crust porosity porecrust.map (-) to affect infiltration in the top layers.</p>
+<h3>SWATRE options</h3>
+<li>Tile drain system: water is removed from the soil layer and routed in the tile LDD with a kinematic wave (uses tile maps)</li>
+<li>Save h and theta for all layers (map extention is the layer number)</li>
+<li>Replace the input inithead maps with the matrix potential given for all layers, all cells (negative value)</li>
+<li>Internal timestep for SWATRE, use ~1/5 of the LISEM timestep or less.</li>
+<li>Folder name and map name of the SWATRE tables and profile definition file (profile.inp).</li>
