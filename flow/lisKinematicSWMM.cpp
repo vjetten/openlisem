@@ -51,10 +51,17 @@
 void TWorld::PipeFlowSWMM()
 {
 
+    // walk down the network!!!
+
+    Fill(*tma, 0);
+    Fill(*tmb, 0);
+    upstream(crlinkedlddtile_, TileQ, TileQin);
+    upstream(crlinkedlddtile_, TileA, TileAin);
+    downstream(crlinkedlddtile_, TileA, tma);
+    downstream(crlinkedlddtile_, TileQ, tmb);
+
     #pragma omp parallel num_threads(userCores)
-    FOR_ROW_COL_MV_TILEL {
-        upstream(crlinkedlddtile_, TileQ, TileQin);
-        upstream(crlinkedlddtile_, TileA, TileAin);
+    FOR_ROW_COL_MV_TILEL {    
         double Afull = TileArea->Drc;
         double Qfull = std::pow(TileArea->Drc/TileDiameter,5.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;        
         double dxdt = _dx/_dt * Afull / Qfull;
@@ -68,9 +75,9 @@ void TWorld::PipeFlowSWMM()
         double WX = 0.6;
         double WT = 0.6;
 
-        // --- normalize previous flows
-        q1 = std::min(TileQin->Drc/Qfull) / Qfull;
-        q2 = TileQ->Drc / Qfull;
+        // --- normalize previous flows, averrage with downstream for now
+        q1 = TileQ->Drc / Qfull;
+        q2 = ((TileQ->Drc + tmb->Drc)*0.5)/ Qfull;
 
         // --- normalize inflow
         //qin = (*qinflow) / Qfull;
@@ -79,20 +86,18 @@ void TWorld::PipeFlowSWMM()
         // --- compute evaporation and infiltration loss rate
         q3 = 0;//link_getLossRate(j, KW, qin*Qfull, tStep) / Qfull;
 
-        // --- normalize previous areas
-        a1 = std::min(Afull, TileAin->Drc) / Afull;
-        a2 = (TileA->Drc) / Afull;
+        // --- normalize previous areas, averrage with downstream
+        q1 = TileA->Drc / Afull;
+        q2 = ((TileA->Drc + tma->Drc)*0.5)/ Afull;
 
         // --- use full area when inlet flow >= full flow
         if ( qin >= 1.0 ) ain = 1.0;
-
         // --- get normalized inlet area corresponding to inlet flow
         else
             ain = (qin/Beta1) / Afull;
 
         // --- check for no flow
-        if ( qin <= 1e-12 && q2 <= 1e-12 )
-        {
+        if ( qin <= 1e-12 && q2 <= 1e-12 ) {
             qout = 0.0;
             aout = 0.0;
         }
@@ -110,6 +115,21 @@ void TWorld::PipeFlowSWMM()
 
         // --- solve continuity equation for aout
         result = solveContinuity(r, c, C1, C2, Beta1, TileQin, TileAin, &aout);
+
+        // --- report error if continuity eqn. not solved
+        if ( result == -1 )
+        {
+            //report_writeErrorMsg(ERR_KINWAVE, Link[j].ID);
+            Error("Kinwave SWMM error solvecontinuity");
+            return 1;
+        }
+        if ( result <= 0 )
+            result = 1;
+
+        // --- compute normalized outlet flow from outlet area
+        qout = Beta1 * aout*Afull;
+        if ( qin > 1.0 )
+            qin = 1.0;
     }}
 
 }
@@ -183,6 +203,9 @@ int TWorld::solveContinuity(int r, int c, double C1, double C2, double Beta1, do
 
         // --- check if root finder succeeded
         if ( n <= 0 ) n = -1;
+
+
+
     }
 
     // --- if lower/upper bound functions both negative then use full flow

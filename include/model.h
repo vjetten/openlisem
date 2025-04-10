@@ -1065,7 +1065,8 @@ public:
     double IterateToQnew(double Qin, double Qold, double alpha, double deltaT, double deltaX, double Qm, double Am);
     double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol, double sed);
     double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,double Sji1, double alpha, double dx);
-    void upstream(QVector <LDD_COORIN>_crlinked_, cTMap *_M, cTMap *out);
+    void upstream(QVector <LDD_COORIN>_crlinked_, cTMap *_Q, cTMap *_Qn);
+    void downstream(QVector <LDD_COORIN>_crlinked_, cTMap *_Q, cTMap *_Qn);
     void upstreamMax(QVector <LDD_COORIN>_crlinked_, cTMap *MaxQ, cTMap *Q, cTMap *_Qn);
     void UpstreamAVG(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
     void AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);
