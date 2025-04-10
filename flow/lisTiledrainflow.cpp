@@ -98,7 +98,7 @@ void TWorld::CalcVelDischRectangular()
         double gradN = sqrt(TileGrad->Drc)/TileN->Drc;
         Area = TileWaterVol->Drc/DX->Drc;
         Perim = TileWidth->Drc + Area/TileWidth->Drc; //(=w+2*h)
-
+        TileA->Drc = Area;
         TileV_ = powl(Area/Perim,_23) * gradN;
         TileMaxQ->Drc = Area*TileV_;
         TileAlpha->Drc  = Area/std::pow(TileQ->Drc, 0.6);
@@ -134,6 +134,7 @@ void TWorld::CalcVelDischCircular()
       double Perim, K, theta;
 
       double Area = TileWaterVol->Drc / DX->Drc;
+      TileA->Drc = Area;
 
       theta = PI;
       double fx, Fx;

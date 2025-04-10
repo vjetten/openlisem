@@ -959,6 +959,13 @@ public:
     void ToTiledrainAll();
     // <= OF
 
+    //SWMM pipe flow
+    void PipeFlowSWMM();
+    //double findroot_Ridder(double x1, double x2, double xacc,double (*func)(double, void* p), void* p);
+    int findroot_Newton(double x1, double x2, double* rts, double xacc,void (*func)(double x, double* f, double* df, void* p), void* p);
+    void evalContinuity(double a, double* f, double* df, void* p);
+    int solveContinuity(int r, int c,double C1, double C2, double Beta1, double qin, double ain, double* aout);
+
     // => 1D flow on network
     void FindStationaryBaseFlow();
     void ChannelFlow();
@@ -1058,10 +1065,10 @@ public:
     double IterateToQnew(double Qin, double Qold, double alpha, double deltaT, double deltaX, double Qm, double Am);
     double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol, double sed);
     double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,double Sji1, double alpha, double dx);
-    void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
-    void upstreamDrain(cTMap *_LDD, cTMap *MaxQ, cTMap *in, cTMap *out);
+    void upstream(QVector <LDD_COORIN>_crlinked_, cTMap *_M, cTMap *out);
+    void upstreamMax(QVector <LDD_COORIN>_crlinked_, cTMap *MaxQ, cTMap *Q, cTMap *_Qn);
+    void UpstreamAVG(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
     void AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);
-    void UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
     QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
     double itercount;
     // <= kinematic

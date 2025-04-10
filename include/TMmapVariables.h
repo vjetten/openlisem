@@ -391,6 +391,7 @@ cTMap
 *TileDepth,                  //!< depth of tiles in soil below surface (m)
 *TileInlet,               //!< sinkhole on surface connecting to tiledrains (m2)
 *TileQ,                      //!< water flux in drains m3/s
+*TileA,                      //!< water flux in drains m3/s
 *TileQin,
 *TileAin,
 *TileMaxQ,                      //!< water flux in drains m3/s

@@ -163,74 +163,7 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
  *
  * @see LDD
  */
-void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
-{
-    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-
-    FOR_ROW_COL_MV
-    {
-        double tot = 0;
-        for (int i=1; i<=9; i++)
-        {
-            // this is the current cell
-            if (i==5)
-                continue;
-
-            // look around in 8 directions
-            int row = r+dy[i];
-            int col = c+dx[i];
-            int ldd = 0;
-
-            if (INSIDE(row, col) && !pcr::isMV(_LDD->data[row][col]))
-                ldd = (int) _LDD->data[row][col];
-            else
-                continue;
-
-            if (FLOWS_TO(ldd, row,col,r,c)) {
-                tot += _M->data[row][col];
-            }
-        }
-        out->Drc = tot;
-    }
-
-}
-//---------------------------------------------------------------------------
-void TWorld::upstreamDrain(cTMap *_LDD, cTMap *MaxQ, cTMap *in, cTMap *out)
-{
-    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-
-    FOR_ROW_COL_MV
-    {
-        double tot = 0;
-        for (int i=1; i<=9; i++)
-        {
-            // this is the current cell
-            if (i==5)
-                continue;
-
-            // look around in 8 directions
-            int row = r+dy[i];
-            int col = c+dx[i];
-            int ldd = 0;
-
-            if (INSIDE(row, col) && !pcr::isMV(_LDD->data[row][col]))
-                ldd = (int) _LDD->data[row][col];
-            else
-                continue;
-
-            if (FLOWS_TO(ldd, row,col,r,c)) {
-                tot += in->data[row][col];
-            }
-        }
-        tot = std::min(MaxQ->Drc, tot);
-        out->Drc = tot;
-    }
-
-}
-//---------------------------------------------------------------------------
-void TWorld::UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn)
+void TWorld::upstream(QVector <LDD_COORIN>_crlinked_, cTMap *_M, cTMap *out)
 {
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -250,9 +183,58 @@ void TWorld::UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn)
                 int cr = _crlinked_[i_].inn[j].c;
                 Qin += _Q->Drcr;
             }
-            Qin /= _crlinked_[i_].nr;
         }
-        _Qn->Drc = Qin;
+    _Qn->Drc = Qin;
+    }
+}
+//---------------------------------------------------------------------------
+void TWorld::upstreamMax(QVector <LDD_COORIN>_crlinked_, cTMap *MaxQ, cTMap *Q, cTMap *_Qn)
+{
+    #pragma omp parallel num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        _Qn->Drc = 0;
+    }}
+
+    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
+    {
+        int r = _crlinked_[i_].r;
+        int c = _crlinked_[i_].c;
+        double Qin = 0;
+
+        // get inflow
+        if (_crlinked_[i_].nr > 0) {
+            for(int j = 0; j < _crlinked_[i_].nr; j++) {
+                int rr = _crlinked_[i_].inn[j].r;
+                int cr = _crlinked_[i_].inn[j].c;
+                Qin += _Q->Drcr;
+            }
+        }
+        _Qn->Drc = _std::min(_MaxQ->Drc, Qin);
+    }
+}
+//---------------------------------------------------------------------------
+void TWorld::UpstreamAvg(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn)
+{
+    #pragma omp parallel num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        _Qn->Drc = 0;
+    }}
+
+    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
+    {
+        int r = _crlinked_[i_].r;
+        int c = _crlinked_[i_].c;
+        double Qin = 0;
+
+        // get inflow
+        if (_crlinked_[i_].nr > 0) {
+            for(int j = 0; j < _crlinked_[i_].nr; j++) {
+                int rr = _crlinked_[i_].inn[j].r;
+                int cr = _crlinked_[i_].inn[j].c;
+                Qin += _Q->Drcr;
+            }
+        }
+        _Qn->Drc = Qin/ _crlinked_[i_].nr;
     }
 }
 //---------------------------------------------------------------------------
