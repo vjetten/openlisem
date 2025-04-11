@@ -65,40 +65,6 @@
     double a1, a2, q1, q2;
 }  DRAIN_PROP;
 
-void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax, cTMap *_Amax)
-{
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        _Qn->Drc = 0;
-        QinKW->Drc = 0;
-    }}
-
- //  #pragma omp parallel for ordered num_threads(userCores)
- // parallel doesn't work here because you have to calculate accoring to the order of cells from top to bottom, to determine the inflow
-    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
-    {
-        int r = _crlinked_.at(i_).r;
-        int c = _crlinked_.at(i_).c;
-        double Qin = 0;
-
-        if (_crlinked_.at(i_).nr > 0) {
-            for(int j = 0; j < _crlinked_.at(i_).nr; j++) {
-                int rr = _crlinked_.at(i_).inn[j].r;
-                int cr = _crlinked_.at(i_).inn[j].c;
-                //Qin += _Q->Drcr;
-                Qin += _Qn->Drcr;
-            }
-        }
-        QinKW->Drc = Qin;
-
-        if (Qin > 0 || _Q->Drc > 0) {
-            itercount = 0;
-               _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
-           // tmb->Drc = itercount;
-        }
-    }
-}
-
 */
 
 void TWorld::PipeFlowSWMM()
@@ -108,7 +74,7 @@ void TWorld::PipeFlowSWMM()
 
     downstream(crlinkedlddtile_, TileA, tma);
     downstream(crlinkedlddtile_, TileQ, tmb);
-
+    Fill(*Qn,0);
     DRAIN_PROP *drain = new DRAIN_PROP;
 
     for(long i_ =  0; i_ < crlinkedlddtile_.size(); i_++)
@@ -126,6 +92,12 @@ void TWorld::PipeFlowSWMM()
         }
         TileQin->Drc = Qin;
 
+        if (Qin < 1e-12 && TileQ->Drc < 1e-12) {
+            TileQn->Drc = 0;
+            TileWaterVol->Drc = 0;
+            return;
+        }
+
         drain->Afull = TileArea->Drc;
         drain->Qfull = std::pow(TileArea->Drc/TileDiameter->Drc,5.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
         drain->Beta1 = 0.6 / drain->Qfull;
@@ -136,8 +108,8 @@ void TWorld::PipeFlowSWMM()
         double WX = 0.6;
 
         // --- normalize previous flows, averrage with downstream for now
-        drain->q1 = TileQn->Drc / drain->Qfull;
-        drain->q2 = ((TileQn->Drc + tmb->Drc)*0.5)/ drain->Qfull;
+        drain->q1 = TileQ->Drc / drain->Qfull;
+        drain->q2 = ((TileQ->Drc + tmb->Drc)*0.5)/ drain->Qfull;
 
         // --- normalize inflow
         drain->qin = std::min(drain->Qfull, TileQin->Drc)/drain->Qfull;
@@ -147,8 +119,8 @@ void TWorld::PipeFlowSWMM()
        // double q3 = 0;//link_getLossRate(j, KW, qin*Qfull, tStep) / Qfull;
 
         // --- normalize previous areas, averrage with downstream
-        drain->q1 = TileA->Drc / drain->Afull;
-        drain->q2 = ((TileA->Drc + tma->Drc)*0.5)/ drain->Afull;
+        drain->a1 = TileA->Drc / drain->Afull;
+        drain->a2 = ((TileA->Drc + tma->Drc)*0.5)/ drain->Afull;
 
         // --- use full area when inlet flow >= full flow
         if ( drain->qin >= 1.0 ) drain->ain = 1.0;
@@ -158,41 +130,41 @@ void TWorld::PipeFlowSWMM()
         // beta1 depends on shape
 
         // --- check for no flow
-        if ( drain->qin <= 1e-12 && drain->q2 <= 1e-12 ) {
+        if ( drain->qin < 1e-12 && drain->q2 < 1e-12 ) {
             drain->qout = 0.0;
             drain->aout = 0.0;
+        } else {
+
+            dq   = drain->q2 - drain->q1;
+            drain->C1   = drain->dxdt * WT / WX;
+            drain->C2   = (1.0 - WT) * (drain->ain - drain->a1);
+            drain->C2   = drain->C2 - WT * drain->a2;
+            drain->C2   = drain->C2 * drain->dxdt / WX;
+            drain->C2   = drain->C2 + (1.0 - WX) / WX * dq - drain->qin;
+            //drain->C2   = C2 + q3 / WX;
+
+            // --- starting guess for aout is value from previous time step
+            drain->aout = drain->a2;
+
+            // --- solve continuity equation for aout
+            result = solveContinuity(drain);
+
+            // --- report error if continuity eqn. not solved
+            if ( result == -1 )
+            {
+                //report_writeErrorMsg(ERR_KINWAVE, Link[j].ID);
+                Error("Kinwave SWMM error solvecontinuity");
+                //return;
+            }
+            if ( result <= 0 )
+                result = 1;
+
+            // --- compute normalized outlet flow from outlet area
+            drain->qout = drain->Beta1 * drain->aout*drain->Afull;
+            // if ( drain->qin > 1.0 )
+            //     drain->qin = 1.0;
+            //for the next in line!!!
         }
-
-        dq   = drain->q2 - drain->q1;
-        drain->C1   = drain->dxdt * WT / WX;
-        drain->C2   = (1.0 - WT) * (drain->ain - drain->a1);
-        drain->C2   = drain->C2 - WT * drain->a2;
-        drain->C2   = drain->C2 * drain->dxdt / WX;
-        drain->C2   = drain->C2 + (1.0 - WX) / WX * dq - drain->qin;
-        //drain->C2   = C2 + q3 / WX;
-
-        // --- starting guess for aout is value from previous time step
-        drain->aout = drain->a2;
-
-        // --- solve continuity equation for aout
-        result = solveContinuity(drain);
-
-        // --- report error if continuity eqn. not solved
-        if ( result == -1 )
-        {
-            //report_writeErrorMsg(ERR_KINWAVE, Link[j].ID);
-            Error("Kinwave SWMM error solvecontinuity");
-            //return;
-        }
-        if ( result <= 0 )
-            result = 1;
-
-        // --- compute normalized outlet flow from outlet area
-        drain->qout = drain->Beta1 * drain->aout*drain->Afull;
-        // if ( drain->qin > 1.0 )
-        //     drain->qin = 1.0;
-        //for the next in line!!!
-
         TileQn->Drc = drain->qout;
         TileWaterVol->Drc = drain->aout * DX->Drc;
     }

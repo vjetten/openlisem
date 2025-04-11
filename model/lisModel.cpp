@@ -286,9 +286,9 @@ void TWorld::DoModel()
             // these are all non-threaded
             ChannelFlowandErosion();    // do ordered LDD solutions channel, tiles, drains, non threaded
 
-            TileFlow();          // tile drain flow kin wave
+            //TileFlow();          // tile drain flow kin wave
                                  // storm drain flow kin wave
-            //StormDrainFlow();
+            TileFlowSWMM();
 
             TotalsHydro();       // calculate all totals and cumulative values
             TotalsFlow();

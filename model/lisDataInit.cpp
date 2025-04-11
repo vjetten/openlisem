@@ -2278,14 +2278,14 @@ void TWorld::InitTiledrains(void)
 
         TileArea = NewMap(0);
         TileDiameter = NewMap(0);
-        TileInlet = ReadMap(LDDTile, getvaluename("tilesink"));
+     //   TileInlet = ReadMap(LDDTile, getvaluename("tilesink"));
         TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
         checkMap(*LDDTile, *TileGrad, LARGER, 1.0, "Tile drain gradient must be SINE of slope angle (not tangent)");
         calcValue(*TileGrad, 0.001, MAX);
         TileN = ReadMap(LDDTile, getvaluename("tileman"));
         cover(*TileGrad, *LDD, 0);
         cover(*TileN, *LDD, 0);
-        cover(*TileInlet, *LDD, 0);
+      //  cover(*TileInlet, *LDD, 0);
         TileWaterVolSoil = NewMap(0);
         TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
         TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));

@@ -991,13 +991,17 @@ public:
     void ChannelFlood(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V);
     void ChannelOverflowIteration(cTMap *_h, cTMap *_V);
+
+    // tiles/stormdrains
     void TileFlow(void);
+    void TileFlowSWMM(void);
     void CalcVelDischRectangular(void);
     void CalcMAXDischRectangular(void);
     void CalcVelDischCircular(void);
     void CalcMAXDischCircular(void);
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
+
     // <= 1D flow
 
     // => 2D flow according to FULLSWOF2D

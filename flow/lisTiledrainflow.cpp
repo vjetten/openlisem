@@ -27,16 +27,13 @@
   \brief calculate tile drain system flow as a kinematic wave, no sediment functions
 
 functions: \n
-- void TWorld::ToTiledrain(void) \n
-- void TWorld::CalcVelDischTile() \n
-- void TWorld::TileFlow(void)\n
+
  */
 
 #include <algorithm>
 #include "model.h"
 #include "operation.h"
 
-//TODO convert flow to linked list
 
 //---------------------------------------------------------------------------
 // flow in all road cells to tiledrain
@@ -50,8 +47,9 @@ void TWorld::ToTiledrainAll()
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_TILEL {
-            double fractiontotile  = 2.0 * TileInlet->Drc/RoadWidthDX->Drc * _dx/TileDrainDistance;
-            // evry cell has subtraction of water, base don the every hole fraction in the street
+        //    double fractiontotile  = 2.0 * TileInlet->Drc/RoadWidthDX->Drc * _dx/TileDrainDistance;
+          double fractiontotile  = 2.0 * 0.09/RoadWidthDX->Drc * _dx/TileDrainDistance;
+                   // evry cell has subtraction of water, base don the every hole fraction in the street
             // if a road is divided over more cells, this probably overewstimates the entrance
 
             double MaxVol = DX->Drc*TileArea->Drc; //(pi r^2 or heightxwidth, done in datainit
@@ -211,9 +209,9 @@ void TWorld::TileFlow(void)
    else
       CalcVelDischRectangular();
 
-   TileQn->setAllMV();
+  // TileQn->setAllMV();
 
-   Fill(*QinKW, 0.0);
+  // Fill(*QinKW, 0.0);
    // flag all new flux as missing value, needed in kin wave and replaced by new flux
    // FOR_ROW_COL_MV_TILE {
    //    if (LDDTile->Drc == 5)
@@ -233,5 +231,50 @@ void TWorld::TileFlow(void)
         TileWaterVol->Drc = std::min(TileWaterVol->Drc, TileArea->Drc * DX->Drc);
         TileQ->Drc = TileQn->Drc;
    }}
+
+}
+
+void TWorld::TileFlowSWMM(void)
+{
+  if (!SwitchIncludeTile && !SwitchIncludeStormDrains)
+    return;
+
+  // get water from surface
+  if (SwitchIncludeStormDrains) {
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_TILEL {
+      TileWaterVol->Drc += RunoffVolinToTile->Drc;
+      // add water from the surface
+    }}
+  }
+
+  // get water from soil
+  if (SwitchIncludeTile) {
+  #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_TILEL {
+      TileWaterVol->Drc += TileDrainSoil->Drc * TileDiameter->Drc * DX->Drc;
+      // asume water can come from all sides!
+      // add inflow to Tile in m3, tiledrainsoil is in m per timestep
+
+      TileWaterVolSoil->Drc += TileDrainSoil->Drc * TileDiameter->Drc  * DX->Drc;
+      // soil only used for MB correction
+
+    }}
+  }
+
+  #pragma omp parallel for num_threads(userCores)
+  FOR_ROW_COL_MV_TILEL {
+
+    double gradN = sqrt(TileGrad->Drc)/TileN->Drc;
+    double Area = TileWaterVol->Drc / DX->Drc;
+    TileA->Drc = Area;
+
+    double perim = PI*TileDiameter->Drc * Area/(PI*TileDiameter->Drc*TileDiameter->Drc);
+    TileQ->Drc = std::pow(Area/perim, 5.0/3.0) * gradN;
+
+  }}
+
+
+  PipeFlowSWMM();
 
 }
