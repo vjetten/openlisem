@@ -213,11 +213,12 @@ void TWorld::downstream(QVector <LDD_COORIN>_crlinked_, cTMap *_Q, cTMap *_Qn)
             case 8: rr = r+1; cr = c  ; break;
             case 9: rr = r+1; cr = c+1; break;
         }
-        _Qn->Drc = !pcr::isMV(_Q->Drcr) ? _Q->Drc:
+        if (!pcr::isMV(_Q->Drcr))
+            _Qn->Drc = _Q->Drcr;
     }
 }
 //---------------------------------------------------------------------------
-void TWorld::upstreamMax(QVector <LDD_COORIN>_crlinked_, cTMap *MaxQ, cTMap *Q, cTMap *_Qn)
+void TWorld::upstreamMax(QVector <LDD_COORIN>_crlinked_, cTMap *_MaxQ, cTMap *_Q, cTMap *_Qn)
 {
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -238,7 +239,7 @@ void TWorld::upstreamMax(QVector <LDD_COORIN>_crlinked_, cTMap *MaxQ, cTMap *Q, 
                 Qin += _Q->Drcr;
             }
         }
-        _Qn->Drc = _std::min(_MaxQ->Drc, Qin);
+        _Qn->Drc = std::min(_MaxQ->Drc, Qin);
     }
 }
 //---------------------------------------------------------------------------

@@ -351,6 +351,22 @@ typedef struct SOIL_LIST {
     QVector <double> vg_n;
 
 } SOIL_LIST;
+//---------------------------------------------------------------------------
+typedef struct DRAIN_PROP {
+    int r;
+    int c;
+    int ldd;
+    double Afull;
+    double Qfull;
+    double Beta1;
+    double sMax;
+    double dxdt;
+    double ain, aout;
+    double qin, qout;
+    double C1, C2;
+    double a1, a2;
+    double q1, q2;
+}  DRAIN_PROP;
 
 /// \class TWorld model.h contains the model 'World': constants, variables and erosion processes
 
@@ -961,10 +977,8 @@ public:
 
     //SWMM pipe flow
     void PipeFlowSWMM();
-    //double findroot_Ridder(double x1, double x2, double xacc,double (*func)(double, void* p), void* p);
-    int findroot_Newton(double x1, double x2, double* rts, double xacc,void (*func)(double x, double* f, double* df, void* p), void* p);
-    void evalContinuity(double a, double* f, double* df, void* p);
-    int solveContinuity(int r, int c,double C1, double C2, double Beta1, double qin, double ain, double* aout);
+    int findroot_Newton(DRAIN_PROP *dr, double x1, double x2);
+    int solveContinuity(DRAIN_PROP *dr);
 
     // => 1D flow on network
     void FindStationaryBaseFlow();
@@ -1068,7 +1082,7 @@ public:
     void upstream(QVector <LDD_COORIN>_crlinked_, cTMap *_Q, cTMap *_Qn);
     void downstream(QVector <LDD_COORIN>_crlinked_, cTMap *_Q, cTMap *_Qn);
     void upstreamMax(QVector <LDD_COORIN>_crlinked_, cTMap *MaxQ, cTMap *Q, cTMap *_Qn);
-    void UpstreamAVG(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
+    void UpstreamAvg(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
     void AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);
     QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
     double itercount;

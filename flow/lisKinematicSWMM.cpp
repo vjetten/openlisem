@@ -31,6 +31,8 @@
 #define MAXIT 60
 
 
+
+// based on https://github.com/USEPA/Stormwater-Management-Model.git
 //
 //  Input:   j = link index
 //           qinflow = inflow at current time (cfs)
@@ -48,93 +50,156 @@
 //  |----> x     q1, a1 |-------------------| q2, a2
 //
 //
+
+/*
+ * typedef struct DRAIN_PROP {
+    int r;
+    int c;
+    int ldd;
+    double Afull;
+    double Qfull;
+    double Beta1;
+    double ain, aout;
+    double qin, qout;
+    double C1, C2;
+    double a1, a2, q1, q2;
+}  DRAIN_PROP;
+
+void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax, cTMap *_Amax)
+{
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        _Qn->Drc = 0;
+        QinKW->Drc = 0;
+    }}
+
+ //  #pragma omp parallel for ordered num_threads(userCores)
+ // parallel doesn't work here because you have to calculate accoring to the order of cells from top to bottom, to determine the inflow
+    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
+    {
+        int r = _crlinked_.at(i_).r;
+        int c = _crlinked_.at(i_).c;
+        double Qin = 0;
+
+        if (_crlinked_.at(i_).nr > 0) {
+            for(int j = 0; j < _crlinked_.at(i_).nr; j++) {
+                int rr = _crlinked_.at(i_).inn[j].r;
+                int cr = _crlinked_.at(i_).inn[j].c;
+                //Qin += _Q->Drcr;
+                Qin += _Qn->Drcr;
+            }
+        }
+        QinKW->Drc = Qin;
+
+        if (Qin > 0 || _Q->Drc > 0) {
+            itercount = 0;
+               _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
+           // tmb->Drc = itercount;
+        }
+    }
+}
+
+*/
+
 void TWorld::PipeFlowSWMM()
 {
 
     // walk down the network!!!
 
-    Fill(*tma, 0);
-    Fill(*tmb, 0);
-    upstream(crlinkedlddtile_, TileQ, TileQin);
-    upstream(crlinkedlddtile_, TileA, TileAin);
     downstream(crlinkedlddtile_, TileA, tma);
     downstream(crlinkedlddtile_, TileQ, tmb);
 
-    #pragma omp parallel num_threads(userCores)
-    FOR_ROW_COL_MV_TILEL {    
-        double Afull = TileArea->Drc;
-        double Qfull = std::pow(TileArea->Drc/TileDiameter,5.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;        
-        double dxdt = _dx/_dt * Afull / Qfull;
-        double Beta1 = /*Conduit[k].beta */0.6 / Qfull;
-        int    k;
+    DRAIN_PROP *drain = new DRAIN_PROP;
+
+    for(long i_ =  0; i_ < crlinkedlddtile_.size(); i_++)
+    {
+        int r = crlinkedlddtile_[i_].r;
+        int c = crlinkedlddtile_[i_].c;
+        double Qin = 0;
+        // get inflow
+        if (crlinkedlddtile_[i_].nr > 0) {
+            for(int j = 0; j < crlinkedlddtile_[i_].nr; j++) {
+                int rr = crlinkedlddtile_[i_].inn[j].r;
+                int cr = crlinkedlddtile_[i_].inn[j].c;
+                Qin += TileQn->Drcr;
+            }
+        }
+        TileQin->Drc = Qin;
+
+        drain->Afull = TileArea->Drc;
+        drain->Qfull = std::pow(TileArea->Drc/TileDiameter->Drc,5.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+        drain->Beta1 = 0.6 / drain->Qfull;
+        drain->dxdt = _dx/_dt * drain->Afull / drain->Qfull;
         int    result = 1;
         double dq;
-        double ain, aout;
-        double qin, qout;
-        double a1, a2, q1, q2, q3;
-        double WX = 0.6;
         double WT = 0.6;
+        double WX = 0.6;
 
         // --- normalize previous flows, averrage with downstream for now
-        q1 = TileQ->Drc / Qfull;
-        q2 = ((TileQ->Drc + tmb->Drc)*0.5)/ Qfull;
+        drain->q1 = TileQn->Drc / drain->Qfull;
+        drain->q2 = ((TileQn->Drc + tmb->Drc)*0.5)/ drain->Qfull;
 
         // --- normalize inflow
-        //qin = (*qinflow) / Qfull;
-        qin = TileQin->Drc/Qfull;
+        drain->qin = std::min(drain->Qfull, TileQin->Drc)/drain->Qfull;
+        // in SWMM code the inflow is maximized to the possible incflow
 
         // --- compute evaporation and infiltration loss rate
-        q3 = 0;//link_getLossRate(j, KW, qin*Qfull, tStep) / Qfull;
+       // double q3 = 0;//link_getLossRate(j, KW, qin*Qfull, tStep) / Qfull;
 
         // --- normalize previous areas, averrage with downstream
-        q1 = TileA->Drc / Afull;
-        q2 = ((TileA->Drc + tma->Drc)*0.5)/ Afull;
+        drain->q1 = TileA->Drc / drain->Afull;
+        drain->q2 = ((TileA->Drc + tma->Drc)*0.5)/ drain->Afull;
 
         // --- use full area when inlet flow >= full flow
-        if ( qin >= 1.0 ) ain = 1.0;
+        if ( drain->qin >= 1.0 ) drain->ain = 1.0;
         // --- get normalized inlet area corresponding to inlet flow
         else
-            ain = (qin/Beta1) / Afull;
+            drain->ain = (drain->qin/drain->Beta1) / drain->Afull;
+        // beta1 depends on shape
 
         // --- check for no flow
-        if ( qin <= 1e-12 && q2 <= 1e-12 ) {
-            qout = 0.0;
-            aout = 0.0;
+        if ( drain->qin <= 1e-12 && drain->q2 <= 1e-12 ) {
+            drain->qout = 0.0;
+            drain->aout = 0.0;
         }
 
-        dq   = q2 - q1;
-        C1   = dxdt * WT / WX;  // WT = 0.6; WX = 0.6
-        C2   = (1.0 - WT) * (ain - a1);
-        C2   = C2 - WT * a2;
-        C2   = C2 * dxdt / WX;
-        C2   = C2 + (1.0 - WX) / WX * dq - qin;
-        C2   = C2 + q3 / WX;
+        dq   = drain->q2 - drain->q1;
+        drain->C1   = drain->dxdt * WT / WX;
+        drain->C2   = (1.0 - WT) * (drain->ain - drain->a1);
+        drain->C2   = drain->C2 - WT * drain->a2;
+        drain->C2   = drain->C2 * drain->dxdt / WX;
+        drain->C2   = drain->C2 + (1.0 - WX) / WX * dq - drain->qin;
+        //drain->C2   = C2 + q3 / WX;
 
         // --- starting guess for aout is value from previous time step
-        aout = a2;
+        drain->aout = drain->a2;
 
         // --- solve continuity equation for aout
-        result = solveContinuity(r, c, C1, C2, Beta1, TileQin, TileAin, &aout);
+        result = solveContinuity(drain);
 
         // --- report error if continuity eqn. not solved
         if ( result == -1 )
         {
             //report_writeErrorMsg(ERR_KINWAVE, Link[j].ID);
             Error("Kinwave SWMM error solvecontinuity");
-            return 1;
+            //return;
         }
         if ( result <= 0 )
             result = 1;
 
         // --- compute normalized outlet flow from outlet area
-        qout = Beta1 * aout*Afull;
-        if ( qin > 1.0 )
-            qin = 1.0;
-    }}
+        drain->qout = drain->Beta1 * drain->aout*drain->Afull;
+        // if ( drain->qin > 1.0 )
+        //     drain->qin = 1.0;
+        //for the next in line!!!
 
+        TileQn->Drc = drain->qout;
+        TileWaterVol->Drc = drain->aout * DX->Drc;
+    }
+    delete drain;
 }
 
-int TWorld::solveContinuity(int r, int c, double C1, double C2, double Beta1, double qin, double ain, double* aout)
+int TWorld::solveContinuity(DRAIN_PROP *dr)
 //
 //  Input:   qin = upstream normalized flow
 //           ain = upstream normalized area
@@ -156,19 +221,18 @@ int TWorld::solveContinuity(int r, int c, double C1, double C2, double Beta1, do
     int    n;                          // # evaluations or error code
     double aLo, aHi, aTmp;             // lower/upper bounds on a
     double fLo, fHi;                   // lower/upper bounds on f
-    double tol = 1e-10;//EPSIL;                // absolute convergence tol.
 
     // --- first determine bounds on 'a' so that f(a) passes through 0.
 
     // --- set upper bound to area at full flow
     aHi = 1.0;
-    fHi = 1.0 + C1 + C2;
+    fHi = 1.0 + dr->C1 + dr->C2;
 
     // --- try setting lower bound to area where section factor is maximum
-    aLo = TileArea->Drc / Afull;
+    aLo = std::min(dr->a1,dr->a2)/dr->Afull;//1;//xsect_getAmax(pXsect) / Afull;
     if ( aLo < aHi )
     {
-        fLo = ( Beta1 * pXsect->sMax ) + (C1 * aLo) + C2; // Smax= m^4/3
+        fLo = ( dr->Beta1 * dr->sMax ) + (dr->C1 * aLo) + dr->C2;
     }
     else fLo = fHi;
 
@@ -178,7 +242,7 @@ int TWorld::solveContinuity(int r, int c, double C1, double C2, double Beta1, do
         aHi = aLo;
         fHi = fLo;
         aLo = 0.0;
-        fLo = C2;
+        fLo = dr->C2;
     }
 
     // --- proceed with search for root if fLo and fHi have different signs
@@ -186,7 +250,7 @@ int TWorld::solveContinuity(int r, int c, double C1, double C2, double Beta1, do
     {
         // --- start search at midpoint of lower/upper bounds
         //     if initial value outside of these bounds
-        if ( *aout < aLo || *aout > aHi ) *aout = 0.5*(aLo + aHi);
+        if ( dr->aout < aLo || dr->aout > aHi ) dr->aout = 0.5*(aLo + aHi);
 
         // --- if fLo > fHi then switch aLo and aHi
         if ( fLo > fHi )
@@ -199,49 +263,32 @@ int TWorld::solveContinuity(int r, int c, double C1, double C2, double Beta1, do
         // --- call the Newton root finder method passing it the
         //     evalContinuity function to evaluate the function
         //     and its derivatives
-        n = findroot_Newton(aLo, aHi, aout, tol, evalContinuity, nullptr);
+        n = findroot_Newton(dr, aLo, aHi); //,NULL);
 
         // --- check if root finder succeeded
         if ( n <= 0 ) n = -1;
-
-
-
     }
 
     // --- if lower/upper bound functions both negative then use full flow
     else if ( fLo < 0.0 )
     {
-        if ( qin > 1.0 ) *aout = ain;
-        else *aout = 1.0;
+        if ( dr->qin > 1.0 ) dr->aout = dr->ain;
+        else dr->aout = 1.0;
         n = -2;
     }
 
     // --- if lower/upper bound functions both positive then use no flow
     else if ( fLo > 0 )
     {
-        *aout = 0.0;
+        dr->aout = 0.0;
         n = -3;
     }
     else n = -1;
     return n;
 }
 
-void TWorld::evalContinuity(double a, double* f, double* df, void* p)
-//
-//  Input:   a = outlet normalized area
-//  Output:  f = value of continuity eqn.
-//           df = derivative of continuity eqn.
-//  Purpose: computes value of continuity equation (f) and its derivative (df)
-//           w.r.t. normalized area for link with normalized outlet area 'a'.
-//
-{
-    *f  = (Beta1 * xsect_getSofA(pXsect, a*Afull)) + (C1 * a) + C2;
-    *df = (Beta1 * Afull * xsect_getdSdA(pXsect, a*Afull)) + C1;
-}
 
-
-int TWorld::findroot_Newton(double x1, double x2, double* rts, double xacc,
-                    void (*func) (double x, double* f, double* df, void* p),void* p)
+int TWorld::findroot_Newton(DRAIN_PROP *dr, double x1, double x2)
 //
 //  Using a combination of Newton-Raphson and bisection, find the root of a
 //  function func bracketed between x1 and x2. The root, returned in rts,
@@ -264,50 +311,63 @@ int TWorld::findroot_Newton(double x1, double x2, double* rts, double xacc,
     double temp, xhi, xlo;
 
     // Initialize the "stepsize before last" and the last step.
-    x = *rts;
+    x = dr->aout;
     xlo = x1;
     xhi = x2;
     dxold = fabs(x2-x1);
     dx = dxold;
-    func(x, &f, &df, p);
+
     n++;
 
     // Loop over allowed iterations.
     for (j=1; j<=MAXIT; j++)
     {
         // Bisect if Newton out of range or not decreasing fast enough.
-        if ( ( ( (x-xhi)*df-f)*((x-xlo)*df-f) >= 0.0
-        || (fabs(2.0*f) > fabs(dxold*df) ) ) )
-        {
+        if ( ( ( (x-xhi)*df-f)*((x-xlo)*df-f) >= 0.0 || (fabs(2.0*f) > fabs(dxold*df) ) ) ) {
             dxold = dx;
             dx = 0.5*(xhi-xlo);
             x = xlo + dx;
             if ( xlo == x ) break;
-        }
-
-        // Newton step acceptable. Take it.
-        else
-        {
+        } else {
+            // Newton step acceptable. Take it.
             dxold = dx;
             dx = f/df;
             temp = x;
             x -= dx;
-            if ( temp == x ) break;
+            if ( temp == x )
+                break;
         }
 
         // Convergence criterion.
-        if ( fabs(dx) < xacc ) break;
+        if ( fabs(dx) < EPSILON )
+            break;
 
-        // Evaluate function. Maintain bracket on the root.
-        func(x, &f, &df, p);
+        f = dr->Beta1 * (xlo*dr->Afull) + dr->C1*xlo + dr->C2;
+        df = dr->Beta1*dr->Afull* (xlo*dr->Afull) + dr->C1;
+        // *f  = (Beta1 * xsect_getSofA(pXsect, a*Afull)) + (C1 * a) + C2;
+        //  Input:   xsect = ptr. to a cross section data structure
+        //           a = area (ft2)
+        //  Output:  returns section factor (ft^(8/3))
+
+        // *df = (Beta1 * Afull * xsect_getdSdA(pXsect, a*Afull)) + C1;
+        //  Purpose: computes xsection's section factor at a given area.
+        //  Input:   xsect = ptr. to a cross section data structure
+        //           a = area (ft2)
+        //  Output:  returns derivative of section factor w.r.t. area (ft^2/3)
+        //  Purpose: computes xsection's derivative of its section factor with
+        //           respect to area at a given area.
         n++;
-        if ( f < 0.0 ) xlo = x;
-        else           xhi = x;
+        if ( f < 0.0 )
+            xlo = x;
+        else
+            xhi = x;
     }
-    *rts = x;
-    if ( n <= MAXIT) return n;
-    else return 0;
-};
+    dr->aout = x;
+    if (n <= MAXIT)
+        return n;
+    else
+        return 0;
+}
 
 
 /*
