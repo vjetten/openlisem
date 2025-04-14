@@ -82,7 +82,7 @@ xsect_getAofS(TXsect* xsect, double s)
 double psi_func(double r, double theta) {
     double A = 0.5 * r * r * (theta - sin(theta));
     double P = r * theta;
-    qDebug() << "ap" << theta << P << A;
+    qDebug() << "ap" << r << theta << P << A;
     double R = A / P;
     return A * pow(R, 2.0 / 3.0);
     //(theta - sin(theta)) / (2 * PI) - area_ratio;//
@@ -103,11 +103,10 @@ double psi_derivative(double r, double theta, double h = 1e-6) {
 // Newton-Raphson to solve for theta
 double solve_theta(double r, double psi_target, double tol = 1e-6, int max_iter = 100) {
     double theta = PI; // initial guess
-   // double area = 0.5 * r * r * (theta - sin(theta));
     for (int i = 0; i < max_iter; ++i) {
         double f = psi_func(r, theta) - psi_target;
         double df = psi_derivative(r, theta);
-        qDebug()<< f << df << theta;
+        qDebug()<< psi_target << f << df << theta;
         double delta = f / df;
         theta -= delta;
         if (fabs(delta) < tol) {
@@ -125,7 +124,7 @@ double TWorld::getAfromS(DRAIN_PROP *dr, double s)
 
     double r =  TileDiameter->data[dr->r][dr->c]/2.0;
     double theta = solve_theta(r, psi);
-    double A = area(r, theta);
+    double A = 0.5 * r * r * (theta - sin(theta));
     return A;
 }
 
@@ -197,6 +196,8 @@ def solve_theta(area_ratio, tol=1e-6, max_iter=100):
    double        sMax;            // section factor at max. flow (ft^4/3)
 
 */
+        drain->c = c;
+        drain->r = r;
         drain->beta = sqrt(TileGrad->Drc)/TileN->Drc;  // s = qin/beta
         drain->Afull = TileArea->Drc;
         drain->sFull = drain->Afull * std::pow(0.25*TileDiameter->Drc,2.0/3.0);  // 0.5r=0.25D is hydrasulic radius when full
