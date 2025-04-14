@@ -358,8 +358,8 @@ typedef struct DRAIN_PROP {
     int ldd;
     double Afull;
     double Qfull;
-    double Beta1;
-    double sMax;
+    double beta, Beta1;
+    double sMax, sFull;
     double dxdt;
     double ain, aout;
     double qin, qout;
@@ -977,6 +977,7 @@ public:
 
     //SWMM pipe flow
     void PipeFlowSWMM();
+    double getAfromS(DRAIN_PROP *dr, double s);
     int findroot_Newton(DRAIN_PROP *dr, double x1, double x2);
     int solveContinuity(DRAIN_PROP *dr);
 

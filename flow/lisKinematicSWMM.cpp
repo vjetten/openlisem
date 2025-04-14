@@ -52,20 +52,83 @@
 //
 
 /*
- * typedef struct DRAIN_PROP {
-    int r;
-    int c;
-    int ldd;
-    double Afull;
-    double Qfull;
-    double Beta1;
-    double ain, aout;
-    double qin, qout;
-    double C1, C2;
-    double a1, a2, q1, q2;
-}  DRAIN_PROP;
+else ain = xsect_getAofS(pXsect, qin/Beta1) / Afull;
 
+xsect_getAofS(TXsect* xsect, double s)
+    Ψ is known as the section factor (Chow, 1959) and is a function of the flow area and conduit geometry. F
+    psi = A*R^2/3 = area*hydr radius ^2/3 so that Q = beta*psi(A)  pagge 64 eq 4-6
+    double psi = s / xsect->sFull;  = S/(A*R^2/3)
+    if ( s <= 0.0 ) return 0.0;
+    if ( s > xsect->sMax ) s = xsect->sMax;
+    circ_getAofS(xsect, s);
+
+        double circ_getAofS(TXsect* xsect, double s)
+        {
+            double psi = s / xsect->sFull;
+            if (psi == 0.0) return 0.0;
+            if (psi >= 1.0) return xsect->aFull;
+
+            // --- use special function for small s/sFull
+            if (psi <= 0.015) return xsect->aFull * getAcircular(psi);
+
+            // --- otherwise use table
+            else return xsect->aFull * invLookup(psi, S_Circ, N_S_Circ);
+           // table C-1 page 153 hydraulic manual
+        }
+//s = qin/beta1 = qin/(beta/Qfull) = qin/(beta/((A/P)^5/3 * beta) = qin/(1/(A/P^5/3)) ???
 */
+
+// Function to compute psi(theta)
+double psi_func(double r, double theta) {
+    double A = 0.5 * r * r * (theta - sin(theta));
+    double P = r * theta;
+    qDebug() << "ap" << theta << P << A;
+    double R = A / P;
+    return A * pow(R, 2.0 / 3.0);
+    //(theta - sin(theta)) / (2 * PI) - area_ratio;//
+}
+
+// Derivative of psi with respect to theta (numerical)
+double psi_derivative(double r, double theta, double h = 1e-6) {
+    return (psi_func(r, theta + h) - psi_func(r, theta - h)) / (2 * h);
+}
+
+// f = (theta - sin(theta)) / (2 * pi) - area_ratio
+// df = (1 - cos(theta)) / (2 * pi)
+// theta_next = theta - f / df
+// if abs(theta_next - theta) < tol:
+//     return theta_next
+// theta = theta_next
+
+// Newton-Raphson to solve for theta
+double solve_theta(double r, double psi_target, double tol = 1e-6, int max_iter = 100) {
+    double theta = PI; // initial guess
+   // double area = 0.5 * r * r * (theta - sin(theta));
+    for (int i = 0; i < max_iter; ++i) {
+        double f = psi_func(r, theta) - psi_target;
+        double df = psi_derivative(r, theta);
+        qDebug()<< f << df << theta;
+        double delta = f / df;
+        theta -= delta;
+        if (fabs(delta) < tol) {
+            return theta;
+        }
+    }
+    return theta;
+}
+
+double TWorld::getAfromS(DRAIN_PROP *dr, double s)
+{
+    double psi = s / dr->sFull;
+    if (psi == 0.0) return 0.0;
+    if (psi >= 1.0) return dr->Afull;
+
+    double r =  TileDiameter->data[dr->r][dr->c]/2.0;
+    double theta = solve_theta(r, psi);
+    double A = area(r, theta);
+    return A;
+}
+
 
 void TWorld::PipeFlowSWMM()
 {
@@ -97,11 +160,54 @@ void TWorld::PipeFlowSWMM()
             TileWaterVol->Drc = 0;
             return;
         }
+/* see page 82 hydraulic
+ *
+ * y = flow depth, yFull is perimeter
+ *     case CIRCULAR:
+        xsect->yFull = p[0]/ucf;
+        xsect->wMax  = xsect->yFull; // diameter
+        xsect->aFull = PI / 4.0 * xsect->yFull * xsect->yFull;  (pi r^2 = pi*d/2*d/2)
+        xsect->rFull = 0.2500 * xsect->yFull;
+        xsect->sFull = xsect->aFull * pow(xsect->rFull, 2./3.);
+        xsect->sMax  = 1.08 * xsect->sFull;
+        xsect->ywMax = 0.5 * xsect->yFull;
+        break;
+    Link[j].qFull = Link[j].xsect.sFull * Conduit[k].beta;
+    Conduit[k].qMax = Link[j].xsect.sMax * Conduit[k].beta;
 
+import math
+
+def solve_theta(area_ratio, tol=1e-6, max_iter=100):
+    theta = pi  # Good starting guess for half full
+    for _ in range(max_iter):
+        f = (theta - sin(theta)) / (2 * pi) - area_ratio
+        df = (1 - cos(theta)) / (2 * pi)
+        theta_next = theta - f / df
+        if abs(theta_next - theta) < tol:
+            return theta_next
+        theta = theta_next
+    raise RuntimeError("Did not converge")
+
+   double        yFull;           // depth when full (ft)
+   double        wMax;            // width at widest point (ft)
+   double        ywMax;           // depth at widest point (ft)
+   double        aFull;           // area when full (ft2)
+   double        rFull;           // hyd. radius when full (ft)
+   double        sFull;           // section factor when full (ft^4/3)
+   double        sMax;            // section factor at max. flow (ft^4/3)
+
+*/
+        drain->beta = sqrt(TileGrad->Drc)/TileN->Drc;  // s = qin/beta
         drain->Afull = TileArea->Drc;
-        drain->Qfull = std::pow(TileArea->Drc/TileDiameter->Drc,5.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
-        drain->Beta1 = 0.6 / drain->Qfull;
+        drain->sFull = drain->Afull * std::pow(0.25*TileDiameter->Drc,2.0/3.0);  // 0.5r=0.25D is hydrasulic radius when full
+        drain->Qfull = drain->sFull * drain->beta;
+        drain->Beta1 = drain->beta / drain->Qfull; // = 1/sFull =>qin/beta1 = qin/(beta/Qfull)
         drain->dxdt = _dx/_dt * drain->Afull / drain->Qfull;
+        drain->sMax = 1.08 * drain->sFull;  // circular
+
+        // s = (qin/beta1)
+        //double psi = s / xsect->sFull;  = s/(A*R^2/3)
+
         int    result = 1;
         double dq;
         double WT = 0.6;
@@ -110,7 +216,6 @@ void TWorld::PipeFlowSWMM()
         // --- normalize previous flows, averrage with downstream for now
         drain->q1 = TileQ->Drc / drain->Qfull;
         drain->q2 = ((TileQ->Drc + tmb->Drc)*0.5)/ drain->Qfull;
-
         // --- normalize inflow
         drain->qin = std::min(drain->Qfull, TileQin->Drc)/drain->Qfull;
         // in SWMM code the inflow is maximized to the possible incflow
@@ -123,10 +228,13 @@ void TWorld::PipeFlowSWMM()
         drain->a2 = ((TileA->Drc + tma->Drc)*0.5)/ drain->Afull;
 
         // --- use full area when inlet flow >= full flow
-        if ( drain->qin >= 1.0 ) drain->ain = 1.0;
-        // --- get normalized inlet area corresponding to inlet flow
+        if ( drain->qin >= 1.0 )
+            drain->ain = 1.0;
         else
-            drain->ain = (drain->qin/drain->Beta1) / drain->Afull;
+            drain->ain = getAfromS(drain, drain->qin/drain->Beta1)/drain->Afull;
+            // --- get normalized inlet area corresponding to inlet flow
+         //   drain->ain = (drain->qin/drain->Beta1) / drain->Afull;
+qDebug() << "ain" << drain->ain << drain->qin << drain->qin/drain->Beta1;
         // beta1 depends on shape
 
         // --- check for no flow
@@ -316,6 +424,7 @@ int TWorld::findroot_Newton(DRAIN_PROP *dr, double x1, double x2)
 
         f = dr->Beta1 * (xlo*dr->Afull) + dr->C1*xlo + dr->C2;
         df = dr->Beta1*dr->Afull* (xlo*dr->Afull) + dr->C1;
+        //xlo = a
         // *f  = (Beta1 * xsect_getSofA(pXsect, a*Afull)) + (C1 * a) + C2;
         //  Input:   xsect = ptr. to a cross section data structure
         //           a = area (ft2)
@@ -328,6 +437,8 @@ int TWorld::findroot_Newton(DRAIN_PROP *dr, double x1, double x2)
         //  Output:  returns derivative of section factor w.r.t. area (ft^2/3)
         //  Purpose: computes xsection's derivative of its section factor with
         //           respect to area at a given area.
+
+        // this is like a newton raphson on height instead of discharge
         n++;
         if ( f < 0.0 )
             xlo = x;
@@ -340,228 +451,3 @@ int TWorld::findroot_Newton(DRAIN_PROP *dr, double x1, double x2)
     else
         return 0;
 }
-
-
-/*
-
-int kinwave_execute(int j, double* qinflow, double* qoutflow, double tStep)
-//
-//  Input:   j = link index
-//           qinflow = inflow at current time (cfs)
-//           tStep = time step (sec)
-//  Output:  qoutflow = outflow at current time (cfs),
-//           returns number of iterations used
-//  Purpose: finds outflow over time step tStep given flow entering a
-//           conduit using Kinematic Wave flow routing.
-//
-//
-//                               ^ q3
-//  t                            |
-//  |          qin, ain |-------------------| qout, aout
-//  |                   |  Flow --->        |
-//  |----> x     q1, a1 |-------------------| q2, a2
-//
-//
-{
-    int    k;
-    int    result = 1;
-    double dxdt, dq;
-    double ain, aout;
-    double qin, qout;
-    double a1, a2, q1, q2, q3;
-
-    // --- no routing for non-conduit link
-    (*qoutflow) = (*qinflow);
-    if ( Link[j].type != CONDUIT ) return result;
-
-    // --- no routing for dummy xsection
-    if ( Link[j].xsect.type == DUMMY ) return result;
-
-    // --- assign module-level variables
-    pXsect = &Link[j].xsect;
-    Qfull = Link[j].qFull;
-    Afull = Link[j].xsect.aFull;
-    k = Link[j].subIndex;
-    Beta1 = Conduit[k].beta / Qfull;
-
-    // --- normalize previous flows
-    q1 = Conduit[k].q1 / Qfull;
-    q2 = Conduit[k].q2 / Qfull;
-
-    // --- normalize inflow
-    qin = (*qinflow) / Conduit[k].barrels / Qfull;
-
-    // --- compute evaporation and infiltration loss rate
-    q3 = link_getLossRate(j, KW, qin*Qfull, tStep) / Qfull;
-
-    // --- normalize previous areas
-    a1 = Conduit[k].a1 / Afull;
-    a2 = Conduit[k].a2 / Afull;
-
-    // --- use full area when inlet flow >= full flow
-    if ( qin >= 1.0 ) ain = 1.0;
-
-    // --- get normalized inlet area corresponding to inlet flow
-    else ain = xsect_getAofS(pXsect, qin/Beta1) / Afull;
-
-    // --- check for no flow
-    if ( qin <= TINY && q2 <= TINY )
-    {
-        qout = 0.0;
-        aout = 0.0;
-    }
-
-    // --- otherwise solve finite difference form of continuity eqn.
-    else
-    {
-        // --- compute constant factors
-        dxdt = link_getLength(j) / tStep * Afull / Qfull;
-        dq   = q2 - q1;
-        C1   = dxdt * WT / WX;  // WT = 0.6; WX = 0.6
-        C2   = (1.0 - WT) * (ain - a1);
-        C2   = C2 - WT * a2;
-        C2   = C2 * dxdt / WX;
-        C2   = C2 + (1.0 - WX) / WX * dq - qin;
-        C2   = C2 + q3 / WX;
-
-        // --- starting guess for aout is value from previous time step
-        aout = a2;
-
-        // --- solve continuity equation for aout
-        result = solveContinuity(qin, ain, &aout);
-
-        // --- report error if continuity eqn. not solved
-        if ( result == -1 )
-        {
-            report_writeErrorMsg(ERR_KINWAVE, Link[j].ID);
-            return 1;
-        }
-        if ( result <= 0 ) result = 1;
-
-        // --- compute normalized outlet flow from outlet area
-        qout = Beta1 * xsect_getSofA(pXsect, aout*Afull);
-        if ( qin > 1.0 ) qin = 1.0;
-    }
-
-    // --- save new flows and areas
-    Conduit[k].q1 = qin * Qfull;
-    Conduit[k].a1 = ain * Afull;
-    Conduit[k].q2 = qout * Qfull;
-    Conduit[k].a2 = aout * Afull;
-    Conduit[k].fullState =
-        link_getFullState(Conduit[k].a1, Conduit[k].a2, Afull);
-    (*qinflow)  = Conduit[k].q1 * Conduit[k].barrels;
-    (*qoutflow) = Conduit[k].q2 * Conduit[k].barrels;
-    return result;
-}
-
-//=============================================================================
-
-int solveContinuity(double qin, double ain, double* aout)
-//
-//  Input:   qin = upstream normalized flow
-//           ain = upstream normalized area
-//           aout = downstream normalized area
-//  Output:  new value for aout; returns an error code
-//  Purpose: solves continuity equation f(a) = Beta1*S(a) + C1*a + C2 = 0
-//           for 'a' using the Newton-Raphson root finder function.
-//           Return code has the following meanings:
-//           >= 0 number of function evaluations used
-//           -1   Newton function failed
-//           -2   flow always above max. flow
-//           -3   flow always below zero
-//
-//     Note: pXsect (pointer to conduit's cross-section), and constants Beta1,
-//           C1, and C2 are module-level shared variables assigned values
-//           in kinwave_execute().
-//
-{
-    int    n;                          // # evaluations or error code
-    double aLo, aHi, aTmp;             // lower/upper bounds on a
-    double fLo, fHi;                   // lower/upper bounds on f
-    double tol = EPSIL;                // absolute convergence tol.
-
-    // --- first determine bounds on 'a' so that f(a) passes through 0.
-
-    // --- set upper bound to area at full flow
-    aHi = 1.0;
-    fHi = 1.0 + C1 + C2;
-
-    // --- try setting lower bound to area where section factor is maximum
-    aLo = xsect_getAmax(pXsect) / Afull;
-    if ( aLo < aHi )
-    {
-        fLo = ( Beta1 * pXsect->sMax ) + (C1 * aLo) + C2;
-    }
-    else fLo = fHi;
-
-    // --- if fLo and fHi have same sign then set lower bound to 0
-    if ( fHi*fLo > 0.0 )
-    {
-        aHi = aLo;
-        fHi = fLo;
-        aLo = 0.0;
-        fLo = C2;
-    }
-
-    // --- proceed with search for root if fLo and fHi have different signs
-    if ( fHi*fLo <= 0.0 )
-    {
-        // --- start search at midpoint of lower/upper bounds
-        //     if initial value outside of these bounds
-        if ( *aout < aLo || *aout > aHi ) *aout = 0.5*(aLo + aHi);
-
-        // --- if fLo > fHi then switch aLo and aHi
-        if ( fLo > fHi )
-        {
-            aTmp = aLo;
-            aLo  = aHi;
-            aHi  = aTmp;
-        }
-
-        // --- call the Newton root finder method passing it the
-        //     evalContinuity function to evaluate the function
-        //     and its derivatives
-        n = findroot_Newton(aLo, aHi, aout, tol, evalContinuity, NULL);
-
-        // --- check if root finder succeeded
-        if ( n <= 0 ) n = -1;
-    }
-
-    // --- if lower/upper bound functions both negative then use full flow
-    else if ( fLo < 0.0 )
-    {
-        if ( qin > 1.0 ) *aout = ain;
-        else *aout = 1.0;
-        n = -2;
-    }
-
-    // --- if lower/upper bound functions both positive then use no flow
-    else if ( fLo > 0 )
-    {
-        *aout = 0.0;
-        n = -3;
-    }
-    else n = -1;
-    return n;
-}
-
-//=============================================================================
-
-void evalContinuity(double a, double* f, double* df, void* p)
-//
-//  Input:   a = outlet normalized area
-//  Output:  f = value of continuity eqn.
-//           df = derivative of continuity eqn.
-//  Purpose: computes value of continuity equation (f) and its derivative (df)
-//           w.r.t. normalized area for link with normalized outlet area 'a'.
-//
-{
-    *f  = (Beta1 * xsect_getSofA(pXsect, a*Afull)) + (C1 * a) + C2;
-    *df = (Beta1 * Afull * xsect_getdSdA(pXsect, a*Afull)) + C1;
-}
-
-//=============================================================================
-
-
-*/

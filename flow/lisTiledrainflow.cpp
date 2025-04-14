@@ -270,7 +270,10 @@ void TWorld::TileFlowSWMM(void)
     TileA->Drc = Area;
 
     double perim = PI*TileDiameter->Drc * Area/(PI*TileDiameter->Drc*TileDiameter->Drc);
-    TileQ->Drc = std::pow(Area/perim, 5.0/3.0) * gradN;
+    if (perim < 1e-6)
+        TileQ->Drc = 0;
+    else
+        TileQ->Drc = std::pow(Area/perim, 5.0/3.0) * gradN;
 
   }}
 
