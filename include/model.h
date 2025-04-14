@@ -366,6 +366,7 @@ typedef struct DRAIN_PROP {
     double C1, C2;
     double a1, a2;
     double q1, q2;
+    double diam;
 }  DRAIN_PROP;
 
 /// \class TWorld model.h contains the model 'World': constants, variables and erosion processes

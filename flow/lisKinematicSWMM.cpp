@@ -30,7 +30,15 @@
 #define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
 #define MAXIT 60
 
-
+int    N_Y_Circ   = 51;
+double Y_Circ[51] =    // Y/Yfull v. A/Afull
+{0.0, 0.05236, 0.08369, 0.11025, 0.13423, 0.15643, 0.17755, 0.19772, 0.21704,
+      0.23581, 0.25412, 0.27194, 0.28948, 0.30653, 0.32349, 0.34017, 0.35666,
+      0.37298, 0.38915, 0.40521, 0.42117, 0.43704, 0.45284, 0.46858, 0.4843,
+      0.50000, 0.51572, 0.53146, 0.54723, 0.56305, 0.57892, 0.59487, 0.61093,
+      0.62710, 0.64342, 0.65991, 0.67659, 0.69350, 0.71068, 0.72816, 0.74602,
+      0.76424, 0.78297, 0.80235, 0.82240, 0.84353, 0.86563, 0.88970, 0.91444,
+      0.94749, 1.0};
 
 // based on https://github.com/USEPA/Stormwater-Management-Model.git
 //
@@ -88,28 +96,33 @@ double psi_func(double r, double theta) {
     //(theta - sin(theta)) / (2 * PI) - area_ratio;//
 }
 
-// Derivative of psi with respect to theta (numerical)
-double psi_derivative(double r, double theta, double h = 1e-6) {
-    return (psi_func(r, theta + h) - psi_func(r, theta - h)) / (2 * h);
+double psi_rel(double r, double theta) {
+    // Partial flow
+    double A = 0.5 * r * r * (theta - sin(theta));
+    double P = r * theta;
+    double R = A / P;
+
+    // Full flow
+    double A_full = PI * r * r;
+    double R_full = r/2;//  A_full / P_full;
+
+    return (A / A_full) * pow(R / R_full, 2.0 / 3.0);
 }
 
-// f = (theta - sin(theta)) / (2 * pi) - area_ratio
-// df = (1 - cos(theta)) / (2 * pi)
-// theta_next = theta - f / df
-// if abs(theta_next - theta) < tol:
-//     return theta_next
-// theta = theta_next
+// Derivative of psi with respect to theta (numerical)
+double psi_derivative(double r, double theta) {
+    return (psi_rel(r, theta + 1e-6) - psi_rel(r, theta - 1e-6)) / (2e-6);
+}
 
 // Newton-Raphson to solve for theta
-double solve_theta(double r, double psi_target, double tol = 1e-6, int max_iter = 100) {
-    double theta = PI; // initial guess
-    for (int i = 0; i < max_iter; ++i) {
-        double f = psi_func(r, theta) - psi_target;
+double solve_theta(double r, double psi_target) {
+    double theta = PI;
+    for (int i = 0; i < 20; ++i) {
+        double f = psi_rel(r, theta) - psi_target;
         double df = psi_derivative(r, theta);
-        qDebug()<< psi_target << f << df << theta;
         double delta = f / df;
         theta -= delta;
-        if (fabs(delta) < tol) {
+        if (fabs(delta) < 1e-6) {
             return theta;
         }
     }
@@ -122,7 +135,7 @@ double TWorld::getAfromS(DRAIN_PROP *dr, double s)
     if (psi == 0.0) return 0.0;
     if (psi >= 1.0) return dr->Afull;
 
-    double r =  TileDiameter->data[dr->r][dr->c]/2.0;
+    double r =  dr->diam/2.0;
     double theta = solve_theta(r, psi);
     double A = 0.5 * r * r * (theta - sin(theta));
     return A;
@@ -198,6 +211,7 @@ def solve_theta(area_ratio, tol=1e-6, max_iter=100):
 */
         drain->c = c;
         drain->r = r;
+        drain->diam = TileDiameter->Drc;
         drain->beta = sqrt(TileGrad->Drc)/TileN->Drc;  // s = qin/beta
         drain->Afull = TileArea->Drc;
         drain->sFull = drain->Afull * std::pow(0.25*TileDiameter->Drc,2.0/3.0);  // 0.5r=0.25D is hydrasulic radius when full
@@ -216,6 +230,7 @@ def solve_theta(area_ratio, tol=1e-6, max_iter=100):
 
         // --- normalize previous flows, averrage with downstream for now
         drain->q1 = TileQ->Drc / drain->Qfull;
+        drain->q2 = TileQ->Drc / drain->Qfull;
         drain->q2 = ((TileQ->Drc + tmb->Drc)*0.5)/ drain->Qfull;
         // --- normalize inflow
         drain->qin = std::min(drain->Qfull, TileQin->Drc)/drain->Qfull;
@@ -225,7 +240,8 @@ def solve_theta(area_ratio, tol=1e-6, max_iter=100):
        // double q3 = 0;//link_getLossRate(j, KW, qin*Qfull, tStep) / Qfull;
 
         // --- normalize previous areas, averrage with downstream
-        drain->a1 = TileA->Drc / drain->Afull;
+        drain->a1 = TileA->Drc/drain->Afull;
+        drain->a2 = TileA->Drc/drain->Afull;
         drain->a2 = ((TileA->Drc + tma->Drc)*0.5)/ drain->Afull;
 
         // --- use full area when inlet flow >= full flow
@@ -235,8 +251,6 @@ def solve_theta(area_ratio, tol=1e-6, max_iter=100):
             drain->ain = getAfromS(drain, drain->qin/drain->Beta1)/drain->Afull;
             // --- get normalized inlet area corresponding to inlet flow
          //   drain->ain = (drain->qin/drain->Beta1) / drain->Afull;
-qDebug() << "ain" << drain->ain << drain->qin << drain->qin/drain->Beta1;
-        // beta1 depends on shape
 
         // --- check for no flow
         if ( drain->qin < 1e-12 && drain->q2 < 1e-12 ) {
@@ -400,6 +414,7 @@ int TWorld::findroot_Newton(DRAIN_PROP *dr, double x1, double x2)
 
     n++;
 
+    //getsofA
     // Loop over allowed iterations.
     for (j=1; j<=MAXIT; j++)
     {
@@ -423,8 +438,16 @@ int TWorld::findroot_Newton(DRAIN_PROP *dr, double x1, double x2)
         if ( fabs(dx) < EPSILON )
             break;
 
-        f = dr->Beta1 * (xlo*dr->Afull) + dr->C1*xlo + dr->C2;
-        df = dr->Beta1*dr->Afull* (xlo*dr->Afull) + dr->C1;
+        double a = xlo*dr->Afull;
+        double s = -1.1148*a*a*a + 1.6721*a*a + 0.4553*a - 0.0063;
+        // polynomial fit of alpha and s and
+        f = dr->Beta1 * s + dr->C1*xlo + dr->C2;
+        s = -0.9519*a*a*a + 1.6474*a*a + 0.4234*a - 0.003;
+        df = dr->Beta1*dr->Afull* s + dr->C1;
+        //f = dr->Beta1 * (xlo*dr->Afull) + dr->C1*xlo + dr->C2;
+        //df = dr->Beta1*dr->Afull* (xlo*dr->Afull) + dr->C1;
+
+
         //xlo = a
         // *f  = (Beta1 * xsect_getSofA(pXsect, a*Afull)) + (C1 * a) + C2;
         //  Input:   xsect = ptr. to a cross section data structure
