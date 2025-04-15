@@ -30,15 +30,66 @@
 #define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
 #define MAXIT 60
 
-int    N_Y_Circ   = 51;
-double Y_Circ[51] =    // Y/Yfull v. A/Afull
-{0.0, 0.05236, 0.08369, 0.11025, 0.13423, 0.15643, 0.17755, 0.19772, 0.21704,
-      0.23581, 0.25412, 0.27194, 0.28948, 0.30653, 0.32349, 0.34017, 0.35666,
-      0.37298, 0.38915, 0.40521, 0.42117, 0.43704, 0.45284, 0.46858, 0.4843,
-      0.50000, 0.51572, 0.53146, 0.54723, 0.56305, 0.57892, 0.59487, 0.61093,
-      0.62710, 0.64342, 0.65991, 0.67659, 0.69350, 0.71068, 0.72816, 0.74602,
-      0.76424, 0.78297, 0.80235, 0.82240, 0.84353, 0.86563, 0.88970, 0.91444,
-      0.94749, 1.0};
+
+
+void TWorld::TileFlowSWMM(void)
+{
+  if (!SwitchIncludeTile && !SwitchIncludeStormDrains)
+    return;
+
+  // get water from surface
+  if (SwitchIncludeStormDrains) {
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_TILEL {
+      TileWaterVol->Drc += RunoffVolinToTile->Drc;
+      // add water from the surface
+    }}
+  }
+
+  // get water from soil
+  if (SwitchIncludeTile) {
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_TILEL {
+      TileWaterVol->Drc += TileDrainSoil->Drc * TileDiameter->Drc * DX->Drc;
+      // asume water can come from all sides!
+      // add inflow to Tile in m3, tiledrainsoil is in m per timestep
+
+      TileWaterVolSoil->Drc += TileDrainSoil->Drc * TileDiameter->Drc  * DX->Drc;
+      // soil only used for MB correction
+
+    }}
+  }
+
+  #pragma omp parallel for num_threads(userCores)
+  FOR_ROW_COL_MV_TILEL {
+
+    double Area = TileWaterVol->Drc / DX->Drc;
+    TileA->Drc = Area;
+    double area_ratio = Area/TileArea->Drc;
+    double theta_next;
+    double theta = PI;
+    double tol = 1e-6;
+    for (int j = 0; j < MAXIT; j++ ) {
+       double f = (theta - sin(theta)) / (2 * PI) - area_ratio;
+       double df = (1 - cos(theta)) / (2 * PI);
+       theta_next = theta - f / df;
+       if (abs(theta_next - theta) < tol)
+           break;
+       theta = theta_next;
+    }
+
+    double perim = TileDiameter->Drc/2.0 * theta_next; // P = r*theta; A =
+    if (perim < 1e-6)
+        TileQ->Drc = 0;
+    else
+        TileQ->Drc = std::pow(Area/perim, 5.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+
+  }}
+
+  PipeFlowSWMM();
+}
+
+
 
 // based on https://github.com/USEPA/Stormwater-Management-Model.git
 //
@@ -59,44 +110,7 @@ double Y_Circ[51] =    // Y/Yfull v. A/Afull
 //
 //
 
-/*
-else ain = xsect_getAofS(pXsect, qin/Beta1) / Afull;
-
-xsect_getAofS(TXsect* xsect, double s)
-    Ψ is known as the section factor (Chow, 1959) and is a function of the flow area and conduit geometry. F
-    psi = A*R^2/3 = area*hydr radius ^2/3 so that Q = beta*psi(A)  pagge 64 eq 4-6
-    double psi = s / xsect->sFull;  = S/(A*R^2/3)
-    if ( s <= 0.0 ) return 0.0;
-    if ( s > xsect->sMax ) s = xsect->sMax;
-    circ_getAofS(xsect, s);
-
-        double circ_getAofS(TXsect* xsect, double s)
-        {
-            double psi = s / xsect->sFull;
-            if (psi == 0.0) return 0.0;
-            if (psi >= 1.0) return xsect->aFull;
-
-            // --- use special function for small s/sFull
-            if (psi <= 0.015) return xsect->aFull * getAcircular(psi);
-
-            // --- otherwise use table
-            else return xsect->aFull * invLookup(psi, S_Circ, N_S_Circ);
-           // table C-1 page 153 hydraulic manual
-        }
-//s = qin/beta1 = qin/(beta/Qfull) = qin/(beta/((A/P)^5/3 * beta) = qin/(1/(A/P^5/3)) ???
-*/
-
-// Function to compute psi(theta)
-double psi_func(double r, double theta) {
-    double A = 0.5 * r * r * (theta - sin(theta));
-    double P = r * theta;
-    qDebug() << "ap" << r << theta << P << A;
-    double R = A / P;
-    return A * pow(R, 2.0 / 3.0);
-    //(theta - sin(theta)) / (2 * PI) - area_ratio;//
-}
-
-double psi_rel(double r, double theta) {
+double TWorld::psi_rel(double r, double theta) {
     // Partial flow
     double A = 0.5 * r * r * (theta - sin(theta));
     double P = r * theta;
@@ -109,20 +123,17 @@ double psi_rel(double r, double theta) {
     return (A / A_full) * pow(R / R_full, 2.0 / 3.0);
 }
 
-// Derivative of psi with respect to theta (numerical)
-double psi_derivative(double r, double theta) {
-    return (psi_rel(r, theta + 1e-6) - psi_rel(r, theta - 1e-6)) / (2e-6);
-}
 
 // Newton-Raphson to solve for theta
-double solve_theta(double r, double psi_target) {
+double TWorld::solve_theta(double r, double psi_target) {
     double theta = PI;
-    for (int i = 0; i < 20; ++i) {
+    double tol = 1e-6;
+    for (int i = 0; i < MAXIT; ++i) {
         double f = psi_rel(r, theta) - psi_target;
-        double df = psi_derivative(r, theta);
+        double df = (psi_rel(r, theta+tol) - psi_rel(r, theta-tol)) / (2*tol);
         double delta = f / df;
         theta -= delta;
-        if (fabs(delta) < 1e-6) {
+        if (fabs(delta) < tol) {
             return theta;
         }
     }
@@ -142,14 +153,37 @@ double TWorld::getAfromS(DRAIN_PROP *dr, double s)
 }
 
 
+
+/* see page 82 hydraulic
+ *
+ * y = flow depth, yFull is perimeter
+ *     case CIRCULAR:
+        xsect->yFull = p[0]/ucf;
+        xsect->wMax  = xsect->yFull; // diameter
+        xsect->aFull = PI / 4.0 * xsect->yFull * xsect->yFull;  (pi r^2 = pi*d/2*d/2)
+        xsect->rFull = 0.2500 * xsect->yFull;
+        xsect->sFull = xsect->aFull * pow(xsect->rFull, 2./3.); // A*R^2/3 = m^6/3*m^2/3 = m^8/3
+        xsect->sMax  = 1.08 * xsect->sFull;
+        xsect->ywMax = 0.5 * xsect->yFull;
+        break;
+    Link[j].qFull = Link[j].xsect.sFull * Conduit[k].beta;
+    Conduit[k].qMax = Link[j].xsect.sMax * Conduit[k].beta;
+
+   double        yFull;           // depth when full (ft)
+   double        wMax;            // width at widest point (ft)
+   double        ywMax;           // depth at widest point (ft)
+   double        aFull;           // area when full (ft2)
+   double        rFull;           // hyd. radius when full (ft)
+   double        sFull;           // section factor when full (ft^4/3)
+   double        sMax;            // section factor at max. flow (ft^4/3)
+
+*/
 void TWorld::PipeFlowSWMM()
 {
-
-    // walk down the network!!!
-
     downstream(crlinkedlddtile_, TileA, tma);
     downstream(crlinkedlddtile_, TileQ, tmb);
     Fill(*Qn,0);
+
     DRAIN_PROP *drain = new DRAIN_PROP;
 
     for(long i_ =  0; i_ < crlinkedlddtile_.size(); i_++)
@@ -172,56 +206,19 @@ void TWorld::PipeFlowSWMM()
             TileWaterVol->Drc = 0;
             return;
         }
-/* see page 82 hydraulic
- *
- * y = flow depth, yFull is perimeter
- *     case CIRCULAR:
-        xsect->yFull = p[0]/ucf;
-        xsect->wMax  = xsect->yFull; // diameter
-        xsect->aFull = PI / 4.0 * xsect->yFull * xsect->yFull;  (pi r^2 = pi*d/2*d/2)
-        xsect->rFull = 0.2500 * xsect->yFull;
-        xsect->sFull = xsect->aFull * pow(xsect->rFull, 2./3.);
-        xsect->sMax  = 1.08 * xsect->sFull;
-        xsect->ywMax = 0.5 * xsect->yFull;
-        break;
-    Link[j].qFull = Link[j].xsect.sFull * Conduit[k].beta;
-    Conduit[k].qMax = Link[j].xsect.sMax * Conduit[k].beta;
 
-import math
-
-def solve_theta(area_ratio, tol=1e-6, max_iter=100):
-    theta = pi  # Good starting guess for half full
-    for _ in range(max_iter):
-        f = (theta - sin(theta)) / (2 * pi) - area_ratio
-        df = (1 - cos(theta)) / (2 * pi)
-        theta_next = theta - f / df
-        if abs(theta_next - theta) < tol:
-            return theta_next
-        theta = theta_next
-    raise RuntimeError("Did not converge")
-
-   double        yFull;           // depth when full (ft)
-   double        wMax;            // width at widest point (ft)
-   double        ywMax;           // depth at widest point (ft)
-   double        aFull;           // area when full (ft2)
-   double        rFull;           // hyd. radius when full (ft)
-   double        sFull;           // section factor when full (ft^4/3)
-   double        sMax;            // section factor at max. flow (ft^4/3)
-
-*/
         drain->c = c;
         drain->r = r;
         drain->diam = TileDiameter->Drc;
         drain->beta = sqrt(TileGrad->Drc)/TileN->Drc;  // s = qin/beta
         drain->Afull = TileArea->Drc;
         drain->sFull = drain->Afull * std::pow(0.25*TileDiameter->Drc,2.0/3.0);  // 0.5r=0.25D is hydrasulic radius when full
+        // section factor = A*R^2/3 units m^2*m^2/3 = m^6/3*m^2/3 = m^8/3
         drain->Qfull = drain->sFull * drain->beta;
         drain->Beta1 = drain->beta / drain->Qfull; // = 1/sFull =>qin/beta1 = qin/(beta/Qfull)
         drain->dxdt = _dx/_dt * drain->Afull / drain->Qfull;
         drain->sMax = 1.08 * drain->sFull;  // circular
-
-        // s = (qin/beta1)
-        //double psi = s / xsect->sFull;  = s/(A*R^2/3)
+        //drain->qin/drain->Beta1
 
         int    result = 1;
         double dq;
@@ -230,18 +227,18 @@ def solve_theta(area_ratio, tol=1e-6, max_iter=100):
 
         // --- normalize previous flows, averrage with downstream for now
         drain->q1 = TileQ->Drc / drain->Qfull;
-        drain->q2 = TileQ->Drc / drain->Qfull;
+     //    drain->q2 = TileQ->Drc / drain->Qfull;
         drain->q2 = ((TileQ->Drc + tmb->Drc)*0.5)/ drain->Qfull;
         // --- normalize inflow
         drain->qin = std::min(drain->Qfull, TileQin->Drc)/drain->Qfull;
-        // in SWMM code the inflow is maximized to the possible incflow
+        // in SWMM code the inflow is maximized to the possible inflow
 
         // --- compute evaporation and infiltration loss rate
        // double q3 = 0;//link_getLossRate(j, KW, qin*Qfull, tStep) / Qfull;
 
         // --- normalize previous areas, averrage with downstream
         drain->a1 = TileA->Drc/drain->Afull;
-        drain->a2 = TileA->Drc/drain->Afull;
+      //  drain->a2 = TileA->Drc/drain->Afull;
         drain->a2 = ((TileA->Drc + tma->Drc)*0.5)/ drain->Afull;
 
         // --- use full area when inlet flow >= full flow
@@ -249,22 +246,23 @@ def solve_theta(area_ratio, tol=1e-6, max_iter=100):
             drain->ain = 1.0;
         else
             drain->ain = getAfromS(drain, drain->qin/drain->Beta1)/drain->Afull;
+        //drain->qin/drain->Beta1 = qin/qfull * AR^2/3 / Afull
             // --- get normalized inlet area corresponding to inlet flow
          //   drain->ain = (drain->qin/drain->Beta1) / drain->Afull;
+     //   qDebug() << "qin" << drain->qin << drain->ain;
 
         // --- check for no flow
         if ( drain->qin < 1e-12 && drain->q2 < 1e-12 ) {
             drain->qout = 0.0;
             drain->aout = 0.0;
         } else {
-
-            dq   = drain->q2 - drain->q1;
-            drain->C1   = drain->dxdt * WT / WX;
-            drain->C2   = (1.0 - WT) * (drain->ain - drain->a1);
-            drain->C2   = drain->C2 - WT * drain->a2;
-            drain->C2   = drain->C2 * drain->dxdt / WX;
-            drain->C2   = drain->C2 + (1.0 - WX) / WX * dq - drain->qin;
-            //drain->C2   = C2 + q3 / WX;
+            dq = drain->q2 - drain->q1;
+            drain->C1 = drain->dxdt*WT/WX;
+            drain->C2 = (1.0 - WT)*(drain->ain - drain->a1);
+            drain->C2 = drain->C2 - WT*drain->a2;
+            drain->C2 = drain->C2 * drain->dxdt/WX;
+            drain->C2 = drain->C2 + ((1.0 - WX)/WX)*dq - drain->qin;
+            //drain->C2   = C2 + q3/WX;
 
             // --- starting guess for aout is value from previous time step
             drain->aout = drain->a2;
@@ -273,23 +271,21 @@ def solve_theta(area_ratio, tol=1e-6, max_iter=100):
             result = solveContinuity(drain);
 
             // --- report error if continuity eqn. not solved
-            if ( result == -1 )
-            {
-                //report_writeErrorMsg(ERR_KINWAVE, Link[j].ID);
+            if (result == -1) {
                 Error("Kinwave SWMM error solvecontinuity");
-                //return;
             }
-            if ( result <= 0 )
+            if (result <= 0)
                 result = 1;
 
             // --- compute normalized outlet flow from outlet area
-            drain->qout = drain->Beta1 * drain->aout*drain->Afull;
-            // if ( drain->qin > 1.0 )
-            //     drain->qin = 1.0;
-            //for the next in line!!!
+            drain->qout = drain->Beta1 * drain->aout*drain->Afull; //beta1 = drain->beta / drain->Qfull
+           // drain->qout /= drain->Qfull;
+            if (drain->qin > 1.0)
+                drain->qin = 1.0;
         }
-        TileQn->Drc = drain->qout;
-        TileWaterVol->Drc = drain->aout * DX->Drc;
+//qDebug() << r<<c<<drain->qout<< drain->Qfull << drain->qout/drain->Qfull;
+        TileQn->Drc = drain->qout*drain->Qfull;
+        TileWaterVol->Drc = drain->aout*drain->Afull * DX->Drc;
     }
     delete drain;
 }
@@ -311,6 +307,7 @@ int TWorld::solveContinuity(DRAIN_PROP *dr)
 //     Note: pXsect (pointer to conduit's cross-section), and constants Beta1,
 //           C1, and C2 are module-level shared variables assigned values
 //           in kinwave_execute().
+
 //
 {
     int    n;                          // # evaluations or error code
@@ -324,16 +321,14 @@ int TWorld::solveContinuity(DRAIN_PROP *dr)
     fHi = 1.0 + dr->C1 + dr->C2;
 
     // --- try setting lower bound to area where section factor is maximum
-    aLo = std::min(dr->a1,dr->a2)/dr->Afull;//1;//xsect_getAmax(pXsect) / Afull;
-    if ( aLo < aHi )
-    {
+    aLo = std::max(dr->a1,dr->a2)/dr->Afull;
+    if (aLo < aHi)
         fLo = ( dr->Beta1 * dr->sMax ) + (dr->C1 * aLo) + dr->C2;
-    }
-    else fLo = fHi;
+    else
+        fLo = fHi;
 
     // --- if fLo and fHi have same sign then set lower bound to 0
-    if ( fHi*fLo > 0.0 )
-    {
+    if (fHi*fLo > 0.0)  {
         aHi = aLo;
         fHi = fLo;
         aLo = 0.0;
@@ -341,46 +336,42 @@ int TWorld::solveContinuity(DRAIN_PROP *dr)
     }
 
     // --- proceed with search for root if fLo and fHi have different signs
-    if ( fHi*fLo <= 0.0 )
-    {
+    if (fHi*fLo <= 0.0) {
         // --- start search at midpoint of lower/upper bounds
         //     if initial value outside of these bounds
-        if ( dr->aout < aLo || dr->aout > aHi ) dr->aout = 0.5*(aLo + aHi);
+        if (dr->aout < aLo || dr->aout > aHi)
+            dr->aout = 0.5*(aLo + aHi);
 
         // --- if fLo > fHi then switch aLo and aHi
-        if ( fLo > fHi )
-        {
+        if (fLo > fHi) {
             aTmp = aLo;
             aLo  = aHi;
             aHi  = aTmp;
         }
 
-        // --- call the Newton root finder method passing it the
-        //     evalContinuity function to evaluate the function
-        //     and its derivatives
-        n = findroot_Newton(dr, aLo, aHi); //,NULL);
+        n = findroot_Newton(dr, aLo, aHi);
 
         // --- check if root finder succeeded
-        if ( n <= 0 ) n = -1;
-    }
-
-    // --- if lower/upper bound functions both negative then use full flow
-    else if ( fLo < 0.0 )
-    {
-        if ( dr->qin > 1.0 ) dr->aout = dr->ain;
-        else dr->aout = 1.0;
-        n = -2;
-    }
-
-    // --- if lower/upper bound functions both positive then use no flow
-    else if ( fLo > 0 )
-    {
-        dr->aout = 0.0;
-        n = -3;
-    }
-    else n = -1;
+        if ( n <= 0 )
+            n = -1;
+    } else
+        // --- if lower/upper bound functions both negative then use full flow
+        if ( fLo < 0.0 ) {
+            if ( dr->qin > 1.0 )
+                dr->aout = dr->ain;
+            else
+                dr->aout = 1.0;
+            n = -2;
+        } else
+            // --- if lower/upper bound functions both positive then use no flow
+            if ( fLo > 0 ){
+                dr->aout = 0.0;
+                n = -3;
+            } else
+                n = -1;
     return n;
 }
+
 
 
 int TWorld::findroot_Newton(DRAIN_PROP *dr, double x1, double x2)
@@ -401,52 +392,56 @@ int TWorld::findroot_Newton(DRAIN_PROP *dr, double x1, double x2)
 //    switched in the call to Newton.
 //
 {
-    int j, n = 0;
+    int n = 0;
     double df, dx, dxold, f, x;
     double temp, xhi, xlo;
 
     // Initialize the "stepsize before last" and the last step.
-    x = dr->aout;
+    x = dr->a2; // first guess
     xlo = x1;
     xhi = x2;
     dxold = fabs(x2-x1);
     dx = dxold;
 
+    double a = x;// /dr->Afull; //relative area
+    double s = -1.1148*a*a*a + 1.6721*a*a + 0.4553*a - 0.0063;
+    // polynomial fit of alpha and s
+    f = dr->Beta1*s + dr->C1*xlo + dr->C2;
+    double ds = -0.9519*a*a*a + 1.6474*a*a + 0.4234*a - 0.003;
+    df = dr->Beta1*dr->Afull*ds + dr->C1;
+
     n++;
 
-    //getsofA
     // Loop over allowed iterations.
-    for (j=1; j<=MAXIT; j++)
+    for (int j=0; j < MAXIT; j++)
     {
         // Bisect if Newton out of range or not decreasing fast enough.
-        if ( ( ( (x-xhi)*df-f)*((x-xlo)*df-f) >= 0.0 || (fabs(2.0*f) > fabs(dxold*df) ) ) ) {
+        if (((x-xhi)*df-f)*((x-xlo)*df-f) >= 0.0 || (fabs(2.0*f) > fabs(dxold*df))) {
             dxold = dx;
             dx = 0.5*(xhi-xlo);
             x = xlo + dx;
-            if ( xlo == x ) break;
+            if (xlo == x)
+                break;
         } else {
             // Newton step acceptable. Take it.
             dxold = dx;
             dx = f/df;
             temp = x;
             x -= dx;
-            if ( temp == x )
+            if (temp == x)
                 break;
         }
 
         // Convergence criterion.
-        if ( fabs(dx) < EPSILON )
+        if (fabs(dx) < EPSILON)
             break;
 
-        double a = xlo*dr->Afull;
+        double a = x; // /dr->Afull; //relative area
         double s = -1.1148*a*a*a + 1.6721*a*a + 0.4553*a - 0.0063;
-        // polynomial fit of alpha and s and
-        f = dr->Beta1 * s + dr->C1*xlo + dr->C2;
-        s = -0.9519*a*a*a + 1.6474*a*a + 0.4234*a - 0.003;
-        df = dr->Beta1*dr->Afull* s + dr->C1;
-        //f = dr->Beta1 * (xlo*dr->Afull) + dr->C1*xlo + dr->C2;
-        //df = dr->Beta1*dr->Afull* (xlo*dr->Afull) + dr->C1;
-
+        // polynomial fit of alpha and s
+        f = dr->Beta1*s + dr->C1*xlo + dr->C2;
+        double ds = -0.9519*a*a*a + 1.6474*a*a + 0.4234*a - 0.003;
+        df = dr->Beta1*dr->Afull*ds + dr->C1;
 
         //xlo = a
         // *f  = (Beta1 * xsect_getSofA(pXsect, a*Afull)) + (C1 * a) + C2;
@@ -459,19 +454,17 @@ int TWorld::findroot_Newton(DRAIN_PROP *dr, double x1, double x2)
         //  Input:   xsect = ptr. to a cross section data structure
         //           a = area (ft2)
         //  Output:  returns derivative of section factor w.r.t. area (ft^2/3)
-        //  Purpose: computes xsection's derivative of its section factor with
-        //           respect to area at a given area.
 
-        // this is like a newton raphson on height instead of discharge
         n++;
-        if ( f < 0.0 )
+        if (f < 0.0)
             xlo = x;
         else
             xhi = x;
     }
     dr->aout = x;
-    if (n <= MAXIT)
+    if (n < MAXIT)
         return n;
     else
         return 0;
 }
+

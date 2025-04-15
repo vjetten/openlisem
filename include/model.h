@@ -981,6 +981,8 @@ public:
     double getAfromS(DRAIN_PROP *dr, double s);
     int findroot_Newton(DRAIN_PROP *dr, double x1, double x2);
     int solveContinuity(DRAIN_PROP *dr);
+    double solve_theta(double r, double psi_target);
+    double psi_rel(double r, double theta);
 
     // => 1D flow on network
     void FindStationaryBaseFlow();

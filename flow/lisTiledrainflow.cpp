@@ -47,40 +47,43 @@ void TWorld::ToTiledrainAll()
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_TILEL {
-        //    double fractiontotile  = 2.0 * TileInlet->Drc/RoadWidthDX->Drc * _dx/TileDrainDistance;
-          double fractiontotile  = 2.0 * 0.09/RoadWidthDX->Drc * _dx/TileDrainDistance;
-                   // evry cell has subtraction of water, base don the every hole fraction in the street
-            // if a road is divided over more cells, this probably overewstimates the entrance
+          double fractiontotile;//  = 2.0 * 0.09/RoadWidthDX->Drc*DX->Drc/TileDrainDistance;
+          // every tile cell has a subtraction of water, based on the inlet fraction in the street
+          // assumed entry is 0.3 * 0.3 m
+          // if a road is divided over more cells, this probably overewstimates the entrance
 
-            double MaxVol = DX->Drc*TileArea->Drc; //(pi r^2 or heightxwidth, done in datainit
+          double MaxVol = DX->Drc*TileArea->Drc; //(pi r^2 or heightxwidth, done in datainit
 
-            if (TileWaterVol->Drc >= MaxVol)
-                fractiontotile = 0;
-            else {
-                double vol = fractiontotile*WaterVolall->Drc;
-                double dh = vol/CHAdjDX->Drc;
-                RunoffVolinToTile->Drc = vol;
-                // adjust water height
-                WaterVolall->Drc -= vol;
-                if (FloodDomain->Drc == 0) {
-                    if (WaterVolall->Drc < MicroStoreVol->Drc) {
-                        WHrunoff->Drc = 0;
-                        WHstore->Drc = dh;
-                        WH->Drc = dh;
-                    } else {
-                        WHrunoff->Drc -= dh;
-                        WH->Drc = dh + WHstore->Drc;
-                    }
-                } else {
-                    if (WaterVolall->Drc < MicroStoreVol->Drc) {
-                        hmx->Drc = 0;
-                        WHstore->Drc = dh;
-                    } else {
-                        hmx->Drc -= dh;
-                    }
-                }
-                hmxWH->Drc = WH->Drc + hmx->Drc;
+          if (TileWaterVol->Drc >= MaxVol)
+            fractiontotile = 0;
+          else {
+            fractiontotile = 2.0 * 0.09/RoadWidthDX->Drc*DX->Drc/TileDrainDistance;
+
+            double vol = fractiontotile*WaterVolall->Drc;
+            double dh = vol/CHAdjDX->Drc;
+            RunoffVolinToTile->Drc = vol;
+
+            // adjust water height
+            WaterVolall->Drc -= vol;
+            if (FloodDomain->Drc == 0) {
+              if (WaterVolall->Drc < MicroStoreVol->Drc) {
+                WHrunoff->Drc = 0;
+                WHstore->Drc = dh;
+                WH->Drc = dh;
+              } else {
+                WHrunoff->Drc -= dh;
+                WH->Drc = dh + WHstore->Drc;
+              }
+            } else {
+              if (WaterVolall->Drc < MicroStoreVol->Drc) {
+                hmx->Drc = 0;
+                WHstore->Drc = dh;
+              } else {
+                hmx->Drc -= dh;
+              }
             }
+            hmxWH->Drc = WH->Drc + hmx->Drc;
+          }
         }}
     }
 }
@@ -231,53 +234,5 @@ void TWorld::TileFlow(void)
         TileWaterVol->Drc = std::min(TileWaterVol->Drc, TileArea->Drc * DX->Drc);
         TileQ->Drc = TileQn->Drc;
    }}
-
-}
-
-void TWorld::TileFlowSWMM(void)
-{
-  if (!SwitchIncludeTile && !SwitchIncludeStormDrains)
-    return;
-
-  // get water from surface
-  if (SwitchIncludeStormDrains) {
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_TILEL {
-      TileWaterVol->Drc += RunoffVolinToTile->Drc;
-      // add water from the surface
-    }}
-  }
-
-  // get water from soil
-  if (SwitchIncludeTile) {
-  #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_TILEL {
-      TileWaterVol->Drc += TileDrainSoil->Drc * TileDiameter->Drc * DX->Drc;
-      // asume water can come from all sides!
-      // add inflow to Tile in m3, tiledrainsoil is in m per timestep
-
-      TileWaterVolSoil->Drc += TileDrainSoil->Drc * TileDiameter->Drc  * DX->Drc;
-      // soil only used for MB correction
-
-    }}
-  }
-
-  #pragma omp parallel for num_threads(userCores)
-  FOR_ROW_COL_MV_TILEL {
-
-    double gradN = sqrt(TileGrad->Drc)/TileN->Drc;
-    double Area = TileWaterVol->Drc / DX->Drc;
-    TileA->Drc = Area;
-
-    double perim = PI*TileDiameter->Drc * Area/(PI*TileDiameter->Drc*TileDiameter->Drc);
-    if (perim < 1e-6)
-        TileQ->Drc = 0;
-    else
-        TileQ->Drc = std::pow(Area/perim, 5.0/3.0) * gradN;
-
-  }}
-
-
-  PipeFlowSWMM();
 
 }

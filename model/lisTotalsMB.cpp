@@ -266,7 +266,7 @@ void TWorld::TotalsFlow(void)
             if (GridRetentionAct->Drc > 0)
                 RetentionVolTot += GridRetentionAct->Drc;// MapTotal(*GridRetentionAct);
         }}
-        qDebug() <<"ret" << RetentionVolTot;
+        //qDebug() <<"ret" << RetentionVolTot;
     }
 
     //=== all discharges ===//
@@ -285,7 +285,7 @@ void TWorld::TotalsFlow(void)
             Qtot_dt += Qn->Drc*_dt;
     }}
 
-    // add channel outflow
+    //=== channel outflow ===//
     if (SwitchIncludeChannel)
     {
         FOR_ROW_COL_MV_CHL {
@@ -302,36 +302,34 @@ void TWorld::TotalsFlow(void)
         // add channel outflow (in m3) to total for all pits
     }
 
-            //=== storm drain flow ===//
+    //=== storm drain flow ===//
     if(SwitchIncludeStormDrains) {
         FOR_ROW_COL_MV_TILE
-                if (LDDTile->Drc == 5)
+        if (LDDTile->Drc == 5)
         {
             //Qtot_dt += TileQn->Drc * _dt;
             QTiletot += TileQn->Drc * _dt;
         }
-        StormDrainVolTot = MapTotal(*TileWaterVol) + QTiletot;
+        StormDrainVolTot = MapTotal(*TileWaterVol);// + QTiletot;
         StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
-    } else {
-        if (SwitchIncludeTile)
-        {
-            WaterVolSoilTileTot = MapTotal(*TileWaterVolSoil);
-            // input for mass balance, is the water seeping from the soil, input
-            // this is the water before the kin wave
-            calc2Maps(*tm, *TileDrainSoil, *TileWidth, MUL); //in m3
-            calcMap(*tm, *DX, MUL); //in m3
+    }
+    // can occur both of coursse, treat separately
+    if (SwitchIncludeTile)
+    {
+        // WaterVolSoilTileTot = MapTotal(*TileWaterVolSoil);
+        // // input for mass balance, is the water seeping from the soil, input
+        // // this is the water before the kin wave
+        // calc2Maps(*tm, *TileDrainSoil, *TileWidth, MUL); //in m3
+        // calcMap(*tm, *DX, MUL); //in m3
 
-            TileVolTot += MapTotal(*tm); // in m3
-// TO DO CHECK THIS
-            FOR_ROW_COL_MV_TILE
-                    if (LDDTile->Drc == 5)
-            {
-                Qtot_dt += TileQn->Drc * _dt;
-                QTiletot += TileQn->Drc * _dt;
-            }
+        // TileVolTot += MapTotal(*tm); // in m3
 
-            // add tile outflow (in m3) to total for all pits
-        }
+        // FOR_ROW_COL_MV_TILE
+        // if (LDDTile->Drc == 5)
+        // {
+        //    // Qtot_dt += TileQn->Drc * _dt;
+        //     QTiletot += TileQn->Drc * _dt;
+        // }
     }
 
 
@@ -547,7 +545,7 @@ void TWorld::MassBalance()
                      // rainfall + initial WH on surface if present, + baseflow and init baseflow + user defined inflow in channel + sideinflow through soil
     double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot + RetentionVolTot;
                      // all interception + ETa + water on surface + water in channel + water in subsurface drains
-    double waterout = Qtot + IntercETaTot;
+    double waterout = Qtot + IntercETaTot + QTiletot;
     // floodBoundaryTot is already in Qtot
     MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
 
