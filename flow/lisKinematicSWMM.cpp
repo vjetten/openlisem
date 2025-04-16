@@ -158,6 +158,8 @@ void TWorld::PipeFlowSWMM()
 
     DRAIN_PROP *drain = new DRAIN_PROP;
 
+    double Qnout=0, Anout=0;
+
     for(long i_ =  0; i_ < crlinkedlddtile_.size(); i_++)
     {
         int r = crlinkedlddtile_[i_].r;
@@ -200,7 +202,7 @@ void TWorld::PipeFlowSWMM()
         // --- normalize previous flows, averrage with downstream for now
         drain->q1 = TileQ->Drc / drain->Qfull;
         drain->q2 = TileQ->Drc / drain->Qfull;
-       //  drain->q2 = ((TileQ->Drc + tmb->Drc)*0.5)/ drain->Qfull;
+        drain->q2 = ((TileQ->Drc + tmb->Drc)*0.5)/ drain->Qfull;
         // --- normalize inflow
         drain->qin = std::min(drain->Qfull, TileQin->Drc)/drain->Qfull;
         // in SWMM code the inflow is maximized to the possible inflow
@@ -211,7 +213,7 @@ void TWorld::PipeFlowSWMM()
         // --- normalize previous areas, averrage with downstream
         drain->a1 = TileA->Drc/drain->Afull;
         drain->a2 = TileA->Drc/drain->Afull;
-      //  drain->a2 = ((TileA->Drc + tma->Drc)*0.5)/ drain->Afull;
+        drain->a2 = ((TileA->Drc + tma->Drc)*0.5)/ drain->Afull;
 
         // --- use full area when inlet flow >= full flow
         if ( drain->qin >= 1.0 )
@@ -252,10 +254,14 @@ void TWorld::PipeFlowSWMM()
            // drain->qout /= drain->Qfull;
             if (drain->qin > 1.0)
                 drain->qin = 1.0;
+
         }
 //qDebug() << r<<c<<drain->qout<< drain->Qfull << drain->qout/drain->Qfull;
         TileQn->Drc = drain->qout*drain->Qfull;
         TileWaterVol->Drc = drain->aout*drain->Afull * DX->Drc;
+        Qnout = drain->qout/drain->Qfull;
+        Anout = drain->aout;
+
     }
     delete drain;
 }
