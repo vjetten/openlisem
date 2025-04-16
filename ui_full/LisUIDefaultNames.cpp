@@ -479,6 +479,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include storm drains");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Storm drain shape");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Use SWMM drain flow");
     namelist[i].value = QString("20");
     namelist[i++].name = QString("Drain inlet distance");
 

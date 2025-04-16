@@ -520,6 +520,7 @@ public:
         SwitchIncludeTile,
         SwitchIncludeStormDrains,
         SwitchStormDrainCircular,
+        SwitchUseSWMMflow,
         SwitchHouses,
         SwitchInfrastructure,
         SwitchRaindrum,

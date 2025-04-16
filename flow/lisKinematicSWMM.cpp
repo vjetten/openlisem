@@ -202,7 +202,7 @@ void TWorld::PipeFlowSWMM()
         // --- normalize previous flows, averrage with downstream for now
         drain->q1 = TileQ->Drc / drain->Qfull;
         drain->q2 = TileQ->Drc / drain->Qfull;
-        drain->q2 = ((TileQ->Drc + tmb->Drc)*0.5)/ drain->Qfull;
+      //  drain->q2 = ((TileQ->Drc + tmb->Drc)*0.5)/ drain->Qfull;
         // --- normalize inflow
         drain->qin = std::min(drain->Qfull, TileQin->Drc)/drain->Qfull;
         // in SWMM code the inflow is maximized to the possible inflow
@@ -213,7 +213,7 @@ void TWorld::PipeFlowSWMM()
         // --- normalize previous areas, averrage with downstream
         drain->a1 = TileA->Drc/drain->Afull;
         drain->a2 = TileA->Drc/drain->Afull;
-        drain->a2 = ((TileA->Drc + tma->Drc)*0.5)/ drain->Afull;
+      //  drain->a2 = ((TileA->Drc + tma->Drc)*0.5)/ drain->Afull;
 
         // --- use full area when inlet flow >= full flow
         if ( drain->qin >= 1.0 )

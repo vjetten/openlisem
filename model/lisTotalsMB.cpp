@@ -299,16 +299,21 @@ void TWorld::TotalsFlow(void)
         }}
         // add channel outflow (in m3) to total for all pits
     }
+double tott = 0;
 
-    //=== storm drain flow ===//
+    //=== storm drain flow
     if(SwitchIncludeStormDrains) {
-        FOR_ROW_COL_MV_TILE
-        if (LDDTile->Drc == 5) {
+        FOR_ROW_COL_MV_TILEL {
+          if (LDDTile->Drc == 5) {
             QTiletot += TileQn->Drc * _dt;
-        }
+            tott += TileQn->Drc;
+          }
+        }}
         StormDrainVolTot = MapTotal(*TileWaterVol);
         StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
     }
+
+    qDebug() << SwitchIncludeStormDrains << StormDrainVolTot << QTiletot << tott;
     // can occur both of coursse, treat separately
     if (SwitchIncludeTile)
     {

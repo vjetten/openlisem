@@ -44,10 +44,6 @@
 //---------------------------------------------------------------------------
 void TWorld::OverlandFlow(void)
 {
-    ToTiledrainAll();
-    // fraction going into tiledrain directly from surface, for 1D and 2D flow
-    // this decreases WHrunoff, WH and watervolall
-
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
         OverlandFlow2Ddyn();
         // dynamic wave overland flow
