@@ -250,11 +250,12 @@ void TWorld::PipeFlowSWMM()
                 result = 1;
 
             // --- compute normalized outlet flow from outlet area
+            // polynomial approximation from table for circular pipe
             double a = drain->aout;
             double sfroma = -1.222*a*a*a + 1.9904*a*a + 0.312*a + 0.0039;
-            if (drain->aout > 0.98)
+            if (a > 0.98)
               sfroma = 1.07662;
-            if (drain->aout == 1.0)
+            if (a > 0.99)
               sfroma = 1.0;
             drain->qout = drain->Beta1 * sfroma;
             //qout = Beta1 * xsect_getSofA(pXsect, aout*Afull);

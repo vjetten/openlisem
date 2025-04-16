@@ -176,13 +176,13 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     // Qkx   -= fQkx / dfQkx;
     // Qkx   = std::max(Qkx, 1e-30);
 
-    // // limit flux and alpha to pipe max Q
-    // if (Qm > 0) {
-    //     Qkx = std::min(Qkx, Qm);
-    //     if (Qkx == Qm)
-    //         alpha = Am;
-    //     // if max flow set max Alpha
-    // }
+    // limit flux and alpha to pipe max Q
+    if (Qm > 0) {
+        Qkx = std::min(Qkx, Qm);
+        if (Qkx == Qm)
+            alpha = Am;
+        // if max flow set max Alpha
+    }
 
     count = 0;
     do {
@@ -190,7 +190,6 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
         dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  // Current k derivative of function df(Qkx)/dt
         Qkx   -= fQkx / dfQkx;                                // next estimate Newton-Rapson
         Qkx   = std::max(Qkx, 1e-30);
-        // not necessary?
 
         // limit flux and alpha to culvert/pipe max
         if (Qm > 0) {
@@ -234,12 +233,13 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
                 Qin += _Qn->Drcr;
             }
         }
-        QinKW->Drc = Qin;
+        QinKW->Drc = std::min(Qin, _Qmax->Drc);
 
+        if (QinKW->Drc == _Qmax->Drc)
+          Qn->Drc = _Qmax->Drc;
+        else
         if (Qin > 0 || _Q->Drc > 0) {
-            itercount = 0;
-               _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
-           // tmb->Drc = itercount;
+         _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
         }
     }
 }

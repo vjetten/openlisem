@@ -127,39 +127,31 @@ void TWorld::CalcMAXDischRectangular()
 // Neweton iteration to derive drain water height
 void TWorld::CalcVelDischCircular()
 {
-   #pragma omp parallel for num_threads(userCores)
-   FOR_ROW_COL_MV_TILEL {
-
-      double gradN = sqrt(TileGrad->Drc)/TileN->Drc;
-      double rr = TileDiameter->Drc/2;
-      double Perim, K, theta;
-
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_TILEL {
       double Area = TileWaterVol->Drc / DX->Drc;
       TileA->Drc = Area;
-
-      theta = PI;
-      double fx, Fx;
-      double Ar = 2*Area/(rr*rr);
-      for (int k = 0 ; k < 20; k++) {
-            fx = 1-cos(theta);
-            Fx = -sin(theta) + theta - Ar;
-            theta = fx > 0 ? theta - Fx/fx : 0.0;
-            if( Fx < 1e-6)
-                break;
+      double a = Area/TileArea->Drc;
+      double theta_next;
+      double theta = PI;
+      double tol = 1e-6;
+      // get angle theta from a
+      for (int j = 0; j < MAX_ITERS; j++ ) {
+         double f = (theta - sin(theta)) / (2 * PI) - a;
+         double df = (1 - cos(theta)) / (2 * PI);
+         theta_next = theta - f / df;
+         if (abs(theta_next - theta) < tol)
+             break;
+         theta = theta_next;
       }
-      // newton rapson iteration to get the water height in a circular pipe for the wet perimeter
 
-      K = rr*rr*(theta-sin(theta))*0.5;
-      double TWH = rr - cos(theta/2.0)*rr;
-      Perim = Area < 0.5*rr*rr*PI ? rr*theta : PI*TileDiameter->Drc-rr*theta;
+      double perim = TileDiameter->Drc/2.0*theta_next; // P = r*theta; A =
+      if (perim < 1e-6)
+          TileQ->Drc = 0;
+      else
+          TileQ->Drc = std::pow(Area/perim, 5.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
 
-      double minV = std::pow(TWH,2.0/3.0) * gradN;
-      double TileV_ = Perim > 1e-10 ? std::min(minV, std::pow(Area/Perim,2.0/3.0) * gradN) : 0.0;
-      //TileV_ = std::min(TileV_, 2.0);
-      //limit velocity to 2 m/s?
-      TileQ->Drc = Area*TileV_;
-      TileAlpha->Drc  = Area/std::pow(TileQ->Drc, 0.6);
-      //TileAlpha->Drc = std::pow(std::pow(Perim, 2.0/3.0)/gradN , 0.6);
+      TileAlpha->Drc = std::pow(std::pow(perim, 2.0/3.0)*TileN->Drc/sqrt(TileGrad->Drc), 0.6);
    }}
 }//---------------------------------------------------------------------------
 // called from dataini, needed in kin wave
@@ -170,9 +162,7 @@ void TWorld::CalcMAXDischCircular()
 
       double Area = TileArea->Drc;
       double Perim = PI*TileDiameter->Drc;
-      double TileV_ = std::pow(0.95*Area/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
-
-      TileMaxQ->Drc = Area*TileV_;
+      TileMaxQ->Drc = Area*std::pow(Area/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
       TileMaxAlpha->Drc  = Area/std::pow(TileMaxQ->Drc, 0.6);
 
    }}
