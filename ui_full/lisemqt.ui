@@ -695,8 +695,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>860</width>
-                <height>566</height>
+                <width>838</width>
+                <height>548</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">
@@ -2354,8 +2354,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1002</width>
-                <height>926</height>
+                <width>1013</width>
+                <height>1028</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
@@ -7062,6 +7062,9 @@
                          </item>
                          <item row="1" column="2">
                           <widget class="QCheckBox" name="checkTileSWMM">
+                           <property name="enabled">
+                            <bool>false</bool>
+                           </property>
                            <property name="text">
                             <string>Use SWMM principles and kinematc wave </string>
                            </property>

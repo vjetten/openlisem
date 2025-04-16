@@ -268,7 +268,12 @@ void TWorld::PipeFlowSWMM()
         }
 
         TileQn->Drc = drain->qout*drain->Qfull;
-        TileWaterVol->Drc = drain->aout*drain->Afull * DX->Drc;
+        TileQn->Drc =  std::min(TileWaterVol->Drc/_dt + drain->qin*drain->Qfull, TileQn->Drc);
+
+        TileWaterVol->Drc = TileWaterVol->Drc + _dt*(drain->qin*drain->Qfull - TileQn->Drc);
+        TileWaterVol->Drc = std::max(0.0, TileWaterVol->Drc);
+        TileWaterVol->Drc = std::min(TileWaterVol->Drc, TileArea->Drc * DX->Drc);
+
         Qnout = drain->qout/drain->Qfull;
         Anout = drain->aout;
 
