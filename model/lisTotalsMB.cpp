@@ -313,7 +313,7 @@ double tott = 0;
         StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
     }
 
-    qDebug() << SwitchIncludeStormDrains << StormDrainVolTot << QTiletot << tott;
+    qDebug() << SwitchIncludeStormDrains << StormDrainVolTot << QTiletot << tott << tilein;
     // can occur both of coursse, treat separately
     if (SwitchIncludeTile)
     {

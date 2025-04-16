@@ -1691,6 +1691,7 @@ void TWorld::IntializeData(void)
     Qtot = 0;
     Qtot_dt = 0;
     QTiletot = 0;
+    tilein = 00;
     QfloodoutTot = 0;
     Qfloodout = 0;
     Qtotmm = 0;
