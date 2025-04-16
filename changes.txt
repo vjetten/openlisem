@@ -3,8 +3,10 @@ Latest fixes and changes:
 
 see Readme.txt for a complete list
 
-250408 - v7.4.6 beta R9
+250416 - v7.4.6 beta R9
 - Proces: better storm drain from streets
+- TODO: tile drains from soils
+- compiling with QT 6.9.0 => dlls updated
 
 250408 - v7.4.6 beta R8
 - BUG FIX: fixed error in kinematic wave sediment transport

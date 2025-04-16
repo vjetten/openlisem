@@ -351,6 +351,23 @@ typedef struct SOIL_LIST {
     QVector <double> vg_n;
 
 } SOIL_LIST;
+//---------------------------------------------------------------------------
+typedef struct DRAIN_PROP {
+    int r;
+    int c;
+    int ldd;
+    double Afull;
+    double Qfull;
+    double beta, Beta1;
+    double sMax, sFull;
+    double dxdt;
+    double ain, aout;
+    double qin, qout;
+    double C1, C2;
+    double a1, a2;
+    double q1, q2;
+    double diam;
+}  DRAIN_PROP;
 
 /// \class TWorld model.h contains the model 'World': constants, variables and erosion processes
 
@@ -503,6 +520,7 @@ public:
         SwitchIncludeTile,
         SwitchIncludeStormDrains,
         SwitchStormDrainCircular,
+        SwitchUseSWMMflow,
         SwitchHouses,
         SwitchInfrastructure,
         SwitchRaindrum,
@@ -643,7 +661,7 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, MBeM3, Qtot, Qtot_dt, QTiletot, IntercTot, IntercETaTot, WaterVolTot, RetentionVolTot, WaterVolSoilTileTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
+    double MB, MBeM3, Qtot, Qtot_dt, QTiletot, tilein, IntercTot, IntercETaTot, WaterVolTot, RetentionVolTot, WaterVolSoilTileTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
     double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowInit, BaseFlowInitmm, BaseFlowTotmm, PeakFlowTotmm, Qfloodout, QfloodoutTot, QuserInTot;
     double floodBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
     double IntercHouseTot, IntercHouseTotmm, IntercLitterTot, IntercLitterTotmm;
@@ -959,6 +977,14 @@ public:
     void ToTiledrainAll();
     // <= OF
 
+    //SWMM pipe flow
+    void PipeFlowSWMM();
+    double getAfromS(DRAIN_PROP *dr, double s);
+    int findroot_Newton(DRAIN_PROP *dr, double x1, double x2);
+    int solveContinuity(DRAIN_PROP *dr);
+    double solve_theta(double r, double psi_target);
+    double psi_rel(double r, double theta);
+
     // => 1D flow on network
     void FindStationaryBaseFlow();
     void ChannelFlow();
@@ -970,13 +996,17 @@ public:
     void ChannelFlood(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V);
     void ChannelOverflowIteration(cTMap *_h, cTMap *_V);
+
+    // tiles/stormdrains
     void TileFlow(void);
+    void TileFlowSWMM(void);
     void CalcVelDischRectangular(void);
     void CalcMAXDischRectangular(void);
     void CalcVelDischCircular(void);
     void CalcMAXDischCircular(void);
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
+
     // <= 1D flow
 
     // => 2D flow according to FULLSWOF2D
@@ -1058,10 +1088,11 @@ public:
     double IterateToQnew(double Qin, double Qold, double alpha, double deltaT, double deltaX, double Qm, double Am);
     double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol, double sed);
     double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,double Sji1, double alpha, double dx);
-    void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
-    void upstreamDrain(cTMap *_LDD, cTMap *MaxQ, cTMap *in, cTMap *out);
+    void upstream(QVector <LDD_COORIN>_crlinked_, cTMap *_Q, cTMap *_Qn);
+    void downstream(QVector <LDD_COORIN>_crlinked_, cTMap *_Q, cTMap *_Qn);
+    void upstreamMax(QVector <LDD_COORIN>_crlinked_, cTMap *MaxQ, cTMap *Q, cTMap *_Qn);
+    void UpstreamAvg(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
     void AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);
-    void UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
     QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
     double itercount;
     // <= kinematic

@@ -152,6 +152,7 @@ SET(APP_SOURCES
     flow/lisSWOF2DopenMUSCL.cpp
     flow/lisTiledrainflow.cpp
     flow/lisRouting.cpp
+    flow/lisKinematicSWMM.cpp
     erosion/lisChannelErosion.cpp
     erosion/lisSWOF2DSediment.cpp
     erosion/lisErosion.cpp

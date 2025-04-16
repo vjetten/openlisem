@@ -421,7 +421,7 @@ void TWorld::InitLULCInput(void)
     Norg = NewMap(0);
     copy(*Norg, *N); //ed in sed trap... if trap is full go back to original N
 
-    RR = ReadMap(LDD,getvaluename("RR"));
+    RR = ReadMap(LDD,getvaluename("RR"));    
     checkMap(*LDD, *RR, SMALLER, 0.0, "Random roughness RR must be >= 0");
     calcValue(*RR, RRCalibration, MUL);
 
@@ -1691,6 +1691,7 @@ void TWorld::IntializeData(void)
     Qtot = 0;
     Qtot_dt = 0;
     QTiletot = 0;
+    tilein = 00;
     QfloodoutTot = 0;
     Qfloodout = 0;
     Qtotmm = 0;
@@ -2243,11 +2244,10 @@ void TWorld::InitTiledrains(void)
         TileWaterVol = NewMap(0);
         RunoffVolinToTile = NewMap(0);
         TileQ = NewMap(0);
+        TileA = NewMap(0);
         TileQin = NewMap(0);
-        TileAin = NewMap(0);
         TileMaxQ = NewMap(0);
         TileQn = NewMap(0);
-        Tileq = NewMap(0);
         TileAlpha = NewMap(0);
         TileMaxAlpha = NewMap(0);
 
@@ -2274,46 +2274,46 @@ void TWorld::InitTiledrains(void)
 
         TileDrainDistance = getvaluedouble("Drain inlet distance");
 
+        //   TileInlet = ReadMap(LDDTile, getvaluename("tilesink"));
+        //  cover(*TileInlet, *LDD, 0);
+
         TileArea = NewMap(0);
-        TileDiameter = NewMap(0);
-        TileInlet = ReadMap(LDDTile, getvaluename("tilesink"));
+
         TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
         checkMap(*LDDTile, *TileGrad, LARGER, 1.0, "Tile drain gradient must be SINE of slope angle (not tangent)");
         calcValue(*TileGrad, 0.001, MAX);
+        cover(*TileGrad, *LDD, 0);
+
         TileN = ReadMap(LDDTile, getvaluename("tileman"));
-        cover(*TileGrad, *LDD, 0);
         cover(*TileN, *LDD, 0);
-        cover(*TileInlet, *LDD, 0);
-        TileWaterVolSoil = NewMap(0);
-        TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
-        TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
-        TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
 
-        cover(*TileN, *LDD, 0);
-        cover(*TileGrad, *LDD, 0);
-        cover(*TileDiameter, *LDD, 0);
-        cover(*TileWidth, *LDD, 0);
-        cover(*TileHeight, *LDD, 0);
-
+        // soil tile drain
         if (SwitchIncludeTile) {
             TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
             cover(*TileDepth, *LDD, -1); //VJ non tile cells flagged by -1 value, needed in swatre init
             TileDrainSoil = NewMap(0);
+            TileWaterVolSoil = NewMap(0);
         }
 
-        // dimensions rectangular or circular
-        if (SwitchIncludeStormDrains && SwitchStormDrainCircular) {
+        // drain circular
+        if (SwitchStormDrainCircular) {
             TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
             FOR_ROW_COL_MV_TILE {
-                double area = SQR(TileDiameter->Drc*0.5)*PI;// PI r^2
-                TileArea->Drc = area * 2; // two sides of the street
+                TileArea->Drc = TileDiameter->Drc*TileDiameter->Drc*0.25*PI;// PI r^2
             }
             CalcMAXDischCircular();
         }
-        if (SwitchIncludeStormDrains && !SwitchStormDrainCircular) {
+
+        // drain square
+        if (!SwitchStormDrainCircular) {
+            TileDiameter = NewMap(0);
+            TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
+            TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
+            cover(*TileWidth, *LDD, 0);
+            cover(*TileHeight, *LDD, 0);
             //rectangular drainage
             FOR_ROW_COL_MV_TILE {
-                TileArea->Drc = 2 * TileWidth->Drc*TileHeight->Drc;
+                TileArea->Drc = TileWidth->Drc*TileHeight->Drc;
                 // two sides of the street
             }
             CalcMAXDischRectangular();

@@ -281,14 +281,17 @@ void TWorld::DoModel()
 
             HydrologyProcesses();  // hydrological processes in one loop, incl splash
 
+            ToTiledrainAll();  // fraction going into tiledrain directly from surface
+
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
             // these are all non-threaded
             ChannelFlowandErosion();    // do ordered LDD solutions channel, tiles, drains, non threaded
 
-            TileFlow();          // tile drain flow kin wave
-                                 // storm drain flow kin wave
-            //StormDrainFlow();
+            if (SwitchUseSWMMflow)
+              TileFlowSWMM();
+            else
+              TileFlow();          // tile drain flow kin wave
 
             TotalsHydro();       // calculate all totals and cumulative values
             TotalsFlow();

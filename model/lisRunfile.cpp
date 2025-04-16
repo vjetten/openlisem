@@ -332,6 +332,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include tile drains")==0)               SwitchIncludeTile      = iii == 1;
         if (p1.compare("Include storm drains")==0)              SwitchIncludeStormDrains      = iii == 1;
         if (p1.compare("Storm drain shape")==0)                 SwitchStormDrainCircular      = iii == 1;
+        if (p1.compare("Use SWMM drain flow")==0)                SwitchUseSWMMflow      = iii == 1;
 
         // conservation
         if (p1.compare("Include Mitigation/Conservation")==0)   SwitchConservation = iii == 1;

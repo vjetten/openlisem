@@ -79,7 +79,7 @@ void lisemqt::setupPlot()
     PGraph->setStyle(QwtPlotCurve::Steps);
     QGraph->setStyle(QwtPlotCurve::Lines);
 
-    QPen pen1, pen2, pen3, pen4, pen5;
+    QPen pen1, pen2, pen3, pen4, pen5, pen6;
     pen1.setWidth(2);
     col.setRgb( 0,30,200,255 );
     pen1.setColor(col);
@@ -106,6 +106,11 @@ void lisemqt::setupPlot()
     pen5.setColor(col);
     pen5.setCosmetic(false);
 
+    col.setRgb( 0,100,220,220 ); // darkred
+    pen6.setWidth(2);
+    pen6.setColor(col);
+    pen6.setCosmetic(false);
+
     //https://forum.qt.io/topic/47823/setting-axis-label-in-qwt-multiaxis-branches-solved/5
 
     HPlot->setAxesCount(QwtAxis::YLeft, 1);
@@ -128,7 +133,7 @@ void lisemqt::setupPlot()
   //  }
 
   //  if(checkIncludeTiledrains->isChecked()) {
-        QtileGraph->setPen(pen3);
+        QtileGraph->setPen(pen6);
         QtileGraph->setAxes(axisXB, QwtAxis::YLeft);
         QtileGraph->setStyle(QwtPlotCurve::Lines);
    // }

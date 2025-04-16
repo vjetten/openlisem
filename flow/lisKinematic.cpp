@@ -167,7 +167,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     //C is unit volume of water, dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
     Qkx = (deltaTX*Qin + Qold*ab_pQ) / (deltaTX + ab_pQ);
     // explicit first guess Qkx
-    Qkx   = std::max(Qkx, 1e-30);
+    Qkx = std::max(Qkx, 1e-30);
 
     // do a first ietartion step for a better guess of Qkx
     // not necessary because the loop starts with this!!!
@@ -190,7 +190,6 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
         dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  // Current k derivative of function df(Qkx)/dt
         Qkx   -= fQkx / dfQkx;                                // next estimate Newton-Rapson
         Qkx   = std::max(Qkx, 1e-30);
-        // not necessary?
 
         // limit flux and alpha to culvert/pipe max
         if (Qm > 0) {
@@ -204,13 +203,12 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
     // stop when mass balance function ~0
-    itercount = count; // not used
+   // itercount = count; // not used
 
     return std::max(0.0, Qkx);
 }
 
 //---------------------------------------------------------------------------
-/*LDD_COOR *_crlinked_*/
 void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax, cTMap *_Amax)
 {   
     #pragma omp parallel for num_threads(userCores)
@@ -237,11 +235,18 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
         }
         QinKW->Drc = Qin;
 
-        if (Qin > 0 || _Q->Drc > 0) {
-            itercount = 0;
-               _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
-           // tmb->Drc = itercount;
-        }
+        // if (Qin < 1e-12 && _Q->Drc < 1e-12) {
+        //     Qn->Drc = 0;
+        //     QinKW->Drc = 0;
+        // } else {
+        //     if (QinKW->Drc >= _Qmax->Drc) {
+        //         Qn->Drc = _Qmax->Drc;
+        //         QinKW->Drc = _Qmax->Drc;
+        //     } else {
+                _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
+
+       //     }
+       // }
     }
 }
 //---------------------------------------------------------------------------
