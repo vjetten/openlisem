@@ -25,13 +25,31 @@
 #include <math.h>
 #include "model.h"
 
-//#include "findroot.h"
-
 #define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
 #define MAXIT 60
 
+// see page 82 hydraulic SWMM manual part 2,
+// based on https://github.com/USEPA/Stormwater-Management-Model.git
+//
+//  Input:   j = link index
+//           qinflow = inflow at current time (cfs)
+//           tStep = time step (sec)
+//  Output:  qoutflow = outflow at current time (cfs),
+//           returns number of iterations used
+//  Purpose: finds outflow over time step tStep given flow entering a
+//           conduit using Kinematic Wave flow routing.
+//
+//
+//                               ^ q3
+//  t                            |
+//  |          qin, ain |-------------------| qout, aout
+//  |                   |  Flow --->        |
+//  |----> x     q1, a1 |-------------------| q2, a2
+//
+//
 
 
+//---------------------------------------------------------------------------
 void TWorld::TileFlowSWMM(void)
 {
   if (!SwitchIncludeTile && !SwitchIncludeStormDrains)
@@ -62,15 +80,14 @@ void TWorld::TileFlowSWMM(void)
 
   #pragma omp parallel for num_threads(userCores)
   FOR_ROW_COL_MV_TILEL {
-
     double Area = TileWaterVol->Drc / DX->Drc;
     TileA->Drc = Area;
-    double area_ratio = Area/TileArea->Drc;
+    double a = Area/TileArea->Drc;
     double theta_next;
     double theta = PI;
     double tol = 1e-6;
     for (int j = 0; j < MAXIT; j++ ) {
-       double f = (theta - sin(theta)) / (2 * PI) - area_ratio;
+       double f = (theta - sin(theta)) / (2 * PI) - a;
        double df = (1 - cos(theta)) / (2 * PI);
        theta_next = theta - f / df;
        if (abs(theta_next - theta) < tol)
@@ -78,38 +95,18 @@ void TWorld::TileFlowSWMM(void)
        theta = theta_next;
     }
 
-    double perim = TileDiameter->Drc/2.0 * theta_next; // P = r*theta; A =
+    double perim = TileDiameter->Drc/2.0*theta_next; // P = r*theta; A =
     if (perim < 1e-6)
         TileQ->Drc = 0;
     else
         TileQ->Drc = std::pow(Area/perim, 5.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
-
   }}
 
   PipeFlowSWMM();
+
 }
-
-
-
-// based on https://github.com/USEPA/Stormwater-Management-Model.git
-//
-//  Input:   j = link index
-//           qinflow = inflow at current time (cfs)
-//           tStep = time step (sec)
-//  Output:  qoutflow = outflow at current time (cfs),
-//           returns number of iterations used
-//  Purpose: finds outflow over time step tStep given flow entering a
-//           conduit using Kinematic Wave flow routing.
-//
-//
-//                               ^ q3
-//  t                            |
-//  |          qin, ain |-------------------| qout, aout
-//  |                   |  Flow --->        |
-//  |----> x     q1, a1 |-------------------| q2, a2
-//
-//
-
+//---------------------------------------------------------------------------
+//  calculate actual radius r from psi relative (psi = s / dr->sFull;)
 double TWorld::psi_rel(double r, double theta) {
     // Partial flow
     double A = 0.5 * r * r * (theta - sin(theta));
@@ -122,9 +119,8 @@ double TWorld::psi_rel(double r, double theta) {
 
     return (A / A_full) * pow(R / R_full, 2.0 / 3.0);
 }
-
-
-// Newton-Raphson to solve for theta
+//---------------------------------------------------------------------------
+// Newton-Raphson to solve for theta from psi relative (psi = A*R^2/3 unit m^8/3
 double TWorld::solve_theta(double r, double psi_target) {
     double theta = PI;
     double tol = 1e-6;
@@ -139,7 +135,8 @@ double TWorld::solve_theta(double r, double psi_target) {
     }
     return theta;
 }
-
+//---------------------------------------------------------------------------
+//get area A from sectiopn factor s, s = A*R^2/3
 double TWorld::getAfromS(DRAIN_PROP *dr, double s)
 {
     double psi = s / dr->sFull;
@@ -148,36 +145,11 @@ double TWorld::getAfromS(DRAIN_PROP *dr, double s)
 
     double r =  dr->diam/2.0;
     double theta = solve_theta(r, psi);
-    double A = 0.5 * r * r * (theta - sin(theta));
-    return A;
+
+    return (0.5*r*r*(theta - sin(theta)));
 }
-
-
-
-/* see page 82 hydraulic
- *
- * y = flow depth, yFull is perimeter
- *     case CIRCULAR:
-        xsect->yFull = p[0]/ucf;
-        xsect->wMax  = xsect->yFull; // diameter
-        xsect->aFull = PI / 4.0 * xsect->yFull * xsect->yFull;  (pi r^2 = pi*d/2*d/2)
-        xsect->rFull = 0.2500 * xsect->yFull;
-        xsect->sFull = xsect->aFull * pow(xsect->rFull, 2./3.); // A*R^2/3 = m^6/3*m^2/3 = m^8/3
-        xsect->sMax  = 1.08 * xsect->sFull;
-        xsect->ywMax = 0.5 * xsect->yFull;
-        break;
-    Link[j].qFull = Link[j].xsect.sFull * Conduit[k].beta;
-    Conduit[k].qMax = Link[j].xsect.sMax * Conduit[k].beta;
-
-   double        yFull;           // depth when full (ft)
-   double        wMax;            // width at widest point (ft)
-   double        ywMax;           // depth at widest point (ft)
-   double        aFull;           // area when full (ft2)
-   double        rFull;           // hyd. radius when full (ft)
-   double        sFull;           // section factor when full (ft^4/3)
-   double        sMax;            // section factor at max. flow (ft^4/3)
-
-*/
+//---------------------------------------------------------------------------
+// do pipe flow according to confined kin wave in SWMM
 void TWorld::PipeFlowSWMM()
 {
     downstream(crlinkedlddtile_, TileA, tma);
@@ -227,8 +199,8 @@ void TWorld::PipeFlowSWMM()
 
         // --- normalize previous flows, averrage with downstream for now
         drain->q1 = TileQ->Drc / drain->Qfull;
-     //    drain->q2 = TileQ->Drc / drain->Qfull;
-        drain->q2 = ((TileQ->Drc + tmb->Drc)*0.5)/ drain->Qfull;
+        drain->q2 = TileQ->Drc / drain->Qfull;
+       //  drain->q2 = ((TileQ->Drc + tmb->Drc)*0.5)/ drain->Qfull;
         // --- normalize inflow
         drain->qin = std::min(drain->Qfull, TileQin->Drc)/drain->Qfull;
         // in SWMM code the inflow is maximized to the possible inflow
@@ -238,18 +210,16 @@ void TWorld::PipeFlowSWMM()
 
         // --- normalize previous areas, averrage with downstream
         drain->a1 = TileA->Drc/drain->Afull;
-      //  drain->a2 = TileA->Drc/drain->Afull;
-        drain->a2 = ((TileA->Drc + tma->Drc)*0.5)/ drain->Afull;
+        drain->a2 = TileA->Drc/drain->Afull;
+      //  drain->a2 = ((TileA->Drc + tma->Drc)*0.5)/ drain->Afull;
 
         // --- use full area when inlet flow >= full flow
         if ( drain->qin >= 1.0 )
             drain->ain = 1.0;
         else
             drain->ain = getAfromS(drain, drain->qin/drain->Beta1)/drain->Afull;
+        // --- get normalized inlet area corresponding to inlet flow
         //drain->qin/drain->Beta1 = qin/qfull * AR^2/3 / Afull
-            // --- get normalized inlet area corresponding to inlet flow
-         //   drain->ain = (drain->qin/drain->Beta1) / drain->Afull;
-     //   qDebug() << "qin" << drain->qin << drain->ain;
 
         // --- check for no flow
         if ( drain->qin < 1e-12 && drain->q2 < 1e-12 ) {
@@ -436,11 +406,12 @@ int TWorld::findroot_Newton(DRAIN_PROP *dr, double x1, double x2)
         if (fabs(dx) < EPSILON)
             break;
 
-        double a = x; // /dr->Afull; //relative area
-        double s = -1.1148*a*a*a + 1.6721*a*a + 0.4553*a - 0.0063;
+        // x = relative area
+        // in the m anual is a tabular approach with 50 steps but a perfect fit can be made with a polynomial for circular pipes
+        double s = -1.1148*x*x*x + 1.6721*x*x + 0.4553*x - 0.0063; // xsect_getSofA
         // polynomial fit of alpha and s
         f = dr->Beta1*s + dr->C1*xlo + dr->C2;
-        double ds = -0.9519*a*a*a + 1.6474*a*a + 0.4234*a - 0.003;
+        double ds = -0.9519*x*x*x + 1.6474*x*x + 0.4234*x - 0.003; // xsect_getdSdA
         df = dr->Beta1*dr->Afull*ds + dr->C1;
 
         //xlo = a
