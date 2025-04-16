@@ -43,24 +43,24 @@ void TWorld::ToTiledrainAll()
 
     if (SwitchIncludeStormDrains)  //SwitchIncludeTile ||
     {
-        Fill(*RunoffVolinToTile,0);
-
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_TILEL {
-          double fractiontotile;//  = 2.0 * 0.09/RoadWidthDX->Drc*DX->Drc/TileDrainDistance;
-          // every tile cell has a subtraction of water, based on the inlet fraction in the street
-          // assumed entry is 0.3 * 0.3 m
-          // if a road is divided over more cells, this probably overewstimates the entrance
-
+          RunoffVolinToTile->Drc = 0;
+          double fractiontotile = 0;;
           double MaxVol = DX->Drc*TileArea->Drc; //(pi r^2 or heightxwidth, done in datainit
 
           if (TileWaterVol->Drc >= MaxVol)
             fractiontotile = 0;
           else {
             fractiontotile = 2.0 * 0.09/RoadWidthDX->Drc*DX->Drc/TileDrainDistance;
+            fractiontotile = std::max(0.0, std::min(1.0,fractiontotile));
+            // every tile cell has a subtraction of water, based on the inlet fraction in the street
+            // assumed entry is 0.3 * 0.3 m
+            // if a road is divided over more cells, this probably overewstimates the entrance
 
             double vol = fractiontotile*WaterVolall->Drc;
             double dh = vol/CHAdjDX->Drc;
+
             RunoffVolinToTile->Drc = vol;
 
             // adjust water height

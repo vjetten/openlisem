@@ -421,7 +421,7 @@ void TWorld::InitLULCInput(void)
     Norg = NewMap(0);
     copy(*Norg, *N); //ed in sed trap... if trap is full go back to original N
 
-    RR = ReadMap(LDD,getvaluename("RR"));
+    RR = ReadMap(LDD,getvaluename("RR"));    
     checkMap(*LDD, *RR, SMALLER, 0.0, "Random roughness RR must be >= 0");
     calcValue(*RR, RRCalibration, MUL);
 

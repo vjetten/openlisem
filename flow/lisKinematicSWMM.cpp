@@ -250,13 +250,22 @@ void TWorld::PipeFlowSWMM()
                 result = 1;
 
             // --- compute normalized outlet flow from outlet area
-            drain->qout = drain->Beta1 * drain->aout*drain->Afull; //beta1 = drain->beta / drain->Qfull
+            double a = drain->aout;
+            double sfroma = -1.222*a*a*a + 1.9904*a*a + 0.312*a + 0.0039;
+            if (drain->aout > 0.98)
+              sfroma = 1.07662;
+            if (drain->aout == 1.0)
+              sfroma = 1.0;
+            drain->qout = drain->Beta1 * sfroma;
+            //qout = Beta1 * xsect_getSofA(pXsect, aout*Afull);
+            //xsect->sFull * lookup(alpha, S_Circ, N_S_Circ);
+
            // drain->qout /= drain->Qfull;
             if (drain->qin > 1.0)
                 drain->qin = 1.0;
 
         }
-//qDebug() << r<<c<<drain->qout<< drain->Qfull << drain->qout/drain->Qfull;
+
         TileQn->Drc = drain->qout*drain->Qfull;
         TileWaterVol->Drc = drain->aout*drain->Afull * DX->Drc;
         Qnout = drain->qout/drain->Qfull;

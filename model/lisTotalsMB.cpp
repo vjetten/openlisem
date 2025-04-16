@@ -214,7 +214,7 @@ void TWorld::TotalsFlow(void)
     //=== channel flow ===//
     if (SwitchIncludeChannel) {
         ChannelVolTot = MapTotal(*ChannelWaterVol); //m3
-        // add channel vol to total
+        ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
 
         if (SwitchChannelInfil) {
             InfilTot += MapTotal(*ChannelInfilVol); //m3
@@ -239,8 +239,6 @@ void TWorld::TotalsFlow(void)
 
         if (SwitchChannelBaseflowStationary)
             BaseFlowTot += MapTotal(*BaseFlowInflow)*_dt; // stationary base inflow
-
-        ChannelVolTotmm = ChannelVolTot*catchmentAreaFlatMM; //mm
 
         // recalc in mm for screen output
         // NOT USED
@@ -305,12 +303,10 @@ void TWorld::TotalsFlow(void)
     //=== storm drain flow ===//
     if(SwitchIncludeStormDrains) {
         FOR_ROW_COL_MV_TILE
-        if (LDDTile->Drc == 5)
-        {
-            //Qtot_dt += TileQn->Drc * _dt;
+        if (LDDTile->Drc == 5) {
             QTiletot += TileQn->Drc * _dt;
         }
-        StormDrainVolTot = MapTotal(*TileWaterVol);// + QTiletot;
+        StormDrainVolTot = MapTotal(*TileWaterVol);
         StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
     }
     // can occur both of coursse, treat separately
@@ -431,18 +427,6 @@ void TWorld::TotalsSediment(void)
                 //total concentration
                 ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, sed);//ChannelSed->Drc);
             }}
-            // upstream(LDDChannel, ChannelWaterVol, tma);
-            // upstream(LDDChannel, ChannelSSSed, tmb);
-
-            // FOR_ROW_COL_MV_CHL {
-            //     double water = 0.5*(ChannelWaterVol->Drc + tma->Drc);
-            //     ChannelWaterVol->Drc = water;
-            //     double sed = 0.5*(ChannelSSSed->Drc + tmb->Drc);
-            //     ChannelSSSed->Drc = sed;
-            //     ChannelConc->Drc = MaxConcentration(water,sed);
-
-            // }}
-
         }
 
         if (FlowBoundaryType > 0) {
@@ -542,9 +526,7 @@ void TWorld::MassBalance()
 
     // Mass Balance water, all in m3
     double waterin = RainTot + WHinitVolTot + BaseFlowTot + BaseFlowInit + QuserInTot;// - QSideVolTot;
-                     // rainfall + initial WH on surface if present, + baseflow and init baseflow + user defined inflow in channel + sideinflow through soil
     double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot + RetentionVolTot;
-                     // all interception + ETa + water on surface + water in channel + water in subsurface drains
     double waterout = Qtot + IntercETaTot + QTiletot;
     // floodBoundaryTot is already in Qtot
     MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
@@ -563,6 +545,7 @@ void TWorld::MassBalance()
         }}
         double tot = MapTotal(*tma);
         double dV = (waterin - waterout - waterstore)/tot;
+        waterstore -= WaterVolTot;
         FOR_ROW_COL_MV_L {
             double dH = dV/(CHAdjDX->Drc); // avg error in m on wet cells
             if (WHrunoff->Drc > 0)
@@ -574,7 +557,8 @@ void TWorld::MassBalance()
             WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
         }}
         WaterVolTot = MapTotal(*WaterVolall);
-        waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot;
+        waterstore += WaterVolTot;
+        //IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot + RetentionVolTot;
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
