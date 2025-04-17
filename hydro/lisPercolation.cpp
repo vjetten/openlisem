@@ -301,6 +301,29 @@ void TWorld::cell_Redistribution1(int r, int c)
     double SoilDep1 = SoilDepth1->Drc;
     double FC = ThetaFC1->Drc;
 
+    if (SwitchIncludeTile) {
+      if (Lw_ > TileDepth->Drc) {
+          double vol = DX->Drc*Ksateff->Drc*TileDiameter->Drc;
+          // volume draining, assuming full saturation so Ksat is draining
+          double volsoil = Lw_*(pore-FC)*CHAdjDX->Drc;
+          // available volume, not drier than FC, gravity
+          vol = std::min(volsoil, vol);
+          double tiledm = vol/CHAdjDX->Drc; // removal in m
+
+          double moisture = Lw_*(pore-thetar); //available sat moisture above Lw_
+          moisture -= tiledm; // okay because removal limited to FC
+          double newLw_ = moisture/(pore-thetar); // new Lw_
+
+          theta = (Lw_-newLw_)*FC + (SoilDep1-Lw_)*theta;
+          // new moisture content is weighed avg
+
+          Thetaeff->Drc = theta;
+          Lw->Drc = newLw_;
+          TileWaterVolSoil->Drc = vol;
+      }
+    }
+
+
     if (Lw_ < SoilDep1-0.001) {
         theta_E = (theta-thetar)/(pore-thetar);
         Percolation = Ksateff->Drc * pow(theta_E, 3.0+2.0/lambda1->Drc); // m/timestep
@@ -363,6 +386,30 @@ void TWorld::cell_Redistribution2(int r, int c)
    double SoilDep2 = SoilDepth2->Drc;
    double FC2 = ThetaFC2->Drc;
    double DL2 = SoilDep2-SoilDep1;
+
+
+   if (SwitchIncludeTile) {
+     if (Lw_ > TileDepth->Drc) {
+         double vol = DX->Drc*Ksateff->Drc*TileDiameter->Drc;
+         // volume draining, assuming full saturation so Ksat is draining
+         double volsoil = Lw_*(pore-FC1)*CHAdjDX->Drc;
+         // available volume, not drier than FC, gravity
+         vol = std::min(volsoil, vol);
+         double tiledm = vol/CHAdjDX->Drc; // removal in m
+
+         double moisture = Lw_*(pore-thetar); //available sat moisture above Lw_
+         moisture -= tiledm; // okay because removal limited to FC
+         double newLw_ = moisture/(pore-thetar); // new Lw_
+
+         theta = (Lw_-newLw_)*FC1 + (SoilDep1-Lw_)*theta;
+         // new moisture content is weighed avg
+
+         Thetaeff->Drc = theta;
+         Lw->Drc = newLw_;
+         TileWaterVolSoil->Drc = vol;
+     }
+   }
+
 
    // if Lw still in layer 1
    if (Lw_ < SoilDep1) {

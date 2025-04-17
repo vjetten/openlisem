@@ -325,18 +325,6 @@ double TWorld::IncreaseInfiltrationDepthNew1(double fact_in, int r, int c)
 
     Lnew = std::min(SoilDep1,std::max(0.0, Lnew));
 
-    if (SwitchIncludeTile) {
-      if (Lnew > TileDepth->Drc) {
-          double vol = Dx->Drc*Ksat1->Drc*TileDiameter->Drc;
-          // fraction of volume in layer 1, assuming full saturation so pore is draining
-          TileWaterVolSoil->Drc = vol;
-
-
-
-        }
-      }
-
-
     Lw->Drc = Lnew;
     return std::max(0.0, fact_out);
 }
