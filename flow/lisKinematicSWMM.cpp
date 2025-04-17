@@ -68,13 +68,8 @@ void TWorld::TileFlowSWMM(void)
   if (SwitchIncludeTile) {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_TILEL {
-      TileWaterVol->Drc += TileDrainSoil->Drc * TileDiameter->Drc * DX->Drc;
-      // asume water can come from all sides!
-      // add inflow to Tile in m3, tiledrainsoil is in m per timestep
-
-      TileWaterVolSoil->Drc += TileDrainSoil->Drc * TileDiameter->Drc  * DX->Drc;
-      // soil only used for MB correction
-
+      TileWaterVol->Drc += TileWaterVolSoil->Drc;
+      // add volume water from the soil
     }}
   }
 

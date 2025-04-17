@@ -2291,7 +2291,7 @@ void TWorld::InitTiledrains(void)
         if (SwitchIncludeTile) {
             TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
             cover(*TileDepth, *LDD, -1); //VJ non tile cells flagged by -1 value, needed in swatre init
-            TileDrainSoil = NewMap(0);
+            //TileDrainSoil = NewMap(0);
             TileWaterVolSoil = NewMap(0);
         }
 
