@@ -997,6 +997,7 @@ public:
     void ChannelSedimentFlow();
     void ChannelFlowandErosion();
     void ChannelVelocityandDischarge();
+    double pipeThetafroma(int r, int c, double a);
     void ChannelFlood(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V);
     void ChannelOverflowIteration(cTMap *_h, cTMap *_V);

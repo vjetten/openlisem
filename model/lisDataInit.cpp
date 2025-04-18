@@ -1025,18 +1025,18 @@ void TWorld::InitChannel(void)
 
     if (SwitchCulverts) {
 
-        ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
-        cover(*ChannelMaxQ, *LDD,0);
+        ChannelDiameter = ReadMap(LDDChannel, getvaluename("chandiam"));
+        //cover(*ChannelDiameter, *LDD,0);
+        ChannelMaxQ = NewMap(0);
         ChannelMaxAlpha = NewMap(0);
 
         FOR_ROW_COL_MV_CHL {
-            if (ChannelMaxQ->Drc > 0) {
-                // ChannelWidth->Drc = 0.3;
-                // ChannelWidthO->Drc = 0.3;
-                // ChannelDepth->Drc = 0.3;
+            if (ChannelDiameter->Drc > 0) {
+                ChannelDiameter->Drc /= 1000;
+                double area = PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;
+                double perim = PI*ChannelDiameter->Drc;
                 ChannelN->Drc = 0.015;
-                ChannelGrad->Drc = 0.002;
-
+                ChannelMaxQ->Drc = std::pow(area/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
                 ChannelMaxAlpha->Drc = (ChannelWidth->Drc*ChannelDepth->Drc)/std::pow(ChannelMaxQ->Drc, 0.6);
             }
         }}
@@ -2300,10 +2300,9 @@ void TWorld::InitTiledrains(void)
             FOR_ROW_COL_MV_TILE {
                 TileArea->Drc = TileDiameter->Drc*TileDiameter->Drc*0.25*PI;// PI r^2
                 double Perim = PI*TileDiameter->Drc;
-                TileMaxQ->Drc = Area*std::pow(TileArea/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
-                TileMaxAlpha->Drc  = Area/std::pow(TileMaxQ->Drc, BETApipe);
+                TileMaxQ->Drc = TileArea->Drc*std::pow(TileArea->Drc/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+                TileMaxAlpha->Drc  = TileArea->Drc/std::pow(TileMaxQ->Drc, BETAcirc);
             }
-            CalcMAXDischCircular();
         }
 
         // drain square
@@ -2317,10 +2316,8 @@ void TWorld::InitTiledrains(void)
             FOR_ROW_COL_MV_TILE {
                 TileArea->Drc = TileWidth->Drc*TileHeight->Drc;
                 double Perim = TileWidth->Drc+2*TileHeight->Drc;
-
-                // max values Q and alpha
-                TileMaxQ->Drc = Area*pow(TileArea->Drc/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
-                TileMaxAlpha->Drc  = Area/std::pow(TileMaxQ->Drc, BETArect);
+                TileMaxQ->Drc = TileArea->Drc*pow(TileArea->Drc/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+                TileMaxAlpha->Drc  = TileArea->Drc/std::pow(TileMaxQ->Drc, BETArect);
             }
         }
     }

@@ -350,6 +350,7 @@ cTMap
 *Buffers,                    //!<
 *GridRetention,                    //!<
 *GridRetentionAct,
+*ChannelDiameter,                //!<
 *ChannelMaxQ,                //!<
 *ChannelMaxAlpha,                //!<
 *FloodWaterVol,                //!<

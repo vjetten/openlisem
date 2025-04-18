@@ -104,20 +104,25 @@ void TWorld::CalcVelDischCircular()
       double Area = TileWaterVol->Drc / DX->Drc;
       //TileA->Drc = Area;
       double a = Area/TileArea->Drc;
-      double theta_next;
-      double theta = PI;
-      double tol = 1e-6;
-      // get angle theta from a
-      for (int j = 0; j < 50; j++ ) {
-         double f = (theta - sin(theta)) / (2 * PI) - a;
-         double df = (1 - cos(theta)) / (2 * PI);
-         theta_next = theta - f / df;
-         if (abs(theta_next - theta) < tol)
-             break;
-         theta = theta_next;
+      double perim = 0;
+      if (a < 1) {
+          double theta_next;
+          double theta = PI;
+          double tol = 1e-6;
+          // get angle theta from a
+          for (int j = 0; j < 50; j++ ) {
+              double f = (theta - sin(theta)) / (2 * PI) - a;
+              double df = (1 - cos(theta)) / (2 * PI);
+              theta_next = theta - f / df;
+              if (abs(theta_next - theta) < tol)
+                  break;
+              theta = theta_next;
+          }
+          perim = TileDiameter->Drc/2.0*theta_next; // P = r*theta; A =
+      } else {
+          perim = TileDiameter->Drc;
       }
 
-      double perim = TileDiameter->Drc/2.0*theta_next; // P = r*theta; A =
       if (perim < 1e-6)
           TileQ->Drc = 0;
       else
