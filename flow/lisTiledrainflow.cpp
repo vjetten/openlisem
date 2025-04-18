@@ -34,8 +34,6 @@ functions: \n
 #include "model.h"
 #include "operation.h"
 
-#define BETA 0.6
-
 //---------------------------------------------------------------------------
 // flow in all road cells to tiledrain
 //fraction of water and sediment flowing from the surface to the tiledrain system
@@ -89,9 +87,9 @@ void TWorld::CalcVelDischRectangular()
 
         Area = TileWaterVol->Drc/DX->Drc;
         Perim = TileWidth->Drc + Area/TileWidth->Drc; //(=w+2*h)
-        TileA->Drc = Area;
+        //TileA->Drc = Area;
         TileMaxQ->Drc = Area*pow(Area/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;;
-        TileAlpha->Drc  = Area/std::pow(TileQ->Drc, BETA);
+        TileAlpha->Drc  = Area/std::pow(TileQ->Drc, BETArect);
     }}
 }
 //---------------------------------------------------------------------------
@@ -104,7 +102,7 @@ void TWorld::CalcVelDischCircular()
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_TILEL {
       double Area = TileWaterVol->Drc / DX->Drc;
-      TileA->Drc = Area;
+      //TileA->Drc = Area;
       double a = Area/TileArea->Drc;
       double theta_next;
       double theta = PI;
@@ -188,29 +186,3 @@ void TWorld::TileFlow(void)
   }
 }
 //---------------------------------------------------------------------------
-void TWorld::CalcMAXDischRectangular()
-{
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_TILEL {
-        double Area = TileArea->Drc;
-        double width = Area/TileHeight->Drc;
-        double Perim = width+TileHeight->Drc; // factor 2 width for two drains in a strteet
-
-        TileMaxQ->Drc = Area*pow(Area/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
-        TileMaxAlpha->Drc  = Area/std::pow(TileMaxQ->Drc, BETA);
-    }}
-}
-//---------------------------------------------------------------------------
-// called from dataini, needed in kin wave
-void TWorld::CalcMAXDischCircular()
-{
-   #pragma omp parallel for num_threads(userCores)
-   FOR_ROW_COL_MV_TILEL {
-
-      double Area = TileArea->Drc;
-      double Perim = PI*TileDiameter->Drc;
-      TileMaxQ->Drc = Area*std::pow(Area/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
-      TileMaxAlpha->Drc  = Area/std::pow(TileMaxQ->Drc, 0.6);
-
-   }}
-}

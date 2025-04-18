@@ -76,7 +76,7 @@ void TWorld::TileFlowSWMM(void)
   #pragma omp parallel for num_threads(userCores)
   FOR_ROW_COL_MV_TILEL {
     double Area = TileWaterVol->Drc / DX->Drc;
-    TileA->Drc = Area;
+    //TileA->Drc = Area;
     double a = Area/TileArea->Drc;
     double theta_next;
     double theta = PI;
@@ -147,7 +147,7 @@ double TWorld::getAfromS(DRAIN_PROP *dr, double s)
 // do pipe flow according to confined kin wave in SWMM
 void TWorld::PipeFlowSWMM()
 {
-    downstream(crlinkedlddtile_, TileA, tma);
+    downstream(crlinkedlddtile_, TileWaterVol, tma);
     downstream(crlinkedlddtile_, TileQ, tmb);
     Fill(*Qn,0);
 
@@ -206,9 +206,10 @@ void TWorld::PipeFlowSWMM()
        // double q3 = 0;//link_getLossRate(j, KW, qin*Qfull, tStep) / Qfull;
 
         // --- normalize previous areas, averrage with downstream
-        drain->a1 = TileA->Drc/drain->Afull;
-        drain->a2 = TileA->Drc/drain->Afull;
-      //  drain->a2 = ((TileA->Drc + tma->Drc)*0.5)/ drain->Afull;
+        double Aa = TileWaterVol->Drc/DX->Drc;
+        drain->a1 = Aa/drain->Afull;
+        drain->a2 = Aa/drain->Afull;
+      //  drain->a2 = ((Aa + tma->Drc/DX->Drc)*0.5)/ drain->Afull;
 
         // --- use full area when inlet flow >= full flow
         if ( drain->qin >= 1.0 )

@@ -67,6 +67,10 @@
 
 #define GRAV_DEM 4.90335
 
+#define BETArect 0.6
+#define BETAcirc 0.6
+
+
 #define Aavg(a,b)  (0.5*(a+b))
 #define Savg(a,b)  sqrt(a*b)
 #define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
@@ -287,7 +291,7 @@ typedef struct vec6 { double v[6]; } vec6;
 //---------------------------------------------------------------------------
 /// Structure to store rain station values of rainfile mapnames
 typedef struct RAIN_LIST {
-    double time;    
+    double time;
     QList <int> stationnr;
     QVector <double> intensity;
 } RAIN_LIST;
@@ -396,7 +400,7 @@ public:
     int nNodes, nN1_, nN2_, nN3_;
     int nrSoilLayers;
     double SoilWBdtfactor;
-    int KavgType;								 
+    int KavgType;
 
     long nrValidCells;
     long nrValidCellsLDD5;
@@ -674,7 +678,7 @@ public:
     double StormDrainTotmm, floodVolTotmm, floodTotmmInit;
     /// peak times (min)
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
-    bool rainStarted;    
+    bool rainStarted;
     bool ETStarted;
     double ETstartTime;
     double BulkDens;
@@ -1001,9 +1005,7 @@ public:
     void TileFlow(void);
     void TileFlowSWMM(void);
     void CalcVelDischRectangular(void);
-    void CalcMAXDischRectangular(void);
     void CalcVelDischCircular(void);
-    void CalcMAXDischCircular(void);
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
 

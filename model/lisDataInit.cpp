@@ -73,12 +73,13 @@ void TWorld::GetInputData(void)
     //## get flow barriers;
     InitFlowBarriers();
 
+    //creta onscreen network
     InitScreenChanNetwork();
 
 }
 //---------------------------------------------------------------------------
 void TWorld::InitParameters(void)
-{       
+{
     PBiasCorrection = getvaluedouble("Rainfall Bias Correction");
     ETBiasCorrection = getvaluedouble("ET Bias Correction");
     rainfallETa_threshold = getvaluedouble("Rainfall ET threshold"); // in mm
@@ -183,8 +184,6 @@ void TWorld::InitParameters(void)
         //SwitchGWChangeSD = true;
     }
 
-   // F_fluxLimiter = 2;
-
     rillfactor = 1.0;
     _CHMaxV = 20.0;
     if (SwitchChannelMaxV)
@@ -208,7 +207,7 @@ void TWorld::InitParameters(void)
 }
 //---------------------------------------------------------------------------
 void TWorld::InitStandardInput(void)
-{   
+{
     //## catchment data
     LDD = InitMask(getvaluename("ldd"));
     // THIS SHOULD BE THE FIRST MAP
@@ -421,7 +420,7 @@ void TWorld::InitLULCInput(void)
     Norg = NewMap(0);
     copy(*Norg, *N); //ed in sed trap... if trap is full go back to original N
 
-    RR = ReadMap(LDD,getvaluename("RR"));    
+    RR = ReadMap(LDD,getvaluename("RR"));
     checkMap(*LDD, *RR, SMALLER, 0.0, "Random roughness RR must be >= 0");
     calcValue(*RR, RRCalibration, MUL);
 
@@ -749,7 +748,7 @@ void TWorld::InitSoilInput(void)
         if (SwitchInfilCrust) {
             KsatCrust = ReadMap(LDD,getvaluename("ksatcrst"));
             calcValue(*KsatCrust, ksatCalibration, MUL);
-			//DO THIS, else inconsistency, and Ksat can be smaller than ksatcrust
+            //DO THIS, else inconsistency, and Ksat can be smaller than ksatcrust
 
             PoreCrust = ReadMap(LDD,getvaluename("porecrst"));
         } else {
@@ -762,7 +761,7 @@ void TWorld::InitSoilInput(void)
             KsatCompact = ReadMap(LDD,getvaluename("ksatcomp"));
             calcValue(*KsatCompact, ksatCalibration, MUL);
             //DO THIS, else inconsistency, Ksat can be smaller than ksatcomp
-            PoreCompact = ReadMap(LDD,getvaluename("porecomp"));                       
+            PoreCompact = ReadMap(LDD,getvaluename("porecomp"));
         } else {
             KsatCompact = NewMap(0);
             PoreCompact = NewMap(0);
@@ -1577,7 +1576,7 @@ void TWorld::InitErosion(void)
         }
 
         // Eurosem method, aggr stab is not strength but sed delivery so the opposite
-        if (SwitchSplashEQ == 2) {                      
+        if (SwitchSplashEQ == 2) {
            SplashStrength->Drc = (1/ASCalibration)*AggrStab->Drc;
         }
         if (AggrStab->Drc < 0 || RootCohesion->Drc < 0)
@@ -2244,7 +2243,7 @@ void TWorld::InitTiledrains(void)
         TileWaterVol = NewMap(0);
         RunoffVolinToTile = NewMap(0);
         TileQ = NewMap(0);
-        TileA = NewMap(0);
+        //TileA = NewMap(0);
         TileQin = NewMap(0);
         TileMaxQ = NewMap(0);
         TileQn = NewMap(0);
@@ -2300,6 +2299,9 @@ void TWorld::InitTiledrains(void)
             TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
             FOR_ROW_COL_MV_TILE {
                 TileArea->Drc = TileDiameter->Drc*TileDiameter->Drc*0.25*PI;// PI r^2
+                double Perim = PI*TileDiameter->Drc;
+                TileMaxQ->Drc = Area*std::pow(TileArea/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+                TileMaxAlpha->Drc  = Area/std::pow(TileMaxQ->Drc, BETApipe);
             }
             CalcMAXDischCircular();
         }
@@ -2314,9 +2316,12 @@ void TWorld::InitTiledrains(void)
             //rectangular drainage
             FOR_ROW_COL_MV_TILE {
                 TileArea->Drc = TileWidth->Drc*TileHeight->Drc;
-                // two sides of the street
+                double Perim = TileWidth->Drc+2*TileHeight->Drc;
+
+                // max values Q and alpha
+                TileMaxQ->Drc = Area*pow(TileArea->Drc/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+                TileMaxAlpha->Drc  = Area/std::pow(TileMaxQ->Drc, BETArect);
             }
-            CalcMAXDischRectangular();
         }
     }
 }

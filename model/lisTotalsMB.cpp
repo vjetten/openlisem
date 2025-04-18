@@ -299,40 +299,30 @@ void TWorld::TotalsFlow(void)
         }}
         // add channel outflow (in m3) to total for all pits
     }
-double tott = 0;
+
 
     //=== storm drain flow
-    if(SwitchIncludeStormDrains) {
+    if(SwitchIncludeStormDrains || SwitchIncludeTile) {
+        double tott = 0;
+        // sum the tile outlets
         FOR_ROW_COL_MV_TILEL {
-          if (LDDTile->Drc == 5) {
-            QTiletot += TileQn->Drc * _dt;
-            tott += TileQn->Drc;
-          }
-        }}
+        if (LDDTile->Drc == 5) {
+          QTiletot += TileQn->Drc * _dt;
+          tott += TileQn->Drc;
+        }
+      }}
+      //urban volume in drains
+      if (SwitchIncludeStormDrains) {
         StormDrainVolTot = MapTotal(*TileWaterVol);
-        StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
+      }
+      // agriculture volume in tiles
+      if (SwitchIncludeTile){
+        StormDrainVolTot = MapTotal(*TileWaterVolSoil);
+      }
+      // output
+      StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
+      qDebug() << StormDrainVolTot << QTiletot << tott << tilein;
     }
-
-    qDebug() << SwitchIncludeStormDrains << StormDrainVolTot << QTiletot << tott << tilein;
-    // can occur both of coursse, treat separately
-    if (SwitchIncludeTile)
-    {
-        // WaterVolSoilTileTot = MapTotal(*TileWaterVolSoil);
-        // // input for mass balance, is the water seeping from the soil, input
-        // // this is the water before the kin wave
-        // calc2Maps(*tm, *TileDrainSoil, *TileWidth, MUL); //in m3
-        // calcMap(*tm, *DX, MUL); //in m3
-
-        // TileVolTot += MapTotal(*tm); // in m3
-
-        // FOR_ROW_COL_MV_TILE
-        // if (LDDTile->Drc == 5)
-        // {
-        //    // Qtot_dt += TileQn->Drc * _dt;
-        //     QTiletot += TileQn->Drc * _dt;
-        // }
-    }
-
 
     // sum of all fluxes ONLY for display on screen
     #pragma omp parallel for num_threads(userCores)
@@ -420,7 +410,7 @@ void TWorld::TotalsSediment(void)
         {
           //  #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
             FOR_ROW_COL_LDDCH5 {
-                SoilLossTot_dt += ChannelQsn->Drc * _dt;               
+                SoilLossTot_dt += ChannelQsn->Drc * _dt;
             }}
 
             ChannelDetTot += MapTotal(*ChannelDetFlow);

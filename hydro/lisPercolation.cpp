@@ -389,7 +389,7 @@ void TWorld::cell_Redistribution2(int r, int c)
 
 
    if (SwitchIncludeTile) {
-     if (Lw_ > TileDepth->Drc) {
+     if (Lw_ > TileDepth->Drc && TileDepth->Drc <= SoilDep1) {
          double vol = DX->Drc*Ksateff->Drc*TileDiameter->Drc;
          // volume draining, assuming full saturation so Ksat is draining
          double volsoil = Lw_*(pore-FC1)*CHAdjDX->Drc;
@@ -407,6 +407,26 @@ void TWorld::cell_Redistribution2(int r, int c)
          Thetaeff->Drc = theta;
          Lw->Drc = newLw_;
          TileWaterVolSoil->Drc = vol;
+     }
+
+     if (Lw_ > TileDepth->Drc && TileDepth->Drc > SoilDep1) {
+       double vol = DX->Drc*Ksat2->Drc*TileDiameter->Drc;
+       // volume draining, assuming full saturation so Ksat is draining
+       double volsoil = (Lw_-SoilDep1)*(pore2-FC2)*CHAdjDX->Drc;
+       // available volume, not drier than FC, gravity
+       vol = std::min(volsoil, vol);
+       double tiledm = vol/CHAdjDX->Drc; // removal in m
+
+       double moisture = (Lw_-SoilDep1)*(pore2-thetar2); //available sat moisture above Lw_
+       moisture -= tiledm; // okay because removal limited to FC
+       double newLw_ = moisture/(pore2-thetar2); // new Lw_
+
+       theta = (Lw_-newLw_)*FC2 + (SoilDep2-Lw_)*theta;
+       // new moisture content is weighed avg
+
+       Thetaeff->Drc = theta;
+       Lw->Drc = newLw_;
+       TileWaterVolSoil->Drc = vol;
      }
    }
 
