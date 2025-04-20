@@ -952,6 +952,8 @@ public:
     void cell_Redistribution0(int r, int c);
     void cell_Redistribution1(int r, int c);
     void cell_Redistribution2(int r, int c);
+    void cell_Tiledrain1(int r, int c);
+    void cell_Tiledrain2(int r, int c);
     void cell_Channelinfow1(int r, int c);
     void cell_Channelinfow2(int r, int c);
     void cell_SplashDetachment(int r, int c);
@@ -1153,14 +1155,12 @@ public:
     HORIZON *ReadHorizonNew(QString tablePath, QString tableName);
     LUT *ReadSoilTableNew(QString fileName);
     void checkFileForInvalidLetters(const QString &filePath);
-    double SwatreStep(long i_, int r, int c, SOIL_MODEL *s, double _WH, cTMap *_drain, cTMap *_theta);
+    double SwatreStep(long i_, int r, int c, SOIL_MODEL *s, double _WH, cTMap *_drain);
     void HeadCalc(const PROFILE *p, double *h, bool *isPonded, bool fltsat,
                   const double *thetaPrev, const double *hPrev, const double *kavg, const double *dimoca,
                   double dt, double pond, double qtop, double qbot);
     double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes, double dtMin, double precParam);
-//    double  NewTimeStep(double prevDt, QVector <double> hlast, QVector <double> h, int nrNodes, double dtMin);
-//    void ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction);
-    void ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction);
+    void ComputeForPixel(long i_, SOIL_MODEL *s);
     double DmcNode(double head,const  HORIZON *hor,bool on_dmch);
     double FindValue(double value,const  HORIZON *hor, int colv, int col);
     double HNode(double theta,const  HORIZON *hor); // obsolete

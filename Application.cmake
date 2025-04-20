@@ -115,6 +115,7 @@ SET(APP_SOURCES
     ui_full/lisUIStyle.cpp
     ui_full/lismpeg.h
     ui_full/lisemqt.h
+    swatre/lisInfilSwatre.cpp
     swatre/swatstep.cpp
     swatre/swatinit.cpp
     swatre/lookup.cpp
@@ -137,7 +138,6 @@ SET(APP_SOURCES
     meteo/lisRainfall.cpp
     meteo/lisSnowmelt.cpp
     meteo/lisEvaporation.cpp
-
     model/main.cpp
     model/lisReportfile.cpp
     model/lisReportmaps.cpp
@@ -156,29 +156,6 @@ SET(APP_SOURCES
     erosion/lisChannelErosion.cpp
     erosion/lisSWOF2DSediment.cpp
     erosion/lisErosion.cpp
-    include/array.h
-    include/CsfMap.h
-    include/CsfRGBMap.h
-    include/pcrtypes.h
-    include/csf.h
-    include/csfattr.h
-    include/csftypes.h
-    include/csfimpl.h
-    include/lerror.h
-    include/fixture.h
-    include/global.h
-    include/io.h
-    include/LisUIoutput.h
-    include/masked_raster.h
-    include/mmath.h
-    include/model.h
-    include/operation.h
-    include/option.h
-    include/raster.h
-    include/swatre_p.h
-    include/TMmapVariables.h
-    include/VectormapVariables.h
-    include/version.h
     PCR/create2.c
     PCR/mclose.c
     PCR/ruseas.c

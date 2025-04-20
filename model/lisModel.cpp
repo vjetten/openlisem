@@ -254,7 +254,7 @@ void TWorld::DoModel()
 
         // ---- THE TIME LOOP ----
         for (time = BeginTime; time < EndTime; time += _dt)
-        {            
+        {
             // printstep determines report frequency in #define report(...)
             if (runstep > 0 && runstep % printinterval == 0)
                 printstep++;
@@ -438,9 +438,11 @@ void TWorld::HydrologyProcesses()
                 cell_InfilMethods(r, c);
 
                 if (SwitchTwoLayer) {
+                    cell_Tiledrain2(r,c);
                     cell_Redistribution2(r, c);
                     //cell_Channelinfow2(r, c);
                 } else {
+                    cell_Tiledrain1(r,c);
                     cell_Redistribution1(r, c);
                     //cell_Channelinfow1(r, c);
                 }

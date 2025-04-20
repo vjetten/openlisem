@@ -67,7 +67,7 @@ typedef struct ZONE   {
     QVector <double> dz;
     QVector <double> z;
     QVector <double> endComp;
-    QVector <double> disnod;   
+    QVector <double> disnod;
     QVector <double> rootz;
 } ZONE;
 //---------------------------------------------------------------------------
@@ -97,9 +97,7 @@ typedef struct PIXEL_INFO {
     int r;
     int c;
     double wh;
-    //double impfrac;
     double percolation;
-    double theta; // for pesticides?
     double tiledrain;   /** drainage into tiledrin system at a given depth */
     double corrKsOA;
     double corrKsOB;

@@ -345,10 +345,15 @@ void TWorld::GetComboMaps()
         AddComboMap(0,"Channel Velocity","m/s",ChannelV,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
     }
 
-    if(SwitchIncludeTile || SwitchIncludeStormDrains) {
+    if(SwitchIncludeStormDrains) {
         cl = 0;
         AddComboMap(0,"Storm Drain Volume","m3",TileWaterVol,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
         AddComboMap(0,"Storm Drain Discharge","m3/s",TileQn,LegendMap[cl],Legend[cl],true,false,1.0,0.001);
+    }
+    if(SwitchIncludeStormDrains) {
+        cl = 0;
+        AddComboMap(0,"Tile Drain Volume","m3",TileWaterVolSoil,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+        AddComboMap(0,"Tile Drain Discharge","m3/s",TileQn,LegendMap[cl],Legend[cl],true,false,1.0,0.001);
     }
 
     cl = 3;

@@ -256,7 +256,6 @@ cTMap
 *GrassWidthDX,               //!< width of grasstrip in [m]
 
 //swatre
-*thetaTop,                   //!< average theta of node 0 and 1 for water repelency and nutrients
 *OMcorr,
 *DensFact,
 *ProfileID,                  //!< SWATRE profile unit number map
