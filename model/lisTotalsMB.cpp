@@ -272,8 +272,8 @@ void TWorld::TotalsFlow(void)
     // sum all outflow in m3 for this timestep, Qtot is for all timesteps!
 
     if (FlowBoundaryType > 0) {
-        floodBoundaryTot += QBoundary*_dt;
-        Qboundtotmm = floodBoundaryTot*catchmentAreaFlatMM;
+        QBoundaryTot += QBoundary*_dt;
+        Qboundtotmm = QBoundaryTot*catchmentAreaFlatMM;
         Qtot_dt += QBoundary*_dt;
     }
 
@@ -302,26 +302,26 @@ void TWorld::TotalsFlow(void)
 
 
     //=== storm drain flow
+    QTile = 0;
     if(SwitchIncludeStormDrains || SwitchIncludeTile) {
-        double tott = 0;
         // sum the tile outlets
         FOR_ROW_COL_MV_TILEL {
-        if (LDDTile->Drc == 5) {
-          QTiletot += TileQn->Drc * _dt;
-          tott += TileQn->Drc;
-        }
-      }}
-      //urban volume in drains
-      if (SwitchIncludeStormDrains) {
+            if (LDDTile->Drc == 5) {
+                QTiletot += TileQn->Drc * _dt;
+                QTile += TileQn->Drc;
+            }
+        }}
+    //urban volume in drains
+    if (SwitchIncludeStormDrains) {
         StormDrainVolTot = MapTotal(*TileWaterVol);
-      }
-      // agriculture volume in tiles
-      if (SwitchIncludeTile){
+    }
+    // agriculture volume in tiles
+    if (SwitchIncludeTile){
         StormDrainVolTot = MapTotal(*TileWaterVolSoil);
-      }
-      // output
-      StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
-      qDebug() << StormDrainVolTot << QTiletot << tott << tilein;
+    }
+    // output
+    StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
+    //qDebug() << StormDrainVolTot << QTiletot << tott << tilein;
     }
 
     // sum of all fluxes ONLY for display on screen

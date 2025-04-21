@@ -78,7 +78,7 @@ void lisemqt::setupPlot()
 
     QPen pen1, pen2, pen3, pen4, pen5, pen6;
     pen1.setWidth(2);
-    pen1.setColor("#293696"); // 0,30,200,255 );
+    pen1.setColor("#0957A2");
     pen1.setCosmetic(true);
 
     pen2.setWidth(2);
@@ -86,7 +86,7 @@ void lisemqt::setupPlot()
     pen2.setCosmetic(false);
 
     pen3.setWidth(2);
-    pen3.setColor("#458ccc");
+    pen3.setColor("#1576AA");
     pen3.setCosmetic(true);
 
     col.setRgb( 220,0,0,255 );
@@ -100,7 +100,7 @@ void lisemqt::setupPlot()
     pen5.setCosmetic(false);
 
     pen6.setWidth(2);
-    pen6.setColor("#1a5fad");
+    pen6.setColor("#95C1E6");
     pen6.setCosmetic(false);
 
     HPlot->setAxesCount(QwtAxis::YLeft, 1);
@@ -240,7 +240,7 @@ void lisemqt::initPlot()
     if (flowboundary)
         QbGraph->attach(HPlot);
 
-    if(checkIncludeTiledrains->isChecked())
+    if(tileanddrains)
         QtileGraph->attach(HPlot);
 
     if(checkDoErosion->isChecked()) {
@@ -251,21 +251,21 @@ void lisemqt::initPlot()
         QsGraph->attach(HPlot);
         CGraph->attach(HPlot);
 
-        QGraph->setAxes(axisXB, axisYL1);
+        QGraph->setAxes(axisXB, QwtAxisId(QwtAxis::YLeft,0));
         PGraph->setAxes(axisXB, axisYL2);
 
         if (flowboundary)
-            QbGraph->setAxes(axisXB, axisYL1);
-        if(checkIncludeTiledrains->isChecked())
-            QtileGraph->setAxes(axisXB, axisYL1);
+            QbGraph->setAxes(axisXB, QwtAxisId(QwtAxis::YLeft,0));
+        if(tileanddrains)
+            QtileGraph->setAxes(axisXB, QwtAxisId(QwtAxis::YLeft,0));
 
         QsGraph->setAxes(axisXB, axisYR1);
         CGraph->setAxes(axisXB, axisYR2);
 
         if (checkUnits_ls->isChecked())
-            HPlot->setAxisTitle(axisYL1, "Q (l/s)");
+            HPlot->setAxisTitle(QwtAxisId(QwtAxis::YLeft,0), "Q (l/s)");
         else
-            HPlot->setAxisTitle(axisYL1, "Q (m3/s)");
+            HPlot->setAxisTitle(QwtAxisId(QwtAxis::YLeft,0), "Q (m3/s)");
 
         HPlot->setAxisTitle(axisYL2, "P (mm/h)");
         HPlot->setAxisTitle(axisYR1, "Qs (kg/s)");
@@ -276,22 +276,22 @@ void lisemqt::initPlot()
         HPlot->setAxesCount(QwtAxis::YLeft, 1);
         HPlot->setAxesCount(QwtAxis::YRight, 1);
 
-        QGraph->setAxes(axisXB, axisYL1);
-        PGraph->setAxes(axisXB, axisYR1);
+        QGraph->setAxes(QwtAxis::XBottom, QwtAxisId(QwtAxis::YLeft,0));
+        PGraph->setAxes(QwtAxis::XBottom, QwtAxisId(QwtAxis::YRight,0));
 
         if (flowboundary)
-            QbGraph->setAxes(axisXB, axisYL1);
-        if(checkIncludeTiledrains->isChecked())
-            QtileGraph->setAxes(axisXB, axisYL1);
+            QbGraph->setAxes(QwtAxis::XBottom, QwtAxisId(QwtAxis::YLeft,0));
+        if(tileanddrains)
+            QtileGraph->setAxes(QwtAxis::XBottom, QwtAxisId(QwtAxis::YLeft,0));
 
         if (checkUnits_ls->isChecked())
-            HPlot->setAxisTitle(axisYL1, "Q (l/s)");
+            HPlot->setAxisTitle(QwtAxisId(QwtAxis::YLeft,0), "Q (l/s)");
         else
-            HPlot->setAxisTitle(axisYL1, "Q (m3/s)");
+            HPlot->setAxisTitle(QwtAxisId(QwtAxis::YLeft,0), "Q (m3/s)");
 
         HPlot->setAxisTitle(axisYR1, "P (mm/h)");
         if (checkWaterUserIn->isChecked())
-            HPlot->setAxisTitle(axisYR1, "WH (m)");
+            HPlot->setAxisTitle(QwtAxisId(QwtAxis::YRight,0), "WH (m)");
     }
 
     // redraw legend with nr of variables
@@ -315,7 +315,7 @@ void lisemqt::showPlot()
 
     if (flowboundary)
         QbGraph->setSamples(op.Time,op.Qbound);
-    if(checkIncludeTiledrains->isChecked())
+    if(tileanddrains)
         QtileGraph->setSamples(op.Time,op.Qtile);
     // if (checkWaterUserIn->isChecked())
     //     QbGraph->setSamples(op.Time,*op.Wavein[index]);
@@ -324,11 +324,10 @@ void lisemqt::showPlot()
 
     for (int i = 0; i < OutletIndices.count(); i++)  {
         qmax[i] = std::max(qmax[i], 1.1*op.OutletQ[i]->at(_j));
-        qDebug() << op.OutletQ[i]->at(_j);
-        // if (flowboundary)
-        //     qmax[i] = std::max(qmax[i], 1.1*op.Qbound[_j]);
-        // if(checkIncludeTiledrains->isChecked())
-        //     qmax[i] = std::max(qmax[i], 1.1*op.Qtile[_j]);
+        if (flowboundary)
+            qmax[i] = std::max(qmax[i], 1.1*op.Qbound[_j]);
+        if(tileanddrains)
+            qmax[i] = std::max(qmax[i], 1.1*op.Qtile[_j]);
 
         if (checkDoErosion->isChecked()) {
             qsmax[i] = std::max(qsmax[i] , 1.1*op.OutletQs[i]->at(_j));
@@ -340,9 +339,6 @@ void lisemqt::showPlot()
 
     if(checkDoErosion->isChecked())
     {
-        //        qsmax[index] = std::max(qsmax[index] , 1.1*op.OutletQs[index]->at(_j));
-        //        cmax[index] = std::max(cmax[index] , 1.1*op.OutletC[index]->at(_j));
-
         QsGraph->setSamples(op.Time,*op.OutletQs[index]);
         CGraph->setSamples(op.Time,*op.OutletC[index]);
 
@@ -458,7 +454,7 @@ void lisemqt::showOutputData()
     if (E_OFWaveType->currentIndex() == 0 && !checkIncludeChannel->isChecked())
         label_floodVolmm->setText(format.arg(QString::number(0,'f',dig)));
     else
-        label_floodVolmm->setText(format.arg(QString::number(op.volFloodmm,'f',dig)));
+        label_floodVolmm->setText(format.arg(QString::number(op.FloodVolmm,'f',dig)));
 
     label_watervolchannel->setText(format.arg(QString::number(op.ChannelVolTotmm,'f',dig)));
     //label_baseflowtot->setText(format.arg(QString::number(op.BaseFlowtotmm,'f',dig)));

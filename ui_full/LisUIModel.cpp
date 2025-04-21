@@ -119,7 +119,7 @@ void lisemqt::runmodel()
         QsGraph->setSamples(zero,zero);
         CGraph->setSamples(zero,zero);
 
-        if(checkIncludeTiledrains->isChecked())
+        if(tileanddrains)
             QtileGraph->setSamples(zero,zero);
 
         if (flowboundary)
@@ -418,7 +418,7 @@ void lisemqt::initOP()
     op.roadMap = nullptr;
     op.houseMap = nullptr;
     op.hardsurfaceMap = nullptr;
-    op.Image = nullptr;        
+    op.Image = nullptr;
 
     op.EndPointX.clear();
     op.EndPointY.clear();
@@ -457,7 +457,7 @@ void lisemqt::initOP()
     op.InfilTotmm = 0;
     op.RainTotmm = 0;
     op.ETaTotmm = 0;
-    op.GWlevel = 0;    
+    op.GWlevel = 0;
     op.Theta1 = 0;
     op.Theta2 = 0;
     op.SurfStormm = 0;
@@ -480,7 +480,7 @@ void lisemqt::initOP()
     op.FloodSedTot = 0;
     op.FloodDepTot = 0;
     op.FloodDetTot = 0;
-    op.volFloodmm = 0;
+    op.FloodVolmm = 0;
     op.format = "PCRaster";
 
 }

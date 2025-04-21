@@ -4520,6 +4520,30 @@
                            </property>
                           </widget>
                          </item>
+                         <item row="1" column="0" colspan="3">
+                          <widget class="QCheckBox" name="checkIncludeTiledrains">
+                           <property name="enabled">
+                            <bool>true</bool>
+                           </property>
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Include tile drain system</string>
+                           </property>
+                          </widget>
+                         </item>
                         </layout>
                        </widget>
                       </item>
@@ -4615,30 +4639,6 @@
                            </property>
                            <property name="value">
                             <double>-100.000000000000000</double>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="0" column="0" colspan="4">
-                          <widget class="QCheckBox" name="checkIncludeTiledrains">
-                           <property name="enabled">
-                            <bool>false</bool>
-                           </property>
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Include tile drain system (EXPERIMENTAL, only with SWATRE infil)</string>
                            </property>
                           </widget>
                          </item>
@@ -5964,7 +5964,7 @@
                          <string>map needed: chanmaxq.map</string>
                         </property>
                         <property name="text">
-                         <string>Use Culverts in Channels (channelmaxq.map)</string>
+                         <string>Use Culverts in Channels (chandiameter.map)</string>
                         </property>
                        </widget>
                       </item>

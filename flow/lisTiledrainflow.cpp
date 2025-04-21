@@ -39,7 +39,6 @@ functions: \n
 //fraction of water and sediment flowing from the surface to the tiledrain system
 void TWorld::ToTiledrainAll()
 {
-tilein = 0;
     if (SwitchIncludeStormDrains)  //SwitchIncludeTile ||
     {
         #pragma omp parallel for num_threads(userCores)
@@ -60,7 +59,6 @@ tilein = 0;
 
             double vol = fractiontotile*(WHrunoff->Drc*CHAdjDX->Drc);
             double dh = fractiontotile*WHrunoff->Drc;
-tilein += vol;
             RunoffVolinToTile->Drc = vol;
 
             // adjust water height

@@ -168,7 +168,7 @@ void TWorld::PipeFlowSWMM()
                 Qin += TileQn->Drcr;
             }
         }
-        TileQin->Drc = Qin;
+        //TileQin->Drc = Qin;
 
         if (Qin < 1e-12 && TileQ->Drc < 1e-12) {
             TileQn->Drc = 0;
@@ -199,7 +199,7 @@ void TWorld::PipeFlowSWMM()
         drain->q2 = TileQ->Drc / drain->Qfull;
       //  drain->q2 = ((TileQ->Drc + tmb->Drc)*0.5)/ drain->Qfull;
         // --- normalize inflow
-        drain->qin = std::min(drain->Qfull, TileQin->Drc)/drain->Qfull;
+        drain->qin = std::min(drain->Qfull, Qin)/drain->Qfull;
         // in SWMM code the inflow is maximized to the possible inflow
 
         // --- compute evaporation and infiltration loss rate

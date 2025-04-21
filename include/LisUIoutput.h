@@ -83,11 +83,11 @@ struct output{
     MB, Qtot,  Qtiletot, RunoffFraction, RainpeakTime, Rainpeak,
     Qtotmm,  IntercTotmm, IntercHouseTotmm, WaterVolTotmm,InfilTotmm,StormDrainTotmm, Qboundtotmm,
     RainTotmm, ETaTotmm, SurfStormm, InfilKWTotmm,  IntercLitterTotmm, //WaterVolTotchannelmm,
-    floodBoundaryTot, floodBoundarySedTot, Theta1, Theta2, GWlevel, BaseFlowTotmm, PeakFlowTotmm,
+    QBoundaryTot, floodBoundarySedTot, Theta1, Theta2, GWlevel, BaseFlowTotmm, PeakFlowTotmm,
     // channel
     ChannelVolTotmm, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH, RetentionVolTot,
     // flood
-    FloodTotMax, FloodAreaMax, FloodArea, WHflood, Qflood, volFloodmm,
+    FloodTotMax, FloodAreaMax, FloodArea, WHflood, Qflood, FloodVolmm,
     FloodDetTot, FloodDepTot, FloodSedTot,
     // sediment
     MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot, maxRainaxis;

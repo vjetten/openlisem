@@ -1023,21 +1023,22 @@ void TWorld::InitChannel(void)
         // store not used?
     }
 
+    ChannelMaxQ = NewMap(0);
+    ChannelMaxAlpha = NewMap(0);
     if (SwitchCulverts) {
 
         ChannelDiameter = ReadMap(LDDChannel, getvaluename("chandiam"));
         //cover(*ChannelDiameter, *LDD,0);
-        ChannelMaxQ = NewMap(0);
-        ChannelMaxAlpha = NewMap(0);
 
         FOR_ROW_COL_MV_CHL {
             if (ChannelDiameter->Drc > 0) {
                 ChannelDiameter->Drc /= 1000;
                 double area = PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;
                 double perim = PI*ChannelDiameter->Drc;
-                ChannelN->Drc = 0.015;
+                ChannelN->Drc = 0.012;
                 ChannelMaxQ->Drc = std::pow(area/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
                 ChannelMaxAlpha->Drc = (ChannelWidth->Drc*ChannelDepth->Drc)/std::pow(ChannelMaxQ->Drc, 0.6);
+                //qDebug() << ChannelMaxQ->Drc << ChannelMaxAlpha->Drc;
             }
         }}
 
@@ -1667,7 +1668,7 @@ void TWorld::IntializeData(void)
     //floodVolTotInit = 0;
     floodVolTotMax = 0;
     floodAreaMax = 0;
-    floodBoundaryTot = 0;
+    QBoundaryTot = 0;
     floodBoundarySedTot = 0;
 
     // infiltration
@@ -1689,8 +1690,8 @@ void TWorld::IntializeData(void)
     //### runoff maps
     Qtot = 0;
     Qtot_dt = 0;
+    QTile = 0;
     QTiletot = 0;
-    tilein = 00;
     QfloodoutTot = 0;
     Qfloodout = 0;
     Qtotmm = 0;
@@ -2228,25 +2229,18 @@ void TWorld::InitImages()
 }
 //---------------------------------------------------------------------------
 // read and Intiialize all Tile drain variables and maps
+// for soil tile drains and road strom drains the same maps are used
 void TWorld::InitTiledrains(void)
 {
     if (SwitchIncludeTile || SwitchIncludeStormDrains) {
-
-        //switch tile is soil drain and switch drain is urban drains
-
         // channel vars and maps that must be there even if channel is switched off
-        TileVolTot = 0;
         TileWaterVol = NewMap(0);
         RunoffVolinToTile = NewMap(0);
         TileQ = NewMap(0);
-        //TileA = NewMap(0);
-        TileQin = NewMap(0);
-        TileMaxQ = NewMap(0);
         TileQn = NewMap(0);
         TileAlpha = NewMap(0);
+        TileMaxQ = NewMap(0);
         TileMaxAlpha = NewMap(0);
-
-        //##### Tile maps #####
 
         LDDTile = InitMaskTiledrain(getvaluename("lddtile"));
         // must be first LDDTile is the mask for tile drains
@@ -2269,9 +2263,6 @@ void TWorld::InitTiledrains(void)
 
         TileDrainDistance = getvaluedouble("Drain inlet distance");
 
-        //   TileInlet = ReadMap(LDDTile, getvaluename("tilesink"));
-        //  cover(*TileInlet, *LDD, 0);
-
         TileArea = NewMap(0);
 
         TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
@@ -2282,23 +2273,21 @@ void TWorld::InitTiledrains(void)
         TileN = ReadMap(LDDTile, getvaluename("tileman"));
         cover(*TileN, *LDD, 0);
 
-        // soil tile drain
+        // soil tile drain extra maps
         if (SwitchIncludeTile) {
             TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
-            cover(*TileDepth, *LDD, -1); //VJ non tile cells flagged by -1 value, needed in swatre init
-            //TileDrainSoil = NewMap(0);
+            cover(*TileDepth, *LDD, -1); //non tile cells flagged by -1 value, needed in swatre init
             TileWaterVolSoil = NewMap(0);
         }
 
         // drain circular
         if (SwitchStormDrainCircular) {
             TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
-            FOR_ROW_COL_MV_TILE {
+            FOR_ROW_COL_MV_TILEL {
                 TileArea->Drc = TileDiameter->Drc*TileDiameter->Drc*0.25*PI;// PI r^2
-                double Perim = PI*TileDiameter->Drc;
-                TileMaxQ->Drc = TileArea->Drc*std::pow(TileArea->Drc/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+                TileMaxQ->Drc = TileArea->Drc*std::pow(TileArea->Drc/(PI*TileDiameter->Drc),2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
                 TileMaxAlpha->Drc  = TileArea->Drc/std::pow(TileMaxQ->Drc, BETAcirc);
-            }
+            }}
         }
 
         // drain square
@@ -2309,12 +2298,13 @@ void TWorld::InitTiledrains(void)
             cover(*TileWidth, *LDD, 0);
             cover(*TileHeight, *LDD, 0);
             //rectangular drainage
-            FOR_ROW_COL_MV_TILE {
+            FOR_ROW_COL_MV_TILEL {
                 TileArea->Drc = TileWidth->Drc*TileHeight->Drc;
+                TileDiameter->Drc = 2*TileWidth->Drc + 2*TileHeight->Drc;
                 double Perim = TileWidth->Drc+2*TileHeight->Drc;
                 TileMaxQ->Drc = TileArea->Drc*pow(TileArea->Drc/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
                 TileMaxAlpha->Drc  = TileArea->Drc/std::pow(TileMaxQ->Drc, BETArect);
-            }
+            }}
         }
     }
 }
