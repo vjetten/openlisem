@@ -58,13 +58,13 @@ struct output{
     QList<QVector<double>*> OutletC;   // avg concetration
     QList<QVector<double>*> OutletChannelWH;
     QVector<double> Qbound;
+    QVector<double> Qtile;
     QVector<double> OutletQpeak;
     QVector<double> OutletQpeaktime;
     QVector<double> OutletQtot;
     QVector<double> OutletQstot;  // sum in kg
     QVector<double> Pmm;
     QVector<double> Time;
-    QVector <double> Qtile;
 
  //   QVector <double> CulvertX;
  //   QVector <double> CulvertY;
