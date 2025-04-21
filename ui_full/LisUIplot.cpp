@@ -67,9 +67,7 @@ void lisemqt::setupPlot()
     QGraph = new QwtPlotCurve("Discharge");
     QsGraph = new QwtPlotCurve("Sediment discharge");
     CGraph = new QwtPlotCurve("Concentration");
-   // if (flowboundary)
     QbGraph = new QwtPlotCurve("Water flow boundary");
-    //if(checkIncludeTiledrains->isChecked())
     QtileGraph = new QwtPlotCurve("Tile drain");
 
     PGraph->attach(HPlot);
@@ -126,17 +124,13 @@ void lisemqt::setupPlot()
     PGraph->setPen(pen2);
     PGraph->setAxes(axisXB, QwtAxis::YRight);
 
-//    if (flowboundary) {
-        QbGraph->setPen(pen3);
-        QbGraph->setAxes(axisXB, QwtAxis::YLeft);
-        QbGraph->setStyle(QwtPlotCurve::Lines);
-  //  }
+    QbGraph->setPen(pen3);
+    QbGraph->setAxes(axisXB, QwtAxis::YLeft);
+    QbGraph->setStyle(QwtPlotCurve::Lines);
 
-  //  if(checkIncludeTiledrains->isChecked()) {
-        QtileGraph->setPen(pen6);
-        QtileGraph->setAxes(axisXB, QwtAxis::YLeft);
-        QtileGraph->setStyle(QwtPlotCurve::Lines);
-   // }
+    QtileGraph->setPen(pen6);
+    QtileGraph->setAxes(axisXB, QwtAxis::YLeft);
+    QtileGraph->setStyle(QwtPlotCurve::Lines);
 
     QsGraph->setPen(pen4);
     QsGraph->setAxes(axisXB, QwtAxis::YRight);
@@ -173,7 +167,6 @@ void lisemqt::setupPlot()
     col.setRgb( 210,210,210,180 );
     grid->setMinorPen(QPen(col, 0 , Qt::DotLine));
     grid->attach(HPlot);
-
 
     HPlot->replot();
     // draw empty plot

@@ -66,9 +66,9 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setMinimumSize(1280,800);
     showMaximized();
 
-    darkLISEM = false;   
+    darkLISEM = false;
     checkforpatch = true;
-    op.nrRunsDone = 0;    
+    op.nrRunsDone = 0;
     op.runfilename.clear();
     E_runFileList->clear();
 
@@ -110,7 +110,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     SetStyleUI();
     // do some style things
 
-    lisMpeg = new lismpeg(this);    
+    lisMpeg = new lismpeg(this);
 
     doBatchmode = doBatch; // save as global var in iface
     //batchRunname = runname;
@@ -127,7 +127,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     stoprun = false;
     W->waitRequested = false;
     // run is not started so we don't accidentally do wrong things while W exists
-
     if(doBatch)
     {
         runfilelist.clear();
@@ -1003,7 +1002,7 @@ void lisemqt::resetTabCalibration()
     E_CalibrateD90->setValue(1.0);
     E_CalibrateCHCOH->setValue(1.0);
     // not visible, experimental
-    E_CalibrateCHUcr->setValue(1.0);    
+    E_CalibrateCHUcr->setValue(1.0);
     E_CalibrateCHSV->setValue(1.0);
 }
 //--------------------------------------------------------------------

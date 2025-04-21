@@ -313,7 +313,7 @@ double tott = 0;
         StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
     }
 
-    qDebug() << SwitchIncludeStormDrains << StormDrainVolTot << QTiletot << tott << tilein;
+    //qDebug() << SwitchIncludeStormDrains << StormDrainVolTot << QTiletot << tott << tilein;
     // can occur both of coursse, treat separately
     if (SwitchIncludeTile)
     {
@@ -420,7 +420,7 @@ void TWorld::TotalsSediment(void)
         {
           //  #pragma omp parallel for reduction(+:SoilLossTotT) num_threads(userCores)
             FOR_ROW_COL_LDDCH5 {
-                SoilLossTot_dt += ChannelQsn->Drc * _dt;               
+                SoilLossTot_dt += ChannelQsn->Drc * _dt;
             }}
 
             ChannelDetTot += MapTotal(*ChannelDetFlow);
