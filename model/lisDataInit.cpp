@@ -948,6 +948,13 @@ void TWorld::InitChannel(void)
     }
     crlinkedlddch_= MakeLinkedList(LDDChannel);
 
+    // for(long i_ =  0; i_ < crlinkedlddch_.size(); i_++)
+    // {
+    //     int c = crlinkedlddch_[i_].c;
+    //     int r = crlinkedlddch_[i_].r;
+    //     qDebug() << crlinkedlddch_[i_].ldd << LDDChannel->Drc;
+    // }
+
     crlddch5_.clear();
     FOR_ROW_COL_MV_CH {
         if (LDDChannel->Drc == 5) {

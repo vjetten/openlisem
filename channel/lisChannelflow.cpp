@@ -84,7 +84,6 @@ void TWorld::ChannelVelocityandDischarge()
     // velocity, alpha, Q
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-
         double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
         double FWO = ChannelWidthO->Drc;
         ChannelWH->Drc = Area/FWO;
@@ -331,7 +330,8 @@ void TWorld::IterateCulvert(DRAIN_PROP *dr)
 //---------------------------------------------------------------------------
 void TWorld::ChannelFlow(void)
 {
-
+   int dy[10] = {0,1,1,1,0,0,0,-1,-1,-1};
+   int dx[10] = {0,-1,0,1,-1,0,1,-1,0,1};
     // if (SwitchChannelKinwaveDt) {
     //     if (_dt_user > _dtCHkin) {
     //         double n = _dt_user/_dtCHkin;
@@ -343,15 +343,16 @@ void TWorld::ChannelFlow(void)
     // {
      //   double sumvol = getMassCH(ChannelWaterVol);
 
-        DRAIN_PROP *drain = new DRAIN_PROP;
+     //   DRAIN_PROP *drain = new DRAIN_PROP;
 
 
-          //===== cvhannelk kin wave directly here to be able to do culverts
+          //===== channel kin wave directly here to be able to do culverts
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             ChannelQn->Drc = 0;
             QinKW->Drc = 0; // needed for sediment
         }}
+
 
         //  #pragma omp parallel for ordered num_threads(userCores)
         // parallel doesn't work here because you have to calculate accoring to the order of cells from top to bottom, to determine the inflow
@@ -370,56 +371,20 @@ void TWorld::ChannelFlow(void)
             }
             QinKW->Drc = Qin;
 
-            if (ChannelMaxQ->Drc > 0) {
-                double WT = 0.6;
-                double WX = 0.6;
-                drain->qin = Qin;//std::min(Qin, ChannelMaxQ->Drc);
-                drain->beta = sqrt(ChannelGrad->Drc)/ChannelN->Drc;  // s = qin/beta
-                drain->Afull = ChannelDiameter->Drc*ChannelDiameter->Drc*0.25*PI;
-                drain->sFull = drain->Afull * std::pow(0.25*ChannelDiameter->Drc,2.0/3.0);  // 0.5r=0.25D is hydrasulic radius when full
-                // section factor = A*R^2/3 units m^2*m^2/3 = m^6/3*m^2/3 = m^8/3
-                drain->Qfull = drain->sFull * drain->beta;
-                drain->Beta1 = drain->beta / drain->Qfull; // = 1/sFull =>qin/beta1 = qin/(beta/Qfull)
-                drain->dxdt = _dx/_dt * drain->Afull / drain->Qfull;
-                drain->sMax = 1.08 * drain->sFull;  // circular
-                drain->q1 = std::min(1.0, Qin / drain->Qfull);
-                drain->q2 = std::min(1.0, ChannelQ->Drc / drain->Qfull);
-                double Aa = ChannelWaterVol->Drc/DX->Drc;
-                drain->a1 = Aa/drain->Afull;
-                drain->a2 = Aa/drain->Afull;
-                drain->ain = getAfromS(drain, drain->qin/drain->Beta1)/drain->Afull;
-
-                if ( drain->qin < 1e-12 && drain->q2 < 1e-12 ) {
-                    drain->qout = 0.0;
-                    drain->aout = 0.0;
-                } else {
-                    drain->C1 = drain->dxdt*WT/WX;
-                    drain->C2 = drain->dxdt/WX *((1.0 - WT)*(drain->ain - drain->a1) - WT*drain->a2);
-                    drain->C2 = drain->C2 + ((1.0 - WX)/WX)*(drain->q2 - drain->q1) - drain->qin;
-
-    qDebug() << drain->C1 << drain->C2 << drain->a1 << drain->a2 << drain->q1 << drain->q2 << drain->qin;
-
-                    IterateCulvert(drain);
-
-                    double a = drain->aout;
-                    double sfroma = -1.222*a*a*a + 1.9904*a*a + 0.312*a + 0.0039;
-                    if (a > 0.98)
-                      sfroma = 1.07662;
-                    if (a > 0.99)
-                      sfroma = 1.0;
-                    drain->qout = drain->Beta1 * sfroma;
-                }
-                qDebug() << drain->qout << drain->aout;
-                ChannelQn->Drc = drain->qout;
-                ChannelQn->Drc = std::min(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
-                //ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelMaxQ->Drc);
-
-                ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(Qin - ChannelQn->Drc);
-                ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc);
-                ChannelWaterVol->Drc = std::min(ChannelWaterVol->Drc, drain->Afull*DX->Drc);
+            if (ChannelMaxQ->Drc > 0 && Qin > ChannelMaxQ->Drc && ChannelQ->Drc > 0.97*ChannelMaxQ->Drc) {
+                ChannelQn->Drc = ChannelMaxQ->Drc;
+                Qin = std::min(Qin, ChannelMaxQ->Drc);
+                QinKW->Drc = Qin;
+                ChannelWaterVol->Drc = ChannelDX->Drc*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25*PI;
             } else {
-                ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, _dt, DX->Drc, -1, -1);//ChannelMaxQ->Drc, ChannelMaxAlpha->Drc);
+                ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, _dt, DX->Drc, ChannelMaxQ->Drc, ChannelMaxAlpha->Drc);
                 ChannelQn->Drc = std::min(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
+                // check if there is a culvert downstream
+                int ldd = (int)LDDChannel->Drc;
+                int cr = c+dx[ldd];
+                int rr = r+dy[ldd];
+                if (!pcr::isMV(LDDChannel->Drcr) && ChannelMaxQ->Drcr > 0)
+                    ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelMaxQ->Drcr);
                 ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(Qin - ChannelQn->Drc);
                 ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc);
             }
@@ -430,7 +395,7 @@ void TWorld::ChannelFlow(void)
         FOR_ROW_COL_MV_CHL {
             //  ChannelQ->Drc = ChannelQn->Drc;  // NOT because needed in erosion!
             double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
-            if (SwitchCulverts && ChannelDiameter->Drc > 0) {
+            if (ChannelMaxQ->Drc > 0) {
                 double a = Area/(ChannelDiameter->Drc*ChannelDiameter->Drc*0.25*PI);
                 double theta = pipeThetafroma(r,c,a);
                 ChannelWH->Drc = 0.5*ChannelDiameter->Drc*(1-cos(theta/2.0));
@@ -472,7 +437,7 @@ void TWorld::ChannelFlow(void)
        // correctMassBalanceCH(sumvol,ChannelWaterVol);
 //     }
 //     _dt=_dt_user;
-        delete drain;
+   //     delete drain;
 }
 
 void TWorld::ChannelSedimentFlow()

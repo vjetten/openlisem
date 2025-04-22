@@ -994,8 +994,6 @@ public:
     // => 1D flow on network
     void FindStationaryBaseFlow();
     void ChannelFlow();
-    void IterateCulvert(DRAIN_PROP *dr);
-    double findroot_NewtonCH(DRAIN_PROP *dr,double x1, double x2, double xacc);
     void ChannelBaseflow();
     void ChannelRainandInfil();
     void ChannelSedimentFlow();
