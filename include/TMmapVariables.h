@@ -352,6 +352,7 @@ cTMap
 *ChannelDiameter,                //!<
 *ChannelMaxQ,                //!<
 *ChannelMaxAlpha,                //!<
+*ChannelMaxArea,
 *FloodWaterVol,                //!<
 *RunoffWaterVol,                //!<
 

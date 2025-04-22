@@ -88,8 +88,8 @@ void TWorld::ChannelVelocityandDischarge()
         double FWO = ChannelWidthO->Drc;
         ChannelWH->Drc = Area/FWO;
         double Perim = FWO+2*ChannelWH->Drc;
-        if (SwitchCulverts && ChannelDiameter->Drc > 0) {
-            double a = Area/(ChannelDiameter->Drc*ChannelDiameter->Drc*0.25*PI);
+        if (ChannelMaxQ->Drc > 0) {
+            double a = Area/ChannelMaxArea->Drc;
             double theta = pipeThetafroma(r,c,a);
             Perim = ChannelDiameter->Drc/2.0*theta;
             ChannelWH->Drc = 0.5*ChannelDiameter->Drc*(1-cos(theta/2.0));
@@ -158,7 +158,7 @@ void TWorld::ChannelBaseflow(void)
             }
            // Qbase->Drc *= 2.0;
 
-            if (!SwitchCulverts || ChannelMaxQ->Drc == 0) {
+            if (ChannelMaxQ->Drc == 0) {
                 ChannelWaterVol->Drc += Qbase->Drc;
                 GWVol->Drc = std::max(0.0, GWVol->Drc - Qbase->Drc);
                 GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
@@ -177,7 +177,7 @@ void TWorld::ChannelRainandInfil(void)
     // add rainfall to channel, assume no interception
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (!SwitchCulverts || ChannelMaxQ->Drc == 0)
+        if (ChannelMaxQ->Drc == 0)
             ChannelWaterVol->Drc += Rainc->Drc*ChannelWidth->Drc*DX->Drc;
 
        // ChannelWaterVol->Drc += ChannelQSide->Drc;
@@ -188,7 +188,7 @@ void TWorld::ChannelRainandInfil(void)
     if (SwitchChannelInfil) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            if (!SwitchCulverts || ChannelMaxQ->Drc == 0) {
+            if (ChannelMaxQ->Drc == 0) {
                 double inf = std::min(ChannelWaterVol->Drc, ChannelInfM3->Drc);
                 // cannot be more than there is
                 ChannelWaterVol->Drc -= inf;
@@ -247,12 +247,12 @@ void TWorld::ChannelFlow(void)
             }
             QinKW->Drc = Qin;
 
-            // if inflow is >= max and inital outflow is close to max
-            if (ChannelMaxQ->Drc > 0 && Qin > ChannelMaxQ->Drc && ChannelQ->Drc > 0.97*ChannelMaxQ->Drc) {
+            // if inflow is >= Qmax and room in the pipe-outflow is less than the inflow, vol is full, Qn = Qmax
+            if (ChannelMaxQ->Drc > 0 && Qin*_dt > (ChannelMaxArea->Drc*ChannelDX->Drc - ChannelWaterVol->Drc) - ChannelQ->Drc*_dt) {
                 ChannelQn->Drc = ChannelMaxQ->Drc;
                 Qin = std::min(Qin, ChannelMaxQ->Drc);
                 QinKW->Drc = Qin;
-                ChannelWaterVol->Drc = ChannelDX->Drc*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25*PI;
+                ChannelWaterVol->Drc = ChannelDX->Drc*ChannelMaxArea->Drc;
                 // water vol is filled circular pipe
             } else {
                 ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, _dt, DX->Drc, ChannelMaxQ->Drc, ChannelMaxAlpha->Drc);
@@ -277,7 +277,7 @@ void TWorld::ChannelFlow(void)
             //  ChannelQ->Drc = ChannelQn->Drc;  // NOT because needed in erosion!
             double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
             if (ChannelMaxQ->Drc > 0) {
-                double a = Area/(ChannelDiameter->Drc*ChannelDiameter->Drc*0.25*PI);
+                double a = Area/ChannelMaxArea->Drc;
                 double theta = pipeThetafroma(r,c,a);
                 ChannelWH->Drc = 0.5*ChannelDiameter->Drc*(1-cos(theta/2.0));
             } else

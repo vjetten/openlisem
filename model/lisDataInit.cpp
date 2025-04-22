@@ -1032,6 +1032,7 @@ void TWorld::InitChannel(void)
 
     ChannelMaxQ = NewMap(0);
     ChannelMaxAlpha = NewMap(0);
+    ChannelMaxArea = NewMap(0);
     if (SwitchCulverts) {
 
         ChannelDiameter = ReadMap(LDDChannel, getvaluename("chandiam"));
@@ -1041,6 +1042,7 @@ void TWorld::InitChannel(void)
             if (ChannelDiameter->Drc > 0) {
                 ChannelDiameter->Drc /= 1000;
                 double area = PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;
+                ChannelMaxArea->Drc = area;
                 double perim = PI*ChannelDiameter->Drc;
                 ChannelN->Drc = 0.012;
                 ChannelMaxQ->Drc = std::pow(area/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
@@ -1061,8 +1063,10 @@ void TWorld::InitChannel(void)
         }
 
     } else {
-        ChannelMaxQ = NewMap(-1);
-        ChannelMaxAlpha = NewMap(-1);
+        FOR_ROW_COL_MV_CHL {
+            ChannelMaxQ->Drc = -1;
+            ChannelMaxAlpha->Drc = -1;
+        }}
     }
 
 

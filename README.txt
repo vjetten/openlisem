@@ -16,25 +16,23 @@ NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6, op
 LIST OF CHANGES and BUGFIXES:
 
 250422 - v7.4.6 beta R1-R9
-- compiling with QT 6.9.0 => dlls updated
 - BUG FIX: culverts in channel work without masss balance error, this uses now Channel Diameter instead of max discharge as input
 - BUG FIX: fixed error in kinematic wave sediment transport causing extreme fluctuation in concentration of channel
-- BUG FIX: field capacity and residual moisture were not properly calculated, causing errors in percolation, sometimes causing a stop in inifltration
+- BUG FIX: Field capacity and residual moisture were not properly calculated, causing errors in percolation, sometimes causing a stop in inifltration
+- BUG FIX: MUSCL was not activated
 - BUG FIX: background image was not loaded properly
 - BUG FIX: reading pathnames sometimes result in "//"
 - BUG FIX: 2D flow gives MB error because of when domain boundary touches map edge, make sure there is a MV cell on all sides
-- BUG FIX: MUSCL was not activated
 - BUG FIX: MUSCL gave wrong water heigths and limited flow to neighbours, results now similar to 1st order 2D flow
 - BUG FIX: reading pathnames sometimes result in "//"
 - BUG FIX: crusting SWATRE
-- Proces: tile drains from soils (needs checking)
 - Proces: storm drain from streets work
 - Boundary flow for Dynamic Wave fixed and correct in output
 - Cell sized retention for overland flow and channelflow (also for kinematic wave)
 - optimized MUSCL 2D flow and 2nd order redone, checked also user input wave
 - added evapotranspiration to Swatre as sinkterm
 - rewrote evapotranspiration for other hydrology
-- Riemann HLLc and HLLc2 (option 4 and 5) behave strangely, removed fomr interface choiche, defaults to 3
+- Riemann HLLc and HLLc2 (option 4 and 5) behave strangely, removed from interface choiche, defaults to 3
 
 250121 - v7.4.5
 - BUG FIX: Delete all map and swatre data after no GUI run
@@ -228,21 +226,21 @@ version 6.77-6.80 beta
 - re-evaluated Splash equations and added Eurosem method. In Eurosem the aggr stab is in fact the splash delivery in g/J
 - Fixed baseflow mass balance as far as possible, Mass balance for ETa might still be off
 - Fixed QSall in output which was in kg and not kg/s
-- Fixed all consistency problems between output of outlets and total for water and sediment. Outlets give only outlet values,
+- Fixed all consistency problems between output of outlets and total for water and sediment. Outlets give only outlet values, 
   Qall and Qsall (hydrograph 0) give the sum of channel outlet, overland flow, boundary flow and storm drains
 
 version 6.7-6.77 beta
 - corrected ETa, added to screen
 - Thetai1 and 2 in display and reported are now average of the soil layers
 - baseflow according to SWAT added with stationary baseflow
-- mass balance shows error bercause water from ETa and baseflow is not from rainfall
-- added check on river cross section: when the width is > cell size the depth and widt are adjusted so that the hydraulic radius is maintained
+- mass balance shows error bercause water from ETa and baseflow is not from rainfall 
+- added check on river cross section: when the width is > cell size the depth and widt are adjusted so that the hydraulic radius is maintained 
 - added a maximum timestep of 60 sec for the river kinematic wave
 
 version 6.69beta
 - fixed output timeseries
 - blocked output of hydrograoh values for now, memory leak suspected
-- fixed interface errors: reset values for option tabs
+- fixed interface errors: reset values for option tabs 
 
 version 6.68beta
 - known bug: output timeseries not working byb accident
@@ -275,12 +273,12 @@ version 6.2-6.4
 
 version 6.1 BETA (warning: new dlls, do NOT mix with pre 6.0 versions)
 - fixed bug in getting values from Riemann solver. This was solved before but reappeared!
-- SAFEST choice for flood modelling is the SWOF without or with MUSCL. SWOF 2.0 is experimental
+- SAFEST choice for flood modelling is the SWOF without or with MUSCL. SWOF 2.0 is experimental 
 
 version 6.0 BETA (warning: new dlls, do NOT mix with older versions)
 - extensive rewriting of the code to use parallel processing with openMP
 - changed compilation to MSYS so the newest versions of QT and MINGW are used
-- new 2D flow process (very fast), still being tested
+- new 2D flow process (very fast), still being tested 
 
 version 5.97-5.98 beta
 - Bug-fix: file runoff.map did not show flood when choosing kinematic+dynamic flow
@@ -357,28 +355,28 @@ version 4.92-4.93
 - Possible bug: flood deposition can become negative and positive (only negative allowed)
 
 version 4.91 (180119)
-- fixed a bug in the screen output causing negative values of discharge and a large mass balance error.
-  Note: when you select dynamic wave flow, the flood height in mm reported is not part of the mass balance, as it is already
+- fixed a bug in the screen output causing negative values of discharge and a large mass balance error. 
+  Note: when you select dynamic wave flow, the flood height in mm reported is not part of the mass balance, as it is already 
   included in overland flow.
 
 version 3.99-4.9 (180116)
-- added dynamic wave for overland flow, three numerical solutions now: kinematic (using LDD), diffusive and dynamic (using DEM).
+- added dynamic wave for overland flow, three numerical solutions now: kinematic (using LDD), diffusive and dynamic (using DEM). 
 - Flooding is always solved with a dynamic wave, channel flow is always kinematic.
 - Random roughness and surface storage slightly changed to avoid bugs in the dynamic wave solution
 - Multi CPU Core application for paralklel computing. If this gives problems, select only 1 core.
-- small bugfixes
+- small bugfixes 
 
 version 3.97 - 3.99 (170308)
 - BugFix: Calibration factor for Cohesion and Aggregate stability (they were reversed)
 - BugFix: in Channel Cohesion, soil sohesion was used instead of channel cohesion
-- BugFix: cleaned up litter interception, roof interception and effect of raindrums
+- BugFix: cleaned up litter interception, roof interception and effect of raindrums 
 - BugFix: ensures that screen information, file and map output is all the same
 - Added: Fixed bilinear interpolation for sediment, other options give mass balance errors
-- Added: EXPERIMENTAL: an empirical factor (1-99) to increase the flow in the direction of the steepest resistance slope for diffuse overland flow.
+- Added: EXPERIMENTAL: an empirical factor (1-99) to increase the flow in the direction of the steepest resistance slope for diffuse overland flow. 
 - Added: calibration factor for channel cohesion
 - Added: if the cohesion of slopes or channels is negative, the detachment is assumed to be zero. Deposition will take place
 - Added: total interception (roofs, canopy, litter, randrums) to the screen output (in mm)
-- Added: the possibility to write GeoTIFF files for the main map outptu. GTiff is not georeferenced). Tif input is also automatically possible (experimental)
+- Added: the possibility to write GeoTIFF files for the main map outptu. GTiff is not georeferenced). Tif input is also automatically possible (experimental) 
 - Added: small interface changes to deal with low resolution screens
 
 version 3.96 (170211)
@@ -412,20 +410,20 @@ The following features are inplemented in the course of 2015 and 2016:
 Because of diffusive runoff the range of resolutions can now be larger, LISEM is being tested from 1 cm gridcells (2 m2) to 20m gridcells (600 km2)
 
 
-1) The openLISEM model
+1) The openLISEM model 
 ======================
 
-This is the event based spatial runoff and erosion model openLISEM. Thank you
-for downloading. openLISEM simulates the spatial dynamics of surface runoff and
-erosion for catchments of 1 ha to 500 km2. It is based on the LISEM model that
-is available here: www.itc.nl/lisem. Details about the theory and dataset for
-now can be found on this website (although a bit outdated). openLISEM uses the
-freeware GIS PCRaster (http://pcraster.geo.uu.nl) for database creation and
-analysis of the results.
+This is the event based spatial runoff and erosion model openLISEM. Thank you 
+for downloading. openLISEM simulates the spatial dynamics of surface runoff and 
+erosion for catchments of 1 ha to 500 km2. It is based on the LISEM model that 
+is available here: www.itc.nl/lisem. Details about the theory and dataset for 
+now can be found on this website (although a bit outdated). openLISEM uses the 
+freeware GIS PCRaster (http://pcraster.geo.uu.nl) for database creation and 
+analysis of the results. 
 
-2) Terms of use
+2) Terms of use 
 ===============
-This software is free and open source, hosted by  sourceforge.net. The project
+This software is free and open source, hosted by  sourceforge.net. The project 
 details can be found on:  http://lisem.sourceforge.net
 
 It is distributed under the GPLv3 licence, distributed with this package
@@ -434,8 +432,8 @@ Good Luck
 
 Victor Jetten
 
-Chair Natural Hazards and Disaster Risk Management
-Department of Earth Systems Analysis
-Faculty ITC, Twente University,
-the Netherlands
+Chair Natural Hazards and Disaster Risk Management 
+Department of Earth Systems Analysis  
+Faculty ITC, Twente University, 
+the Netherlands 
 v.g.jetten AD utwente.nl
