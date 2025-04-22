@@ -3,8 +3,9 @@ Latest fixes and changes:
 
 see Readme.txt for a complete list
 
-250408 - v7.4.6 beta R9
-- Proces: better storm drain from streets
+250422 - v7.4.6 beta R9
+- Proces: storm drain from streets work
+- BUG FIX: culverts in channel work without masss balance error, this uses now Channel Diameter instead of max discharge as input
 
 250408 - v7.4.6 beta R8
 - BUG FIX: fixed error in kinematic wave sediment transport

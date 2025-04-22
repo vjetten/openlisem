@@ -207,127 +207,6 @@ void TWorld::ChannelRainandInfil(void)
     }
 }
 //---------------------------------------------------------------------------
-double TWorld::findroot_NewtonCH(DRAIN_PROP *dr, double x1, double x2, double xacc)
-{
-    int j;
-    double dx, dxold, x;
-    double temp, xhi, xlo;
-
-    // Initialize the "stepsize before last" and the last step.
-    x = dr->aout;
-    xlo = x1;//alo
-    xhi = x2;//ahi
-    dxold = fabs(x2-x1);
-    dx = dxold;
-
-    double s = -1.1148*x*x*x + 1.6721*x*x + 0.4553*x - 0.0063; // xsect_getSofA
-    double f = dr->Beta1*s + dr->C1*x + dr->C2;
-    double ds = -0.9519*x*x*x + 1.6474*x*x + 0.4234*x - 0.003; // xsect_getdSdA
-    double df = dr->Beta1*dr->Afull*ds + dr->C1;
-    // *f  = (Beta1 * xsect_getSofA(pXsect, a*Afull)) + (C1 * a) + C2;
-    // *df = (Beta1 * Afull * xsect_getdSdA(pXsect, a*Afull)) + C1;
-
-    // Loop over allowed iterations.
-    for (j=1; j<=60; j++)
-    {
-        // Bisect if Newton out of range or not decreasing fast enough.
-        if ( ( ( (x-xhi)*df-f)*((x-xlo)*df-f) >= 0.0
-        || (fabs(2.0*f) > fabs(dxold*df) ) ) )
-        {
-            dxold = dx;
-            dx = 0.5*(xhi-xlo);
-            x = xlo + dx;
-            if ( xlo == x ) break;
-        }
-
-        // Newton step acceptable. Take it.
-        else
-        {
-            dxold = dx;
-            dx = f/df;
-            temp = x;
-            x -= dx;
-            if ( temp == x ) break;
-        }
-
-        // Convergence criterion.
-        if ( fabs(dx) < xacc ) break;
-
-        // Evaluate function. Maintain bracket on the root.
-        s = -1.1148*x*x*x + 1.6721*x*x + 0.4553*x - 0.0063; // xsect_getSofA
-        f = dr->Beta1*s + dr->C1*x + dr->C2;
-        ds = -0.9519*x*x*x + 1.6474*x*x + 0.4234*x - 0.003; // xsect_getdSdA
-        df = dr->Beta1*dr->Afull*ds + dr->C1;
-        if ( f < 0.0 ) xlo = x;
-        else           xhi = x;
-    }
-    return(x);
-}
-
-void TWorld::IterateCulvert(DRAIN_PROP *dr)
-{
-    double aLo, aHi, aTmp;             // lower/upper bounds on a
-    double fLo, fHi;                   // lower/upper bounds on f
-    double aout = dr->aout;
-
-    // --- first determine bounds on 'a' so that f(a) passes through 0.
-
-    // --- set upper bound to area at full flow
-    aHi = 1.0;
-    fHi = 1.0 + dr->C1 + dr->C2;
-
-    // --- try setting lower bound to area where section factor is maximum
-    aLo = dr->a1 / dr->Afull;
-    if (aLo < aHi)
-        fLo = dr->Beta1*dr->sMax + dr->C1*aLo + dr->C2;
-    else
-        fLo = fHi;
-
-    // --- if fLo and fHi have same sign then set lower bound to 0
-    if (fHi*fLo > 0.0) {
-        aHi = aLo;
-        fHi = fLo;
-        aLo = 0.0;
-        fLo = dr->C2;
-    }
-
-    // --- proceed with search for root if fLo and fHi have different signs
-    if (fHi*fLo <= 0.0)
-    {
-        // --- start search at midpoint of lower/upper bounds
-        //     if initial value outside of these bounds
-        //if ( aout < aLo || aout > aHi )
-        aout = 0.5*(aLo + aHi);
-
-        // --- if fLo > fHi then switch aLo and aHi
-        if (fLo > fHi) {
-            aTmp = aLo;
-            aLo  = aHi;
-            aHi  = aTmp;
-        }
-
-        aout = findroot_NewtonCH(dr, aLo, aHi, 1e-6);
-
-        dr->aout = aout;
-    }
-
-    // --- if lower/upper bound functions both negative then use full flow
-    else if ( fLo < 0.0 )
-    {
-        if ( dr->qin > 1.0 ) dr->aout = dr->ain;
-        else dr->aout = 1.0;
-    }
-
-    // // --- if lower/upper bound functions both positive then use no flow
-    // else if ( fLo > 0 )
-    // {
-    //     *aout = 0.0;
-    //     n = -3;
-    // }
-    // else n = -1;
-    // return n;
-}
-//---------------------------------------------------------------------------
 void TWorld::ChannelFlow(void)
 {
    int dy[10] = {0,1,1,1,0,0,0,-1,-1,-1};
@@ -343,10 +222,7 @@ void TWorld::ChannelFlow(void)
     // {
      //   double sumvol = getMassCH(ChannelWaterVol);
 
-     //   DRAIN_PROP *drain = new DRAIN_PROP;
-
-
-          //===== channel kin wave directly here to be able to do culverts
+        //===== channel kin wave directly here to be able to do culverts
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             ChannelQn->Drc = 0;
@@ -371,22 +247,27 @@ void TWorld::ChannelFlow(void)
             }
             QinKW->Drc = Qin;
 
+            // if inflow is >= max and inital outflow is close to max
             if (ChannelMaxQ->Drc > 0 && Qin > ChannelMaxQ->Drc && ChannelQ->Drc > 0.97*ChannelMaxQ->Drc) {
                 ChannelQn->Drc = ChannelMaxQ->Drc;
                 Qin = std::min(Qin, ChannelMaxQ->Drc);
                 QinKW->Drc = Qin;
                 ChannelWaterVol->Drc = ChannelDX->Drc*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25*PI;
+                // water vol is filled circular pipe
             } else {
                 ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, _dt, DX->Drc, ChannelMaxQ->Drc, ChannelMaxAlpha->Drc);
                 ChannelQn->Drc = std::min(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
-                // check if there is a culvert downstream
-                int ldd = (int)LDDChannel->Drc;
-                int cr = c+dx[ldd];
-                int rr = r+dy[ldd];
+                // no more outflow than there is water
+
+                // check if there is a culvert downstream and limit outflow if necessary
+                int cr = c+dx[(int)LDDChannel->Drc];
+                int rr = r+dy[(int)LDDChannel->Drc];
                 if (!pcr::isMV(LDDChannel->Drcr) && ChannelMaxQ->Drcr > 0)
                     ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelMaxQ->Drcr);
+
                 ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(Qin - ChannelQn->Drc);
                 ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc);
+                // adjust water valume to in and out
             }
         }
 
@@ -417,7 +298,6 @@ void TWorld::ChannelFlow(void)
 
                         double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
                         double FWO = ChannelWidthO->Drc;
-                        //ChannelWH->Drc = Area/FWO;
                         double CHWH = Area/FWO;
                         double Perim = FWO+2*CHWH;
                         double Radius = (Perim > 0 ? Area/Perim : 0);
@@ -434,7 +314,7 @@ void TWorld::ChannelFlow(void)
             maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
             maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
         }}
-       // correctMassBalanceCH(sumvol,ChannelWaterVol);
+
 //     }
 //     _dt=_dt_user;
    //     delete drain;

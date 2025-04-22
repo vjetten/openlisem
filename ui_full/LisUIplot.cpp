@@ -67,7 +67,7 @@ void lisemqt::setupPlot()
     QsGraph = new QwtPlotCurve("Sediment discharge");
     CGraph = new QwtPlotCurve("Concentration");
     QbGraph = new QwtPlotCurve("Water flow boundary");
-    QtileGraph = new QwtPlotCurve("Tile drain");
+    QtileGraph = new QwtPlotCurve("Storm/Tile drain");
 
     PGraph->attach(HPlot);
     QGraph->attach(HPlot);
@@ -86,7 +86,7 @@ void lisemqt::setupPlot()
     pen2.setCosmetic(false);
 
     pen3.setWidth(2);
-    pen3.setColor("#1576AA");
+    pen3.setColor("#1576BB");
     pen3.setCosmetic(true);
 
     col.setRgb( 220,0,0,255 );
