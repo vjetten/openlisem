@@ -248,7 +248,7 @@ void TWorld::ChannelFlow(void)
             QinKW->Drc = Qin;
 
             // if inflow is >= Qmax and room in the pipe-outflow is less than the inflow, vol is full, Qn = Qmax
-            if (ChannelMaxQ->Drc > 0 && Qin*_dt > (ChannelMaxArea->Drc*ChannelDX->Drc - ChannelWaterVol->Drc) - ChannelQ->Drc*_dt) {
+            if (ChannelMaxQ->Drc > 0 && Qin > ChannelMaxQ->Drc && 0.5*(Qin + ChannelQ->Drc) > 0.95*ChannelMaxQ->Drc) {
                 ChannelQn->Drc = ChannelMaxQ->Drc;
                 Qin = std::min(Qin, ChannelMaxQ->Drc);
                 QinKW->Drc = Qin;
