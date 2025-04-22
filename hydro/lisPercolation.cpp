@@ -278,9 +278,42 @@ double TWorld::cell_PercolationMulti(int r, int c, double factor)
 
     return(0);
 }
-
 //---------------------------------------------------------------------------
+void TWorld::cell_Tiledrain1(int r, int c)
+{
+    if (!SwitchIncludeTile)
+        return;
+    if (Lw->Drc < 0.05)
+        return;
 
+    double Lw_ = Lw->Drc;
+    double pore = Thetaeff->Drc;
+    double thetar = ThetaR1->Drc;
+    double theta = Thetaeff->Drc;
+    double SoilDep1 = SoilDepth1->Drc;
+    double FC = ThetaFC1->Drc;
+
+    if (Lw_ > TileDepth->Drc) {
+        double vol = DX->Drc*Ksateff->Drc*TileDiameter->Drc;
+        // volume draining, assuming full saturation so Ksat is draining
+        double volsoil = Lw_*(pore-FC)*CHAdjDX->Drc;
+        // available volume, not drier than FC, gravity
+        vol = std::min(volsoil, vol);
+        double tiledm = vol/CHAdjDX->Drc; // removal in m
+
+        double moisture = Lw_*(pore-thetar); //available sat moisture above Lw_
+        moisture -= tiledm; // okay because removal limited to FC
+        double newLw_ = moisture/(pore-thetar); // new Lw_
+
+        theta = (Lw_-newLw_)*FC + (SoilDep1-Lw_)*theta;
+        // new moisture content is weighed avg
+
+        Thetaeff->Drc = theta;
+        Lw->Drc = newLw_;
+        TileWaterVolSoil->Drc = vol;
+    }
+}
+//---------------------------------------------------------------------------
 void TWorld::cell_Redistribution1(int r, int c)
 {
     double Lw_ = Lw->Drc;
@@ -334,7 +367,68 @@ void TWorld::cell_Redistribution1(int r, int c)
     Lw->Drc = Lw_;
 }
 //---------------------------------------------------------------------------
-// this is a lot of bookkeeping of water and flows between all layers
+void TWorld::cell_Tiledrain2(int r, int c)
+{
+    if (!SwitchIncludeTile)
+        return;
+    if (Lw->Drc < 0.05)
+        return;
+
+    double Lw_ = Lw->Drc;
+
+    double pore = Poreeff->Drc;
+    double thetar = ThetaR1->Drc;
+    double theta = Thetaeff->Drc;
+    double SoilDep1 = SoilDepth1->Drc;
+    double FC1 = ThetaFC1->Drc;
+
+    double pore2 = ThetaS2->Drc;
+    double thetar2 = ThetaR2->Drc;
+    double theta2 = ThetaI2->Drc;
+    double SoilDep2 = SoilDepth2->Drc;
+    double FC2 = ThetaFC2->Drc;
+
+    if (Lw_ > TileDepth->Drc && TileDepth->Drc <= SoilDep1) {
+        double vol = DX->Drc*Ksateff->Drc*TileDiameter->Drc;
+        // volume draining, assuming full saturation so Ksat is draining
+        double volsoil = Lw_*(pore-FC1)*CHAdjDX->Drc;
+        // available volume, not drier than FC, gravity
+        vol = std::min(volsoil, vol);
+        double tiledm = vol/CHAdjDX->Drc; // removal in m
+
+        double moisture = Lw_*(pore-thetar); //available sat moisture above Lw_
+        moisture -= tiledm; // okay because removal limited to FC
+        double newLw_ = moisture/(pore-thetar); // new Lw_
+
+        theta = (Lw_-newLw_)*FC1 + (SoilDep1-Lw_)*theta;
+        // new moisture content is weighed avg
+
+        Thetaeff->Drc = theta;
+        Lw->Drc = newLw_;
+        TileWaterVolSoil->Drc = vol;
+    }
+
+    if (Lw_ > TileDepth->Drc && TileDepth->Drc > SoilDep1) {
+        double vol = DX->Drc*Ksat2->Drc*TileDiameter->Drc;
+        // volume draining, assuming full saturation so Ksat is draining
+        double volsoil = (Lw_-SoilDep1)*(pore2-FC2)*CHAdjDX->Drc;
+        // available volume, not drier than FC, gravity
+        vol = std::min(volsoil, vol);
+        double tiledm = vol/CHAdjDX->Drc; // removal in m
+
+        double moisture = (Lw_-SoilDep1)*(pore2-thetar2); //available sat moisture above Lw_
+        moisture -= tiledm; // okay because removal limited to FC
+        double newLw_ = moisture/(pore2-thetar2); // new Lw_
+
+        theta2 = (Lw_-newLw_)*FC2 + (SoilDep2-Lw_)*theta2;
+        // new moisture content is weighed avg
+
+        Thetaeff->Drc = theta2;
+        Lw->Drc = newLw_;
+        TileWaterVolSoil->Drc = vol;
+    }
+}
+//---------------------------------------------------------------------------
 void TWorld::cell_Redistribution2(int r, int c)
 {
    double Lw_ = Lw->Drc;

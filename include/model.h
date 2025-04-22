@@ -67,6 +67,10 @@
 
 #define GRAV_DEM 4.90335
 
+#define BETArect 0.6
+#define BETAcirc 0.6
+
+
 #define Aavg(a,b)  (0.5*(a+b))
 #define Savg(a,b)  sqrt(a*b)
 #define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
@@ -287,7 +291,7 @@ typedef struct vec6 { double v[6]; } vec6;
 //---------------------------------------------------------------------------
 /// Structure to store rain station values of rainfile mapnames
 typedef struct RAIN_LIST {
-    double time;    
+    double time;
     QList <int> stationnr;
     QVector <double> intensity;
 } RAIN_LIST;
@@ -396,7 +400,7 @@ public:
     int nNodes, nN1_, nN2_, nN3_;
     int nrSoilLayers;
     double SoilWBdtfactor;
-    int KavgType;								 
+    int KavgType;
 
     long nrValidCells;
     long nrValidCellsLDD5;
@@ -661,11 +665,11 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, MBeM3, Qtot, Qtot_dt, QTiletot, tilein, IntercTot, IntercETaTot, WaterVolTot, RetentionVolTot, WaterVolSoilTileTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
+    double MB, MBeM3, Qtot, Qtot_dt, QTiletot, QTile, IntercTot, IntercETaTot, WaterVolTot, RetentionVolTot, WaterVolSoilTileTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
     double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowInit, BaseFlowInitmm, BaseFlowTotmm, PeakFlowTotmm, Qfloodout, QfloodoutTot, QuserInTot;
-    double floodBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
+    double QBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
     double IntercHouseTot, IntercHouseTotmm, IntercLitterTot, IntercLitterTotmm;
-    double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot, SoilMoistTot, SoilMoistDiff, SoilMoistTotmm, QSideVolTot;
+    double ChannelSedTot, ChannelDepTot, ChannelDetTot, SoilMoistTot, SoilMoistDiff, SoilMoistTotmm, QSideVolTot;
     /// Sediment totals for mass balance and output (in kg)
     double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTot_dt, SedTot,
            FloodDetTot, FloodDepTot, FloodSedTot;
@@ -674,7 +678,7 @@ public:
     double StormDrainTotmm, floodVolTotmm, floodTotmmInit;
     /// peak times (min)
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
-    bool rainStarted;    
+    bool rainStarted;
     bool ETStarted;
     double ETstartTime;
     double BulkDens;
@@ -948,6 +952,8 @@ public:
     void cell_Redistribution0(int r, int c);
     void cell_Redistribution1(int r, int c);
     void cell_Redistribution2(int r, int c);
+    void cell_Tiledrain1(int r, int c);
+    void cell_Tiledrain2(int r, int c);
     void cell_Channelinfow1(int r, int c);
     void cell_Channelinfow2(int r, int c);
     void cell_SplashDetachment(int r, int c);
@@ -993,6 +999,7 @@ public:
     void ChannelSedimentFlow();
     void ChannelFlowandErosion();
     void ChannelVelocityandDischarge();
+    double pipeThetafroma(int r, int c, double a);
     void ChannelFlood(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V);
     void ChannelOverflowIteration(cTMap *_h, cTMap *_V);
@@ -1001,9 +1008,7 @@ public:
     void TileFlow(void);
     void TileFlowSWMM(void);
     void CalcVelDischRectangular(void);
-    void CalcMAXDischRectangular(void);
     void CalcVelDischCircular(void);
-    void CalcMAXDischCircular(void);
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
 
@@ -1150,14 +1155,12 @@ public:
     HORIZON *ReadHorizonNew(QString tablePath, QString tableName);
     LUT *ReadSoilTableNew(QString fileName);
     void checkFileForInvalidLetters(const QString &filePath);
-    double SwatreStep(long i_, int r, int c, SOIL_MODEL *s, double _WH, cTMap *_drain, cTMap *_theta);
+    double SwatreStep(long i_, int r, int c, SOIL_MODEL *s, double _WH, cTMap *_drain);
     void HeadCalc(const PROFILE *p, double *h, bool *isPonded, bool fltsat,
                   const double *thetaPrev, const double *hPrev, const double *kavg, const double *dimoca,
                   double dt, double pond, double qtop, double qbot);
     double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes, double dtMin, double precParam);
-//    double  NewTimeStep(double prevDt, QVector <double> hlast, QVector <double> h, int nrNodes, double dtMin);
-//    void ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction);
-    void ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction);
+    void ComputeForPixel(long i_, SOIL_MODEL *s);
     double DmcNode(double head,const  HORIZON *hor,bool on_dmch);
     double FindValue(double value,const  HORIZON *hor, int colv, int col);
     double HNode(double theta,const  HORIZON *hor); // obsolete

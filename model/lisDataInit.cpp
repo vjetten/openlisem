@@ -73,12 +73,13 @@ void TWorld::GetInputData(void)
     //## get flow barriers;
     InitFlowBarriers();
 
+    //creta onscreen network
     InitScreenChanNetwork();
 
 }
 //---------------------------------------------------------------------------
 void TWorld::InitParameters(void)
-{       
+{
     PBiasCorrection = getvaluedouble("Rainfall Bias Correction");
     ETBiasCorrection = getvaluedouble("ET Bias Correction");
     rainfallETa_threshold = getvaluedouble("Rainfall ET threshold"); // in mm
@@ -183,8 +184,6 @@ void TWorld::InitParameters(void)
         //SwitchGWChangeSD = true;
     }
 
-   // F_fluxLimiter = 2;
-
     rillfactor = 1.0;
     _CHMaxV = 20.0;
     if (SwitchChannelMaxV)
@@ -208,7 +207,7 @@ void TWorld::InitParameters(void)
 }
 //---------------------------------------------------------------------------
 void TWorld::InitStandardInput(void)
-{   
+{
     //## catchment data
     LDD = InitMask(getvaluename("ldd"));
     // THIS SHOULD BE THE FIRST MAP
@@ -421,7 +420,7 @@ void TWorld::InitLULCInput(void)
     Norg = NewMap(0);
     copy(*Norg, *N); //ed in sed trap... if trap is full go back to original N
 
-    RR = ReadMap(LDD,getvaluename("RR"));    
+    RR = ReadMap(LDD,getvaluename("RR"));
     checkMap(*LDD, *RR, SMALLER, 0.0, "Random roughness RR must be >= 0");
     calcValue(*RR, RRCalibration, MUL);
 
@@ -749,7 +748,7 @@ void TWorld::InitSoilInput(void)
         if (SwitchInfilCrust) {
             KsatCrust = ReadMap(LDD,getvaluename("ksatcrst"));
             calcValue(*KsatCrust, ksatCalibration, MUL);
-			//DO THIS, else inconsistency, and Ksat can be smaller than ksatcrust
+            //DO THIS, else inconsistency, and Ksat can be smaller than ksatcrust
 
             PoreCrust = ReadMap(LDD,getvaluename("porecrst"));
         } else {
@@ -762,7 +761,7 @@ void TWorld::InitSoilInput(void)
             KsatCompact = ReadMap(LDD,getvaluename("ksatcomp"));
             calcValue(*KsatCompact, ksatCalibration, MUL);
             //DO THIS, else inconsistency, Ksat can be smaller than ksatcomp
-            PoreCompact = ReadMap(LDD,getvaluename("porecomp"));                       
+            PoreCompact = ReadMap(LDD,getvaluename("porecomp"));
         } else {
             KsatCompact = NewMap(0);
             PoreCompact = NewMap(0);
@@ -949,6 +948,13 @@ void TWorld::InitChannel(void)
     }
     crlinkedlddch_= MakeLinkedList(LDDChannel);
 
+    // for(long i_ =  0; i_ < crlinkedlddch_.size(); i_++)
+    // {
+    //     int c = crlinkedlddch_[i_].c;
+    //     int r = crlinkedlddch_[i_].r;
+    //     qDebug() << crlinkedlddch_[i_].ldd << LDDChannel->Drc;
+    // }
+
     crlddch5_.clear();
     FOR_ROW_COL_MV_CH {
         if (LDDChannel->Drc == 5) {
@@ -1024,21 +1030,22 @@ void TWorld::InitChannel(void)
         // store not used?
     }
 
+    ChannelMaxQ = NewMap(0);
+    ChannelMaxAlpha = NewMap(0);
     if (SwitchCulverts) {
 
-        ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
-        cover(*ChannelMaxQ, *LDD,0);
-        ChannelMaxAlpha = NewMap(0);
+        ChannelDiameter = ReadMap(LDDChannel, getvaluename("chandiam"));
+        //cover(*ChannelDiameter, *LDD,0);
 
         FOR_ROW_COL_MV_CHL {
-            if (ChannelMaxQ->Drc > 0) {
-                // ChannelWidth->Drc = 0.3;
-                // ChannelWidthO->Drc = 0.3;
-                // ChannelDepth->Drc = 0.3;
-                ChannelN->Drc = 0.015;
-                ChannelGrad->Drc = 0.002;
-
+            if (ChannelDiameter->Drc > 0) {
+                ChannelDiameter->Drc /= 1000;
+                double area = PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;
+                double perim = PI*ChannelDiameter->Drc;
+                ChannelN->Drc = 0.012;
+                ChannelMaxQ->Drc = std::pow(area/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
                 ChannelMaxAlpha->Drc = (ChannelWidth->Drc*ChannelDepth->Drc)/std::pow(ChannelMaxQ->Drc, 0.6);
+                //qDebug() << ChannelMaxQ->Drc << ChannelMaxAlpha->Drc;
             }
         }}
 
@@ -1577,7 +1584,7 @@ void TWorld::InitErosion(void)
         }
 
         // Eurosem method, aggr stab is not strength but sed delivery so the opposite
-        if (SwitchSplashEQ == 2) {                      
+        if (SwitchSplashEQ == 2) {
            SplashStrength->Drc = (1/ASCalibration)*AggrStab->Drc;
         }
         if (AggrStab->Drc < 0 || RootCohesion->Drc < 0)
@@ -1668,7 +1675,7 @@ void TWorld::IntializeData(void)
     //floodVolTotInit = 0;
     floodVolTotMax = 0;
     floodAreaMax = 0;
-    floodBoundaryTot = 0;
+    QBoundaryTot = 0;
     floodBoundarySedTot = 0;
 
     // infiltration
@@ -1690,8 +1697,8 @@ void TWorld::IntializeData(void)
     //### runoff maps
     Qtot = 0;
     Qtot_dt = 0;
+    QTile = 0;
     QTiletot = 0;
-    tilein = 00;
     QfloodoutTot = 0;
     Qfloodout = 0;
     Qtotmm = 0;
@@ -1761,10 +1768,6 @@ void TWorld::IntializeData(void)
 
     // needs to be done here because profile uses data like impermable fration, tiledrain etc
     if (InfilMethod == INFIL_SWATRE) {
-
-        thetaTop = NewMap(0); // for pesticides
-        //WHold= NewMap(0);
-        //WHnew = NewMap(0);
 
         // VJ 110420 added tiledrain depth for all profiles, is all used in infiltration
         SwatreSoilModel = InitSwatre(ProfileID);
@@ -2233,25 +2236,18 @@ void TWorld::InitImages()
 }
 //---------------------------------------------------------------------------
 // read and Intiialize all Tile drain variables and maps
+// for soil tile drains and road strom drains the same maps are used
 void TWorld::InitTiledrains(void)
 {
     if (SwitchIncludeTile || SwitchIncludeStormDrains) {
-
-        //switch tile is soil drain and switch drain is urban drains
-
         // channel vars and maps that must be there even if channel is switched off
-        TileVolTot = 0;
         TileWaterVol = NewMap(0);
         RunoffVolinToTile = NewMap(0);
         TileQ = NewMap(0);
-        TileA = NewMap(0);
-        TileQin = NewMap(0);
-        TileMaxQ = NewMap(0);
         TileQn = NewMap(0);
         TileAlpha = NewMap(0);
+        TileMaxQ = NewMap(0);
         TileMaxAlpha = NewMap(0);
-
-        //##### Tile maps #####
 
         LDDTile = InitMaskTiledrain(getvaluename("lddtile"));
         // must be first LDDTile is the mask for tile drains
@@ -2274,9 +2270,6 @@ void TWorld::InitTiledrains(void)
 
         TileDrainDistance = getvaluedouble("Drain inlet distance");
 
-        //   TileInlet = ReadMap(LDDTile, getvaluename("tilesink"));
-        //  cover(*TileInlet, *LDD, 0);
-
         TileArea = NewMap(0);
 
         TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
@@ -2287,21 +2280,21 @@ void TWorld::InitTiledrains(void)
         TileN = ReadMap(LDDTile, getvaluename("tileman"));
         cover(*TileN, *LDD, 0);
 
-        // soil tile drain
+        // soil tile drain extra maps
         if (SwitchIncludeTile) {
             TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
-            cover(*TileDepth, *LDD, -1); //VJ non tile cells flagged by -1 value, needed in swatre init
-            TileDrainSoil = NewMap(0);
+            cover(*TileDepth, *LDD, -1); //non tile cells flagged by -1 value, needed in swatre init
             TileWaterVolSoil = NewMap(0);
         }
 
         // drain circular
         if (SwitchStormDrainCircular) {
             TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
-            FOR_ROW_COL_MV_TILE {
+            FOR_ROW_COL_MV_TILEL {
                 TileArea->Drc = TileDiameter->Drc*TileDiameter->Drc*0.25*PI;// PI r^2
-            }
-            CalcMAXDischCircular();
+                TileMaxQ->Drc = TileArea->Drc*std::pow(TileArea->Drc/(PI*TileDiameter->Drc),2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+                TileMaxAlpha->Drc  = TileArea->Drc/std::pow(TileMaxQ->Drc, BETAcirc);
+            }}
         }
 
         // drain square
@@ -2312,11 +2305,13 @@ void TWorld::InitTiledrains(void)
             cover(*TileWidth, *LDD, 0);
             cover(*TileHeight, *LDD, 0);
             //rectangular drainage
-            FOR_ROW_COL_MV_TILE {
+            FOR_ROW_COL_MV_TILEL {
                 TileArea->Drc = TileWidth->Drc*TileHeight->Drc;
-                // two sides of the street
-            }
-            CalcMAXDischRectangular();
+                TileDiameter->Drc = 2*TileWidth->Drc + 2*TileHeight->Drc;
+                double Perim = TileWidth->Drc+2*TileHeight->Drc;
+                TileMaxQ->Drc = TileArea->Drc*pow(TileArea->Drc/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+                TileMaxAlpha->Drc  = TileArea->Drc/std::pow(TileMaxQ->Drc, BETArect);
+            }}
         }
     }
 }

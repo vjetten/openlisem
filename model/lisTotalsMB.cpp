@@ -272,8 +272,8 @@ void TWorld::TotalsFlow(void)
     // sum all outflow in m3 for this timestep, Qtot is for all timesteps!
 
     if (FlowBoundaryType > 0) {
-        floodBoundaryTot += QBoundary*_dt;
-        Qboundtotmm = floodBoundaryTot*catchmentAreaFlatMM;
+        QBoundaryTot += QBoundary*_dt;
+        Qboundtotmm = QBoundaryTot*catchmentAreaFlatMM;
         Qtot_dt += QBoundary*_dt;
     }
 
@@ -299,40 +299,31 @@ void TWorld::TotalsFlow(void)
         }}
         // add channel outflow (in m3) to total for all pits
     }
-double tott = 0;
+
 
     //=== storm drain flow
-    if(SwitchIncludeStormDrains) {
-        FOR_ROW_COL_MV_TILEL {
-          if (LDDTile->Drc == 5) {
-            QTiletot += TileQn->Drc * _dt;
-            tott += TileQn->Drc;
-          }
-        }}
-        StormDrainVolTot = MapTotal(*TileWaterVol);
+    QTile = 0;
+    if(SwitchIncludeStormDrains || SwitchIncludeTile) {
+            // sum the tile outlets
+            FOR_ROW_COL_MV_TILEL {
+                if (LDDTile->Drc == 5) {
+                    QTiletot += TileQn->Drc * _dt;
+                    QTile += TileQn->Drc;
+                }
+            }}
+        //urban volume in drains
+        if (SwitchIncludeStormDrains) {
+            StormDrainVolTot = MapTotal(*TileWaterVol);
+        }
+
+        // agriculture volume in tiles
+        if (SwitchIncludeTile){
+            StormDrainVolTot = MapTotal(*TileWaterVolSoil);
+        }
+        // output
         StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
+        //qDebug() << StormDrainVolTot << QTiletot << tott << tilein;
     }
-
-    //qDebug() << SwitchIncludeStormDrains << StormDrainVolTot << QTiletot << tott << tilein;
-    // can occur both of coursse, treat separately
-    if (SwitchIncludeTile)
-    {
-        // WaterVolSoilTileTot = MapTotal(*TileWaterVolSoil);
-        // // input for mass balance, is the water seeping from the soil, input
-        // // this is the water before the kin wave
-        // calc2Maps(*tm, *TileDrainSoil, *TileWidth, MUL); //in m3
-        // calcMap(*tm, *DX, MUL); //in m3
-
-        // TileVolTot += MapTotal(*tm); // in m3
-
-        // FOR_ROW_COL_MV_TILE
-        // if (LDDTile->Drc == 5)
-        // {
-        //    // Qtot_dt += TileQn->Drc * _dt;
-        //     QTiletot += TileQn->Drc * _dt;
-        // }
-    }
-
 
     // sum of all fluxes ONLY for display on screen
     #pragma omp parallel for num_threads(userCores)

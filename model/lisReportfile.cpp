@@ -48,7 +48,7 @@ void TWorld::reportToFile(void)
     // report catchment averages per timestep
 
     // spatial output, maps and mapseries
-    if (!SwitchEndRun) {        
+    if (!SwitchEndRun) {
         ReportMaps();
         ReportMapSeries();
     }
@@ -116,9 +116,9 @@ void TWorld::setupHydrographData()
 
     QList<int> tx;
     QList<int> ty;
-    tx.clear();
+   // tx.clear();
     tx.append(op.OutletLocationX);
-    ty.clear();
+   // ty.clear();
     ty.append(op.OutletLocationY);
     op.OutletLocationX.clear();
     op.OutletLocationY.clear();
@@ -149,7 +149,7 @@ void TWorld::reportToUI(void)
     SwitchCorrectMB_WH = op.SwitchCorrectMB_WH;
     op.timestep = this->_dt/60.0;
 
-    op.t = time_ms.elapsed()*0.001/60.0;    
+    op.t = time_ms.elapsed()*0.001/60.0;
     op.t = omp_get_wtime()/60.0 - startTime;
     op.time = time/60;
     if (SwitchEventbased)
@@ -194,7 +194,7 @@ void TWorld::reportToUI(void)
     op.PeakFlowTotmm = PeakFlowTotmm;
     op.RetentionVolTot = RetentionVolTot;
 
-    op.volFloodmm = floodVolTotmm;
+    op.FloodVolmm = floodVolTotmm;
     op.FloodTotMax = floodVolTotMax;
     op.FloodAreaMax = floodAreaMax;
     op.FloodArea = floodArea;
@@ -203,9 +203,7 @@ void TWorld::reportToUI(void)
     op.Qboundtotmm = Qboundtotmm;
     op.Qtot = Qtot; // all outflow through channel and runoff for all open and outlets boundaries
 
-    op.floodBoundaryTot = floodBoundaryTot;
-    if (SwitchIncludeStormDrains || SwitchIncludeTile)
-        op.Qtile.append(QTiletot*1000.0/_dt);  //average tile output over all tile outlets as a flox in l/s
+    op.QBoundaryTot = QBoundaryTot;
     op.Qtiletot = QTiletot;  //average tile output over all tile outlets as a flux in m3/s
     op.MB = MB;
 
@@ -239,6 +237,7 @@ void TWorld::reportToUI(void)
     op.OutletQ.at(0)->append(Qtot_dt * QUNIT/_dt); //Qtot_dt is in m3
 
     op.Qbound.append(QBoundary*QUNIT);
+    op.Qtile.append(QTile*QUNIT);  //average tile output over all tile outlets as a flox in l/s
 
     op.OutletQtot.replace(0,Qtot); // cumulative tot outflow
     op.OutletChannelWH.at(0)->append(0);
@@ -373,7 +372,7 @@ void TWorld::ReportTotalSeries(void)
     if (SwitchIncludeStormDrains)
         out << sep << op.StormDrainTotmm;
     out << sep << op.WaterVolTotmm;
-    out << sep << op.volFloodmm;
+    out << sep << op.FloodVolmm;
     out << sep << op.FloodArea;
     out << sep << op.ChannelVolTotmm;
     out << sep << op.Qtotmm;
@@ -449,7 +448,7 @@ void TWorld::ReportTotalsNew(void)
         out << "\"Water in flood (mm):\"," << 0.0 << "\n";
     } else {
        out << QString("\"Water in overland flow (h<%1)(mm)):\",%2\n").arg(minReportFloodHeight*1000).arg(op.WaterVolTotmm);
-       out << QString("\"Water in flood (h>%1) (mm)):\",%2\n").arg(minReportFloodHeight*1000).arg(op.volFloodmm);
+       out << QString("\"Water in flood (h>%1) (mm)):\",%2\n").arg(minReportFloodHeight*1000).arg(op.FloodVolmm);
     }
     out << "\"Water in channels (mm):\"," << op.ChannelVolTotmm<< "\n";
     out << "\"Water across boundary (mm):\"," << op.Qboundtotmm<< "\n";
@@ -458,7 +457,7 @@ void TWorld::ReportTotalsNew(void)
     out << "\"Total peakflow (mm):\"," << op.PeakFlowTotmm << "\n";
     out << "\"Total outflow (overland+channel+drains+boundary) (mm):\"," << op.Qtotmm << "\n";
     out << "\"Total outflow (overland+channel+drains+boundary) (m3):\"," << op.Qtot<< "\n";
-    out << "\"Total boundary outflow (m3):\"," << op.floodBoundaryTot<< "\n";
+    out << "\"Total boundary outflow (m3):\"," << op.QBoundaryTot<< "\n";
     out << "\"Total storm drain discharge (m3):\"," << op.Qtiletot<< "\n";
     out << "\"Peak time precipitation (min):\"," << op.RainpeakTime<< "\n";
     out << "\"Total discharge/Precipitation (%):\"," << op.RunoffFraction*100<< "\n";
@@ -747,7 +746,7 @@ void TWorld::ReportTimeseriesCSV(void)
             if (FlowBoundaryType > 0)
                 out << sep << QsBoundary;
             if (SwitchIncludeChannel) {
-                out << sep << ChannelQsn->Drc;                
+                out << sep << ChannelQsn->Drc;
                 out << sep << ChannelConc->Drc;
             } else {
                 out << sep << Qsn->Drc;

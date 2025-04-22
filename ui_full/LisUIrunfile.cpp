@@ -89,7 +89,7 @@ void lisemqt::GetRunfile()
     for (int i = 0; i < nrnamelist; i++) {
         if (!namelist[i].value.isEmpty() && !namelist[i].gotit) {
          //   qDebug() << i << namelist[i].name << namelist[i].value << "map not found";
-            saveRunFileOnce = true;            
+            saveRunFileOnce = true;
         }
     }
 }
@@ -450,6 +450,10 @@ void lisemqt::ParseInputData()
     flowboundary = false;
     if (E_FlowBoundary->value() > 0 && E_OFWaveType->currentIndex() > 0)
         flowboundary = true;
+
+    tileanddrains = false;
+    if (checkIncludeTiledrains->isChecked() || checkStormDrains->isChecked())
+        tileanddrains = true;
 
     doChannelBaseflow = (checkGWflow->isChecked() || checkStationaryBaseflow->isChecked()) && checkIncludeChannel->isChecked();
 
@@ -879,7 +883,7 @@ void lisemqt::updateModelData()
         // overland flow
         if (p1.compare("Flow Boundary 2D")==0)               namelist[j].value = E_FlowBoundary->text();
         if (p1.compare("Routing Kin Wave 2D")==0)            namelist[j].value.setNum(E_OFWaveType->currentIndex());
-        if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();        
+        if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
         if (p1.compare("Flood solution")==0)                 namelist[j].value.setNum((int) checkMUSCL->isChecked());
         if (p1.compare("Flood Heun 2nd order")==0)           namelist[j].value.setNum((int) checkHeun->isChecked());
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();

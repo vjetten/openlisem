@@ -210,7 +210,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
 
 //---------------------------------------------------------------------------
 void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax, cTMap *_Amax)
-{   
+{
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         _Qn->Drc = 0;

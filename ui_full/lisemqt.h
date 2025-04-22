@@ -125,6 +125,7 @@ public:
     QString batchRunname;
 
     bool flowboundary;
+    bool tileanddrains;
 
     bool isNewVersionAvailable(QString &GitHubVersion);
     QString getLatestVersionFromGitHub();

@@ -61,21 +61,17 @@ dz and disZ are negative distances
 //--------------------------------------------------------------------------------
 // units in SWATRE are cm and K cm/sec
 //OBSOLETE
-double TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, double _WH, cTMap *_drain, cTMap *_theta)
+double TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, double _WH, cTMap *_drain)
 {
     double drainfraction = 0;
 
     s->pixel[i_].wh = _WH*100;    // WH is in m, convert to cm
     s->pixel[i_].tiledrain = 0;
 
-    if (SwitchIncludeTile)
-        drainfraction = TileWidth->Drc/_dx;
-
-    ComputeForPixel(i_, s, drainfraction);
+    ComputeForPixel(i_, s);
     // estimate new h and theta at the end of dt
 
     double res = s->pixel[i_].wh*0.01; // cm to m
-    _theta->Drc = s->pixel[i_].theta; // for pesticides ?
 
     Perc->Drc = s->pixel[i_].percolation*0.01;
 
@@ -165,7 +161,7 @@ double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int
 // Z and H in cm; table units K in cm/day converted to cm/sec, lisem time in seconds
 // NOTE: dz is negative, disZ is negative!
 
-void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
+void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)
 {
     PIXEL_INFO *pixel = &s->pixel[i_];
     const PROFILE *p = pixel->profile;
@@ -178,7 +174,6 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
     double elapsedTime = 0;
     double drainout = 0;
     double percolation = 0;
-    double Theta = 0;
     int tnode = pixel->tilenode;
     double impfrac = fractionImperm->Drc;//pixel->impfrac;
     NODE_ARRAY kavg, k, C, theta, thetaPrev, h, hPrev, dz, disZ, S;
@@ -229,7 +224,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
         // do calibration after dens and OM calculations
         for (int j = 0; j < nN; j++) {
              k[j] *= p->KsatCal[j];
-        }        
+        }
 
         // average K for 1st to n-1 node, top node is done below
         // original swatre artithmetric mean, Vauclin nin Belmans says geometric mean!
@@ -246,7 +241,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
         // max possible flux with Ksat
         double Ksat = FindValue(0, p->horizon[0], H_COL, K_COL)*p->KsatCal[0]*(1.0-impfrac);
         if (SwitchOMCorrection)
-            Ksat = pixel->corrKsOA*Ksat + pixel->corrKsOB;       
+            Ksat = pixel->corrKsOA*Ksat + pixel->corrKsOB;
         if (SwitchDensCorrection)
             Ksat = pixel->corrKsDA*Ksat + pixel->corrKsDB;
 
@@ -405,24 +400,23 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
         //--- calculate tile drain ---//
         //TODO: CHECK THIS
         if (SwitchIncludeTile && tnode > 0) {
-            //options:
-            qdrain =  k[tnode];
-            // drainage is cond of the node in cm/sec
-            double water = theta[tnode] * -disZ[tnode] * drainfraction;
-            // total amonut of water available to drain in this node (cm)
-            // note: distnode has a negative value
-            qdrain = std::min(qdrain, water/dt);
-            // cannot have more drainage than water available
-            theta[tnode] = FindValue(h[tnode], p->horizon[tnode], H_COL, THETA_COL);
-            theta[tnode] = std::max(0.001, theta[tnode] - (qdrain*dt)/disZ[tnode]*drainfraction);
-            // adjust theta with drainage removed
+            if (h[tnode] > -10) {
+                double vollayer = -disZ[tnode]*0.01 * CHAdjDX->Drc; // m3
+                qdrain =  0.01*k[tnode]*dt*TileDiameter->Drc*DX->Drc; // m3
+                double water = theta[tnode] * vollayer; // m3
+                // total amonut of water available to drain in this node (m3)
+                // note: distnode has a negative value (in cm so 0.01)
+                qdrain = std::min(qdrain, water);
+                // cannot have more drainage than water available
+                water -= qdrain;
+                theta[tnode] = water/vollayer; //m3/m3
+                h[tnode] = FindValue(theta[tnode], p->horizon[tnode], THETA_COL, H_COL );
+                hPrev[tnode] = h[tnode];
+                // new h from theta
 
-            h[tnode] = FindValue(theta[tnode], p->horizon[tnode], THETA_COL, H_COL );
-            hPrev[tnode] = h[tnode];
-            // new h from theta
-
-            drainout += qdrain*dt;
-            // add for all swatre timestps, in cm
+                drainout += qdrain;
+                // add for all swatre timestps, in m3
+            }
         }
 
         // estimate new dt within lisemtimestep
@@ -443,19 +437,14 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction)
             n += 1.0;
         }
     }
-    Theta = sum/n;
 
     //put new h back into h
     memcpy(pixel->h.data(), h, nN * sizeof(double));
-    // for (int i = 0; i < nN; i++) {
-    //     pixel->h[i] = h[i];
-    // }
 
     // these variables can all be direcvtly saved to the maps, inflated pixel structure
     pixel->wh = WH;
-    pixel->tiledrain = drainout;    
+    pixel->tiledrain = drainout;
     pixel->percolation = -percolation; // in cm
-    pixel->theta = Theta;
 
 }
 //--------------------------------------------------------------------------------

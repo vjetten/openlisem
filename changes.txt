@@ -3,9 +3,10 @@ Latest fixes and changes:
 
 see Readme.txt for a complete list
 
-250416 - v7.4.6 beta R9
-- Proces: better storm drain from streets
-- TODO: tile drains from soils
+250422 - v7.4.6 beta R9
+- Proces: tile drain from soil => needs testing
+- Proces: storm drain from streets work
+- BUG FIX: culverts in channel work without masss balance error, this uses now Channel Diameter instead of max discharge as input
 - compiling with QT 6.9.0 => dlls updated
 
 250408 - v7.4.6 beta R8

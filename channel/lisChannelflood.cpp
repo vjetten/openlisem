@@ -28,7 +28,7 @@
         and more stable 1st and 2nd order st Venant following the fullSWOF2D code (univ Orleans)\n
         called before ChannelFlow(), takes old channel overflow height and spreads it out, puts new channelWH \n
         back into channel before kin wave of channel is done in ChannelFlow()
-        
+
 functions: \n
 - void TWorld::ChannelOverflow(void) Mixing of flood and overflow in channel cells, source of overflow
 - void TWorld::ChannelFlood(void) Calculate channelflood height maps (hmx, QFlood, UVFlood) and FloodDomain
@@ -54,8 +54,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
              double maxQ = SwitchCulverts ? ChannelMaxQ->Drc  : -1;
 
-             if (maxQ <= 0)
-             {
+             if (maxQ <= 0) {
                  double chdepth = ChannelDepth->Drc;
                  double dH = std::max(0.0, (ChannelWH->Drc-chdepth));
 
@@ -168,19 +167,21 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        ChannelWaterVol->Drc = ChannelWH->Drc * ChannelDX->Drc * ChannelWidth->Drc;
-        WaterVolall->Drc = CHAdjDX->Drc*_h->Drc + MicroStoreVol->Drc;
-        // do not recalc floodvol, MB errors
+        if (!SwitchCulverts || ChannelMaxQ->Drc == 0) {
+            ChannelWaterVol->Drc = ChannelWH->Drc * ChannelDX->Drc * ChannelWidth->Drc;
+            WaterVolall->Drc = CHAdjDX->Drc*_h->Drc + MicroStoreVol->Drc;
+            // do not recalc floodvol, MB errors
 
-        // recalc channel water vol else big MB error
-        if(SwitchErosion)
-        {
-            SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drc);
-            SWOFSedimentSetConcentration(r,c, _h->Drc, ChannelAdj->Drc);
+            // recalc channel water vol else big MB error
+            if(SwitchErosion)
+            {
+                SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drc);
+                SWOFSedimentSetConcentration(r,c, _h->Drc, ChannelAdj->Drc);
 
-            RiverSedimentLayerDepth(r, c);
-            RiverSedimentMaxC(r, c);
-            // all concentrations, possible ChannelDep when surplus
+                RiverSedimentLayerDepth(r, c);
+                RiverSedimentMaxC(r, c);
+                // all concentrations, possible ChannelDep when surplus
+            }
         }
     }}
 }
@@ -306,19 +307,22 @@ void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        ChannelWaterVol->Drc = ChannelWH->Drc * ChannelDX->Drc * ChannelWidth->Drc;
-        WaterVolall->Drc = CHAdjDX->Drc*_h->Drc + MicroStoreVol->Drc;
-        // do not recalc floodvol, MB errors
+        if (!SwitchCulverts || ChannelMaxQ->Drc == 0) {
 
-        // recalc channel water vol else big MB error
-        if(SwitchErosion)
-        {
-            SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drc);
-            SWOFSedimentSetConcentration(r,c, _h->Drc, ChannelAdj->Drc);
+            ChannelWaterVol->Drc = ChannelWH->Drc * ChannelDX->Drc * ChannelWidth->Drc;
+            WaterVolall->Drc = CHAdjDX->Drc*_h->Drc + MicroStoreVol->Drc;
+            // do not recalc floodvol, MB errors
 
-            RiverSedimentLayerDepth(r, c);
-            RiverSedimentMaxC(r, c);
-            // all concentrations, possible ChannelDep when surplus
+            // recalc channel water vol else big MB error
+            if(SwitchErosion)
+            {
+                SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drc);
+                SWOFSedimentSetConcentration(r,c, _h->Drc, ChannelAdj->Drc);
+
+                RiverSedimentLayerDepth(r, c);
+                RiverSedimentMaxC(r, c);
+                // all concentrations, possible ChannelDep when surplus
+            }
         }
     }}
 }

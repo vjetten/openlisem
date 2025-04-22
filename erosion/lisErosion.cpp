@@ -110,7 +110,7 @@ void TWorld::cell_SplashDetachment(int r, int c)
         double strength = SplashStrength->Drc;
         double Int = Rain->Drc * 3600/_dt * 1000; // intensity in mm/h, Rain is in m
         double KE_DT = 0.0;
-        double DETSplash_;               
+        double DETSplash_;
 
         switch (KEequationType)
         {
@@ -200,45 +200,6 @@ void TWorld::cell_SplashDetachment(int r, int c)
         if (SwitchSnowmelt)
             DETSplash_ = (1-Snowcover->Drc)*DETSplash_;
         // no splash on snow deck
-
-        // if (SwitchRoadsystem)
-        //     DETSplash_ = (1-RoadWidthDX->Drc/_dx)*DETSplash_;
-        // if (SwitchHardsurface)
-        //     DETSplash_ = (1-HardSurface->Drc)*DETSplash_;
-//         if (RoadWidthHSDX->Drc > 0.1)
-//             DETSplash_ = 0;
-// soilwidth already takes care of this
-
-    /*
-        if(SwitchUseMaterialDepth)
-        {
-            //check wat we can detach from the top and bottom layer of present material
-            double dleft = DETSplash_;
-            double deptake = 0;
-            double mattake = 0;
-            double detachment = 0;
-
-            deptake = std::min(dleft,StorageDep->Drc);
-            StorageDep->Drc -= deptake;
-            // det not more than storage
-            // decrease store depth
-
-            detachment += deptake;
-            // detachment is now taken material
-
-            if(!(Storage->Drc < 0))
-            {
-                mattake = std::min(dleft,Storage->Drc);
-                Storage->Drc -= mattake;
-
-                detachment += mattake;
-            }else
-            {
-                detachment += dleft;
-            }
-            DETSplash_ = detachment;
-        }
-*/
 
         if(SwitchKinematic2D == K2D_METHOD_DYN) {
             SSFlood->Drc += DETSplash_;
