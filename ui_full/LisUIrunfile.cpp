@@ -860,10 +860,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Infil Kavg")==0)                    namelist[j].value.setNum(comboBox_Kmean->currentIndex());
         if (p1.compare("Van Genuchten")==0)                 namelist[j].value.setNum(spinSoilPhysics->value());
         if (p1.compare("Swatre output")==0)                 namelist[j].value.setNum((int)checkSwatreOutput->isChecked());
-        //tile drains
         if (p1.compare("Include tile drains")==0)           namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
         if (p1.compare("Tile entry suction")==0)            namelist[j].value.setNum(spinTileSuction->value());
-
 
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());

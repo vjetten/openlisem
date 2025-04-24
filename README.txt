@@ -2,7 +2,7 @@ openLISEM
 A spatial model for simulation of the full waterbalance, overland flow, flooding and sediment erosion, transport and deposition in all flows.
 
 ============
-Date: 250422
+Date: 250424
 ============
 
 This software is subject to a DISCLAIMER and released under the copyright model GPLv3
@@ -11,28 +11,29 @@ For questions contact v.g.jetten AD utwente.nl
 
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
-NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6, openmp, gdal and (minimal) pcraster
+NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
 
 LIST OF CHANGES and BUGFIXES:
 
-250422 - v7.4.6 beta R1-R9
-- BUG FIX: culverts in channel work without masss balance error, this uses now Channel Diameter instead of max discharge as input
-- BUG FIX: fixed error in kinematic wave sediment transport causing extreme fluctuation in concentration of channel
-- BUG FIX: Field capacity and residual moisture were not properly calculated, causing errors in percolation, sometimes causing a stop in inifltration
-- BUG FIX: MUSCL was not activated
+250424 - v7.4.6
+- BUG FIX: culverts in channel work now without masss balance error. The user has to provide the diameter of the culvert part of the
+  channel, in chandiameter.map (in m). All culverts are assumed to bge circular pipes. Channel N and gradient remain so adjust these to
+  reflect the culvert. The maximum channel discharge map (chanmaxq.map) is obsolete.
+- BUG FIX: fixed error in kinematic wave sediment transport causing extreme fluctuation in concentration of channel 
+- BUG FIX: Field capacity and residual moisture were not properly calculated, causing errors in percolation, sometimes causing a stop in
+	inifltration
+- BUG FIX: 2D flow with MUSCL redone and optimized, results are now similar to 1st order 2D flow (without MUSCL)
 - BUG FIX: background image was not loaded properly
 - BUG FIX: reading pathnames sometimes result in "//"
 - BUG FIX: 2D flow gives MB error because of when domain boundary touches map edge, make sure there is a MV cell on all sides
-- BUG FIX: MUSCL gave wrong water heigths and limited flow to neighbours, results now similar to 1st order 2D flow
-- BUG FIX: reading pathnames sometimes result in "//"
-- BUG FIX: crusting SWATRE
-- Proces: storm drain from streets work
-- Boundary flow for Dynamic Wave fixed and correct in output
-- Cell sized retention for overland flow and channelflow (also for kinematic wave)
-- optimized MUSCL 2D flow and 2nd order redone, checked also user input wave
-- added evapotranspiration to Swatre as sinkterm
-- rewrote evapotranspiration for other hydrology
-- Riemann HLLc and HLLc2 (option 4 and 5) behave strangely, removed from interface choiche, defaults to 3
+- BUG FIX: dynamic crusting SWATRE added
+- BUG FIX: Boundary flow for Dynamic Wave fixed and correct in output
+- Proces added: storm drain from streets
+- Process added: cell sized retention for overland flow and channelflow (also for kinematic wave) gridretention.map in m3
+- Process added: evapotranspiration added to Swatre as sinkterm
+- rewrote evapotranspiration for all hydrology
+- Riemann HLLc and HLLc2 (option 4 and 5) behave strangely, removed from interface choiche for now, defaults to 3
+- Compiled with QT 6.9.0 and latest dlls includedsd
 
 250121 - v7.4.5
 - BUG FIX: Delete all map and swatre data after no GUI run

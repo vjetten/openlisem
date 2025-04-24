@@ -2391,7 +2391,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>3</number>
+                  <number>9</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -4381,39 +4381,6 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="2" column="1">
-                          <widget class="QDoubleSpinBox" name="spinTileSuction">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="decimals">
-                            <number>1</number>
-                           </property>
-                           <property name="minimum">
-                            <double>-100.000000000000000</double>
-                           </property>
-                           <property name="maximum">
-                            <double>0.000000000000000</double>
-                           </property>
-                           <property name="singleStep">
-                            <double>1.000000000000000</double>
-                           </property>
-                           <property name="value">
-                            <double>-10.000000000000000</double>
-                           </property>
-                          </widget>
-                         </item>
                          <item row="9" column="0">
                           <widget class="QSpinBox" name="spinSoilLayers">
                            <property name="sizePolicy">
@@ -4537,21 +4504,6 @@
                            </property>
                            <property name="text">
                             <string>Top layer crusting (static)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="2" column="2">
-                          <widget class="QLabel" name="label_164">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>(Above this suction water enters the tiledrain)</string>
                            </property>
                           </widget>
                          </item>
@@ -10087,8 +10039,14 @@
                          <property name="verticalSpacing">
                           <number>4</number>
                          </property>
-                         <item row="2" column="2">
-                          <widget class="QLabel" name="label_158">
+                         <item row="1" column="0" colspan="3">
+                          <widget class="QCheckBox" name="checkPsiUser">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
                            <property name="font">
                             <font>
                              <pointsize>8</pointsize>
@@ -10098,11 +10056,59 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>of Hydraulic Conductivity K between two nodes</string>
+                            <string>Wetting front Psi as input maps (v) or calculated internally ( )</string>
                            </property>
                           </widget>
                          </item>
-                         <item row="2" column="0" colspan="2">
+                         <item row="0" column="0" colspan="3">
+                          <widget class="QCheckBox" name="checkMB_WH">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Correct mass balance by changing the surface water level</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="2">
+                          <widget class="QDoubleSpinBox" name="spinTileSuction">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="decimals">
+                            <number>1</number>
+                           </property>
+                           <property name="minimum">
+                            <double>-100.000000000000000</double>
+                           </property>
+                           <property name="maximum">
+                            <double>0.000000000000000</double>
+                           </property>
+                           <property name="singleStep">
+                            <double>0.100000000000000</double>
+                           </property>
+                           <property name="value">
+                            <double>-10.000000000000000</double>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="0">
                           <widget class="QComboBox" name="comboBox_Kmean">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -10140,14 +10146,8 @@
                            </item>
                           </widget>
                          </item>
-                         <item row="1" column="0" colspan="3">
-                          <widget class="QCheckBox" name="checkPsiUser">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
+                         <item row="2" column="1" colspan="2">
+                          <widget class="QLabel" name="label_158">
                            <property name="font">
                             <font>
                              <pointsize>8</pointsize>
@@ -10157,12 +10157,12 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Wetting front Psi as input maps (v) or calculated internally ( )</string>
+                            <string>of Hydraulic Conductivity K between two nodes</string>
                            </property>
                           </widget>
                          </item>
-                         <item row="0" column="0" colspan="3">
-                          <widget class="QCheckBox" name="checkMB_WH">
+                         <item row="3" column="0" colspan="2">
+                          <widget class="QLabel" name="label_164">
                            <property name="font">
                             <font>
                              <pointsize>8</pointsize>
@@ -10172,7 +10172,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Correct mass balance by changing the surface water level</string>
+                            <string>Above this suction water enters the tiledrain, only SWATRE (cm):</string>
                            </property>
                           </widget>
                          </item>

@@ -93,7 +93,7 @@ void TWorld::DoModel()
         temprunname = QString(op.userAppDir+"openlisemtmp.run");
     else
         temprunname = op.runfilename;
-
+qDebug() << temprunname;
     mapFormat = "PCRaster";
 
     errorFileName = QString(resultDir + "error-"+ op.timeStartRun +".csv");

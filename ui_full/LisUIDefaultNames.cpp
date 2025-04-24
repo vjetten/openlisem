@@ -388,7 +388,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include tile drains");
     namelist[i].value = QString("-10.0");
-    namelist[i].value = QString("Tile entry suction");
+    namelist[i++].name = QString("Tile entry suction");
     namelist[i].value = QString("3");
     namelist[i++].name = QString("SoilWB nodes 1");
     namelist[i].value = QString("3");
