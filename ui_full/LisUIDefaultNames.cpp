@@ -71,7 +71,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Profile soil;profile.map;ID numbers corresponding to land units in profile table;profmap");
     DEFmaps.append("2;Prof. Crust;profcrst.map;ID numbers of crusted soils (defined in the profile table);profcrst");
     DEFmaps.append("2;Prof. Compact;profcomp.map;ID numbers of compacted areas (defined in the profile table);profcomp");
-    DEFmaps.append("2;Prof. Grass;profgras.map;ID numbers of grasstrips (using also profile table);profgras");    
+    DEFmaps.append("2;Prof. Grass;profgras.map;ID numbers of grasstrips (using also profile table);profgras");
     DEFmaps.append("2;Initial suction;inithead;initial matrix potential (cm) of layers 001 to nnn (filename witout extension);inithead");
  //   DEFmaps.append("2;Swatre Output points;swatreoutput.map;Points for swatre profile output 1-n);swatreout");
  //   DEFmaps.append("2;Repellency;repel.map;Gridcells included in water repellency (1/0);repelcell");
@@ -370,7 +370,7 @@ void lisemqt::defaultRunFile()
 //    namelist[i++].name = QString("Two layer");
 //    namelist[i++].name = QString("Two layer");
     namelist[i].value = QString("2");
-    namelist[i++].name = QString("Nr input layers");									 
+    namelist[i++].name = QString("Nr input layers");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Psi user input");
     namelist[i].value = QString("profile.inp");
@@ -387,6 +387,8 @@ void lisemqt::defaultRunFile()
     // namelist[i++].name = QString("Geometric mean Ksat");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include tile drains");
+    namelist[i].value = QString("-10.0");
+    namelist[i].value = QString("Tile entry suction");
     namelist[i].value = QString("3");
     namelist[i++].name = QString("SoilWB nodes 1");
     namelist[i].value = QString("3");

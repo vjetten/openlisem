@@ -158,7 +158,7 @@ void TWorld::ChannelBaseflow(void)
             }
            // Qbase->Drc *= 2.0;
 
-            if (ChannelMaxQ->Drc == 0) {
+            if (ChannelMaxQ->Drc <= 0) {
                 ChannelWaterVol->Drc += Qbase->Drc;
                 GWVol->Drc = std::max(0.0, GWVol->Drc - Qbase->Drc);
                 GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
@@ -177,7 +177,7 @@ void TWorld::ChannelRainandInfil(void)
     // add rainfall to channel, assume no interception
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (ChannelMaxQ->Drc == 0)
+        if (ChannelMaxQ->Drc <= 0)
             ChannelWaterVol->Drc += Rainc->Drc*ChannelWidth->Drc*DX->Drc;
 
        // ChannelWaterVol->Drc += ChannelQSide->Drc;
@@ -188,7 +188,7 @@ void TWorld::ChannelRainandInfil(void)
     if (SwitchChannelInfil) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            if (ChannelMaxQ->Drc == 0) {
+            if (ChannelMaxQ->Drc <= 0) {
                 double inf = std::min(ChannelWaterVol->Drc, ChannelInfM3->Drc);
                 // cannot be more than there is
                 ChannelWaterVol->Drc -= inf;

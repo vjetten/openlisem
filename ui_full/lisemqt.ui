@@ -2391,7 +2391,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>6</number>
+                  <number>3</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -4345,42 +4345,8 @@
                          <property name="verticalSpacing">
                           <number>4</number>
                          </property>
-                         <item row="10" column="1" colspan="2">
-                          <widget class="QLabel" name="label_153">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Nr. of input soil layers (1,2 or 3) for Green and Ampt or Richards FE</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="7" column="0">
-                          <widget class="QLabel" name="label_164">
-                           <property name="enabled">
-                            <bool>false</bool>
-                           </property>
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="text">
-                            <string>-</string>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="5" column="0" colspan="3">
-                          <widget class="QCheckBox" name="checkInfilCrust">
+                         <item row="4" column="0" colspan="3">
+                          <widget class="QCheckBox" name="checkInfilCompact">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                              <horstretch>0</horstretch>
@@ -4396,11 +4362,59 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Top layer crusting</string>
+                            <string>Top layer compaction</string>
                            </property>
                           </widget>
                          </item>
-                         <item row="10" column="0">
+                         <item row="8" column="0" colspan="3">
+                          <widget class="QCheckBox" name="checkInfilOMcorrection">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Apply Org.Mat. correction to Ksat and Porosity (needs omcorr.map)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="1">
+                          <widget class="QDoubleSpinBox" name="spinTileSuction">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="decimals">
+                            <number>1</number>
+                           </property>
+                           <property name="minimum">
+                            <double>-100.000000000000000</double>
+                           </property>
+                           <property name="maximum">
+                            <double>0.000000000000000</double>
+                           </property>
+                           <property name="singleStep">
+                            <double>1.000000000000000</double>
+                           </property>
+                           <property name="value">
+                            <double>-10.000000000000000</double>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="9" column="0">
                           <widget class="QSpinBox" name="spinSoilLayers">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -4430,6 +4444,21 @@
                            </property>
                           </widget>
                          </item>
+                         <item row="7" column="0" colspan="3">
+                          <widget class="QCheckBox" name="checkInfilDensfactor">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Apply Density Factor correction to Ksat and Porosity (needs densfact.map)</string>
+                           </property>
+                          </widget>
+                         </item>
                          <item row="0" column="0" colspan="3">
                           <widget class="QCheckBox" name="checkInfilImpermeable">
                            <property name="sizePolicy">
@@ -4451,14 +4480,8 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="4" column="0" colspan="3">
-                          <widget class="QCheckBox" name="checkInfilCompact">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
+                         <item row="9" column="1" colspan="2">
+                          <widget class="QLabel" name="label_153">
                            <property name="font">
                             <font>
                              <pointsize>8</pointsize>
@@ -4468,59 +4491,11 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Top layer compaction</string>
+                            <string>Nr. of input soil layers (1,2 or 3) for Green and Ampt or Richards FE</string>
                            </property>
                           </widget>
                          </item>
-                         <item row="7" column="1" colspan="2">
-                          <widget class="QCheckBox" name="checkDynamicCrusting">
-                           <property name="enabled">
-                            <bool>false</bool>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Dynamic crusting based on cumulative rainfall</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="8" column="0" colspan="3">
-                          <widget class="QCheckBox" name="checkInfilDensfactor">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Apply Density Factor correction to Ksat and Porosity (needs densfact.map)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="9" column="0" colspan="3">
-                          <widget class="QCheckBox" name="checkInfilOMcorrection">
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Apply Org.Mat. correction to Ksat and Porosity (needs omcorr.map)</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="1" column="0" colspan="3">
+                         <item row="2" column="0">
                           <widget class="QCheckBox" name="checkIncludeTiledrains">
                            <property name="enabled">
                             <bool>true</bool>
@@ -4540,7 +4515,61 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Include tile drain system</string>
+                            <string>Include tile drain system: suction (cm) </string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="6" column="0">
+                          <widget class="QCheckBox" name="checkInfilCrust">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Top layer crusting (static)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="2">
+                          <widget class="QLabel" name="label_164">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>(Above this suction water enters the tiledrain)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="6" column="1" colspan="2">
+                          <widget class="QCheckBox" name="checkDynamicCrusting">
+                           <property name="enabled">
+                            <bool>false</bool>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Dynamic crusting based on cumulative rainfall</string>
                            </property>
                           </widget>
                          </item>
@@ -15925,22 +15954,6 @@ p, li { white-space: pre-wrap; }
     </hint>
     <hint type="destinationlabel">
      <x>509</x>
-     <y>465</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkInfilCrust</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_164</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>377</x>
-     <y>440</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>158</x>
      <y>465</y>
     </hint>
    </hints>

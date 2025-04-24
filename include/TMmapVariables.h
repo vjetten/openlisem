@@ -284,9 +284,7 @@ cTMap
 *ChannelQSSsn,                 //!<
 *ChannelGrad,                //!<
 *ChannelV,                   //!<
-*ChannelU,                   //!<
 *ChannelN,                   //!<
-*ChannelNcul,                   //!<
 *ChannelWH,                  //!<
 //*ChannelWHExtended,                  //!<
 //*ChannelVolExtended,                  //!<
@@ -294,6 +292,10 @@ cTMap
 //*Channelq,                   //!<
 *ChannelAlpha,               //!<
 *ChannelWidthMax,           //!<
+*ChannelDX,                  //!<
+*ChannelKsat,                //!<
+*ChannelInfM3,                //!<
+
 *ChannelAdj,                //!<
 *CHAdjDX,                //!<
 *BaseflowL,
@@ -304,11 +306,8 @@ cTMap
 *AngleFriction,
 *FSlope,
 
-
+// channel erosion
 //*ChannelPerimeter,           //!<
-*ChannelDX,                  //!<
-*ChannelKsat,                //!<
-*ChannelInfM3,                //!<
 *ChannelDetFlow,             //!<
 *ChannelDep,                 //!<
 //*ChannelSed,                 //!<

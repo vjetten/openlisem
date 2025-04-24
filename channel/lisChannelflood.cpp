@@ -49,7 +49,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
      //#pragma omp parallel for num_threads(userCores)
      FOR_ROW_COL_MV_CHL {
-         if (ChannelMaxQ->Drc == 0) {
+         if (ChannelMaxQ->Drc <= 0) {
              double chdepth = ChannelDepth->Drc;
              double dH = std::max(0.0, (ChannelWH->Drc-chdepth));
 
@@ -159,7 +159,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (ChannelMaxQ->Drc == 0) {
+        if (ChannelMaxQ->Drc <= 0) {
             ChannelWaterVol->Drc = ChannelWH->Drc * ChannelDX->Drc * ChannelWidth->Drc;
             WaterVolall->Drc = CHAdjDX->Drc*_h->Drc + MicroStoreVol->Drc;
             // do not recalc floodvol, MB errors
@@ -193,7 +193,7 @@ void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
     Fill(*tma, 0);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (ChannelMaxQ->Drc == 0) {
+        if (ChannelMaxQ->Drc <= 0) {
             double dH = std::max(0.0, (ChannelWH->Drc-ChannelDepth->Drc));
 
             if (dH <= HMIN3 && _h->Drc <= HMIN3)
@@ -296,7 +296,7 @@ void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (ChannelMaxQ->Drc == 0) {
+        if (ChannelMaxQ->Drc <= 0) {
 
             ChannelWaterVol->Drc = ChannelWH->Drc * ChannelDX->Drc * ChannelWidth->Drc;
             WaterVolall->Drc = CHAdjDX->Drc*_h->Drc + MicroStoreVol->Drc;

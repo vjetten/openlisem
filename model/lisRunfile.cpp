@@ -259,7 +259,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =  iii == 1;
         if (p1.compare("Nr input layers")==0)                   SwitchNrLayers =     iii == 1;
         if (p1.compare("Psi user input")==0)                    SwitchPsiUser =      iii == 1;
-        if (p1.compare("Swatre output")==0)                     SwitchDumphead =     iii == 1;        
+        if (p1.compare("Swatre output")==0)                     SwitchDumphead =     iii == 1;
+        if (p1.compare("Include tile drains")==0)               SwitchIncludeTile = iii == 1;
 
         //channels and GW
         if (p1.compare("Include main channels")==0)             SwitchIncludeChannel = iii == 1;
@@ -325,11 +326,10 @@ void TWorld::ParseRunfileData(void)
         // infrastructure
         if (p1.compare("Include Infrastructure")==0)            SwitchInfrastructure =   iii == 1;
         if (p1.compare("Include buildings")==0)                 SwitchHouses =   iii == 1;
-        if (p1.compare("Add buildings to DEM")==0)              SwitchAddBuildingsDEM    =   iii == 1;        
+        if (p1.compare("Add buildings to DEM")==0)              SwitchAddBuildingsDEM    =   iii == 1;
         if (p1.compare("Include raindrum storage")==0)          SwitchRaindrum  =   iii == 1;
         if (p1.compare("Hard Surfaces")==0)                     SwitchHardsurface      = iii == 1;
         if (p1.compare("Include road system")==0)               SwitchRoadsystem     = iii == 1;
-        if (p1.compare("Include tile drains")==0)               SwitchIncludeTile      = iii == 1;
         if (p1.compare("Include storm drains")==0)              SwitchIncludeStormDrains      = iii == 1;
         if (p1.compare("Storm drain shape")==0)                 SwitchStormDrainCircular      = iii == 1;
         if (p1.compare("Use SWMM drain flow")==0)                SwitchUseSWMMflow      = iii == 1;
@@ -410,7 +410,7 @@ void TWorld::ParseRunfileData(void)
 
     if (SwitchGWflow) {     /*SwitchChannelBaseflow && */
         SwitchImpermeable = false;  //???okay
-    }   
+    }
 
     // if (SwitchWaveUser)
     //     SwitchMUSCL = false;

@@ -688,6 +688,7 @@ public:
     double maxRainaxis;
     double latitude;
     double HinitValue;
+    double TileEntrySuction;
 
     ///pesticides
     double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;

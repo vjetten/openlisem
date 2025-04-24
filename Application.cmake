@@ -146,7 +146,6 @@ SET(APP_SOURCES
     channel/lisChannelflood.cpp
     channel/lisChannelflow.cpp
     channel/lisExtendedChannel.cpp
-    channel/lisSWOF2DChannel.cpp
     channel/lisDischargein.cpp
     flow/lisFlowBarriers.cpp
     flow/lisGWflow.cpp

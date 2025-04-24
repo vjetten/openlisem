@@ -400,7 +400,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)
         //--- calculate tile drain ---//
         //TODO: CHECK THIS
         if (SwitchIncludeTile && tnode > 0) {
-            if (h[tnode] > -10) {
+            if (h[tnode] >= TileEntrySuction) {
                 double vollayer = -disZ[tnode]*0.01 * CHAdjDX->Drc; // m3
                 qdrain =  0.01*k[tnode]*dt*TileDiameter->Drc*DX->Drc; // m3
                 double water = theta[tnode] * vollayer; // m3

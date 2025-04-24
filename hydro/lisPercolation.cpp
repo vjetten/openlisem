@@ -170,7 +170,6 @@ double TWorld::cell_Percolation(int r, int c, double factor)
         if (SwitchGWflow && GWWH->Drc > SoilDepth1->Drc-HMIN)
             return 0;
 
-
         if (theta > thetar) {
             theta_E = (theta-thetar)/(pore-thetar);
             Percolation = ksat * pow(theta_E, 3.0+2.0/lambda1->Drc);

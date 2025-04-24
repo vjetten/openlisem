@@ -262,6 +262,7 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
         QinKW->Drc = 0;
     }}
 
+
     for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     {
         int r = _crlinked_[i_].r;
@@ -270,30 +271,38 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
         double Qin = 0;
         double Sin = 0;
 
-        for (int i = 1; i <= 9; i++)
-        {
-            if (i != 5) {
-                int ldd = 0;
-                int rr = r+dy[i];
-                int cr = c+dx[i];
-
-                if (INSIDE(rr, cr) && !pcr::isMV(_LDD->Drcr)) {
-                    ldd = (int) _LDD->Drcr;
-                    // if the cells flow into
-                    if (FLOWS_TO(ldd, rr,cr,r,c)) {
-                        Qin += _Qn->Drcr;
-                        Sin += _Qsn->Drcr;
-                    }
-                }
+        if (_crlinked_.at(i_).nr > 0) {
+            for(int j = 0; j < _crlinked_.at(i_).nr; j++) {
+                int rr = _crlinked_.at(i_).inn[j].r;
+                int cr = _crlinked_.at(i_).inn[j].c;
+                //Qin += _Q->Drcr;
+                Qin += _Qn->Drcr;
+                Sin += _Qsn->Drcr;
             }
         }
 
-        QinKW->Drc = Sin;
+        // for (int i = 1; i <= 9; i++)
+        // {
+        //     if (i != 5) {
+        //         int ldd = 0;
+        //         int rr = r+dy[i];
+        //         int cr = c+dx[i];
+
+        //         if (INSIDE(rr, cr) && !pcr::isMV(_LDD->Drcr)) {
+        //             ldd = (int) _LDD->Drcr;
+        //             // if the cells flow into
+        //             if (FLOWS_TO(ldd, rr,cr,r,c)) {
+        //                 Qin += _Qn->Drcr;
+        //                 Sin += _Qsn->Drcr;
+        //             }
+        //         }
+        //     }
+        // }
 
         _Qsn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Sin, _Qs->Drc, _Alpha->Drc, _DX->Drc);
-        _Qsn->Drc = std::min(_Qsn->Drc, QinKW->Drc+_Sed->Drc/_dt);
+        _Qsn->Drc = std::min(_Qsn->Drc, Sin+_Sed->Drc/_dt);
             // no more sediment outflow than total sed in cell
-        _Sed->Drc = std::max(0.0, QinKW->Drc*_dt + _Sed->Drc - _Qsn->Drc*_dt);
+        _Sed->Drc = std::max(0.0, Sin*_dt + _Sed->Drc - _Qsn->Drc*_dt);
             // new sed volume based on all fluxes and org sed present
     }
 
@@ -408,7 +417,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
             itercount = 0;
             //double f = ((int) _LDD->data[rowNr][colNr] % 2 == 1) ? 1.414214 : 1.0;
             _Qn->data[rowNr][colNr] =
-                    IterateToQnew(QinKW->data[rowNr][colNr], _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr],
+                    IterateToQnew(Qin, _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr],
                                   _Qmax->data[rowNr][colNr], _Amax->data[rowNr][colNr] );
               /* cell rowN, colNr is now done */
 

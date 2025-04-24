@@ -227,6 +227,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Van Genuchten")==0)                 spinSoilPhysics->setValue(valc);
         if (p1.compare("Swatre output")==0)                 checkSwatreOutput->setChecked(check);
         if (p1.compare("SWATRE internal minimum timestep")==0) E_SWATREDtsecFraction->setValue(valc);
+        if (p1.compare("Include tile drains")==0)          checkIncludeTiledrains->setChecked(check);
+        if (p1.compare("Tile entry suction")==0)           spinTileSuction->setValue(valc);
 
         // FLOW
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
@@ -275,7 +277,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("Drain inlet distance")==0)          E_TileInletDistance->setValue(iii);
         if (p1.compare("Use SWMM drain flow")==0)           checkTileSWMM->setChecked(check);
         if (p1.compare("Hard Surfaces")==0)                 checkHardsurface->setChecked(check);
-        if (p1.compare("Include tile drains")==0)           checkIncludeTiledrains->setChecked(check);
 
         // EROSION
         if (p1.compare("Include Erosion simulation")==0)     checkDoErosion->setChecked(check);
@@ -845,7 +846,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Use Density correction")==0)        namelist[j].value.setNum((int)checkInfilDensfactor->isChecked());
         if (p1.compare("Include compacted")==0)             namelist[j].value.setNum((int)checkInfilCompact->isChecked());
         if (p1.compare("Include crusts")==0)                namelist[j].value.setNum((int)checkInfilCrust->isChecked());
-        if (p1.compare("Dynamic crusting")==0)                namelist[j].value.setNum((int)checkDynamicCrusting->isChecked());
+        if (p1.compare("Dynamic crusting")==0)              namelist[j].value.setNum((int)checkDynamicCrusting->isChecked());
         if (p1.compare("Use one matrix potential")==0)      namelist[j].value.setNum((int)checkInfilHinit->isChecked());
         if (p1.compare("Initial matrix potential")==0)      namelist[j].value.setNum(spinHinit->value());
         if (p1.compare("Impermeable sublayer")==0)          namelist[j].value.setNum((int)checkInfilImpermeable->isChecked());
@@ -859,6 +860,10 @@ void lisemqt::updateModelData()
         if (p1.compare("Infil Kavg")==0)                    namelist[j].value.setNum(comboBox_Kmean->currentIndex());
         if (p1.compare("Van Genuchten")==0)                 namelist[j].value.setNum(spinSoilPhysics->value());
         if (p1.compare("Swatre output")==0)                 namelist[j].value.setNum((int)checkSwatreOutput->isChecked());
+        //tile drains
+        if (p1.compare("Include tile drains")==0)           namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
+        if (p1.compare("Tile entry suction")==0)            namelist[j].value.setNum(spinTileSuction->value());
+
 
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
@@ -925,9 +930,6 @@ void lisemqt::updateModelData()
         if (p1.compare("Flooding SS method")==0)             namelist[j].value = QString::number(E_SSMethod->currentIndex()+1);
         if (p1.compare("River BL method")==0)                namelist[j].value = QString::number(E_RBLMethod->currentIndex()+1);
         if (p1.compare("River SS method")==0)                namelist[j].value = QString::number(E_RSSMethod->currentIndex()+1);
-
-        //tile drains
-        if (p1.compare("Include tile drains")==0)            namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
 
         //houses
         if (p1.compare("Include Infrastructure")==0)        namelist[j].value.setNum((int)checkInfrastructure->isChecked());

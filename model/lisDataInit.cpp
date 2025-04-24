@@ -88,6 +88,8 @@ void TWorld::InitParameters(void)
     HinitValue = getvaluedouble("Initial matrix potential");
     SoilWBdtfactor = getvaluedouble("SoilWB dt factor"); // not really used, only for soap but soap not working
     swatreDT = getvaluedouble("SWATRE internal minimum timestep");
+    TileEntrySuction = getvaluedouble("Tile entry suction");
+    TileEntrySuction = std::max(-100.0,std::min(TileEntrySuction, 0.0));
 
     GW_recharge = getvaluedouble("GW recharge factor");
     GW_flow = getvaluedouble("GW flow factor");
@@ -910,14 +912,13 @@ void TWorld::InitChannel(void)
     ChannelQb = NewMap(0); //baseflow
     ChannelQn = NewMap(0);
     ChannelQntot = NewMap(0);
-   // ChannelSed = NewMap(0);
+
     ChannelQs = NewMap(0);
     ChannelQsn = NewMap(0); // sum of SS flux andf BL flux
     ChannelQsr = NewMap(0);
     ChannelV = NewMap(0);//
-    ChannelU = NewMap(0);//
     ChannelWH = NewMap(0);
-    //Channelq = NewMap(0);//
+
     ChannelAlpha = NewMap(0);//
     ChannelDX = NewMap(0); //!!!!!!!!!!!!!!!! dit moet DX zijn
     ChannelInfilVol = NewMap(0);
@@ -948,13 +949,6 @@ void TWorld::InitChannel(void)
     }
     crlinkedlddch_= MakeLinkedList(LDDChannel);
 
-    // for(long i_ =  0; i_ < crlinkedlddch_.size(); i_++)
-    // {
-    //     int c = crlinkedlddch_[i_].c;
-    //     int r = crlinkedlddch_[i_].r;
-    //     qDebug() << crlinkedlddch_[i_].ldd << LDDChannel->Drc;
-    // }
-
     crlddch5_.clear();
     FOR_ROW_COL_MV_CH {
         if (LDDChannel->Drc == 5) {
@@ -965,16 +959,6 @@ void TWorld::InitChannel(void)
         }
     }
     nrValidCellsLDDCH5 = crlddch5_.size();
-
-
-    // for 1D or 2D overland flow: channel outlet points are checked, leading
-    // FOR_ROW_COL_MV_CH {
-    //     if((LDD->Drc == 5 && LDDChannel->Drc != 5) || (LDD->Drc != 5 && LDDChannel->Drc == 5))
-    //     {
-    //         ErrorString = QString("Outlet points of ldd.map and lddchan.map do not coincide (the outlet has ldd value = 5). LDD endpoints: %1 %2.").arg(LDD->Drc).arg(LDDChannel->Drc);
-    //         throw 1;
-    //     }
-    // }
 
     ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth")); // bottom width in m
     checkMap(*LDDChannel, *ChannelWidth, SMALLEREQUAL, 0, "Channel width must be larger than 0.");
@@ -1009,11 +993,9 @@ void TWorld::InitChannel(void)
     cover(*ChannelSide, *LDD, 0);
     cover(*ChannelN, *LDD, 0);
 
-    ChannelNcul = NewMap(0);
     ChannelQSide = NewMap(0);
 
     calcValue(*ChannelN, ChnCalibration, MUL);
-    copy(*ChannelNcul, *ChannelN);
 
     if (SwitchChannelInfil)
     {
@@ -1063,10 +1045,7 @@ void TWorld::InitChannel(void)
         }
 
     } else {
-        FOR_ROW_COL_MV_CHL {
-            ChannelMaxQ->Drc = -1;
-            ChannelMaxAlpha->Drc = -1;
-        }}
+        ChannelDiameter = NewMap(0);
     }
 
 
