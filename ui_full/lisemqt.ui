@@ -10220,7 +10220,7 @@
                        </widget>
                       </item>
                       <item row="1" column="0">
-                       <widget class="QToolButton" name="toolButton">
+                       <widget class="QToolButton" name="toolButton_version">
                         <property name="text">
                          <string>New Version</string>
                         </property>

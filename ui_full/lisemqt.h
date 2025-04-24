@@ -571,9 +571,6 @@ private slots:
     //void loadImage();
     void on_E_InfiltrationMethod_currentIndexChanged(int index);
 
-    void on_toolButton_clicked();
-
-
     void on_checksatImage_toggled(bool checked);
 
     void on_E_Timestep_editingFinished();
@@ -581,6 +578,8 @@ private slots:
     void on_E_BeginTimeDay_editingFinished();
 
     void on_E_EndTimeDay_editingFinished();
+
+    void on_toolButton_version_clicked();
 
 private:
     QNetworkAccessManager *manager;

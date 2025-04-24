@@ -661,7 +661,7 @@ void lisemqt::on_toolButton_satImageName_clicked()
         QFileInfo fi(path);
         satImageFileName = fi.fileName();
         satImageFileDir = CheckDir(fi.absolutePath(), false);
-        E_satImageName->setText( satImageFileDir + satImageFileName );        
+        E_satImageName->setText( satImageFileDir + satImageFileName );
     }
 }
 //---------------------------------------------------------------------------
@@ -805,8 +805,9 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int index)
     label_153->setEnabled(index > 0);
 }
 //---------------------------------------------------------------------------
-void lisemqt::on_toolButton_clicked()
+void lisemqt::on_toolButton_version_clicked()
 {
+    qDebug() << "patch";
     checkforpatch = true;
     CheckVersion();
 }

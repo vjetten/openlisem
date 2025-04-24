@@ -146,15 +146,24 @@ bool lisemqt::isNewVersionAvailable(QString &GitHubVersion)
     QStringList currentParts = QString(VERSIONNR).split(".");//currentVersion.split(".");
     QStringList latestParts = GitHubVersion.split(".");
 
-    for (int i = 0; i < qMin(currentParts.size(), latestParts.size()); ++i) {
-        int currentPart = currentParts.at(i).toInt();
-        int latestPart = latestParts.at(i).toInt();
-        if (currentParts.at(i).contains("beta"))
-            return false;
-        if (currentPart < latestPart) {
-            return true;
-        } else if (latestPart > currentPart) {
-            return false;
+    if (latestParts.last().toUpper().contains("BETA")) {
+        for (int i = 0; i < qMin(currentParts.size(), latestParts.size()); ++i) {
+            int currentPart = currentParts.at(i).toInt();
+            int latestPart = latestParts.at(i).toInt();
+            if (currentPart <= latestPart) {
+                return true;
+            } else if (latestPart > currentPart) {
+                return false;
+            }
+        }
+    } else {
+        for (int i = 0; i < qMin(currentParts.size(), latestParts.size()); ++i) {
+            int currentPart = currentParts.at(i).toInt();
+            int latestPart = latestParts.at(i).toInt();
+            if (currentPart < latestPart)
+                return true;
+            else if (latestPart > currentPart)
+                return false;
         }
     }
 
@@ -192,7 +201,7 @@ QString lisemqt::getLatestVersionFromGitHub()
 void lisemqt::CheckVersion()
 {
     QString latestVersion = getLatestVersionFromGitHub();
-
+qDebug() << latestVersion;
     if (!latestVersion.isEmpty() && isNewVersionAvailable(latestVersion)) {
 
 #ifdef Q_OS_WIN
@@ -205,7 +214,7 @@ void lisemqt::CheckVersion()
     } else {
         if (latestVersion.isEmpty()) {
             // Handle offline scenario
-            //qDebug() << "Cannot check updates online.";
+            qDebug() << "Cannot check updates online.";
         } else {
             //msg.setText("Up to Date: \nYou are using the latest version (" + currentVersion + ").");
             //QTimer::singleShot(3000, &msg, &QMessageBox::accept);
