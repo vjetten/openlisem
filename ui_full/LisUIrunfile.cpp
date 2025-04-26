@@ -275,7 +275,8 @@ void lisemqt::ParseInputData()
             if (iii == 1) checkStormDrainCirc->setChecked(check);
         }
         if (p1.compare("Drain inlet distance")==0)          E_TileInletDistance->setValue(iii);
-        if (p1.compare("Use SWMM drain flow")==0)           checkTileSWMM->setChecked(check);
+        if (p1.compare("Drain inlet size")==0)              E_TileInletSize->setValue(iii);
+        //if (p1.compare("Use SWMM drain flow")==0)           checkTileSWMM->setChecked(check);
         if (p1.compare("Hard Surfaces")==0)                 checkHardsurface->setChecked(check);
 
         // EROSION
@@ -455,6 +456,7 @@ void lisemqt::ParseInputData()
     tileanddrains = false;
     if (checkIncludeTiledrains->isChecked() || checkStormDrains->isChecked())
         tileanddrains = true;
+qDebug() << tileanddrains ;
 
     doChannelBaseflow = (checkGWflow->isChecked() || checkStationaryBaseflow->isChecked()) && checkIncludeChannel->isChecked();
 
@@ -944,7 +946,8 @@ void lisemqt::updateModelData()
             if (checkStormDrainCirc->isChecked())           namelist[j].value.setNum(1);
         }
         if (p1.compare("Drain inlet distance")==0)          namelist[j].value.setNum((int)E_TileInletDistance->value());
-        if (p1.compare("Use SWMM drain flow")==0)           namelist[j].value.setNum((int)checkTileSWMM->isChecked());
+        if (p1.compare("Drain inlet size")==0)          namelist[j].value.setNum((int)E_TileInletSize->value());
+        //if (p1.compare("Use SWMM drain flow")==0)           namelist[j].value.setNum((int)checkTileSWMM->isChecked());
 
         // conservation mtigation
         if (p1.compare("Include Mitigation/Conservation")==0) namelist[j].value.setNum((int)checkConservation->isChecked());

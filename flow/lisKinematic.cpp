@@ -219,8 +219,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
 
  //  #pragma omp parallel for ordered num_threads(userCores)
  // parallel doesn't work here because you have to calculate accoring to the order of cells from top to bottom, to determine the inflow
-    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
-    {
+    for(long i_ =  0; i_ < _crlinked_.size(); i_++) {
         int r = _crlinked_.at(i_).r;
         int c = _crlinked_.at(i_).c;
         double Qin = 0;
@@ -235,18 +234,8 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
         }
         QinKW->Drc = Qin;
 
-        // if (Qin < 1e-12 && _Q->Drc < 1e-12) {
-        //     Qn->Drc = 0;
-        //     QinKW->Drc = 0;
-        // } else {
-        //     if (QinKW->Drc >= _Qmax->Drc) {
-        //         Qn->Drc = _Qmax->Drc;
-        //         QinKW->Drc = _Qmax->Drc;
-        //     } else {
-                _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
+        _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
 
-       //     }
-       // }
     }
 }
 //---------------------------------------------------------------------------

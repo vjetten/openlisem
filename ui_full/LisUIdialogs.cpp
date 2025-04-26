@@ -807,7 +807,6 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int index)
 //---------------------------------------------------------------------------
 void lisemqt::on_toolButton_version_clicked()
 {
-    qDebug() << "patch";
     checkforpatch = true;
     CheckVersion();
 }

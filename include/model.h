@@ -523,7 +523,7 @@ public:
         SwitchHardsurface,
         SwitchIncludeTile,
         SwitchIncludeStormDrains,
-        SwitchStormDrainCircular,
+        SwitchDrainCircular,
         SwitchUseSWMMflow,
         SwitchHouses,
         SwitchInfrastructure,
@@ -654,6 +654,7 @@ public:
     double CanopyOpeness;
     double TurbulenceFactor;
     double TileDrainDistance;
+    double TileDrainSize;
 
     //sed transport equations
     int FS_SS_Method;

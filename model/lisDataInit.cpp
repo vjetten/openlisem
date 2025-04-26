@@ -1940,6 +1940,8 @@ void TWorld::IntializeOptions(void)
     SwitchWaveUser = false;
     SwitchIncludeTile = false;
     SwitchIncludeStormDrains = false;
+    SwitchUseSWMMflow = false;
+    SwitchDrainCircular = false;
 
     SwitchHardsurface = false;
     SwitchInfilCompact = false;
@@ -2252,6 +2254,7 @@ void TWorld::InitTiledrains(void)
         crlinkedlddtile_= MakeLinkedList(LDDTile);
 
         TileDrainDistance = getvaluedouble("Drain inlet distance");
+        TileDrainSize = getvaluedouble("Drain inlet size");
 
         TileArea = NewMap(0);
 
@@ -2268,10 +2271,12 @@ void TWorld::InitTiledrains(void)
             TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
             cover(*TileDepth, *LDD, -1); //non tile cells flagged by -1 value, needed in swatre init
             TileWaterVolSoil = NewMap(0);
+        } else {
+            TileDepth = NewMap(-1);
         }
 
         // drain circular
-        if (SwitchStormDrainCircular) {
+        if (SwitchDrainCircular) {
             TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
             FOR_ROW_COL_MV_TILEL {
                 TileArea->Drc = TileDiameter->Drc*TileDiameter->Drc*0.25*PI;// PI r^2
@@ -2281,7 +2286,7 @@ void TWorld::InitTiledrains(void)
         }
 
         // drain square
-        if (!SwitchStormDrainCircular) {
+        if (!SwitchDrainCircular) {
             TileDiameter = NewMap(0);
             TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
             TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));

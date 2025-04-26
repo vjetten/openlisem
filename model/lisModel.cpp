@@ -93,7 +93,7 @@ void TWorld::DoModel()
         temprunname = QString(op.userAppDir+"openlisemtmp.run");
     else
         temprunname = op.runfilename;
-qDebug() << temprunname;
+
     mapFormat = "PCRaster";
 
     errorFileName = QString(resultDir + "error-"+ op.timeStartRun +".csv");
@@ -433,7 +433,7 @@ void TWorld::HydrologyProcesses()
     if (SwitchInfiltration) {
         // non SWATRE infiltration, redistribution and percolation
         if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_SOAP) {
-          //  #pragma omp parallel for num_threads(userCores)
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 cell_InfilMethods(r, c);
 

@@ -119,11 +119,8 @@ void lisemqt::runmodel()
         QsGraph->setSamples(zero,zero);
         CGraph->setSamples(zero,zero);
 
-        if(tileanddrains)
-            QtileGraph->setSamples(zero,zero);
-
-        if (flowboundary)
-            QbGraph->setSamples(zero,zero);
+        QtileGraph->setSamples(zero,zero);
+        QbGraph->setSamples(zero,zero);
 
         HPlot->replot();
 

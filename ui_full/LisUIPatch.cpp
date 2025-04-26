@@ -201,7 +201,7 @@ QString lisemqt::getLatestVersionFromGitHub()
 void lisemqt::CheckVersion()
 {
     QString latestVersion = getLatestVersionFromGitHub();
-qDebug() << latestVersion;
+
     if (!latestVersion.isEmpty() && isNewVersionAvailable(latestVersion)) {
 
 #ifdef Q_OS_WIN

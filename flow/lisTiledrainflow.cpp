@@ -153,7 +153,7 @@ void TWorld::TileFlow(void)
        }}
    }
 
-   if (SwitchStormDrainCircular)
+   if (SwitchDrainCircular)
       CalcVelDischCircular();
    else
       CalcVelDischRectangular();
