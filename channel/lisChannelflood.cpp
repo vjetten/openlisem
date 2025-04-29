@@ -183,7 +183,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 //! note: ChannelDepth lets you also control which channels flood:
 //! those that are 0 react as usual (infinite capacity)
 
-// Generic overfflow method based on
+// Generic overfflow method based on TUFLKOS and others all exchange is pressure exchange
 void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
 {
     if (!SwitchIncludeChannel)
@@ -203,26 +203,28 @@ void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
 
             // Calculate flux [m³/s] using broad-crested weir formula
             double Cd = 0.5; //0.4-0.6
-            double flux = Cd * ChannelDX->Drc * std::sqrt(2.0 * GRAV) * std::pow(std::abs(delta_h), 1.5);
+            double fluxfromchan = Cd * ChannelDX->Drc * std::sqrt(2.0 * GRAV) * std::pow(std::abs(delta_h), 1.5);
+            double fluxtochan = ChannelDX->Drc * delta_h * V->Drc;
 
             // Limit volume transfer per timestep
-            double transfer_volume = flux * _dt;
+            double transfer_volume_fromchan = fluxfromchan * _dt;
+            double transfer_volume_tochan = fluxtochan * _dt;
 
             // Calculate needed volume for equilibrium
             double area_from = (delta_h > 0) ? area_surface : area_channel;
             double area_to = (delta_h > 0) ? area_channel : area_surface;
-
             double needed_volume = std::abs(_h->Drc - ChannelWH->Drc) * (area_from * area_to) / (area_from + area_to);
-
-            // Limit transfer_volume to needed
-            transfer_volume = qMin(transfer_volume, needed_volume);
-
+            double transfer_volume = 0;
             if (delta_h > 0) {
                 // Surface water flows into channel
+                transfer_volume = qMin(transfer_volume_tochan, needed_volume);
+                // Limit transfer_volume to needed
                 WaterVolall->Drc -= transfer_volume;
                 ChannelWaterVol->Drc += transfer_volume;
             } else {
                 // Channel water flows onto surface
+                transfer_volume = qMin(transfer_volume_fromchan, needed_volume);
+                // Limit transfer_volume to needed
                 WaterVolall->Drc += transfer_volume;
                 ChannelWaterVol->Drc -= transfer_volume;
             }
