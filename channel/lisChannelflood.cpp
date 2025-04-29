@@ -183,6 +183,82 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 //! note: ChannelDepth lets you also control which channels flood:
 //! those that are 0 react as usual (infinite capacity)
 
+// Generic overfflow method based on
+void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
+{
+    if (!SwitchIncludeChannel)
+         return;
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        if (ChannelMaxQ->Drc == 0) {
+            double area_channel = ChannelWidth->Drc * ChannelDX->Drc;
+            double area_surface = CHAdjDX->Drc;
+
+            double delta_h = _h->Drc - ChannelWH->Drc; // Positive: surface -> channel; Negative: channel -> surface
+
+            if (fabs(delta_h) < 1e-6) {
+                continue; // Already balanced
+            }
+
+            // Calculate flux [m³/s] using broad-crested weir formula
+            double Cd = 0.5; //0.4-0.6
+            double flux = Cd * ChannelDX->Drc * std::sqrt(2.0 * GRAV) * std::pow(std::abs(delta_h), 1.5);
+
+            // Limit volume transfer per timestep
+            double transfer_volume = flux * _dt;
+
+            // Calculate needed volume for equilibrium
+            double area_from = (delta_h > 0) ? area_surface : area_channel;
+            double area_to = (delta_h > 0) ? area_channel : area_surface;
+
+            double needed_volume = std::abs(_h->Drc - ChannelWH->Drc) * (area_from * area_to) / (area_from + area_to);
+
+            // Limit transfer_volume to needed
+            transfer_volume = qMin(transfer_volume, needed_volume);
+
+            if (delta_h > 0) {
+                // Surface water flows into channel
+                WaterVolall->Drc -= transfer_volume;
+                ChannelWaterVol->Drc += transfer_volume;
+            } else {
+                // Channel water flows onto surface
+                WaterVolall->Drc += transfer_volume;
+                ChannelWaterVol->Drc -= transfer_volume;
+            }
+
+            // Update heights
+            ChannelWH->Drc = ChannelWaterVol->Drc / area_channel;
+            _h->Drc = (WaterVolall->Drc-MicroStoreVol->Drc) / area_surface;
+
+            // new equilibrium levels
+            if (SwitchErosion) {
+                if (delta_h > 0) {
+                    double sed = transfer_volume * SSCFlood->Drc;
+                    SSFlood->Drc -=sed;
+                    ChannelSSSed->Drc += sed;
+                } else {
+                    double sed = transfer_volume * ChannelSSConc->Drc;
+                    ChannelSSSed->Drc -= sed;
+                    SSFlood->Drc += sed;
+                }
+            }
+
+        }
+    }}
+
+    if(SwitchErosion) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drc);
+            SWOFSedimentSetConcentration(r,c, _h->Drc, ChannelAdj->Drc);
+
+            RiverSedimentLayerDepth(r, c);
+            RiverSedimentMaxC(r, c);
+        }}
+    }
+}
+/*
 void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
 {
     if (!SwitchIncludeChannel)
@@ -314,6 +390,7 @@ void TWorld::ChannelOverflowIteration(cTMap *_h, cTMap *V)
         }
     }}
 }
+*/
 //---------------------------------------------------------------------------
 /**
  * @fn void TWorld::ToFlood(void)
