@@ -393,7 +393,7 @@ void TWorld::ChannelFlood(void)
 
 
     if (SwitchChannel2DflowConnect)
-        ChannelOverflowIterationAlt(hmx, V);
+        ChannelOverflowAlt(hmx, V);
     else
         ChannelOverflow(hmx, V);
     // determine overflow water => hmx

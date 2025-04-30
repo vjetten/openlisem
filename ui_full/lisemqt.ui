@@ -321,7 +321,7 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>0</y>
+                <y>-450</y>
                 <width>1013</width>
                 <height>1058</height>
                </rect>
@@ -359,7 +359,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>6</number>
+                  <number>9</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -7848,7 +7848,10 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Standard connection to 2D flow ( ) or iterative (v)</string>
+                            <string>Standard connection to 2D flow ( ) or broad crested weir equations (v)</string>
+                           </property>
+                           <property name="checked">
+                            <bool>true</bool>
                            </property>
                           </widget>
                          </item>
