@@ -54,17 +54,14 @@ void TWorld::OverlandFlow(void)
         // V is needed in erosion
 
         if (SwitchErosion) {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L  {
-                cell_FlowDetachment(r, c);
+                cell_FlowDetachment();
                 // kine wave based flow detachment
                 //cell_FlowDetachmentContinuous(r,c);
-            }}
         }
 
-        if (SwitchChannel2DflowConnect)
-            ToChannelAlt();
-        else
+       if (SwitchChannel2DflowConnect)
+           ToChannelAlt();
+       else
             ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
 
         OverlandFlow1D();   // kinematic wave of water and sediment
@@ -134,8 +131,6 @@ void TWorld::ToChannel()
     FOR_ROW_COL_MV_L {
         if (ChannelWidth->Drc > 0 && WHrunoff->Drc > 0 && hmx->Drc == 0) {
 
-            double pressureflow = 0.56*sqrt(2*GRAV)*std::pow(WHrunoff->Drc, 1.5);
-
             double fractiontochannel = std::min(1.0, _dt*V->Drc/(0.5*ChannelAdj->Drc));
             // fraction to channel calc from half the adjacent area width and flow velocity
 
@@ -201,9 +196,10 @@ void TWorld::ToChannelAlt()
                 continue;
 
             double pressureflow = 2.0*_dt*ChannelDX->Drc*0.56*sqrt(2*GRAV)*std::pow(WHrunoff->Drc, 1.5);
-            // free flow broad crested weir discharge
-            double velocityflow = 2.0*_dt*ChannelDX->Drc*WHrunoff->Drc*V->Drc;
-            // overlabd flow discharge
+            // is this dt * L * H * Cd*sqrt(2GH) so instead of V we have Cd*sqrt(2GH)
+            // discharge as free flow broad crested weir
+            double velocityflow = 2.0*_dt*(ChannelDX->Drc*WHrunoff->Drc)*V->Drc; // sec * m2 * m/s = m3
+            // overland flow discharge
             double volintochan = std::min(std::max(velocityflow, pressureflow), WHrunoff->Drc*CHAdjDX->Drc);
 
             WaterVolall->Drc -= volintochan;

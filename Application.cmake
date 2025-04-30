@@ -178,6 +178,8 @@ SET(APP_SOURCES
     erosion/lisChannelErosion.cpp
     erosion/lisSWOF2DSediment.cpp
     erosion/lisErosion.cpp
+    erosion/lisErosionSplash.cpp
+    erosion/lisErosionAux.cpp
     PCR/create2.c
     PCR/mclose.c
     PCR/ruseas.c

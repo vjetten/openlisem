@@ -374,7 +374,7 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, double h, double w)
 void TWorld::SWOFSedimentLayerDepth(int r , int c, double h, double velocity)
 {
     if (!SwitchUse2Phase) {
-        BLDepthFlood->Drc = 0;
+        //BLDepthFlood->Drc = 0;
         SSDepthFlood->Drc = h;
         return;
     }

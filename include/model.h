@@ -958,9 +958,9 @@ public:
     void cell_Tiledrain2(int r, int c);
     void cell_Channelinfow1(int r, int c);
     void cell_Channelinfow2(int r, int c);
-    void cell_SplashDetachment(int r, int c);
-    void cell_FlowDetachment(int r, int c);
-    void cell_FlowDetachmentContinuous(int r, int c);
+    void cell_SplashDetachment();
+    void cell_FlowDetachment();
+    void cell_FlowDetachmentContinuous();
     void cell_ETa(int r, int c);
     double getETaFactor();
     double ETafactor;

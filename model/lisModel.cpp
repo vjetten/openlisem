@@ -465,12 +465,9 @@ void TWorld::HydrologyProcesses()
     }}
 
     if (SwitchErosion) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            cell_SplashDetachment(r, c);
+        cell_SplashDetachment();
             // if (SwitchSlopeStability)
             //     cell_SlopeStability(r, c);
-        }}
     }
     //MoistureContent();
     // double soiltot2 = SoilWaterMass();
