@@ -277,17 +277,18 @@ void TWorld::TotalsFlow(void)
     }
 
     // Add outlet overland flow, for all flow methods
-    FOR_ROW_COL_MV_L {
-        if (LDD->Drc == 5)
+    FOR_ROW_COL_LDD5 {
+        //if (LDD->Drc == 5)
             Qtot_dt += Qn->Drc*_dt;
     }}
 
     //=== channel outflow ===//
     if (SwitchIncludeChannel)
     {
-        FOR_ROW_COL_MV_CHL {
-            if (LDDChannel->Drc == 5)
-            Qtot_dt += ChannelQn->Drc*_dt; //m3
+        FOR_ROW_COL_LDDCH5 {
+//        FOR_ROW_COL_MV_CHL {
+  //          if (LDDChannel->Drc == 5)
+                Qtot_dt += ChannelQn->Drc*_dt; //m3
         }}
 
         #pragma omp parallel for num_threads(userCores)

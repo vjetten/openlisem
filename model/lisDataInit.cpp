@@ -245,10 +245,10 @@ void TWorld::InitStandardInput(void)
 
     FOR_ROW_COL_MV {
         if (LDD->Drc == 5) {
-        LDD_COOR newcr;
-        newcr.r = r;
-        newcr.c = c;
-        crldd5_ << newcr;
+            LDD_COOR newcr;
+            newcr.r = r;
+            newcr.c = c;
+            crldd5_ << newcr;
         }
     }
     nrValidCellsLDD5 = crldd5_.size();

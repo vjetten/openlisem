@@ -1004,7 +1004,7 @@ public:
     double pipeThetafroma(int r, int c, double a);
     void ChannelFlood(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V);
-    void ChannelOverflowIteration(cTMap *_h, cTMap *_V);
+    void ChannelOverflowAlt(cTMap *_h, cTMap *_V);
 
     // tiles/stormdrains
     void TileFlow(void);

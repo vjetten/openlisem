@@ -78,7 +78,7 @@ void TWorld::OverlandFlow2Ddyn(void)
     double dtOF = 0;
 
     if (SwitchChannel2DflowConnect)
-        ChannelOverflowIteration(WHrunoff, V);
+        ChannelOverflowAlt(WHrunoff, V);
     else
         ChannelOverflow(WHrunoff, V);
     // // Mixing of 2D runoff with channel water, V is used to determine how much flows into the channel
@@ -318,7 +318,7 @@ void TWorld::OverlandFlow1D(void)
         // new water vol is mass bal diff
         WHrunoff->Drc = WaterVolout/CHAdjDX->Drc;
         // runoff based on water vol out
-        // NOTE route substance is already an explicit solution                      
+        // NOTE route substance is already an explicit solution
 
         Alpha->Drc = Qn->Drc > 0 ? (WHrunoff->Drc*FlowWidth->Drc)/pow(Qn->Drc,0.6) : Alpha->Drc;
         // needed for erosion // A = alpha Q^0.6 => alpha = A/Q^0.6
