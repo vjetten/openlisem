@@ -1019,7 +1019,7 @@ void TWorld::InitChannel(void)
 
         ChannelDiameter = ReadMap(LDDChannel, getvaluename("chandiam"));
         //cover(*ChannelDiameter, *LDD,0);
-
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             if (ChannelDiameter->Drc > 0) {
                 ChannelDiameter->Drc /= 1000;
@@ -1127,10 +1127,12 @@ void TWorld::InitChannel(void)
         SwitchD50CHavg = false;
         if(SwitchD50CHavg) {
             double D50ch = mapAverage(*D50);
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_CHL {
                 D50CH->Drc = D50ch;
             }}
         } else {
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_CHL {
                 D50CH->Drc = D50->Drc;
             }}
@@ -1140,10 +1142,12 @@ void TWorld::InitChannel(void)
             D90CH = NewMap(0);
             if(SwitchD50CHavg) {
                 double D90ch = mapAverage(*D90);
+                #pragma omp parallel for num_threads(userCores)
                 FOR_ROW_COL_MV_CHL {
                     D90CH->Drc = D90ch;
                 }}
             } else {
+                #pragma omp parallel for num_threads(userCores)
                 FOR_ROW_COL_MV_CHL {
                     D90CH->Drc = D90->Drc;
                 }}
@@ -1160,6 +1164,7 @@ void TWorld::InitChannel(void)
 
         TurbulenceFactor = getvaluedouble("Turbulence factor channel");
 
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             if (ChannelCohesion->Drc > 0)
                 ChannelCohesion->Drc *= COHCHCalibration;
@@ -2200,6 +2205,7 @@ void TWorld::FindStationaryBaseFlow()
         }
     }
 
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         tmc->Drc = 0;
         tmd->Drc = 0;

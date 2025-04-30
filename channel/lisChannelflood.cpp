@@ -282,21 +282,23 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
                     ChannelSSSed->Drc -= sed;
                     SSFlood->Drc += sed;
                 }
-            }
+                SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drc);
+                SWOFSedimentSetConcentration(r,c, _h->Drc, ChannelAdj->Drc);
 
+                RiverSedimentLayerDepth(r, c);
+                RiverSedimentMaxC(r, c);
+            }
         }
     }}
 
-    if(SwitchErosion) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL {
-            SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drc);
-            SWOFSedimentSetConcentration(r,c, _h->Drc, ChannelAdj->Drc);
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drc);
+        SWOFSedimentSetConcentration(r,c, _h->Drc, ChannelAdj->Drc);
 
-            RiverSedimentLayerDepth(r, c);
-            RiverSedimentMaxC(r, c);
-        }}
-    }
+        RiverSedimentLayerDepth(r, c);
+        RiverSedimentMaxC(r, c);
+    }}
 }
 //---------------------------------------------------------------------------
 /**

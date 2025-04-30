@@ -977,10 +977,11 @@ public:
 
     // => 1D and 2D overlandflow
     void OverlandFlow();
-    void CalcVelDisch(); //(int r, int c);
+    void CalcVelDisch();
     void OverlandFlow1D(void);
     void OverlandFlow2D();
-    void ToChannel();//int r, int c);
+    void ToChannel();
+    void ToChannelAlt();
     void ToFlood();
     void ToTiledrainAll();
     // <= OF

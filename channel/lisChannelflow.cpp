@@ -400,7 +400,7 @@ void TWorld::ChannelSedimentFlow()
 double TWorld::getMassCH(cTMap *M)
 {
     double sum2 = 0;
-   // #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
+    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         sum2 += M->Drc;
     }}
@@ -412,7 +412,7 @@ void TWorld::correctMassBalanceCH(double sum1, cTMap *M)
     double sum2 = 0;
    // double n = 0;
 
-  //  #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
+    #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         sum2 += M->Drc;
   //      n += 1;

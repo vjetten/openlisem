@@ -811,6 +811,11 @@ void lisemqt::on_toolButton_version_clicked()
     CheckVersion();
 }
 //---------------------------------------------------------------------------
+void lisemqt::on_checkNewversionGITHUB_toggled(bool checked)
+{
+    checkforpatch = checked;
+}
+//---------------------------------------------------------------------------
 void lisemqt::on_checksatImage_toggled(bool checked)
 {
     if (checked && !E_satImageName->text().isEmpty() && !QFileInfo(E_satImageName->text()).exists()) {

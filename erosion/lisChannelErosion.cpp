@@ -64,7 +64,7 @@ void TWorld::ChannelFlowDetachmentNew()
     if (!SwitchErosion)
         return;
 
-    //   #pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
 
         RiverSedimentLayerDepth(r,c);

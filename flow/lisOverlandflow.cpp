@@ -62,7 +62,11 @@ void TWorld::OverlandFlow(void)
             }}
         }
 
-        ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
+        if (SwitchChannel2DflowConnect)
+            ToChannelAlt();
+        else
+            ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
+
         OverlandFlow1D();   // kinematic wave of water and sediment
 
         if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
@@ -128,53 +132,97 @@ void TWorld::ToChannel()
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-    if (ChannelWidth->Drc > 0 && WHrunoff->Drc > 0 && hmx->Drc == 0) {
+        if (ChannelWidth->Drc > 0 && WHrunoff->Drc > 0 && hmx->Drc == 0) {
 
-        double fractiontochannel = std::min(1.0, _dt*V->Drc/(0.5*ChannelAdj->Drc));
-        // fraction to channel calc from half the adjacent area width and flow velocity
+            double pressureflow = 0.56*sqrt(2*GRAV)*std::pow(WHrunoff->Drc, 1.5);
 
-        // cannot flow into channel if water level in channel is higher than runoff depth
-        if (SwitchKinematic2D == K2D_METHOD_KINDYN &&
-                WHrunoff->Drc <= std::max(0.0 , ChannelWH->Drc - ChannelDepth->Drc))
-            fractiontochannel = 0;
+            double fractiontochannel = std::min(1.0, _dt*V->Drc/(0.5*ChannelAdj->Drc));
+            // fraction to channel calc from half the adjacent area width and flow velocity
 
-        // no inflow on culverts
-        if (SwitchCulverts && ChannelMaxQ->Drc  > 0)
-            fractiontochannel = 0;
+            // cannot flow into channel if water level in channel is higher than runoff depth
+            if (SwitchKinematic2D == K2D_METHOD_KINDYN &&
+                    WHrunoff->Drc <= std::max(0.0 , ChannelWH->Drc - ChannelDepth->Drc))
+                fractiontochannel = 0;
 
-        if (fractiontochannel > 0) {
-            double dwh = fractiontochannel*WHrunoff->Drc;
-            double dvol = dwh*CHAdjDX->Drc;//fractiontochannel*(WaterVolall->Drc - MicroStoreVol->Drc);
-           // qDebug() << fractiontochannel << dwh << dvol << hmx->Drc;
+            // no inflow on culverts
+            if (SwitchCulverts && ChannelMaxQ->Drc  > 0)
+                fractiontochannel = 0;
 
-            // water diverted to the channel
-            ChannelWaterVol->Drc += dvol;
-            ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+            if (fractiontochannel > 0) {
+                double dwh = fractiontochannel*WHrunoff->Drc;
+                double dvol = dwh*CHAdjDX->Drc;//fractiontochannel*(WaterVolall->Drc - MicroStoreVol->Drc);
+               // qDebug() << fractiontochannel << dwh << dvol << hmx->Drc;
 
-            WHrunoff->Drc -= dwh;
-            WH->Drc -= dwh;
-            WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc) + MicroStoreVol->Drc;
+                // water diverted to the channel
+                ChannelWaterVol->Drc += dvol;
+                ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
 
-            if (SwitchErosion)
-            {
-                double dsed = fractiontochannel*Sed->Drc;
-                double maxsed = MAXCONC * ChannelWaterVol->Drc;
-                if (ChannelSSSed->Drc  + dsed > maxsed)
-                    dsed = maxsed - ChannelSSSed->Drc;
-                if (dsed > 0) {
-                ChannelSSSed->Drc  += dsed;
-                //sediment diverted to the channel
-                Sed->Drc -= dsed;
-                Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
-                // adjust sediment in suspension
-                RiverSedimentLayerDepth(r,c);
-                RiverSedimentMaxC(r,c);
+                WHrunoff->Drc -= dwh;
+                WH->Drc -= dwh;
+                WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc) + MicroStoreVol->Drc;
+
+                if (SwitchErosion)
+                {
+                    double dsed = fractiontochannel*Sed->Drc;
+                    double maxsed = MAXCONC * ChannelWaterVol->Drc;
+                    if (ChannelSSSed->Drc  + dsed > maxsed)
+                        dsed = maxsed - ChannelSSSed->Drc;
+                    if (dsed > 0) {
+                        ChannelSSSed->Drc  += dsed;
+                        //sediment diverted to the channel
+                        Sed->Drc -= dsed;
+                        Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
+                        // adjust sediment in suspension
+                        RiverSedimentLayerDepth(r,c);
+                        RiverSedimentMaxC(r,c);
+                    }
                 }
             }
         }
-    }
    }}
 }
+//--------------------------------------------------------------------------------------------
+void TWorld::ToChannelAlt()
+{
+    if (!SwitchIncludeChannel)
+        return;
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        if (WHrunoff->Drc > 0 && hmx->Drc == 0) {
+            // cannot flow into channel if water level in channel is higher than runoff depth
+
+            if (SwitchKinematic2D == K2D_METHOD_KINDYN &&
+                    WHrunoff->Drc <= std::max(0.0 , ChannelWH->Drc - ChannelDepth->Drc))
+                continue;
+
+            // no inflow on culverts
+            if (SwitchCulverts && ChannelMaxQ->Drc  > 0)
+                continue;
+
+            double pressureflow = 2.0*_dt*ChannelDX->Drc*0.56*sqrt(2*GRAV)*std::pow(WHrunoff->Drc, 1.5);
+            // free flow broad crested weir discharge
+            double velocityflow = 2.0*_dt*ChannelDX->Drc*WHrunoff->Drc*V->Drc;
+            // overlabd flow discharge
+            double volintochan = std::min(std::max(velocityflow, pressureflow), WHrunoff->Drc*CHAdjDX->Drc);
+
+            WaterVolall->Drc -= volintochan;
+            ChannelWaterVol->Drc += volintochan;
+            WHrunoff->Drc = (WaterVolall->Drc - MicroStoreVol->Drc)/CHAdjDX->Drc;
+            WH->Drc = WHrunoff->Drc + WHstore->Drc;
+
+            if (SwitchErosion) {
+                double sed = volintochan * SSCFlood->Drc;
+                Sed->Drc -= sed;
+                Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
+                ChannelSSSed->Drc += sed;
+                RiverSedimentLayerDepth(r,c);
+                RiverSedimentMaxC(r, c);
+            }
+        }
+   }}
+}
+
 //--------------------------------------------------------------------------------------------
 /**
  * @fn void TWorld::CalcVelDisch()

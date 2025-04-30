@@ -418,6 +418,7 @@ void TWorld::TotalsSediment(void)
             ChannelDepTot += MapTotal(*ChannelDep);
             ChannelSedTot = (SwitchUse2Phase ? MapTotal(*ChannelBLSed) : 0.0) + MapTotal(*ChannelSSSed);
 
+            #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_CHL {
                 double sed = (SwitchUse2Phase ? ChannelBLSed->Drc : 0) + ChannelSSSed->Drc;
                 //total concentration

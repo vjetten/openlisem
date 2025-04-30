@@ -3,13 +3,16 @@ Latest fixes and changes:
 
 see Readme.txt for a complete list
 
+250430 - v7.4.6.betaR1
+- Improved: connection to channel based on hydraul fflow for broad crested weir (Advanced options)
+
 250424 - v7.4.6
 - BUG FIX: culverts in channel work now without masss balance error. The user has to provide the diameter of the culvert part of the
   channel, in chandiameter.map (in m). All culverts are assumed to bge circular pipes. Channel N and gradient remain so adjust these to
   reflect the culvert. The maximum channel discharge map (chanmaxq.map) is obsolete.
-- BUG FIX: fixed error in kinematic wave sediment transport causing extreme fluctuation in concentration of channel 
+- BUG FIX: fixed error in kinematic wave sediment transport causing extreme fluctuation in concentration of channel
 - BUG FIX: Field capacity and residual moisture were not properly calculated, causing errors in percolation, sometimes causing a stop in
-	inifltration
+        inifltration
 - BUG FIX: 2D flow with MUSCL redone and optimized, results are now similar to 1st order 2D flow (without MUSCL)
 - BUG FIX: background image was not loaded properly
 - BUG FIX: reading pathnames sometimes result in "//"
@@ -19,7 +22,7 @@ see Readme.txt for a complete list
   and the map boundary!
 - BUG FIX: output to points now homoginized for water and sediment
 - BUG FIX: Riemann HLLc and HLLc2 (option 4 and 5) behave strangely, removed from interface choiche for now, defaults to 3
-Processes added: 
+Processes added:
 - storm drain from streets
 - cell sized retention for overland flow and channelflow (also for kinematic wave) gridretention.map (in m3)
 - evapotranspiration added to Swatre as sinkterm

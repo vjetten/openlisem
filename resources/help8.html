@@ -5,12 +5,14 @@
 <p>Correct mass balance: for some combination of maps the overall mass balance is not so good. Check this opytion to divide the mass balance error over all pixels that have runoff (this timestep t) and the infiltration of the next timestep (t+1). This artificially spreads the error over all cells with activity.</p>
 <h3>Numerical parameters for dynamic flow</h3>
 <ul>
+<ul>
 <li><strong>Riemann solver</strong>: smoothing functions that gives new states and fluxes on cell boundaries based on pressure and momentum differences. HLL are Harten-Lax-van Leer type solvers (def 4-HLL2c)</li>
 <li><strong>Max iterations</strong>: forces break out of n-th flood loop, usually not necessary, better to try different Courant conditions and minimum timesteps in the Flow tab (def 200).</li>
 <li><strong>Time average V</strong>: more stable solution of 2D flkow (def on).</li>
+</ul>
+</ul>
 <p><strong>Enable diagonal flow</strong> when blocked: water can be blocked in X and Y direction in 2D flow (a local depression, while a diagonal outlet exists. Diagonal outflows are not regarded in a 2D scheme. Enabling this uses the LDD to transport water and sediment to this diagonal cell. The threshold pit depth is set at 0.1 m. Can solve certain spurious pits that remain filled (def off).</p>
 <p><strong>Remove pits</strong>: set pit elevation to lowest surrounding cell in a 3x3 window (def. off)</p>
-</ul>
 <h3>Kinematic wave</h3>
 <ul>
 <li>Use linked list for kinematic flow: siwtched on means the linked list is recalculated each time kinematic wave is called (default off)</li>
@@ -18,9 +20,8 @@
 </ul>
 <h3>Channel flow</h3>
 <ul>
-<li>Standard or iterative connection to channel: A fraction of the water beside the channel in a channe cell, is diverted to the channel. This fraction is based on the general flow velocity of the water [0], or based on the Manning's velocity using the terrain slope perpendicular to the channel [1].</li>
-<li>Set channel max velocity: in some cases the channel velocity becomes excessive</li>
-<li>Loop kinematic wave for channel flow is the timestep is more than 60 sec.</li>
+<li>Standard or hydraulic connection to channel: The standard connection is based on a fraction of the flow reaching the channel, based on overland flow velocity. The hydraulic connection is based on the maximum of hydraulic flow for a broad creatested weir and overland flow velocity, this is theoretically better (default).</li>
+<li>Set channel max velocity: in some cases the channel velocity becomes excessive, limiting velocty.</li>
 </ul>
 
 

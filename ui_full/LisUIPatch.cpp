@@ -144,31 +144,40 @@ bool lisemqt::isNewVersionAvailable(QString &GitHubVersion)
 {
     // Assuming version strings are in the format "major.minor.patch"
     QStringList currentParts = QString(VERSIONNR).split(".");//currentVersion.split(".");
-    QStringList latestParts = GitHubVersion.split(".");
+    QStringList githubParts = GitHubVersion.split(".");
+    QString revision;
+    QString revisionGIT;
+    bool beta = false;
+    bool betaGIT = false;
+    int size = currentParts.size();
+    int sizeGIT = githubParts.size();
 
-    if (latestParts.last().toUpper().contains("BETA")) {
-        for (int i = 0; i < qMin(currentParts.size(), latestParts.size()); ++i) {
-            int currentPart = currentParts.at(i).toInt();
-            int latestPart = latestParts.at(i).toInt();
-            if (currentPart <= latestPart) {
-                return true;
-            } else if (latestPart > currentPart) {
-                return false;
-            }
-        }
-    } else {
-        for (int i = 0; i < qMin(currentParts.size(), latestParts.size()); ++i) {
-            int currentPart = currentParts.at(i).toInt();
-            int latestPart = latestParts.at(i).toInt();
-            if (currentPart < latestPart)
-                return true;
-            else if (latestPart > currentPart)
-                return false;
-        }
+    // if this is a beta version do not check format "beta.R1"
+    if (currentParts[size-2].toUpper().contains("BETA")) {
+        beta = true;
+        revision = currentParts[size-1];
     }
 
-    return currentParts.size() > latestParts.size();
-    // this means that 7.4.4.1 wins from 7.4.4 but 4.8 miust be seen as 4.8.0
+    if (githubParts[sizeGIT-2].toUpper().contains("BETA")) {
+        betaGIT = true;
+        revisionGIT = githubParts[sizeGIT-1];
+    }
+
+    if (beta && !betaGIT)
+        return false;
+    // do not update a beta version, do nothing with revision numbers for now
+
+    // case current 7.4.8 and online 7.4.9 or 7.4.9 and online 7.5
+    for (int i = 0; i < std::min(size, sizeGIT); ++i) {
+        int currentPart = currentParts.at(i).toInt();
+        int githubPart = githubParts.at(i).toInt();
+        if (currentPart < githubPart)
+            return true;
+        else if (currentPart > githubPart)
+            return false;
+    }
+
+    return size > sizeGIT;
 }
 //-------------------------------------------------------------------------------------
 QString lisemqt::getLatestVersionFromGitHub()
@@ -201,7 +210,6 @@ QString lisemqt::getLatestVersionFromGitHub()
 void lisemqt::CheckVersion()
 {
     QString latestVersion = getLatestVersionFromGitHub();
-
     if (!latestVersion.isEmpty() && isNewVersionAvailable(latestVersion)) {
 
 #ifdef Q_OS_WIN
@@ -213,12 +221,10 @@ void lisemqt::CheckVersion()
 
     } else {
         if (latestVersion.isEmpty()) {
-            // Handle offline scenario
             qDebug() << "Cannot check updates online.";
+            int ret = QMessageBox::warning(this, "openLISEM","Cannot check updates online.");
         } else {
-            //msg.setText("Up to Date: \nYou are using the latest version (" + currentVersion + ").");
-            //QTimer::singleShot(3000, &msg, &QMessageBox::accept);
-            //msg.exec();
+            int ret = QMessageBox::warning(this, "openLISEM","No new openLISEM version available.");
         }
     }
 }

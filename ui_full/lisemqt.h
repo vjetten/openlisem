@@ -581,6 +581,8 @@ private slots:
 
     void on_toolButton_version_clicked();
 
+    void on_checkNewversionGITHUB_toggled(bool checked);
+
 private:
     QNetworkAccessManager *manager;
 
