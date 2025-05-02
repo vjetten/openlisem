@@ -67,6 +67,7 @@ void TWorld::ToTiledrainAll()
                 WHrunoff->Drc -= dh;
                 WH->Drc -= dh;
             } else {
+                hmxrunoff->Drc -= dh;
                 hmx->Drc -= dh;
             }
             hmxWH->Drc = WH->Drc + hmx->Drc;

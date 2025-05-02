@@ -332,7 +332,6 @@ cTMap
 *BaseFlowInflow,
 
 // flood maps
-*Qflood,                    //!<
 *floodHmxMax,                    //!<
 *floodTime,                    //!<
 *floodTimeStart,                //!<
@@ -342,6 +341,7 @@ cTMap
 *maxChannelWH,                    //!<
 *hmx,                        //!<
 *hmxWH,                        //!<
+*hmxrunoff,
 *hmxInit,                    //!<
 *hmxflood,
 *FloodDomain,                //!<

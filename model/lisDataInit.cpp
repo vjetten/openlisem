@@ -1196,24 +1196,10 @@ void TWorld::InitFlood(void)
     FloodDepTot = 0;
     FloodDetTot = 0;
 
-    prepareFlood = true;
-    Qflood = NewMap(0);
-    hmxWH = NewMap(0);
-    FloodWaterVol = NewMap(0);
-    RunoffWaterVol = NewMap(0);
     floodTimeStart = NewMap(0);
-
     hs = NewMap(0);
     Uflood = NewMap(0);
     Vflood = NewMap(0);
-    hmx = NewMap(0);
-    hmxflood = NewMap(0);
-    FloodDomain = NewMap(0);
-
-    floodHmxMax = NewMap(0);//
-    floodVMax = NewMap(0);//
-    floodVHMax = NewMap(0);//
-    floodTime = NewMap(0);//
 
     FloodDT = NewMap(0);
     gflowx = NewMap(0);
@@ -1226,7 +1212,7 @@ void TWorld::InitFlood(void)
     hlly21_2 = NewMap(0);
     iter_n = 0;
 
-    dcr_.clear();
+    dcr_.clear(); // clear list of pits  that need diagonal flow
     if (Switch2DDiagonalFlow)
         DiagonalFlowDEM();
 
@@ -1583,6 +1569,8 @@ void TWorld::InitErosion(void)
 
 //---------------------------------------------------------------------------
 /// called after get input data, initializes non-input maps and variables
+///
+// this is a mix of maps and vars always needed but a bit messy!!!
 void TWorld::IntializeData(void)
 {
     //TO DO add units and descriptions --> TMmapVariables.h
@@ -1668,11 +1656,9 @@ void TWorld::IntializeData(void)
 
     // infiltration
     InfilVolFlood = NewMap(0);
-    //InfilVolKinWave = NewMap(0);
     InfilVol = NewMap(0);
     InfilmmCum = NewMap(0);
     InfilVolCum = NewMap(0);
-  //  fact = NewMap(0);
     Ksateff = NewMap(0);
     Poreeff = NewMap(0);
     Thetaeff = NewMap(0);
@@ -1699,6 +1685,21 @@ void TWorld::IntializeData(void)
     WHrunoff = NewMap(0);
     WHmax = NewMap(0);
     WHstore = NewMap(0);
+    FloodWaterVol = NewMap(0);
+    RunoffWaterVol = NewMap(0);
+    hmxWH = NewMap(0);
+    hmx = NewMap(0);
+    hmxrunoff = NewMap(0);
+
+    hmxflood = NewMap(0);
+    FloodDomain = NewMap(0);
+
+    floodHmxMax = NewMap(0);//
+    floodVMax = NewMap(0);//
+    floodVHMax = NewMap(0);//
+    floodTime = NewMap(0);//
+
+
     MicroStoreVol = NewMap(0);
     FlowWidth = NewMap(0);
     V = NewMap(0);
@@ -1783,43 +1784,6 @@ void TWorld::IntializeData(void)
 
     // SwitchUseMaterialDepth not active!
     SwitchUseMaterialDepth = false;
-    // if(SwitchErosion && SwitchUseMaterialDepth)
-    // {
-    //     Storage = ReadMap(LDD, getvaluename("detmat"));
-    //     StorageDep = NewMap(0.0);
-    //     SedimentMixingDepth = ReadMap(LDD, getvaluename("sedmixdepth"));
-    //     FOR_ROW_COL_MV
-    //     {
-    //         if(Storage->Drc != -1)
-    //         {
-    //             Storage->Drc = Storage->Drc * ChannelAdj->Drc * DX->Drc;
-    //         }else
-    //         {
-    //             Storage->Drc = -999999;
-    //         }
-    //         SedimentMixingDepth->Drc  = std::max(0.01, SedimentMixingDepth->Drc);
-    //     }
-    // }
-
-    // if(SwitchIncludeChannel) {
-    //     if(SwitchErosion && SwitchUseMaterialDepth)
-    //     {
-    //         RStorageDep = NewMap(0.0);
-    //         RSedimentMixingDepth = ReadMap(LDD, getvaluename("chansedmixdepth"));
-    //         RStorage = ReadMap(LDD, getvaluename("chandetmat"));
-    //         FOR_ROW_COL_MV
-    //         {
-    //             if(RStorage->Drc != -1)
-    //             {
-    //                 RStorage->Drc = RStorage->Drc * ChannelWidth->Drc * DX->Drc;
-    //             }else
-    //             {
-    //                 RStorage->Drc = -999999;
-    //             }
-    //             RSedimentMixingDepth->Drc = std::max(RSedimentMixingDepth->Drc, 0.01);
-    //         }
-    //     }
-    // }
 
     if (SwitchChannelBaseflowStationary)
         FindStationaryBaseFlow();

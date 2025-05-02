@@ -207,7 +207,7 @@ void TWorld::TotalsFlow(void)
     // exclude channel cells
     // #pragma omp parallel for num_threads(userCores)
     // FOR_ROW_COL_MV_L {
-    //     //runoffTotalCell->Drc += (Qn->Drc /*+ Qflood->Drc*/)* _dt * catchmentAreaFlatMM; // in mm !!!!
+    //     //runoffTotalCell->Drc += (Qn->Drc)* _dt * catchmentAreaFlatMM; // in mm !!!!
     //     runoffTotalCell->Drc = std::max(0.0, RainCumFlat->Drc*1000-InterceptionmmCum->Drc-InfilmmCum->Drc);
     // }}
 
@@ -329,11 +329,11 @@ void TWorld::TotalsFlow(void)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
-        Qm3total->Drc += (Qn->Drc + Qflood->Drc) * _dt;
-        Qm3max->Drc = std::max(Qm3max->Drc, Qn->Drc + Qflood->Drc);
-        Qoutput->Drc = (Qn->Drc + Qflood->Drc) * (QUnits == 1 ? 1.0 : 1000);// in m3/s
+        Qm3total->Drc += (Qn->Drc) * _dt;
+        Qm3max->Drc = std::max(Qm3max->Drc, Qn->Drc);
+        Qoutput->Drc = (Qn->Drc) * (QUnits == 1 ? 1.0 : 1000);// in m3/s
 
-        FHI->Drc = (Qn->Drc + Qflood->Drc)*(V->Drc + 0.5);
+        FHI->Drc = (Qn->Drc)*(V->Drc + 0.5);
 
         if(SwitchIncludeChannel) {
             Qoutput->Drc += ChannelQn->Drc * (QUnits == 1 ? 1.0 : 1000);
@@ -545,13 +545,17 @@ void TWorld::MassBalance()
         waterstore -= WaterVolTot;
         FOR_ROW_COL_MV_L {
             double dH = dV/(CHAdjDX->Drc); // avg error in m on wet cells
-            if (WHrunoff->Drc > 0)
-                WHrunoff->Drc += dH;
-            WHrunoff->Drc = std::max(0.0,WHrunoff->Drc);
-            //WHroad->Drc = WHrunoff->Drc;
-            WH->Drc = WHrunoff->Drc + WHstore->Drc;
+            if (WHrunoff->Drc > 0) {
+                WHrunoff->Drc = std::max(0.0,WHrunoff->Drc + dH);
+                WH->Drc = WHrunoff->Drc + WHstore->Drc;
+            }
 
-            WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
+            if (hmxrunoff->Drc > 0) {
+                hmxrunoff->Drc = std::max(0.0,hmxrunoff->Drc + dH);
+                hmx->Drc = hmxrunoff->Drc + WHstore->Drc;
+            }
+            hmxWH->Drc = WH->Drc + hmx->Drc;
+            WaterVolall->Drc = hmxWH->Drc*CHAdjDX->Drc;//WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
         }}
         WaterVolTot = MapTotal(*WaterVolall);
         waterstore += WaterVolTot;

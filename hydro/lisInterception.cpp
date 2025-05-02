@@ -74,7 +74,7 @@ void TWorld::cell_Interception(int r, int c)
 
     if (SwitchLitter) {
         double CvL = Litter->Drc;
-        if (hmx->Drc == 0 && WH->Drc == 0 && CvL > 0 && RainNet_ > 0)
+        if (hmxWH->Drc == 0 && CvL > 0 && RainNet_ > 0)
         {
             double Smax = LitterSmax/1000.0;
             // assume simply that the cover linearly scales between 0 and LtterSmax of storage

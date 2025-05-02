@@ -104,9 +104,9 @@ void TWorld::GridCell()
 }
 //---------------------------------------------------------------------------
 void TWorld::cell_SurfaceStorage(int r, int c)
-{    
+{
 
-    double wh = WH->Drc;
+    double wh =  WH->Drc;
     double mds = std::max(0.0, MDS->Drc*(1-exp(-1.875*wh/(0.01*RR->Drc))));
     // surface storage on rough surfaces
     // non-linear release fo water from depression storage

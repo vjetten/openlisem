@@ -460,7 +460,6 @@ void lisemqt::initOP()
     op.SurfStormm = 0;
     op.InfilKWTotmm = 0;
     op.WHflood = 0;
-    op.Qflood = 0;
     op.MBs = 0;
     op.DetTot = 0;
     op.DetTotSplash = 0;

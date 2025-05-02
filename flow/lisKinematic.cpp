@@ -209,8 +209,12 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
 }
 
 //---------------------------------------------------------------------------
-void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax, cTMap *_Amax)
+void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,
+                               cTMap *_DX, cTMap *_Qmax, cTMap *_Amax)
 {
+    int dy[10] = {0,1,1,1,0,0,0,-1,-1,-1};
+    int dx[10] = {0,-1,0,1,-1,0,1,-1,0,1};
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         _Qn->Drc = 0;
@@ -235,12 +239,16 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
         QinKW->Drc = Qin;
 
         _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
-
+        int ldd = _crlinked_.at(i_).ldd;
+        int cr = c+dx[ldd];
+        int rr = r+dy[ldd];
+        if (_Qmax->Drcr > 0)
+            _Qn->Drc = _Qmax->Drcr;
     }
 }
 //---------------------------------------------------------------------------
-/*LDD_COOR *_crlinked_*/
-void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
+void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
+                                cTMap *_Alpha, cTMap *_DX, cTMap *_Sed, cTMap *_Qmax)
 {
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -270,26 +278,17 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
             }
         }
 
-        // for (int i = 1; i <= 9; i++)
-        // {
-        //     if (i != 5) {
-        //         int ldd = 0;
-        //         int rr = r+dy[i];
-        //         int cr = c+dx[i];
-
-        //         if (INSIDE(rr, cr) && !pcr::isMV(_LDD->Drcr)) {
-        //             ldd = (int) _LDD->Drcr;
-        //             // if the cells flow into
-        //             if (FLOWS_TO(ldd, rr,cr,r,c)) {
-        //                 Qin += _Qn->Drcr;
-        //                 Sin += _Qsn->Drcr;
-        //             }
-        //         }
-        //     }
-        // }
-
         _Qsn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Sin, _Qs->Drc, _Alpha->Drc, _DX->Drc);
         _Qsn->Drc = std::min(_Qsn->Drc, Sin+_Sed->Drc/_dt);
+        int ldd = _crlinked_.at(i_).ldd;
+        int cr = c+dx[ldd];
+        int rr = r+dy[ldd];
+        if (_Qmax->Drcr > 0) {
+            double qold = _Qn->Drcr;
+            _Qn->Drc = _Qmax->Drcr;
+            _Qsn->Drc = qold > 1e-12 ? _Qsn->Drc * _Qn->Drcr/qold : 0.0;
+        }
+
             // no more sediment outflow than total sed in cell
         _Sed->Drc = std::max(0.0, Sin*_dt + _Sed->Drc - _Qsn->Drc*_dt);
             // new sed volume based on all fluxes and org sed present

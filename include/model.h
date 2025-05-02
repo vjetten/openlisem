@@ -1022,7 +1022,7 @@ public:
     int F_scheme, F_fluxLimiter, F_MaxIter, F_AddGravity;
     double F_minWH;
     double F_pitValue;
-    bool prepareFlood, startFlood;
+    bool startFlood;
     int iter_n;
     double fullSWOF2openMUSCL(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     double doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
@@ -1092,7 +1092,8 @@ public:
     void routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                                 cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
                                 cTMap *_Alpha, cTMap *_DX, cTMap*_Sed);//,cTMap*_VolStore, cTMap*_SedStore);
-    void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
+    void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
+                            cTMap *_Alpha,cTMap *_DX, cTMap *_Sed, cTMap *_Qmax);
     double IterateToQnew(double Qin, double Qold, double alpha, double deltaT, double deltaX, double Qm, double Am);
     double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol, double sed);
     double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,double Sji1, double alpha, double dx);

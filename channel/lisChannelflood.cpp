@@ -298,42 +298,30 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
     }}
 }
 //---------------------------------------------------------------------------
-/**
- * @fn void TWorld::ToFlood(void)
- * @brief Calculates overland flow that flows into flooding water
- *
- * Calculates overland flow of water and sediment that flows into flooding water
- * based on the runoff partitioning factor. Depending on the parameter, water
- * is either transformed quickly or slowly. This imitates the effect that overland
- * flow would have on the velocity of the flood water.
- *
- * @return void
- * @see runoff_partitioning
- */
 void TWorld::ToFlood()
 {
     #pragma omp parallel for  num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (hmx->Drc > HMIN && WHrunoff->Drc > HMIN) {
-            double frac = 1.0;
-            double dwh = frac * WHrunoff->Drc;
+        if (hmxrunoff->Drc > 1e-12 && WHrunoff->Drc > 1e-12) {
+            double dwh = WHrunoff->Drc;
 
-            hmx->Drc += dwh;
-            WH->Drc = WHstore->Drc;
+            hmxrunoff->Drc += dwh;
+            hmx->Drc = WHstore->Drc;
             WHrunoff->Drc = 0;
+            WH->Drc = WHstore->Drc;
 
             hmxWH->Drc = hmx->Drc + WH->Drc;
-            WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
+            WaterVolall->Drc = CHAdjDX->Drc*hmxWH->Drc;
 
             if(SwitchErosion) {
-                double dsed = frac*Sed->Drc;
+                double dsed = Sed->Drc;
                 SSFlood->Drc += dsed;
                 Sed->Drc = 0;
                 Conc->Drc = 0;
 
                 SWOFSedimentLayerDepth(r,c,hmx->Drc, V->Drc);
-                SWOFSedimentSetConcentration(r,c,hmx->Drc, ChannelAdj->Drc);
-               // Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
+                //SWOFSedimentSetConcentration(r,c,hmx->Drc, ChannelAdj->Drc);
+                SSCFlood->Drc = MaxConcentration(WaterVolall->Drc, SSFlood->Drc);
             }
         }
     }}
@@ -383,35 +371,44 @@ void TWorld::FloodMaxandTiming()
 // NOTE THIS function is only called for Kinematic+dynamic wave
 void TWorld::ChannelFlood(void)
 {
+    // hmx = flood equivalent of WH; hmxrunoff of WHrunoff
 
     if (!SwitchIncludeChannel)
         return;
 
     ToFlood();
-    // mix HWrunoff with hmx
-    // if toflood before channeloverflow then MB error in sed
+    // move HWrunoff with hmxrunoff in flood domain
 
     if (SwitchChannel2DflowConnect)
-        ChannelOverflowAlt(hmx, V);
+        ChannelOverflowAlt(hmxrunoff, V);
     else
-        ChannelOverflow(hmx, V);
+        ChannelOverflow(hmxrunoff, V);
     // determine overflow water => hmx
     // hmx is flood water, WH is overlandflow, WHrunoff etc
 
     startFlood = false;
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (hmx->Drc > 0)
+        if (hmxrunoff->Drc > 0)
             startFlood = true;
     }}
 
-    double dtflood = fullSWOF2openMUSCL(hmx, Uflood, Vflood, DEM);
-    // in kindyn hmx is the channel overflow/flood part of the surface water, the rest is kinwave WHrunoff
+    double dtflood = 0;
+    if (startFlood)
+        dtflood = fullSWOF2openMUSCL(hmxrunoff, Uflood, Vflood, DEM);
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (hmxrunoff->Drc > 0) {
+            V->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+            Qn->Drc = V->Drc * hmxrunoff->Drc * ChannelAdj->Drc;
+        }
+    }}
 
     //new flood domain
     nrFloodedCells = 0;
     FOR_ROW_COL_MV {
-        if (hmx->Drc > 0) {
+        if (hmxrunoff->Drc > 0) {
             FloodDomain->Drc = 1;
             nrFloodedCells += 1.0;
         }
@@ -419,82 +416,8 @@ void TWorld::ChannelFlood(void)
             FloodDomain->Drc = 0;
     }
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        Qflood->Drc = 0;
-        if (FloodDomain->Drc > 0) {
-            V->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
-            //Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
-            Qn->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;//0;//V->Drc * WHrunoff->Drc * ChannelAdj->Drc;
-            // Qn is the runoff water, must be zero in the flooded area, becomes Qflood
-        }
-    }}
+    updateWHandHmx();
 
- #pragma omp parallel for num_threads(userCores)
- FOR_ROW_COL_MV_L {
-     WH->Drc = WHrunoff->Drc+ WHstore->Drc;
-     // add new average waterlevel (A/dx) to stored water
-
-     WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
-
-     hmxWH->Drc = WH->Drc + hmx->Drc;
-     // all water on surface
-
-     hmxflood->Drc = std::max(0.0, WHrunoff->Drc + hmx->Drc - minReportFloodHeight);
-
-     FloodWaterVol->Drc = hmxflood->Drc * CHAdjDX->Drc;
-     double WHrunoffOutput = std::min(WHrunoff->Drc + hmx->Drc, minReportFloodHeight);
-     RunoffWaterVol->Drc = WHrunoffOutput * CHAdjDX->Drc;
-     // these are only used for reporting totals on screen and in file
-
-     if(SwitchErosion) {
-         Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
-         if (FloodDomain->Drc  > 0) {
-             double sed = SSFlood->Drc + BLFlood->Drc;
-             Conc->Drc =  MaxConcentration(FloodWaterVol->Drc, sed);
-             Qsn->Drc += Conc->Drc*Qn->Drc;//flood->Drc;
-         }
-     }
-  }}
-/*
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        Qflood->Drc = 0;
-        if (FloodDomain->Drc > 0) {
-            V->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
-            Qflood->Drc = V->Drc * hmx->Drc * ChannelAdj->Drc;
-            Qn->Drc = 0;//V->Drc * WHrunoff->Drc * ChannelAdj->Drc;
-            // Qn is the runoff water, must be zero in the flooded area, becomes Qflood
-        }
-
-        WH->Drc = WHrunoff->Drc+ WHstore->Drc;
-        // add new average waterlevel (A/dx) to stored water
-
-        WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc + hmx->Drc) + MicroStoreVol->Drc;
-
-        hmxWH->Drc = WH->Drc + hmx->Drc;
-        // all water on surface
-
-        hmxflood->Drc = std::max(0.0, WHrunoff->Drc + hmx->Drc - minReportFloodHeight);
-
-        FloodWaterVol->Drc = hmxflood->Drc * CHAdjDX->Drc;
-        double WHrunoffOutput = std::min(WHrunoff->Drc + hmx->Drc, minReportFloodHeight);
-        RunoffWaterVol->Drc = WHrunoffOutput * CHAdjDX->Drc;
-        // these are only used for reporting totals on screen and in file
-    }}
-
-    if(SwitchErosion) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
-            if (FloodDomain->Drc  > 0) {
-                double sed = SSFlood->Drc + BLFlood->Drc;
-                Conc->Drc = MaxConcentration(FloodWaterVol->Drc, sed);
-                Qsn->Drc += Conc->Drc*Qflood->Drc;
-            }
-        }}
-    }
-*/
     FloodMaxandTiming();
 
     double area = nrFloodedCells*_dx*_dx;

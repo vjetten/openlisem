@@ -260,8 +260,11 @@ void TWorld::ChannelFlow(void)
                 // no more outflow than there is water
 
                 // check if there is a culvert downstream and limit outflow if necessary
-                int cr = c+dx[(int)LDDChannel->Drc];
-                int rr = r+dy[(int)LDDChannel->Drc];
+                int ldd = crlinkedlddch_.at(i_).ldd;
+                // int cr = c+dx[(int)LDDChannel->Drc];
+                // int rr = r+dy[(int)LDDChannel->Drc];
+                int cr = c+dx[ldd];
+                int rr = r+dy[ldd];
                 if (!pcr::isMV(LDDChannel->Drcr) && ChannelMaxQ->Drcr > 0)
                     ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelMaxQ->Drcr);
 
@@ -341,34 +344,34 @@ void TWorld::ChannelSedimentFlow()
         }}
     }
 
-    if (SwitchLinkedList) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            pcr::setMV(ChannelQSSsn->Drc);
-        }}
-        // advection SS
-        FOR_ROW_COL_LDDCH5 {
-              routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
-        }}
+    // if (SwitchLinkedList) {
+    //     #pragma omp parallel for num_threads(userCores)
+    //     FOR_ROW_COL_MV_L {
+    //         pcr::setMV(ChannelQSSsn->Drc);
+    //     }}
+    //     // advection SS
+    //     FOR_ROW_COL_LDDCH5 {
+    //           routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
+    //     }}
 
-        //advection BL
+    //     //advection BL
+    //     if(SwitchUse2Phase) {
+    //         #pragma omp parallel for num_threads(userCores)
+    //         FOR_ROW_COL_MV_L {
+    //             pcr::setMV(ChannelQBLsn->Drc);
+    //         }}
+
+    //         FOR_ROW_COL_LDDCH5 {
+    //             routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
+    //         }}
+    //     }
+
+    // } else {
+        KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed, ChannelMaxQ);
         if(SwitchUse2Phase) {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                pcr::setMV(ChannelQBLsn->Drc);
-            }}
-
-            FOR_ROW_COL_LDDCH5 {
-                routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
-            }}
+            KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed, ChannelMaxQ);
         }
-
-    } else {
-        KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
-        if(SwitchUse2Phase) {
-            KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
-        }
-    }
+//    }
 
     if (SwitchIncludeRiverDiffusion) {
         RiverSedimentDiffusion(_dt, ChannelSSSed, ChannelSSConc);

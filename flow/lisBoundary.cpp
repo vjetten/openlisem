@@ -109,7 +109,7 @@ double TWorld::DEMFB(int r, int c, int rd, int cd, bool addwh)
 {
     cTMap *h = WHrunoff;
     if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
-        h = hmx;
+        h = hmxrunoff;
     }
 
     double wh = 0;

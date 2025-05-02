@@ -419,6 +419,7 @@ void TWorld::HydrologyProcesses()
         } else {
             WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;  // used in 2D flow and kin wave
         }
+        hmxWH->Drc = hmx->Drc+WH->Drc;
 
         // incoming wave at boundary
         if (SwitchWaveUser) {
@@ -426,6 +427,7 @@ void TWorld::HydrologyProcesses()
             if (WHboundarea->Drc > 0) {
                 // WHbound is the forced water level in area with value '1', plus cum rainfall
                 WH->Drc = WHbound->Drc + WHboundRain->Drc;
+                // assume there is no hmx in WHboundarea
             }
         }
     }}
