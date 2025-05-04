@@ -254,6 +254,7 @@ void TWorld::cell_InfilMethods(int r, int c)
             WH->Drc = fwh;
         else
             hmx->Drc = fwh;
+        hmxWH->Drc = WH->Drc + hmx->Drc;
         // adjust the WH in the correct domain with new fact
 
         Fcum->Drc += fact_; // for Smith and Parlange

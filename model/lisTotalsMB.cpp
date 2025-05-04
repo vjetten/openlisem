@@ -537,7 +537,7 @@ void TWorld::MassBalance()
         // correct WH
         FOR_ROW_COL_MV_L {
             tma->Drc = 0;
-            if (WHrunoff->Drc > 0)
+            if (WHrunoff->Drc > 0 || hmxrunoff->Drc > 0)
                 tma->Drc = 1;
         }}
         double tot = MapTotal(*tma);
@@ -548,14 +548,15 @@ void TWorld::MassBalance()
             if (WHrunoff->Drc > 0) {
                 WHrunoff->Drc = std::max(0.0,WHrunoff->Drc + dH);
                 WH->Drc = WHrunoff->Drc + WHstore->Drc;
+                hmxWH->Drc = WH->Drc + hmx->Drc;
+                WaterVolall->Drc = WH->Drc*CHAdjDX->Drc;//WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
             }
-
-            if (hmxrunoff->Drc > 0) {
+            if (FloodDomain->Drc > 0) {
                 hmxrunoff->Drc = std::max(0.0,hmxrunoff->Drc + dH);
                 hmx->Drc = hmxrunoff->Drc + WHstore->Drc;
+                hmxWH->Drc = WH->Drc + hmx->Drc;
+                WaterVolall->Drc = hmxWH->Drc*CHAdjDX->Drc;//WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
             }
-            hmxWH->Drc = WH->Drc + hmx->Drc;
-            WaterVolall->Drc = hmxWH->Drc*CHAdjDX->Drc;//WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
         }}
         WaterVolTot = MapTotal(*WaterVolall);
         waterstore += WaterVolTot;

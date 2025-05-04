@@ -95,8 +95,10 @@ void TWorld::GridCell()
         FOR_ROW_COL_MV_L {
             if(SwitchKinematic2D == K2D_METHOD_DYN)
                 WH->Drc = hmxInit->Drc;
-            else
-                hmx->Drc = hmxInit->Drc;
+            else {
+                if(SwitchKinematic2D == K2D_METHOD_KINDYN)
+                    hmx->Drc = hmxInit->Drc;
+            }
 
             WHinitVolTot += hmxInit->Drc * CHAdjDX->Drc;
         }}
@@ -105,36 +107,68 @@ void TWorld::GridCell()
 //---------------------------------------------------------------------------
 void TWorld::cell_SurfaceStorage(int r, int c)
 {
+    if (FloodDomain->Drc == 0) {
+        double wh =  WH->Drc;
+        double mds = std::max(0.0, MDS->Drc*(1-exp(-1.875*wh/(0.01*RR->Drc))));
+        // surface storage on rough surfaces
+        // non-linear release fo water from depression storage
+        // resembles curves from GIS surface tests, unpublished
 
-    double wh =  WH->Drc;
-    double mds = std::max(0.0, MDS->Drc*(1-exp(-1.875*wh/(0.01*RR->Drc))));
-    // surface storage on rough surfaces
-    // non-linear release fo water from depression storage
-    // resembles curves from GIS surface tests, unpublished
-
- //   additional Fayna Yuu type storage in m3 per cell
- //   if in a channel cell the store is taken from the channel flow (buffer)
-    if (SwitchGridRetention && ChannelWidth->Drc == 0) {
-        double dvol = std::max(0.0,GridRetention->Drc - GridRetentionAct->Drc);
-        if(dvol > 0) {
-            double dh = dvol/CHAdjDX->Drc;
-            dh = std::min(wh, dh);
-            wh -= dh;
-            dvol = dh*CHAdjDX->Drc;
-            GridRetentionAct->Drc += dvol;
+        //   additional Fayna Yuu type storage in m3 per cell
+        //   if in a channel cell the store is taken from the channel flow (buffer)
+        if (SwitchGridRetention && ChannelWidth->Drc == 0) {
+            double dvol = std::max(0.0,GridRetention->Drc - GridRetentionAct->Drc);
+            if(dvol > 0) {
+                double dh = dvol/CHAdjDX->Drc;
+                dh = std::min(wh, dh);
+                wh -= dh;
+                dvol = dh*CHAdjDX->Drc;
+                GridRetentionAct->Drc += dvol;
+            }
         }
+
+        WHrunoff->Drc = std::max(0.0, wh-mds);
+        // used to be ((wh - WHs)*SW + WHr*RW)/(SW+RW);
+        // WH of overlandflow above surface storage
+
+        WHstore->Drc = std::min(mds, wh);
+        WH->Drc = WHrunoff->Drc + WHstore->Drc;
+        MicroStoreVol->Drc = CHAdjDX->Drc*WHstore->Drc; //RR is adjusted for roads so over entire flowwidth
+        // microstore vol in m3
+        hmxWH->Drc = WH->Drc;
+        WaterVolall->Drc = hmxWH->Drc * CHAdjDX->Drc;
+        // non moving microstorage
+    } else {
+        double wh =  hmx->Drc;
+        double mds = std::max(0.0, MDS->Drc*(1-exp(-1.875*wh/(0.01*RR->Drc))));
+        // surface storage on rough surfaces
+        // non-linear release fo water from depression storage
+        // resembles curves from GIS surface tests, unpublished
+
+        //   additional Fayna Yuu type storage in m3 per cell
+        //   if in a channel cell the store is taken from the channel flow (buffer)
+        if (SwitchGridRetention && ChannelWidth->Drc == 0) {
+            double dvol = std::max(0.0,GridRetention->Drc - GridRetentionAct->Drc);
+            if(dvol > 0) {
+                double dh = dvol/CHAdjDX->Drc;
+                dh = std::min(wh, dh);
+                wh -= dh;
+                dvol = dh*CHAdjDX->Drc;
+                GridRetentionAct->Drc += dvol;
+            }
+        }
+
+        hmxrunoff->Drc = std::max(0.0, wh-mds);
+        // used to be ((wh - WHs)*SW + WHr*RW)/(SW+RW);
+        // WH of overlandflow above surface storage
+
+        WHstore->Drc = std::min(mds, wh);
+        // non moving microstorage
+        hmx->Drc = hmxrunoff->Drc + WHstore->Drc;
+        MicroStoreVol->Drc = CHAdjDX->Drc*WHstore->Drc; //RR is adjusted for roads so over entire flowwidth
+        // microstore vol in m3
+        hmxWH->Drc = WH->Drc + hmx->Drc;
+        WaterVolall->Drc = hmxWH->Drc * CHAdjDX->Drc;
     }
-
-    WHrunoff->Drc = std::max(0.0, wh-mds);
-    // used to be ((wh - WHs)*SW + WHr*RW)/(SW+RW);
-    // WH of overlandflow above surface storage
-
-    WHstore->Drc = std::min(mds, wh);
-    // non moving microstorage
-    MicroStoreVol->Drc = CHAdjDX->Drc*WHstore->Drc; //RR is adjusted for roads so over entire flowwidth
-    // microstore vol in m3
-
-    WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
-    // all water in the cell incl storage
 }
 //---------------------------------------------------------------------------

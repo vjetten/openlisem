@@ -343,7 +343,6 @@ cTMap
 *hmxWH,                        //!<
 *hmxrunoff,
 *hmxInit,                    //!<
-*hmxflood,
 *FloodDomain,                //!<
 *Buffers,                    //!<
 *GridRetention,                    //!<

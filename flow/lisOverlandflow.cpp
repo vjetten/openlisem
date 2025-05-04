@@ -54,7 +54,7 @@ void TWorld::OverlandFlow(void)
         // V is needed in erosion
 
         if (SwitchErosion) {
-                cell_FlowDetachment();
+            cell_FlowDetachment();
                 // kine wave based flow detachment
                 //cell_FlowDetachmentContinuous(r,c);
         }
@@ -88,10 +88,9 @@ void TWorld::OverlandFlow2Ddyn(void)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         if (ChannelMaxQ->Drc <= 0) {
-            ChannelWaterVol->Drc = ChannelWH->Drc * ChannelDX->Drc * ChannelWidth->Drc;
             WH->Drc = WHrunoff->Drc + WHstore->Drc;
-            hmxWH->Drc = hmx->Drc + WH->Drc;
-            WaterVolall->Drc = CHAdjDX->Drc*hmxWH->Drc;
+            hmxWH->Drc = /*hmx->Drc + */WH->Drc;
+            WaterVolall->Drc = CHAdjDX->Drc*WH->Drc;
 
             if(SwitchErosion) {
                 // or WH?
@@ -257,18 +256,13 @@ void TWorld::CalcVelDisch()
     FOR_ROW_COL_MV_L {
         double Perim = SwitchPerimeterKW ? FlowWidth->Drc+2*WHrunoff->Drc : FlowWidth->Drc;
         double Area = FlowWidth->Drc*WHrunoff->Drc;
+        V->Drc = pow(Area/Perim, (2.0/3.0)) * sqrtGrad->Drc/N->Drc; //WHrunoff->Drc
+        Q->Drc = V->Drc * Area;//pow(Area/Alpha->Drc, (5.0/3.0)); // A = aplha*Q^beta => Q = (A/alpha)^1/beta and  beta = 6/10 = 3/5
 
         if (Grad->Drc > MIN_SLOPE)
             Alpha->Drc = pow(N->Drc/sqrtGrad->Drc * pow(Perim, 2.0/3.0),0.6);
         else
             Alpha->Drc = 0;
-
-        if (Alpha->Drc > 0)
-            Q->Drc = pow(Area/Alpha->Drc, (5.0/3.0)); // A = aplha*Q^beta => Q = (A/alpha)^1/beta and  beta = 6/10 = 3/5
-        else
-            Q->Drc = 0;
-
-        V->Drc = pow(Area/Perim, (2.0/3.0)) * sqrtGrad->Drc/N->Drc; //WHrunoff->Drc
     }}
 }
 //---------------------------------------------------------------------------
@@ -276,15 +270,21 @@ void TWorld::updateWHandHmx(void)
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        WH->Drc = WHrunoff->Drc + WHstore->Drc;
-        hmx->Drc = hmxrunoff->Drc + WHstore->Drc;
-        hmxWH->Drc = WH->Drc + hmx->Drc; // in 2D flow hmx is 0, not used
-        WaterVolall->Drc = hmxWH->Drc* CHAdjDX->Drc;// WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
+        if (FloodDomain->Drc == 0) {
+            WH->Drc = WHrunoff->Drc + WHstore->Drc;
+            hmxWH->Drc = WH->Drc; // in 2D flow hmx is 0, not used
+            WaterVolall->Drc = WH->Drc* CHAdjDX->Drc;// WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
+        } else {
+            hmx->Drc = hmxrunoff->Drc + WHstore->Drc;
+            hmxWH->Drc = WH->Drc + hmx->Drc; // in 2D flow hmx is 0, not used
+            WaterVolall->Drc = hmxWH->Drc* CHAdjDX->Drc;// WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
+        }
 
-        hmxflood->Drc = std::max(0.0, (WHrunoff->Drc+hmxrunoff->Drc) - minReportFloodHeight);
-        FloodWaterVol->Drc = hmxflood->Drc*CHAdjDX->Drc;
+        double  hmxflood = WHrunoff->Drc+hmxrunoff->Drc;
+
+        FloodWaterVol->Drc = std::max(0.0,hmxflood - minReportFloodHeight)*CHAdjDX->Drc;
         // used in mass balance
-        RunoffWaterVol->Drc = std::min( (WHrunoff->Drc+hmxrunoff->Drc), minReportFloodHeight)*CHAdjDX->Drc;
+        RunoffWaterVol->Drc = std::min(hmxflood, minReportFloodHeight)*CHAdjDX->Drc;
         // all water that is not flood and not stored, so below min level
 
         if (SwitchErosion) {

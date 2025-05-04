@@ -1691,7 +1691,6 @@ void TWorld::IntializeData(void)
     hmx = NewMap(0);
     hmxrunoff = NewMap(0);
 
-    hmxflood = NewMap(0);
     FloodDomain = NewMap(0);
 
     floodHmxMax = NewMap(0);//

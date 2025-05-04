@@ -50,19 +50,22 @@ void TWorld::ToTiledrainAll()
           if (TileWaterVol->Drc >= MaxVol)
             fractiontotile = 0;
           else {
-            fractiontotile = 0.04/(RoadWidthDX->Drc*DX->Drc)*(DX->Drc/TileDrainDistance);
+            fractiontotile = 0.03/(RoadWidthDX->Drc*DX->Drc)*(DX->Drc/TileDrainDistance);
             fractiontotile = std::max(0.0, std::min(1.0,fractiontotile));
            // qDebug() << fractiontotile;
             // every tile cell has a subtraction of water, based on the inlet fraction in the street
-            // assumed entry is 0.3 * 0.3 m
+            // assumed entry is 0.1 * 0.3 m
             // if a road is divided over more cells, this probably overewstimates the entrance
 
-            double vol = fractiontotile*(WHrunoff->Drc*CHAdjDX->Drc);
             double dh = fractiontotile*WHrunoff->Drc;
-            RunoffVolinToTile->Drc = vol;
+            if (FloodDomain ->Drc > 0) {
+                dh = fractiontotile*hmxrunoff->Drc;
+            }
+
+            RunoffVolinToTile->Drc = dh*CHAdjDX->Drc;
 
             // adjust water height
-            WaterVolall->Drc -= vol;
+            WaterVolall->Drc -= dh*CHAdjDX->Drc;
             if (FloodDomain->Drc == 0) {
                 WHrunoff->Drc -= dh;
                 WH->Drc -= dh;

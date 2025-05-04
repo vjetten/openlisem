@@ -120,6 +120,8 @@ void TWorld::InfilSwatre()
             WH->Drc = WHN;
         else
             hmx->Drc = WHN;
+        hmxWH->Drc = hmx->Drc + WH->Drc;
+        WaterVolall->Drc = hmxWH->Drc*CHAdjDX->Drc;
 
         InfilVol->Drc = (WHorig - WHN) * FlowWidth->Drc * DX->Drc;
         // use flowwidth because impermeable is done separately

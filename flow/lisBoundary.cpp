@@ -108,9 +108,9 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
 double TWorld::DEMFB(int r, int c, int rd, int cd, bool addwh)
 {
     cTMap *h = WHrunoff;
-    if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
+    if(FloodDomain->Drc > 0)
         h = hmxrunoff;
-    }
+
 
     double wh = 0;
     double dem = 0;
