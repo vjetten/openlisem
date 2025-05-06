@@ -243,7 +243,10 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
         if (_Qmax->Drcr > 0)
-            _Qn->Drc = _Qmax->Drcr;
+            _Qn->Drc = std::min(_Qmax->Drcr, _Qn->Drc);
+        if (FloodDomain->Drcr > 0)
+            _Qn->Drc = 0;
+
     }
 }
 //---------------------------------------------------------------------------
