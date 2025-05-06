@@ -63,9 +63,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setupUi(this);
     // set up interface
 
-    setMinimumSize(1280,800);
-    showMaximized();
-
     darkLISEM = false;
     checkforpatch = true;
     op.nrRunsDone = 0;
@@ -127,6 +124,11 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     stoprun = false;
     W->waitRequested = false;
     // run is not started so we don't accidentally do wrong things while W exists
+
+
+    setMinimumSize(1280,800);
+    showMaximized();
+
     if(doBatch)
     {
         runfilelist.clear();
@@ -1002,7 +1004,6 @@ void lisemqt::resetTabCalibration()
     E_CalibrateD90->setValue(1.0);
     E_CalibrateCHCOH->setValue(1.0);
     // not visible, experimental
-    E_CalibrateCHUcr->setValue(1.0);
     E_CalibrateCHSV->setValue(1.0);
 }
 //--------------------------------------------------------------------
@@ -1010,8 +1011,6 @@ void lisemqt::resetTabInterception()
 {
     checkInterception->setChecked(true);
     radioButton_1->setChecked(true); //<= crops interception
-    E_CanopyOpeness->setValue(0.45); // not visible
-    //    E_StemflowFraction->setValue(0.054);
     checkIncludeLitter->setChecked(false);
     E_LitterSmax->setValue(1.0);
 }
@@ -1103,7 +1102,6 @@ void lisemqt::resetTabErosion()
 
     checkSed2Phase->setChecked(false);
 
-    checkMaterialDepth->setChecked(false);
     E_DepositedCohesion->setValue(0.5);
     //E_BulkDens2->setText("1500.00");
 
@@ -1139,7 +1137,6 @@ void lisemqt::resetTabInfra()
 void lisemqt::resetTabAdvanced()
 {
     E_FloodMaxIter->setValue(200);
-    E_minWHflow->setText("1e-12");
     E_FloodReconstruction->setValue(4);  //HLL2 etc
     //E_Z2Dcorrection->setValue(1.0);  //HLL2 etc
     E_FloodFluxLimiter->setValue(1);     //minmod etc

@@ -59,9 +59,9 @@ void TWorld::OverlandFlow(void)
                 //cell_FlowDetachmentContinuous(r,c);
         }
 
-       if (SwitchChannel2DflowConnect)
-           ToChannelAlt();
-       else
+       // if (SwitchChannel2DflowConnect)
+       //     ToChannelAlt();
+       // else
             ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
 
         OverlandFlow1D();   // kinematic wave of water and sediment
@@ -172,8 +172,9 @@ void TWorld::ToChannel()
                 ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
 
                 WHrunoff->Drc -= dwh;
+                if (WHrunoff->Drc < 0) qDebug() << fractiontochannel << WHrunoff->Drc;
                 WH->Drc -= dwh;
-                hmxWH->Drc = WH->Drc + hmx->Drc;
+                hmxWH->Drc = WH->Drc;
                 WaterVolall->Drc = CHAdjDX->Drc*hmxWH->Drc;        //(WHrunoff->Drc) + MicroStoreVol->Drc;
 
                 if (SwitchErosion) {

@@ -1026,24 +1026,12 @@ void TWorld::InitChannel(void)
                 double area = PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;
                 ChannelMaxArea->Drc = area;
                 double perim = PI*ChannelDiameter->Drc;
-                ChannelN->Drc = 0.012;
+                //ChannelN->Drc = 0.012;
                 ChannelMaxQ->Drc = std::pow(area/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
                 ChannelMaxAlpha->Drc = (ChannelWidth->Drc*ChannelDepth->Drc)/std::pow(ChannelMaxQ->Drc, 0.6);
                 //qDebug() << ChannelMaxQ->Drc << ChannelMaxAlpha->Drc;
             }
         }}
-
-        // there can be no side inflow in a culvert (which is actually not true!)
-        for (int i = 0; i < crlinkedlddch_.size(); i++) {
-            int c = crlinkedlddch_.at(i).c;
-            int r = crlinkedlddch_.at(i).r;
-            if (ChannelMaxQ->Drc > 0) {
-                LDD_COORIN hoi = crlinkedlddch_.at(i);
-                hoi.ldd *= -1;
-                crlinkedlddch_.replace(i, hoi) ;
-            }
-        }
-
     } else {
         ChannelDiameter = NewMap(0);
     }

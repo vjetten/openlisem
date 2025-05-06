@@ -456,7 +456,6 @@ void lisemqt::ParseInputData()
     tileanddrains = false;
     if (checkIncludeTiledrains->isChecked() || checkStormDrains->isChecked())
         tileanddrains = true;
-qDebug() << tileanddrains ;
 
     doChannelBaseflow = (checkGWflow->isChecked() || checkStationaryBaseflow->isChecked()) && checkIncludeChannel->isChecked();
 

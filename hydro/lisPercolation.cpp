@@ -153,7 +153,7 @@ double TWorld::cell_Percolation(int r, int c, double factor)
             }
             ThetaI2->Drc = theta;
             if (std::isnan(ThetaI2->Drc)) {
-                 qDebug() <<  FC2 << thetar;
+                 qDebug() << "nan" << FC2 << thetar;
             }
                 //DO NOT RECALCULATE PSI
             //Psi2->Drc = 0.01 * 10.2 * Psia2->Drc * psiCalibration * std::max(1.0, pow((theta-thetar)/(pore-thetar), -1.0/lambda2->Drc));

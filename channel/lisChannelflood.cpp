@@ -236,6 +236,7 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
                     // broad crested weir flow if channel is leadng
                     double Cd = 0.65/sqrt(1+dCHh0/ChannelDepth->Drc);
                     double transfer_volume_fromchan =factor*Cd*sqrt(GRAV)*0.5443*sqrt(dCHh0)*(dCHh0-H);
+                    //0.5443 = (2/3)^1.5
 
                     transfer_volume = std::min(transfer_volume_fromchan, needed_volume);
                     tochannel = false;
@@ -354,7 +355,7 @@ void TWorld::ChannelFlood(void)
     if (!SwitchIncludeChannel)
         return;
 
-    ToFlood();
+    //ToFlood();
 
     if (SwitchChannel2DflowConnect)
         ChannelOverflowAlt(hmxrunoff, V);
@@ -382,7 +383,7 @@ void TWorld::ChannelFlood(void)
         }
     }}
 
-    ToFlood();
+  //  ToFlood();
     // move HWrunoff with hmxrunoff in flood domain
 
     startFlood = false;
@@ -406,7 +407,8 @@ void TWorld::ChannelFlood(void)
         else
             FloodDomain->Drc = 0;
     }
-
+report(*hmxrunoff,"hmx");
+report(*WHrunoff,"whrb");
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (FloodDomain->Drc > 0) {
