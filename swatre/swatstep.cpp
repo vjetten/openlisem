@@ -178,9 +178,14 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)
     double impfrac = fractionImperm->Drc;//pixel->impfrac;
     NODE_ARRAY kavg, k, C, theta, thetaPrev, h, hPrev, dz, disZ, S;
 
-    memcpy(h, pixel->h.data(), nN * sizeof(double));
-    memcpy(dz, p->zone->dz.data(), nN * sizeof(double));
-    memcpy(disZ, p->zone->disnod.data(), nN * sizeof(double));
+    for (int j = 0; j < nN; j++) {
+      h[j] = pixel->h[j];
+      dz[j] = p->zone->dz[j];
+      disZ[j] = p->zone->disnod[j];
+    }
+    // memcpy(h, pixel->h.data(), nN * sizeof(double));
+    // memcpy(dz, p->zone->dz.data(), nN * sizeof(double));
+    // memcpy(disZ, p->zone->disnod.data(), nN * sizeof(double));
 
     if (SwitchIncludeET && WH <= 0) {
         calcSinktermSWATRE(i_, pixel, h, S);
@@ -294,11 +299,13 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)
         else
             qbot = kavg[nN-1]*(h[nN-1]-h[nN-2])/disZ[nN-1] - kavg[nN-1];
 
+        for (int j = 0; j < nN; j++) {
+          hPrev[j] = h[j];
+          thetaPrev[j] = theta[j];
+        }
+        //std::memcpy(hPrev, h, nN * sizeof(double));
+        //std::memcpy(thetaPrev, theta, nN * sizeof(double));
 
-        std::memcpy(hPrev, h, nN * sizeof(double));
-        std::memcpy(thetaPrev, theta, nN * sizeof(double));
-        //thetaPrev = theta;
-        //hPrev = h;
         NODE_ARRAY thoma, thomb, thomc, thomf, beta;
         //HeadCalc(p, h, &isPonded, fltsat, thetaPrev, hPrev, kavg, C, dt, WH, qtop, qbot);
 
@@ -439,8 +446,10 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)
     }
 
     //put new h back into h
-    memcpy(pixel->h.data(), h, nN * sizeof(double));
-
+    //memcpy(pixel->h.data(), h, nN * sizeof(double));
+    for (int j = 0; j < nN; j++) {
+      pixel->h[j] = h[j];
+    }
     // these variables can all be direcvtly saved to the maps, inflated pixel structure
     pixel->wh = WH;
     pixel->tiledrain = drainout;
