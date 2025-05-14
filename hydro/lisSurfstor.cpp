@@ -167,7 +167,7 @@ void TWorld::cell_SurfaceStorage(int r, int c)
         hmx->Drc = hmxrunoff->Drc + WHstore->Drc;
         MicroStoreVol->Drc = CHAdjDX->Drc*WHstore->Drc; //RR is adjusted for roads so over entire flowwidth
         // microstore vol in m3
-        hmxWH->Drc = WH->Drc + hmx->Drc;
+        hmxWH->Drc = hmx->Drc;
         WaterVolall->Drc = hmxWH->Drc * CHAdjDX->Drc;
     }
 }

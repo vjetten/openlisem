@@ -159,7 +159,7 @@ void TWorld::InitParameters(void)
         F_scheme = std::min(3,F_scheme);
         F_minWH = he_ca;//getvaluedouble("Min WH flow");   //HLL HLL2 Rusanov
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
-        SwitchLinkedList = getvalueint("Use linked List") == 1;
+        SwitchLinkedList = false; //getvalueint("Use linked List") == 1;
         SwitchPerimeterKW = getvalueint("Use Perimeter KW") == 1;
         _dtCHkin = getvaluedouble("Channel Kinwave dt");
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;

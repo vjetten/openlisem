@@ -59,9 +59,9 @@ void TWorld::OverlandFlow(void)
                 //cell_FlowDetachmentContinuous(r,c);
         }
 
-       // if (SwitchChannel2DflowConnect)
-       //     ToChannelAlt();
-       // else
+       if (SwitchChannel2DflowConnect)
+           ToChannelAlt();
+       else
             ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
 
         OverlandFlow1D();   // kinematic wave of water and sediment
@@ -148,19 +148,15 @@ void TWorld::ToChannel()
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (WHrunoff->Drc > 0 && hmxrunoff->Drc == 0 && ChannelMaxQ->Drc <= 0) {  //ChannelWidth->Drc > 0 &&
+        if (WHrunoff->Drc > 0 && FloodDomain->Drc == 0 && ChannelMaxQ->Drc <= 0) {
 
             double fractiontochannel = std::min(1.0, _dt*V->Drc/(0.5*ChannelAdj->Drc));
             // fraction to channel calc from half the adjacent area width and flow velocity
 
-            // cannot flow into channel if water level in channel is higher than runoff depth
             if (SwitchKinematic2D == K2D_METHOD_KINDYN &&
                     WHrunoff->Drc <= std::max(0.0 , ChannelWH->Drc - ChannelDepth->Drc))
                 fractiontochannel = 0;
-
-            // no inflow on culverts
-            // if (SwitchCulverts && ChannelMaxQ->Drc  > 0)
-            //     fractiontochannel = 0;
+            // cannot flow into channel if water level in channel is higher than runoff depth
 
             if (fractiontochannel > 0) {
                 double dwh = fractiontochannel*WHrunoff->Drc;
@@ -172,7 +168,6 @@ void TWorld::ToChannel()
                 ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
 
                 WHrunoff->Drc -= dwh;
-                if (WHrunoff->Drc < 0) qDebug() << fractiontochannel << WHrunoff->Drc;
                 WH->Drc -= dwh;
                 hmxWH->Drc = WH->Drc;
                 WaterVolall->Drc = CHAdjDX->Drc*hmxWH->Drc;        //(WHrunoff->Drc) + MicroStoreVol->Drc;
@@ -203,23 +198,25 @@ void TWorld::ToChannelAlt()
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (WHrunoff->Drc > 0 && hmxrunoff->Drc == 0 && ChannelMaxQ->Drc <= 0) {
-            // cannot flow into channel if water level in channel is higher than runoff depth
+        if (WHrunoff->Drc > 0 && FloodDomain->Drc == 0 && ChannelMaxQ->Drc <= 0) {
 
             if (SwitchKinematic2D == K2D_METHOD_KINDYN &&
                     WHrunoff->Drc <= std::max(0.0 , ChannelWH->Drc - ChannelDepth->Drc))
                 continue;
-
-            // // no inflow on culverts
-            // if (SwitchCulverts && ChannelMaxQ->Drc  > 0)
-            //     continue;
+            // cannot flow into channel if water level in channel is higher than runoff depth
 
             double pressureflow = 2.0*_dt*ChannelDX->Drc*0.56*sqrt(2*GRAV)*std::pow(WHrunoff->Drc, 1.5);
             // is this dt * L * H * Cd*sqrt(2GH) so instead of V we have Cd*sqrt(2GH)
+
+            double Cd = 0.56;
+            double velocityfactor = (V->Drc*V->Drc)/(2*GRAV);
+            double transfer_volume_tochan = 2.0*_dt*ChannelDX->Drc*WHrunoff->Drc * Cd*sqrt(GRAV)*0.5443*sqrt(WHrunoff->Drc+velocityfactor);
+
             // discharge as free flow broad crested weir
-            double velocityflow = 2.0*_dt*(ChannelDX->Drc*WHrunoff->Drc)*V->Drc; // sec * m2 * m/s = m3
+            //double velocityflow = 2.0*_dt*(ChannelDX->Drc*WHrunoff->Drc)*V->Drc; // sec * m2 * m/s = m3
             // overland flow discharge
-            double volintochan = std::min(std::max(velocityflow, pressureflow), WHrunoff->Drc*CHAdjDX->Drc);
+            //double volintochan = std::min(std::max(velocityflow, pressureflow), WHrunoff->Drc*CHAdjDX->Drc);
+            double volintochan = std::min(transfer_volume_tochan, CHAdjDX->Drc * WHrunoff->Drc);
 
             WaterVolall->Drc -= volintochan;
             ChannelWaterVol->Drc += volintochan;

@@ -25,7 +25,6 @@
 #include <math.h>
 #include "model.h"
 
-#define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
 #define MAXIT 60
 
 // see page 82 hydraulic SWMM manual part 2,

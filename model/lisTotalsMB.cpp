@@ -545,13 +545,13 @@ void TWorld::MassBalance()
         waterstore -= WaterVolTot;
         FOR_ROW_COL_MV_L {
             double dH = dV/(CHAdjDX->Drc); // avg error in m on wet cells
-            if (WHrunoff->Drc > 0) {
+            if (FloodDomain->Drc == 0 && WHrunoff->Drc > 0) {
                 WHrunoff->Drc = std::max(0.0,WHrunoff->Drc + dH);
                 WH->Drc = WHrunoff->Drc + WHstore->Drc;
                 hmxWH->Drc = WH->Drc + hmx->Drc;
                 WaterVolall->Drc = WH->Drc*CHAdjDX->Drc;//WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
             }
-            if (FloodDomain->Drc > 0) {
+            if (FloodDomain->Drc > 0 && hmxrunoff->Drc > 0) {
                 hmxrunoff->Drc = std::max(0.0,hmxrunoff->Drc + dH);
                 hmx->Drc = hmxrunoff->Drc + WHstore->Drc;
                 hmxWH->Drc = WH->Drc + hmx->Drc;

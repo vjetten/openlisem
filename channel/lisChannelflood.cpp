@@ -163,6 +163,30 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
         }
     }}
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        if (ChannelMaxQ->Drc <= 0 && _h->Drc > 0) {
+            if (SwitchKinematic2D == K2D_METHOD_KINDYN) {
+                hmx->Drc = _h->Drc + WHstore->Drc;
+                hmxWH->Drc = hmx->Drc;
+            } else {
+                WH->Drc = _h->Drc + WHstore->Drc;
+                hmxWH->Drc = WH->Drc;
+            }
+
+            WaterVolall->Drc = CHAdjDX->Drc*_h->Drc + MicroStoreVol->Drc;
+
+            if(SwitchErosion) {
+                SWOFSedimentLayerDepth(r,c, _h->Drc, V->Drc);
+                SWOFSedimentSetConcentration(r,c, _h->Drc, ChannelAdj->Drc);
+
+                RiverSedimentLayerDepth(r, c);
+                RiverSedimentMaxC(r, c);
+                // all concentrations, possible ChannelDep when surplus
+            }
+        }
+    }}
 }
 
 //---------------------------------------------------------------------------
@@ -254,6 +278,14 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
             // Update heights
             ChannelWH->Drc = ChannelWaterVol->Drc / area_channel;
             _h->Drc = (WaterVolall->Drc-MicroStoreVol->Drc) / area_surface;
+
+            if (SwitchKinematic2D == K2D_METHOD_KINDYN) {
+                hmx->Drc = _h->Drc + WHstore->Drc;
+                hmxWH->Drc = hmx->Drc;
+            } else {
+                WH->Drc = _h->Drc + WHstore->Drc;
+                hmxWH->Drc = WH->Drc;
+            }
 
             // new equilibrium levels
             if (SwitchErosion) {
@@ -355,7 +387,7 @@ void TWorld::ChannelFlood(void)
     if (!SwitchIncludeChannel)
         return;
 
-    //ToFlood();
+    ToFlood();
 
     if (SwitchChannel2DflowConnect)
         ChannelOverflowAlt(hmxrunoff, V);
@@ -364,26 +396,7 @@ void TWorld::ChannelFlood(void)
     // determine overflow water => hmx
     // hmx is flood water, WH is overlandflow, WHrunoff etc
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
-        if (ChannelMaxQ->Drc <= 0 && hmxrunoff->Drc > 0) {
-            hmx->Drc = hmxrunoff->Drc + WHstore->Drc;
-            hmxWH->Drc = hmx->Drc + WH->Drc;
-            WaterVolall->Drc = CHAdjDX->Drc*hmxWH->Drc;
-
-            if(SwitchErosion) {
-                // or hmx?
-                SWOFSedimentLayerDepth(r,c, hmxrunoff->Drc, V->Drc);
-                SWOFSedimentSetConcentration(r,c, hmxrunoff->Drc, ChannelAdj->Drc);
-
-                RiverSedimentLayerDepth(r, c);
-                RiverSedimentMaxC(r, c);
-                // all concentrations, possible ChannelDep when surplus
-            }
-        }
-    }}
-
-  //  ToFlood();
+  // ToFlood();
     // move HWrunoff with hmxrunoff in flood domain
 
     startFlood = false;
@@ -407,17 +420,17 @@ void TWorld::ChannelFlood(void)
         else
             FloodDomain->Drc = 0;
     }
-report(*hmxrunoff,"hmx");
-report(*WHrunoff,"whrb");
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (FloodDomain->Drc > 0) {
-            if (WHrunoff->Drc > 0) {
-                hmxrunoff->Drc += WHrunoff->Drc;
-                hmx->Drc = hmxrunoff->Drc + WHstore->Drc;
-                WHrunoff->Drc = 0;
-                WH->Drc = WHstore->Drc;
-            }
+            // MB errors:
+            // if (WHrunoff->Drc > 0) {
+            //     hmxrunoff->Drc += WHrunoff->Drc;
+            //     hmx->Drc = hmxrunoff->Drc + WHstore->Drc;
+            //     WHrunoff->Drc = 0;
+            //     WH->Drc = WHstore->Drc;
+            // }
             V->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
             Qn->Drc = V->Drc * hmxrunoff->Drc * ChannelAdj->Drc;
         }
