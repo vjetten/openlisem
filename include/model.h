@@ -96,40 +96,16 @@
     ( ldd != 0 &&  rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 /// shortcuts missing value and inside map
-#define MV(a, b) pcr::isMV(LDD->data[a][b])
+#define MV(r,c) pcr::isMV(LDD->data[r][c])
 #define notMVIn(r,c) (!pcr::isMV(LDD->data[r][c]) && r < _nrRows && c < _nrCols && r >= 0 && c >= 0)
-#define INSIDE(a, b) (a >= 0 && b < _nrRows && a >= 0 && b < _nrCols)
-#define OUTORMV(a, b)  (INSIDE(a,b) && !pcr::isMV(LDD->data[a][b]) ? false : true)
+#define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
+#define OUTORMV(r, c)  (INSIDE(r,c) && !pcr::isMV(LDD->data[r][c]) ? false : true)
 
 /// shortcut for LDD row and col loop
 #define FOR_ROW_COL_MV for(int r = 0; r < _nrRows; r++)\
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDD->data[r][c]))
 
-//SLOW!
-//#define FOR_ROW_COL_MV_L for(int r = 0; r < _nrRows; r++)\
-//    for (int c = 0; c < _nrCols; c++)\
-//    if(!pcr::isMV(LDD->data[r][c]))
-
-// faster
-//#define FOR_ROW_COL_MV_L for(QVector <LDD_COOR>::iterator crit_ = cr_.begin(); crit_ != cr_.end();  ++crit_)\
-//{int r = crit_->r; int c = crit_->c;
-
-// faster
-//#define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
-//{long _i_ = cri_[i_]; int r = (int)(_i_/_nrCols); int c = (int)(_i_ % _nrCols);
-
-// fastest, QVector stores all elements in the same consequtive memory!
-//#define FOR_ROW_COL_MV_L for(long i_ = 0; i_< nrValidCells; i_++)\
-//{int r = cr_[i_].r; int c = cr_[i_].c;
-// slower
-//#define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < _nrCols*_nrRows; i_++)\
-//{int r = i_/_nrCols; int c=i_%_nrCols;\
-//if(!pcr::isMV(LDD->data[r][c]))
-
-
-// #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
-//  {int r = cr_[i_]->r; int c = cr_[i_]->c;
 #define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < nrValidCells; i_++)\
  {int r = cr_[i_].r; int c = cr_[i_].c;
 

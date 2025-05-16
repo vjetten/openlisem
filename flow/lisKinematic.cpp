@@ -169,21 +169,6 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     // explicit first guess Qkx
     Qkx = std::max(Qkx, 1e-30);
 
-    // do a first ietartion step for a better guess of Qkx
-    // not necessary because the loop starts with this!!!
-    fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;
-    dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);
-    Qkx   -= fQkx / dfQkx;
-    Qkx   = std::max(Qkx, 1e-30);
-
-    // // limit flux and alpha to pipe max Q
-    // if (Qm > 0) {
-    //     Qkx = std::min(Qkx, Qm);
-    //     if (Qkx == Qm)
-    //         alpha = Am;
-    //     // if max flow set max Alpha
-    // }
-
     count = 0;
     do {
         fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   // Current k function f(Qkx)  where in+out=0 or needs to iterste to 0, i.e. > epsilon
@@ -192,13 +177,13 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
         Qkx   = std::max(Qkx, 1e-30);
 
         // limit flux and alpha to culvert/pipe max
-        // if (Qm > 0) {
-        //     Qkx = std::min(Qkx, Qm);
-        //     if (Qkx == Qm) {
-        //         alpha = Am;
-        //         count = MAX_ITERS;
-        //     }
-        // }
+        if (Qm > 0) {
+            Qkx = std::min(Qkx, Qm);
+            if (Qkx == Qm) {
+                alpha = Am;
+                count = MAX_ITERS;
+            }
+        }
 
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
@@ -237,11 +222,11 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
         QinKW->Drc = Qin;
 
         _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
-        // int ldd = _crlinked_.at(i_).ldd;
-        // int cr = c+dx[ldd];
-        // int rr = r+dy[ldd];
-        // if (_Qmax->Drcr > 0)
-        //     _Qn->Drc = std::min(_Qmax->Drcr, _Qn->Drc);
+        int ldd = _crlinked_.at(i_).ldd;
+        int cr = c+dx[ldd];
+        int rr = r+dy[ldd];
+        if (_Qmax->Drcr > 0)
+            _Qn->Drc = std::min(_Qmax->Drcr, _Qn->Drc);
 
         //the following causes major problmes: water level rises to extreme levels because there is no flow out!
         // if (FloodDomain->Drcr > 0)
@@ -356,7 +341,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
             c = colNr+dx[i];
 
             if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
-                ldd = (int) _LDD->Drc;
+                ldd = static_cast <int>(_LDD->Drc);
             else
                 continue;
 
@@ -393,7 +378,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
                 int c = colNr+dx[i];
 
                 if (INSIDE(r,c) && !pcr::isMV(_LDD->Drc))
-                    ldd = (int) _LDD->Drc;
+                    ldd = static_cast <int>(_LDD->Drc);
                 else
                     continue;
 
@@ -411,7 +396,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
                     IterateToQnew(Qin, _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr],
                                   _Qmax->data[rowNr][colNr], _Amax->data[rowNr][colNr] );
 
-            int ldd = (int)_LDD->data[rowNr][colNr];
+            int ldd = static_cast <int>(_LDD->data[rowNr][colNr]);
             int cr = colNr+dx[ldd];
             int rr = rowNr+dy[ldd];
             if (_Qmax->Drcr > 0)
@@ -490,7 +475,7 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
             c = colNr+dx[i];
 
             if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
-                ldd = (int) _LDD->Drc;
+                ldd = static_cast <int>( _LDD->Drc);
             else
                 continue;
 
@@ -525,7 +510,7 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                 c = colNr+dx[i];
 
                 if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
-                    ldd = (int) _LDD->Drc;
+                    ldd = static_cast <int>(_LDD->Drc);
                 else
                     continue;
 

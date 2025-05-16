@@ -327,8 +327,9 @@ void TWorld::InitStandardInput(void)
                 LDD_COORout newcr;
                 newcr.r = r;
                 newcr.c = c;
-                newcr.nr = (int)PointMap->Drc ;
-                newcr.code.setNum((int)PointMap->Drc);
+                int p = static_cast <int>(PointMap->Drc);
+                newcr.nr = p;
+                newcr.code.setNum(p);
                 crout_ << newcr;
             }
         }
@@ -1299,7 +1300,7 @@ void TWorld::DiagonalFlowDEM()
                 tmb->Drc = ldd;
         }
 */
-        int ldd = (int) LDD->Drc;
+        int ldd = static_cast <int>(LDD->Drc);
         if (z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
             if (ldd == 1 || ldd == 3 || ldd == 7 || ldd == 9)
                 tma->Drc = ldd;
@@ -1317,7 +1318,7 @@ void TWorld::DiagonalFlowDEM()
             LDD_COORldd dclrc;
             dclrc.r = r;
             dclrc.c = c;
-            dclrc.ldd = (int) tma->Drc;
+            dclrc.ldd = static_cast <int>(tma->Drc);;
             dcr_ << dclrc;
         }
     }}
@@ -1697,7 +1698,7 @@ void TWorld::IntializeData(void)
         FOR_ROW_COL_MV_L {
             if (DischargeUserPoints->Drc > 0 && ChannelWidth->Drc == 0) {
                 //message
-                int p = (int) DischargeUserPoints->Drc ;
+                int p = static_cast <int>(DischargeUserPoints->Drc);
                 ErrorString = QString("Discharge input point %1 is not in a channel!").arg(p);
                 DEBUG(ErrorString);
                 throw 1;
@@ -1975,7 +1976,7 @@ void TWorld::FindStationaryBaseFlow()
                             c = colNr+dx[i];
 
                             if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
-                                ldd = (int) LDDChannel->Drc;
+                                ldd = static_cast <int>(LDDChannel->Drc);
                             else
                                 continue;
 
@@ -2043,7 +2044,7 @@ void TWorld::FindStationaryBaseFlow()
                             c = colNr+dx[i];
 
                             if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
-                                ldd = (int) LDDChannel->Drc;
+                                ldd = static_cast <int>(LDDChannel->Drc);
                             else
                                 continue;
 
@@ -2085,7 +2086,7 @@ void TWorld::FindStationaryBaseFlow()
                                 c = colNr+dx[i];
 
                                 if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
-                                    ldd = (int) LDDChannel->Drc;
+                                    ldd = static_cast <int>(LDDChannel->Drc);
                                 else
                                     continue;
 

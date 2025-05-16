@@ -296,7 +296,7 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
         ct = c+dx[i];
 
         if (INSIDE(rt, ct) && !pcr::isMV(LDDChannel->data[rt][ct]))
-            ldd = (int) LDDChannel->data[rt][ct];
+            ldd = static_cast <int>(LDDChannel->data[rt][ct]);
         else
             continue;
 
@@ -314,7 +314,7 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
 
     bool foundn = false;
     int rn = 0, cn = 0;
-    int ldd = (int) LDDChannel->data[r][c];
+    int ldd = static_cast <int>(LDDChannel->Drc);
     if(ldd == 5)
     {
         foundn = false;

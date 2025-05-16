@@ -143,59 +143,6 @@ void TWorld::OverlandFlow2Ddyn(void)
  */
 void TWorld::ToChannel()
 {
-
-    if (!SwitchIncludeChannel)
-         return;
-
-     #pragma omp parallel for num_threads(userCores)
-     FOR_ROW_COL_MV_L {
-     if (ChannelWidth->Drc > 0 && WHrunoff->Drc > 0 && hmx->Drc == 0) {
-
-         double fractiontochannel = std::min(1.0, _dt*V->Drc/(0.5*ChannelAdj->Drc));
-         // fraction to channel calc from half the adjacent area width and flow velocity
-
-         // cannot flow into channel if water level in channel is higher than runoff depth
-         if (SwitchKinematic2D == K2D_METHOD_KINDYN &&
-                 WHrunoff->Drc <= std::max(0.0 , ChannelWH->Drc - ChannelDepth->Drc))
-             fractiontochannel = 0;
-
-         // no inflow on culverts
-         if (SwitchCulverts && ChannelMaxQ->Drc  > 0)
-             fractiontochannel = 0;
-
-         if (fractiontochannel > 0) {
-             double dwh = fractiontochannel*WHrunoff->Drc;
-             double dvol = dwh*CHAdjDX->Drc;//fractiontochannel*(WaterVolall->Drc - MicroStoreVol->Drc);
-            // qDebug() << fractiontochannel << dwh << dvol << hmx->Drc;
-
-             // water diverted to the channel
-             ChannelWaterVol->Drc += dvol;
-             ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
-
-             WHrunoff->Drc -= dwh;
-             WH->Drc -= dwh;
-             WaterVolall->Drc = CHAdjDX->Drc*(WHrunoff->Drc) + MicroStoreVol->Drc;
-
-             if (SwitchErosion)
-             {
-                 double dsed = fractiontochannel*Sed->Drc;
-                 double maxsed = MAXCONC * ChannelWaterVol->Drc;
-                 if (ChannelSSSed->Drc  + dsed > maxsed)
-                     dsed = maxsed - ChannelSSSed->Drc;
-                 if (dsed > 0) {
-                 ChannelSSSed->Drc  += dsed;
-                 //sediment diverted to the channel
-                 Sed->Drc -= dsed;
-                 Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
-                 // adjust sediment in suspension
-                 RiverSedimentLayerDepth(r,c);
-                 RiverSedimentMaxC(r,c);
-                 }
-             }
-         }
-     }
-    }}
-    /*
     if (!SwitchIncludeChannel)
         return;
 
@@ -241,7 +188,7 @@ void TWorld::ToChannel()
                 }
             }
         }
-   }} */
+   }}
 }
 //--------------------------------------------------------------------------------------------
 void TWorld::ToChannelAlt()
@@ -305,46 +252,16 @@ void TWorld::CalcVelDisch()
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        // double Perim = SwitchPerimeterKW ? FlowWidth->Drc+2*WHrunoff->Drc : FlowWidth->Drc;
-        // double Area = FlowWidth->Drc*WHrunoff->Drc;
-        // V->Drc = pow(Area/Perim, (2.0/3.0)) * std::sqrt(Grad->Drc)/N->Drc; //WHrunoff->Drc
-        // Q->Drc = V->Drc * Area;//pow(Area/Alpha->Drc, (5.0/3.0)); // A = aplha*Q^beta => Q = (A/alpha)^1/beta and  beta = 6/10 = 3/5
+        double Perim = SwitchPerimeterKW ? FlowWidth->Drc+2*WHrunoff->Drc : FlowWidth->Drc;
+        double Area = FlowWidth->Drc*WHrunoff->Drc;
+        V->Drc = pow(Area/Perim, (2.0/3.0)) * std::sqrt(Grad->Drc)/N->Drc; //WHrunoff->Drc
+        Q->Drc = V->Drc * Area;//pow(Area/Alpha->Drc, (5.0/3.0)); // A = aplha*Q^beta => Q = (A/alpha)^1/beta and  beta = 6/10 = 3/5
 
-        // if (Grad->Drc > 1e-6)
-        //     Alpha->Drc = pow(N->Drc/std::sqrt(Grad->Drc) * pow(Perim, 2.0/3.0),0.6);
-        // else
-        //     Alpha->Drc = 0;
-
-        // double mixing_coefficient = 2.0;
-           // if (SwitchKinematic2D == K2D_METHOD_KINDYN && SwitchIncludeChannel && hmx->Drc > 0.001)
-           // NN = N->Drc * (2.0-qExp(-mixing_coefficient*hmx->Drc));
-           // slow down water in flood zone, if hmx = 0 then factor = 1
-           double Perim = SwitchPerimeterKW ? FlowWidth->Drc+2*WHrunoff->Drc : FlowWidth->Drc;
-           double Area = FlowWidth->Drc*WHrunoff->Drc;
-
-           if (Grad->Drc > MIN_SLOPE)
-               Alpha->Drc = pow(N->Drc/sqrt(Grad->Drc) * pow(/*FlowWidth->Drc*/ Perim, 2.0/3.0),0.6);
-           // perimeter = FlowWidth
-           else
-               Alpha->Drc = 0;
-
-           if (Alpha->Drc > 0)
-               Q->Drc = pow(Area/Alpha->Drc, (5.0/3.0)); // A = aplha*Q^beta => Q = (A/alpha)^1/beta and  beta = 6/10 = 3/5
-           else
-               Q->Drc = 0;
-           //Q = (A/alpha)^5/3 => A^5/3 / alpha^5/3 =? aplha^5/3 = (N/sqrtS^3/5)^5/3 *((P^2/3)^3/5)^5/3 =
-           //Q =  A^5/3 / [N/Sqrt * P^2/3] => A*A^2/3 / P^2/3 * sqrtS/n = A * R^2/3 sqrtS/N = AV
-
-           V->Drc = pow(Area/Perim, (2.0/3.0)) * sqrt(Grad->Drc)/N->Drc; //WHrunoff->Drc
-           // overlandflow, we do not use perimeter here but height
-           // note: we can use tortuosity here: perimeter = R/(w*tortuosity) = hw/(w*tort) = h/tort
-           // tortuosity can come from random roughness! use analysis from EU project
-
-
-
+        if (Grad->Drc > 1e-6)
+            Alpha->Drc = pow(N->Drc/std::sqrt(Grad->Drc) * pow(Perim, 2.0/3.0),0.6);
+        else
+            Alpha->Drc = 0;
     }}
-
-
 }
 //---------------------------------------------------------------------------
 void TWorld::updateWHandHmx(void)
@@ -462,5 +379,4 @@ void TWorld::OverlandFlow1D(void)
             }
         }}
     }
-
 }

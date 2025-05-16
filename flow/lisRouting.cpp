@@ -79,6 +79,7 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
                     else
                         continue;
 
+                    // check if there are more cells upstream, if not subCatchDone remains true
                     if (tma->Drcr == -1 && FLOWS_TO(ldd, rr, cr, rowNr, colNr))
                     {
                         temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
@@ -96,12 +97,11 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
                     newcr.r = rowNr;
                     newcr.c = colNr;
                     newcr.ldd = static_cast<int> (_LDD->data[rowNr][colNr]);
-                    newcr.ldd = std::max(1,std::min(9,newcr.ldd));
+                    if (newcr.ldd < 1 || newcr.ldd > 9) {
+                        Error("Invalid ldd found, outside range [1-9]");
+                        throw 2;
+                    }
 
-                    // if (newcr.ldd < 1 || newcr.ldd > 9) {
-                    //     Error("Invalid ldd found, outside range [1-9]");
-                    //     throw 2;
-                    // }
 
                     newcr.nr = 0;
                     newcr.inn.clear();
@@ -116,7 +116,7 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
                             int ldd = 0;
                             if (INSIDE(rr, cr)) {
                                 if (!pcr::isMV(_LDD->Drcr)) {
-                                    ldd = static_cast<int> (_LDD->Drcr);
+                                    ldd = static_cast <int>(_LDD->Drcr);
                                     if (FLOWS_TO(ldd, rr,cr,rowNr,colNr))
                                     {
                                        LDD_COOR incr;

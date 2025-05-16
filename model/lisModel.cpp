@@ -419,7 +419,7 @@ void TWorld::HydrologyProcesses()
         } else {
             WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;  // used in 2D flow and kin wave
         }
-        hmxWH->Drc = /*hmx->Drc+*/WH->Drc;
+        hmxWH->Drc = hmx->Drc+WH->Drc;
 
         // incoming wave at boundary
         if (SwitchWaveUser) {

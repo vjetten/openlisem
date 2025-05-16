@@ -69,7 +69,7 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
     // give each pixel a profile
    // #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        int profilenr = (int)profileMap->Drc;
+        int profilenr = static_cast <int>(profileMap->Drc);
         int profindex = swatreProfileNr.indexOf(profilenr);
 
         if (profilenr > 0)

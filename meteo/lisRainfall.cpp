@@ -463,7 +463,7 @@ void TWorld::GetRainfallMapfromStations(double currenttime)
             FOR_ROW_COL_MV_L {
                 double value = -1;
                 for (int k = 0; k < stationID.size(); k++) {
-                    if ((int) RainZone->Drc == RainfallSeries[currentrow].stationnr.at(k))
+                    if (static_cast <int>(RainZone->Drc) == RainfallSeries[currentrow].stationnr.at(k))
                         value = RainfallSeries[currentrow].intensity[k]*tt;
                 }
                 if (value == -1) {
