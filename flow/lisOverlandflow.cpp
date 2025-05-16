@@ -59,9 +59,9 @@ void TWorld::OverlandFlow(void)
                 //cell_FlowDetachmentContinuous(r,c);
         }
 
-       if (SwitchChannel2DflowConnect)
-           ToChannelAlt();
-       else
+       // if (SwitchChannel2DflowConnect)
+       //     ToChannelAlt();
+       // else
             ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
 
         OverlandFlow1D();   // kinematic wave of water and sediment
@@ -254,11 +254,11 @@ void TWorld::CalcVelDisch()
     FOR_ROW_COL_MV_L {
         double Perim = SwitchPerimeterKW ? FlowWidth->Drc+2*WHrunoff->Drc : FlowWidth->Drc;
         double Area = FlowWidth->Drc*WHrunoff->Drc;
-        V->Drc = pow(Area/Perim, (2.0/3.0)) * sqrtGrad->Drc/N->Drc; //WHrunoff->Drc
+        V->Drc = pow(Area/Perim, (2.0/3.0)) * std::sqrt(Grad->Drc)/N->Drc; //WHrunoff->Drc
         Q->Drc = V->Drc * Area;//pow(Area/Alpha->Drc, (5.0/3.0)); // A = aplha*Q^beta => Q = (A/alpha)^1/beta and  beta = 6/10 = 3/5
 
-        if (Grad->Drc > MIN_SLOPE)
-            Alpha->Drc = pow(N->Drc/sqrtGrad->Drc * pow(Perim, 2.0/3.0),0.6);
+        if (Grad->Drc > 1e-6)
+            Alpha->Drc = pow(N->Drc/std::sqrt(Grad->Drc) * pow(Perim, 2.0/3.0),0.6);
         else
             Alpha->Drc = 0;
     }}
@@ -303,8 +303,8 @@ void TWorld::OverlandFlow1D(void)
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        tmd->Drc = DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
-        // temp voluume on the move
+       // tmd->Drc = DX->Drc * FlowWidth->Drc * WHrunoff->Drc;
+        // temp volume on the move
 
         QinKW->Drc = 0; // store for incoming water in a cell
         tma->Drc = 0; // potentially available for limiting flow, does not have to be channel!
@@ -320,26 +320,26 @@ void TWorld::OverlandFlow1D(void)
     }}
 
     // route water
-    // if (SwitchLinkedList) {
-    //     #pragma omp parallel for num_threads(userCores)
-    //     FOR_ROW_COL_MV_L {
-    //         pcr::setMV(Qn->Drc);
-    //         QinKW->Drc = 0;
-    //     }}
+     // if (SwitchLinkedList) {
+        // #pragma omp parallel for num_threads(userCores)
+        // FOR_ROW_COL_MV_L {
+        //     pcr::setMV(Qn->Drc);
+        //     QinKW->Drc = 0;
+        // }}
 
-    //     FOR_ROW_COL_LDD5 {
-    //         Kinematic(r,c, LDD, Q, Qn,  Alpha, DX, tma, tma);
-    //         // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
-    //     }}
-    // } else {
+        // FOR_ROW_COL_LDD5 {
+        //     Kinematic(r,c, LDD, Q, Qn,  Alpha, DX, tma, tma);
+        //     // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
+        // }}
+     // } else {
         KinematicExplicit(crlinkedldd_, Q, Qn, Alpha,DX, tma, tma);
     //}
 
     //convert calculate Qn back to WH and volume for next loop
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        double WaterVolout = tmd->Drc + _dt*(QinKW->Drc - Qn->Drc);
-        // mass balance
+        double WaterVolout = (CHAdjDX->Drc * WHrunoff->Drc) + _dt*(QinKW->Drc - Qn->Drc);
+        // volume mass balance, WHrunoff is still the old one
 
         WHrunoff->Drc = WaterVolout/CHAdjDX->Drc;
         double Area = WaterVolout/ChannelAdj->Drc;
@@ -353,7 +353,7 @@ void TWorld::OverlandFlow1D(void)
         hmxWH->Drc = WH->Drc + hmx->Drc;
         //needed for totals and output
 
-        WaterVolall->Drc = hmxWH->Drc*CHAdjDX->Drc; //WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
+        WaterVolall->Drc = WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
 
     }}
 

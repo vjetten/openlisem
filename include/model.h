@@ -96,10 +96,10 @@
     ( ldd != 0 &&  rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 /// shortcuts missing value and inside map
-#define MV(r,c) pcr::isMV(LDD->data[r][c])
+#define MV(a, b) pcr::isMV(LDD->data[a][b])
 #define notMVIn(r,c) (!pcr::isMV(LDD->data[r][c]) && r < _nrRows && c < _nrCols && r >= 0 && c >= 0)
-#define INSIDE(r, c) (r>=0 && r<_nrRows && c>=0 && c<_nrCols)
-#define OUTORMV(r, c)  (INSIDE(r,c) && !pcr::isMV(LDD->data[r][c]) ? false : true)
+#define INSIDE(a, b) (a >= 0 && b < _nrRows && a >= 0 && b < _nrCols)
+#define OUTORMV(a, b)  (INSIDE(a,b) && !pcr::isMV(LDD->data[a][b]) ? false : true)
 
 /// shortcut for LDD row and col loop
 #define FOR_ROW_COL_MV for(int r = 0; r < _nrRows; r++)\
@@ -546,7 +546,6 @@ public:
         SwitchMUSCL,
         SwitchUserCores,
         SwitchVariableTimestep,
-        SwitchHeun,
         SwitchImage,
         SwitchChannelKinwaveDt,
         SwitchChannelKinwaveAvg,

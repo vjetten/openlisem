@@ -84,7 +84,7 @@ void TWorld::GridCell()
         MDS->Drc = std::max(0.0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
         MDS->Drc /= 1000; // convert to m
 
-        FlowWidth->Drc = ChannelAdj->Drc * rillfactor;
+        FlowWidth->Drc = ChannelAdj->Drc;// * rillfactor;
         // water can flow everywhere, a house is permeable and a migh mannings n, roads are smooth
         // if hosues are part of the dem than the water automatically flows around it
     }}

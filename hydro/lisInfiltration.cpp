@@ -140,7 +140,7 @@ void TWorld::InfilDynamicCrusting()
     if (!SwitchInfiltration || InfilMethod == INFIL_SWATRE)
         return;
 
-    if (!SwitchInfilCrust && !SwitchDynamicCrusting)
+    if (!SwitchInfilCrust || !SwitchDynamicCrusting)
         return;
 
     // recalc ksateff and poreeff

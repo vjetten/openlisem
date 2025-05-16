@@ -86,7 +86,7 @@ void TWorld::InitParameters(void)
     rainIDIfactor = getvaluedouble("IDI factor");
 
     HinitValue = getvaluedouble("Initial matrix potential");
-    SoilWBdtfactor = getvaluedouble("SoilWB dt factor"); // not really used, only for soap but soap not working
+    SoilWBdtfactor = 2;//getvaluedouble("SoilWB dt factor"); // not really used, only for soap but soap not working
     swatreDT = getvaluedouble("SWATRE internal minimum timestep");
     TileEntrySuction = getvaluedouble("Tile entry suction");
     TileEntrySuction = std::max(-100.0,std::min(TileEntrySuction, 0.0));
@@ -146,7 +146,6 @@ void TWorld::InitParameters(void)
     courant_factorSed = std::min(0.2,courant_factor);
     // courant_factor_sed = getvaluedouble("Flooding courant factor diffusive");
     TimestepfloodMin = getvaluedouble("Timestep flood");
-    SwitchHeun = 1;//getvalueint("Flood Heun 2nd order") == 1;
     F_pitValue = getvaluedouble("Pit Value");
 
     SwitchCorrectMB_WH = getvalueint("Correct MB with WH") == 1;
@@ -180,7 +179,7 @@ void TWorld::InitParameters(void)
         nN1_ = 3;
         nN2_ = 3;
         nN3_ = 6;
-        SoilWBdtfactor = 10;
+        SoilWBdtfactor = 2;
 
         SwatrePrecision = 6;
         //SwitchGWChangeSD = true;
@@ -260,10 +259,6 @@ void TWorld::InitStandardInput(void)
 
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     //checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
-    sqrtGrad = NewMap(0);
-    FOR_ROW_COL_MV {
-        sqrtGrad->Drc = sqrt(Grad->Drc);
-    }
 
     SwitchSlopeStability = false;
     if (SwitchSlopeStability) {
@@ -1871,7 +1866,6 @@ void TWorld::IntializeOptions(void)
     SwitchSWOFopen = true;
     SwitchMUSCL = false;
     SwitchFloodInitial = false;
-    SwitchHeun = false;
     SwitchErosion = false;
     SwitchUse2Phase = false;
     SwitchUseGrainSizeDistribution = false;
@@ -2443,7 +2437,7 @@ void TWorld::InitNewSoilProfile()
     nN3_ = 0;
     if (SwitchThreeLayer)
         nN3_ = getvalueint("SoilWB nodes 3");
-    SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
+    SoilWBdtfactor = 2.0;//getvaluedouble("SoilWB dt factor");
     swatreDT = std::min(SoilWBdtfactor, _dt);
     KavgType = getvalueint("Infil Kavg");
     int vg = getvalueint("Van Genuchten");

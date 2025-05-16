@@ -209,8 +209,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
 }
 
 //---------------------------------------------------------------------------
-void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,
-                               cTMap *_DX, cTMap *_Qmax, cTMap *_Amax)
+void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha, cTMap *_DX, cTMap *_Qmax, cTMap *_Amax)
 {
     int dy[10] = {0,1,1,1,0,0,0,-1,-1,-1};
     int dx[10] = {0,-1,0,1,-1,0,1,-1,0,1};
@@ -232,18 +231,17 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
             for(int j = 0; j < _crlinked_.at(i_).nr; j++) {
                 int rr = _crlinked_.at(i_).inn[j].r;
                 int cr = _crlinked_.at(i_).inn[j].c;
-                //Qin += _Q->Drcr;
                 Qin += _Qn->Drcr;
             }
         }
         QinKW->Drc = Qin;
 
         _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
-        int ldd = _crlinked_.at(i_).ldd;
-        int cr = c+dx[ldd];
-        int rr = r+dy[ldd];
-        if (_Qmax->Drcr > 0)
-            _Qn->Drc = std::min(_Qmax->Drcr, _Qn->Drc);
+        // int ldd = _crlinked_.at(i_).ldd;
+        // int cr = c+dx[ldd];
+        // int rr = r+dy[ldd];
+        // if (_Qmax->Drcr > 0)
+        //     _Qn->Drc = std::min(_Qmax->Drcr, _Qn->Drc);
 
         //the following causes major problmes: water level rises to extreme levels because there is no flow out!
         // if (FloodDomain->Drcr > 0)
@@ -412,7 +410,12 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
             _Qn->data[rowNr][colNr] =
                     IterateToQnew(Qin, _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr],
                                   _Qmax->data[rowNr][colNr], _Amax->data[rowNr][colNr] );
-              /* cell rowN, colNr is now done */
+
+            int ldd = (int)_LDD->data[rowNr][colNr];
+            int cr = colNr+dx[ldd];
+            int rr = rowNr+dy[ldd];
+            if (_Qmax->Drcr > 0)
+                _Qn->data[rowNr][colNr] = std::min(_Qmax->Drcr, _Qn->data[rowNr][colNr]);
 
             temp=list;
             list=list->prev;

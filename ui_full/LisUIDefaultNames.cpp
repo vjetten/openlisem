@@ -205,8 +205,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Total Series file");
     namelist[i].value = QString("hydrograph.csv");
     namelist[i++].name = QString("Filename point output");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Report point output separate");
+    // namelist[i].value = QString("0");
+    // namelist[i++].name = QString("Report point output separate");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Add timestamp");
     namelist[i].value = QString("0");
@@ -395,8 +395,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("SoilWB nodes 2");
     namelist[i].value = QString("3");
     namelist[i++].name = QString("SoilWB nodes 3");
-    namelist[i].value = QString("2");
-    namelist[i++].name = QString("SoilWB dt factor");
+    // namelist[i].value = QString("2");
+    // namelist[i++].name = QString("SoilWB dt factor");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Infil Kavg");
     namelist[i].value = QString("2");
@@ -421,8 +421,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Use 2D Diagonal flow");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood solution");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Flood Heun 2nd order");
+    // namelist[i].value = QString("0");
+    // namelist[i++].name = QString("Flood Heun 2nd order");
 
     //### Channels and GW
     namelist[i++].name = QString("");

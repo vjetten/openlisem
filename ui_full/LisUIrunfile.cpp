@@ -134,7 +134,7 @@ void lisemqt::ParseInputData()
 
         if (p1.compare("Result datetime")==0) checkAddDatetime->setChecked(check);
         if (p1.compare("Timeplot as PCRaster")==0)           checkWritePCRaster->setChecked(!check);
-        if (p1.compare("Report point output separate")==0)   checkSeparateOutput->setChecked(check);
+      //  if (p1.compare("Report point output separate")==0)   checkSeparateOutput->setChecked(check);
         if (p1.compare("Report discharge units")==0)
         {
             int units = p.toInt();
@@ -222,11 +222,11 @@ void lisemqt::ParseInputData()
         if (p1.compare("SoilWB nodes 1")==0)                spinNodes1->setValue(iii);
         if (p1.compare("SoilWB nodes 2")==0)                spinNodes2->setValue(iii);
         if (p1.compare("SoilWB nodes 3")==0)                spinNodes3->setValue(iii);
-        if (p1.compare("SoilWB dt factor")==0)              spinInfdt->setValue(valc);
+        //if (p1.compare("SoilWB dt factor")==0)              spinInfdt->setValue(valc);
         if (p1.compare("Infil Kavg")==0)                    comboBox_Kmean->setCurrentIndex(iii);
         if (p1.compare("Van Genuchten")==0)                 spinSoilPhysics->setValue(valc);
         if (p1.compare("Swatre output")==0)                 checkSwatreOutput->setChecked(check);
-        if (p1.compare("SWATRE internal minimum timestep")==0) E_SWATREDtsecFraction->setValue(valc);
+        if (p1.compare("SWATRE internal minimum timestep")==0) E_SWATREDtsec->setValue(valc);
         if (p1.compare("Include tile drains")==0)          checkIncludeTiledrains->setChecked(check);
         if (p1.compare("Tile entry suction")==0)           spinTileSuction->setValue(valc);
 
@@ -234,7 +234,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(valc);
         if (p1.compare("Flood solution")==0)                 checkMUSCL->setChecked(check);
-        if (p1.compare("Flood Heun 2nd order")==0)           checkHeun->setChecked(check);
+      //  if (p1.compare("Flood Heun 2nd order")==0)           checkHeun->setChecked(check);
         if (p1.compare("Routing Kin Wave 2D")==0)            E_OFWaveType->setCurrentIndex(iii);
         if (p1.compare("Flow Boundary 2D")==0)               E_FlowBoundary->setValue(iii);
         if (p1.compare("Correct DEM")==0)                    checkCorrectDem->setChecked(check);
@@ -839,7 +839,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Swatre table directory")==0)         namelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
         if (p1.compare("Swatre profile file")==0)            namelist[j].value = E_SwatreTableName->text();//SwatreTableName;
         if (p1.compare("SWATRE internal minimum timestep")==0) {
-            swatreDT = std::min(E_Timestep->text().toDouble(), E_SWATREDtsecFraction->value());
+            swatreDT = std::min(E_Timestep->text().toDouble(), E_SWATREDtsec->value());
             namelist[j].value.setNum(swatreDT,'g',6);
         }
 
@@ -857,7 +857,7 @@ void lisemqt::updateModelData()
         if (p1.compare("SoilWB nodes 1")==0)                namelist[j].value.setNum(spinNodes1->value());
         if (p1.compare("SoilWB nodes 2")==0)                namelist[j].value.setNum(spinNodes2->value());
         if (p1.compare("SoilWB nodes 3")==0)                namelist[j].value.setNum(spinNodes3->value());
-        if (p1.compare("SoilWB dt factor")==0)              namelist[j].value.setNum(spinInfdt->value());
+        //if (p1.compare("SoilWB dt factor")==0)              namelist[j].value.setNum(spinInfdt->value());
         if (p1.compare("Infil Kavg")==0)                    namelist[j].value.setNum(comboBox_Kmean->currentIndex());
         if (p1.compare("Van Genuchten")==0)                 namelist[j].value.setNum(spinSoilPhysics->value());
         if (p1.compare("Swatre output")==0)                 namelist[j].value.setNum((int)checkSwatreOutput->isChecked());
@@ -889,7 +889,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Routing Kin Wave 2D")==0)            namelist[j].value.setNum(E_OFWaveType->currentIndex());
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
         if (p1.compare("Flood solution")==0)                 namelist[j].value.setNum((int) checkMUSCL->isChecked());
-        if (p1.compare("Flood Heun 2nd order")==0)           namelist[j].value.setNum((int) checkHeun->isChecked());
+      //  if (p1.compare("Flood Heun 2nd order")==0)           namelist[j].value.setNum((int) checkHeun->isChecked());
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
@@ -965,7 +965,7 @@ void lisemqt::updateModelData()
         // miscellaneous
         if (p1.compare("Nr user Cores")==0)                 namelist[j].value.setNum(nrUserCores->value());
         if (p1.compare("Timeplot as PCRaster")==0)          namelist[j].value.setNum(checkWritePCRaster->isChecked() ? 0 : 1);
-        if (p1.compare("Report point output separate")==0)  namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
+        //if (p1.compare("Report point output separate")==0)  namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
         if (p1.compare("Report digits out")==0)             namelist[j].value = E_DigitsOut->text();
 
         if (p1.compare("Report format GTiff")==0)           namelist[j].value.setNum((int)checkFormatGtiff->isChecked());

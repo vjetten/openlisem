@@ -1036,7 +1036,7 @@ void lisemqt::resetTabInfiltration()
     checkIncludeTiledrains->setChecked(false);
     checkSwatreOutput->setChecked(false);
     //checkGeometric->setChecked(true);
-    E_SWATREDtsecFraction->setValue(0.2);
+    E_SWATREDtsec->setValue(2.0);
     E_SwatreTableDir->setText("");
 }
 //--------------------------------------------------------------------
@@ -1177,7 +1177,7 @@ void lisemqt::resetAll()
     checksatImage->setChecked(false);
     checkAdvancedOptions->setChecked(false);
 
-    checkSeparateOutput->setChecked(false);
+    //checkSeparateOutput->setChecked(false);
     E_DigitsOut->setValue(3);
    // checkWritePCRnames->setChecked(true);   //map series format
     checkWritePCRaster->setChecked(false); //timeplot format

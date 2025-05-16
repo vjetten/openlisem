@@ -414,12 +414,12 @@ void TWorld::HydrologyProcesses()
         // interception and soil surface evap, also ET from Green and Ampt, not SWATRE
 
         // floododmain is used if kinwave + overflow to separate WH runoiff from 2D hmx flood
-        if (FloodDomain->Drc > 0) {
+     //   if (FloodDomain->Drc > 0) {
             hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc; // only used in kin wave plus flood from channel, hmx is flood water
-        } else {
+     //   } else {
             WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;  // used in 2D flow and kin wave
-        }
-        hmxWH->Drc = hmx->Drc+WH->Drc;
+      //  }
+        hmxWH->Drc = /*hmx->Drc+*/WH->Drc;
 
         // incoming wave at boundary
         if (SwitchWaveUser) {

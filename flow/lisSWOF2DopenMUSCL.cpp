@@ -143,37 +143,39 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
     double factor = exp(-0.005*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
     double factor2 = factor;//pow(factor,0.667); // manning reduction V=h^2/3
 
+/* THIS GIVES ARTIFACTS
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        tmd->Drc = 0;
-        if (h->Drc > he_ca) {
-            tmd->Drc = 1;
-            // make more activecells bhecause else wave does not go on land
-            //and one dry cell more in all directions
+        tmd->Drc = 1;
+       if (h->Drc > he_ca) {
+           tmd->Drc = 1;
+            int x = 2 + static_cast<int>(std::max(u->Drc,v->Drc)*dt)/_dx;
+            // make more active cells to avoid non aexisting barriers
             if (tmd->Drc == 1) {
-                if (c > 0 && c != MV(r,c-1)        )  tmd->data[r][c-1] = 1;
-                if (c < _nrCols-1 && !c != MV(r,c+1)) tmd->data[r][c+1] = 1;
-                if (r > 0 && r != MV(r-1,c)        )  tmd->data[r-1][c] = 1;
-                if (r < _nrRows-1 && r != MV(r+1,c))  tmd->data[r+1][c] = 1;
-            }
+                for(int j = -x; j <= x; j++) {
+                    c+=j;
+                    r+=j;
+                    if (c > 0 && r > 0 && c <_nrCols-1 && r <_nrRows-1 & !MV(r,c))
+                        tmd->Drc = 1;
+                }
+
+                // if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
+                // if (c < _nrCols-1 && !MV(r,c+1)) tmd->data[r][c+1] = 1;
+                // if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
+                // if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
+           }
         }
     }}
-
+*/
+    Fill(*tmd, 1);
+    // map edges are zero, avoid domain touching the edges
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
             tmd->Drc = 0;
+        if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
+            tmd->Drc = 0;
     }}
-
-//    if (FlowBoundaryType == 0) {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
-                tmd->Drc = 0;
-            // if (DomainEdge->Drc > 0)
-            //     tmd->Drc = 0;
-        }}
-    //}
 
     //do all flow and state calculations
     #pragma omp parallel for num_threads(userCores)
@@ -203,10 +205,10 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             vec4 hll_y1;
             vec4 hll_y2;
 
-            bc1 = c > 0 && c != MV(r,c-1)        ;
-            bc2 = c < _nrCols-1 && r != MV(r,c+1);
-            br1 = r > 0 && c != MV(r-1,c)        ;
-            br2 = r < _nrRows-1 && r != MV(r+1,c);
+            bc1 = c > 0 && !MV(r,c-1)        ;
+            bc2 = c < _nrCols-1 && !MV(r,c+1);
+            br1 = r > 0 && !MV(r-1,c)        ;
+            br2 = r < _nrRows-1 && !MV(r+1,c);
 
             // get value for all 5 cells center, up, down, left, right
             //if MV the cell gets the center cell values
@@ -327,10 +329,10 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                 double delta_u1, delta_u2, delta_u3, delta_u4;
                 double delta_v1, delta_v2, delta_v3, delta_v4;
 
-                b2c1 = c > 1 && c!= MV(r,c-2)         ;
-                b2c2 = c < _nrCols-2 && c != MV(r,c+2);
-                b2r1 = r > 1 && r != MV(r-2,c)        ;
-                b2r2 = r < _nrRows-2 && r != MV(r+2,c);
+                b2c1 = c > 1 && !MV(r,c-2)         ;
+                b2c2 = c < _nrCols-2 && !MV(r,c+2);
+                b2r1 = r > 1 && !MV(r-2,c)        ;
+                b2r2 = r < _nrRows-2 && !MV(r+2,c);
 
                 if(b2c1) {
                     h_xx1 = h->data[r][c-2];
