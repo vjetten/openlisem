@@ -326,27 +326,28 @@ void TWorld::TotalsFlow(void)
     }
 
     // sum of all fluxes ONLY for display on screen
+    double factor =  (QUnits == 1 ? 1.0 : 1000);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L
     {
-        Qm3total->Drc += (Qn->Drc) * _dt;
+        Qm3total->Drc += Qn->Drc * _dt;
         Qm3max->Drc = std::max(Qm3max->Drc, Qn->Drc);
-        Qoutput->Drc = (Qn->Drc) * (QUnits == 1 ? 1.0 : 1000);// in m3/s
+        Qoutput->Drc = Qn->Drc * factor;// in m3/s
 
-        FHI->Drc = (Qn->Drc)*(V->Drc + 0.5);
+        FHI->Drc = Qn->Drc*(V->Drc + 0.5);
 
-        if(SwitchIncludeChannel) {
-            Qoutput->Drc += ChannelQn->Drc * (QUnits == 1 ? 1.0 : 1000);
-            Qm3total->Drc += ChannelQn->Drc * _dt;
-            Qm3max->Drc = std::max(Qm3max->Drc, ChannelQn->Drc);
-        }
-        if(FlowBoundaryType > 0) {
-            Qoutput->Drc += QBoundFlow->Drc * (QUnits == 1 ? 1.0 : 1000);
-            Qm3total->Drc += QBoundFlow->Drc * _dt;
-            Qm3max->Drc = std::max(Qm3max->Drc, QBoundFlow->Drc+ChannelQn->Drc);
-        }
+        // if(SwitchIncludeChannel) {
+        //     Qoutput->Drc += ChannelQn->Drc * factor;
+        //     Qm3total->Drc += ChannelQn->Drc * _dt;
+        //     Qm3max->Drc = std::max(Qm3max->Drc, ChannelQn->Drc);
+        // }
+        // if(FlowBoundaryType > 0) {
+        //     Qoutput->Drc += QBoundFlow->Drc * factor;
+        //     Qm3total->Drc += QBoundFlow->Drc * _dt;
+        //     Qm3max->Drc = std::max(Qm3max->Drc, QBoundFlow->Drc+ChannelQn->Drc);
+        // }
 
-        Qoutput->Drc = Qoutput->Drc < 1e-6 ? 0.0 : Qoutput->Drc;
+        //Qoutput->Drc = Qoutput->Drc < 1e-6 ? 0.0 : Qoutput->Drc;
     }}
     // Total outflow in m3 for all timesteps
     // does NOT include flood water leaving domain (floodBoundaryTot)

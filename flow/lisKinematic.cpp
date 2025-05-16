@@ -171,10 +171,10 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
 
     // do a first ietartion step for a better guess of Qkx
     // not necessary because the loop starts with this!!!
-    // fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;
-    // dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);
-    // Qkx   -= fQkx / dfQkx;
-    // Qkx   = std::max(Qkx, 1e-30);
+    fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;
+    dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);
+    Qkx   -= fQkx / dfQkx;
+    Qkx   = std::max(Qkx, 1e-30);
 
     // // limit flux and alpha to pipe max Q
     // if (Qm > 0) {
@@ -192,13 +192,13 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
         Qkx   = std::max(Qkx, 1e-30);
 
         // limit flux and alpha to culvert/pipe max
-        if (Qm > 0) {
-            Qkx = std::min(Qkx, Qm);
-            if (Qkx == Qm) {
-                alpha = Am;
-                count = MAX_ITERS;
-            }
-        }
+        // if (Qm > 0) {
+        //     Qkx = std::min(Qkx, Qm);
+        //     if (Qkx == Qm) {
+        //         alpha = Am;
+        //         count = MAX_ITERS;
+        //     }
+        // }
 
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
