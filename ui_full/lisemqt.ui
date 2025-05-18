@@ -321,7 +321,7 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>-224</y>
+                <y>0</y>
                 <width>1013</width>
                 <height>802</height>
                </rect>
@@ -359,7 +359,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>3</number>
+                  <number>4</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -9531,6 +9531,39 @@
                     <string>time based</string>
                    </property>
                   </widget>
+                  <widget class="QCheckBox" name="checkLinkedList">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="geometry">
+                    <rect>
+                     <x>120</x>
+                     <y>180</y>
+                     <width>1792</width>
+                     <height>23</height>
+                    </rect>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <bold>false</bold>
+                     <underline>false</underline>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Use linked list for kinematic flow</string>
+                   </property>
+                   <property name="checked">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
                  </widget>
                 </widget>
                </item>
@@ -15048,33 +15081,6 @@
         </item>
        </layout>
       </widget>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QCheckBox" name="checkLinkedList">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="font">
-       <font>
-        <pointsize>8</pointsize>
-        <bold>false</bold>
-        <underline>false</underline>
-        <kerning>true</kerning>
-       </font>
-      </property>
-      <property name="text">
-       <string>Use linked list for kinematic flow</string>
-      </property>
-      <property name="checked">
-       <bool>false</bool>
-      </property>
      </widget>
     </item>
    </layout>

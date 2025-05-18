@@ -303,6 +303,7 @@ void TWorld::DoModel()
 
             reportToFile();         // report hydrograohs, totals, maps etc to files
 
+
             emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
 
             //saveMBerror2file(false); //saveMBerror
@@ -311,13 +312,16 @@ void TWorld::DoModel()
                 time = EndTime;
 
             // show progress in console without GUI
-            if (op.doBatchmode) {
+            if (op.doBatchmode && noInterface) {
                 int x;
                 x = std::round((op.t / op.maxtime) * 100) ;
                 printf("\rprogress: %d %%                     ", x);
+                // char buffer [50];
+                // sprintf(buffer, "\rprogress: %d %%                     ", x);
+                // qDebug() << buffer;
                 // or use qDebug()
+                // doen't work in windows!
             }
-             // MC - maybe not the most sophisticated solution but noInterface works again
         }
 
         if (SwitchEndRun)
@@ -335,11 +339,12 @@ void TWorld::DoModel()
             if (initSwatreStructure)
                 FreeSwatreInfo();
 
-            qDebug() << "\nfinished after "<< op.maxtime << "minutes\n";
+            qDebug() << "finished after "<< op.maxtime << "minutes";
             if (noInterface)
                 QCoreApplication::quit();
-            else
+            else {
                 QApplication::quit();
+            }
             // close the world model
         }
     }

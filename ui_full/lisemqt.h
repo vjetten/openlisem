@@ -141,6 +141,8 @@ public:
     void SetToolBar();
     void GetStorePath();
     void StorePath();
+    void saveSettings();
+    void loadSettings();
     void SetStyleUI();
     void lightStyleUI();
     void darkStyleUI();
@@ -288,7 +290,6 @@ public:
 
     bool startplot;
     bool stoprun;
-    QVector <double> times;
     int lastOptionSceen;
 
     bool oldRunfile; // check is old runfile for ksat calibration
@@ -582,6 +583,8 @@ private slots:
     void on_toolButton_version_clicked();
 
     void on_checkNewversionGITHUB_toggled(bool checked);
+
+    void on_E_FlowBoundary_valueChanged(int arg1);
 
 private:
     QNetworkAccessManager *manager;

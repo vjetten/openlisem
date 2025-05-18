@@ -814,6 +814,7 @@ void lisemqt::on_toolButton_version_clicked()
 void lisemqt::on_checkNewversionGITHUB_toggled(bool checked)
 {
     checkforpatch = checked;
+    qDebug() << checkforpatch;
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_checksatImage_toggled(bool checked)
@@ -891,5 +892,12 @@ void lisemqt::on_E_EndTimeDay_editingFinished()
         E_EndTimeDay->setText("Invalid input");
     }
 
+}
+//---------------------------------------------------------------
+void lisemqt::on_E_FlowBoundary_valueChanged(int arg1)
+{
+    flowboundary = false;
+    if (arg1 > 0 && E_OFWaveType->currentIndex() > 0)
+        flowboundary = true;
 }
 //---------------------------------------------------------------

@@ -273,7 +273,7 @@ void TWorld::TotalsFlow(void)
     if (FlowBoundaryType > 0) {
         QBoundaryTot += QBoundary*_dt;
         Qboundtotmm = QBoundaryTot*catchmentAreaFlatMM;
-        Qtot_dt += QBoundary*_dt;
+       // Qtot_dt += QBoundary*_dt;
     }
 
     // Add outlet overland flow, for all flow methods

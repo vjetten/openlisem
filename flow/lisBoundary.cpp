@@ -31,6 +31,44 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
     QBoundary = 0;
     QsBoundary = 0;
 
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        double Qbflux = 0;
+        int flag = 0;
+        double Area = h->Drc*ChannelAdj->Drc;
+        // just use the flux Qn if the sign is pointing outward at the boundary
+        if (FlowBoundary->Drc > 0) {
+            //flow left boundary to the left an hydraulic gradient pointing outside
+            if (c > 0 && MV(r,c-1) && !MV(r,c+1)) {
+                if (u->Drc < 0) {
+                    flag  = 1;
+                    Qbflux = -u->Drc*Area;
+                }
+            }
+            if (c < _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
+                if (u->Drc > 0) {
+                    Qbflux = u->Drc*Area;
+                    flag = 2;
+                }
+            }
+            if (r > 0 && MV(r-1,c) && !MV(r+1,c)) {
+                if (v->Drc < 0) {
+                    Qbflux = -v->Drc*Area;
+                    flag = 3;
+                }
+            }
+            if (r < _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
+                if (v->Drc > 0) {
+                    Qbflux = v->Drc*Area;
+                    flag = 4;
+                }
+            }
+            if (flag > 0) {
+                Qbflux = sqrt(u->Drc * u->Drc + v->Drc * v->Drc)*h->Drc*ChannelAdj->Drc;
+            }
+
+/*
+
     // TODO barriers!
     Fill(*tma,0);
     #pragma omp parallel for num_threads(userCores)
@@ -53,8 +91,6 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
                 if (v->Drc > 0 && h->data[r-1][c]+DEM->data[r-1][c] > h->Drc+DEM->Drc)
                     tma->Drc += 1000;
             }
-        }
-    }}
 
     #pragma omp parallel for reduction(+:QBoundary, QsBoundary) num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -77,27 +113,31 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
             //     Q = Quv;
             // if (tma->Drc == 1010 || tma->Drc == 1001) // left or right and down
             //     Q = Quv;
+*/
+            Qbflux = std::min(Qbflux,  (h->Drc*CHAdjDX->Drc)/dt);
+        //    h->Drc = h->Drc - Qbflux*dt/CHAdjDX->Drc;
+            //it is already an equilibrium
 
-            Q = std::min(Q,  h->Drc*CHAdjDX->Drc);
-            h->Drc = h->Drc - Q/CHAdjDX->Drc;
-            QBoundary += Q;
-            QBoundFlow->Drc = Q/dt;
+            //QBoundary += Qbflux;
+            QBoundFlow->Drc = Qbflux;
+            QBoundary += QBoundFlow->Drc;
+
 
             if (SwitchErosion) {
-                double ds = std::min(SSFlood->Drc, SSCFlood->Drc*Q*dt);
+                double ds = std::min(SSFlood->Drc, SSCFlood->Drc*Qbflux*dt);
                 // because concentrations can be spurious take the min of the two
                 SSFlood->Drc -= ds;
-                QsBoundary += ds; //in kg/s
+                QsBoundary += ds/dt; //in kg/s
                 if (SwitchUse2Phase) {
-                    ds = std::min(BLFlood->Drc, BLCFlood->Drc*Q*dt);
+                    ds = std::min(BLFlood->Drc, BLCFlood->Drc*Qbflux*dt);
                     BLFlood->Drc -= ds;
-                    QsBoundary += ds;
+                    QsBoundary += ds/dt;
                 }
             }
         }
     }}
-    QBoundary /= dt;  //m3 to m3/s
-    QsBoundary /= dt; // kg to kg/s
+   // QBoundary /= dt;  //m3 to m3/s
+   // QsBoundary /= dt; // kg to kg/s
 
     //qDebug() << "boundary flux m3/s" << QBoundary;
 }

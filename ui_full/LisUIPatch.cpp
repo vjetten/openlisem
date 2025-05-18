@@ -43,7 +43,7 @@ void lisemqt::downloadPatch(QString latestVersion)
 
     // Ask the user if they want to download and install the patch
     QMessageBox::StandardButton replyButton;
-    replyButton = QMessageBox::question(nullptr, "New LISEM version",
+    replyButton = QMessageBox::question(nullptr, "LISEM version check",
                                         QString("A newer LISEM version is available (%1).\nDo you want to download and install the new version?").arg(latestVersion),
                                         QMessageBox::Yes | QMessageBox::No);
 
@@ -136,6 +136,7 @@ void lisemqt::downloadPatch(QString latestVersion)
                                             QString("Do you want to continue checking for new versions?\nYou can activate this again in the Advanced Options."),
                                             QMessageBox::Yes | QMessageBox::No);
         checkforpatch = replyButton == QMessageBox::Yes;
+        toolButton_version->setChecked(checkforpatch  );
     }
 }
 
@@ -224,7 +225,12 @@ void lisemqt::CheckVersion()
             qDebug() << "Cannot check updates online.";
             int ret = QMessageBox::warning(this, "openLISEM","Cannot check updates online.");
         } else {
-            int ret = QMessageBox::warning(this, "openLISEM","No new openLISEM version available.");
+            QMessageBox::StandardButton replyButton;
+            replyButton = QMessageBox::question(nullptr, "openLISEM version check",
+                                                QString("No new version is available.\nDo you want to continue checking for new versions?\nYou can activate this again in the Advanced Options."),
+                                                QMessageBox::Yes | QMessageBox::No);
+            checkforpatch = replyButton == QMessageBox::Yes;
+            toolButton_version->setChecked(checkforpatch  );
         }
     }
 }

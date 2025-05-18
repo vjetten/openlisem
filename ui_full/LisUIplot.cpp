@@ -359,8 +359,6 @@ void lisemqt::startPlots()
     if (!startplot)
         return;
 
-    times.clear();
-
     qmax.clear();
     qsmax.clear();
     cmax.clear();

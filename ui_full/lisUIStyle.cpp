@@ -42,6 +42,7 @@ void lisemqt::SetStyleUISize()
      }
 
 
+
     QRect screenGeometry = screen->geometry();
     // this includes scalefactor, if that is e.g. 2.0 that geometry divides the screen pixel by 2
     int _H = screenGeometry.height();
@@ -111,7 +112,7 @@ void lisemqt::SetStyleUISize()
 
     //genfontsize = screen->devicePixelRatio()*(disp+8);
     //qDebug() << genfontsize << screen->devicePixelRatio();
-    //setfontSize();
+    setfontSize();
 }
 
 // labels in output tab
@@ -203,7 +204,7 @@ void lisemqt::lightStyleUI()
                         "QGroupBox#groupBoxInput::title{color: #2266aa;}"
                         //"QGroupBox#groupRainfall::title{color: #2266aa;}"
                         "QGroupBox#groupInfiltration::title{color: #2266aa;}"
-                        "QGroupBox#groupInterception::title{color: #2266aa;}"                        
+                        "QGroupBox#groupInterception::title{color: #2266aa;}"
                         );
 
     HPlot->setStyleSheet("*{background-color: #fcfcfc; color: #000000;}");

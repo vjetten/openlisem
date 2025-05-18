@@ -65,6 +65,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     darkLISEM = false;
     checkforpatch = true;
+    genfontsize = 10;
     op.nrRunsDone = 0;
     op.runfilename.clear();
     E_runFileList->clear();
@@ -95,14 +96,15 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     // set up the discharge graphs
 
     setupMapPlot();
-    // set up the raster map drawing
+
+    loadSettings();
+    // gets fontsize darmokmode and checkpatch from registry
+
     if (!doBatch) {
         GetStorePath();
-        // openlisem.ini file, contains runfile list als darkmode and fontsize and checkforpatch
+        // openlisem.ini file, contains runfile list, loads the first in the list
     }
 
-    if (checkforpatch)
-        CheckVersion();
 
     SetStyleUI();
     // do some style things
@@ -129,6 +131,9 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     setMinimumSize(1280,800);
     showMaximized();
 
+
+    if (checkforpatch)
+        CheckVersion();
     if(doBatch)
     {
         runfilelist.clear();
@@ -151,9 +156,11 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 //--------------------------------------------------------------------
 lisemqt::~lisemqt()
 {
+    saveSettings();
     if (!doBatchmode)
         StorePath();
-    delete W;
+    if (W)
+        delete W;
 }
 //--------------------------------------------------------------------
 // NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)
@@ -828,6 +835,22 @@ void lisemqt::openRunFile()
 
 }
 //---------------------------------------------------------------------------
+void lisemqt::loadSettings()
+{
+    QSettings settings("LISEM","GUI");
+    genfontsize = settings.value("Appearance/FontSize", 10).toInt(); // Default: 10
+    darkLISEM = settings.value("Appearance/DarkMode", false).toBool(); // Default: false
+    checkforpatch = settings.value("Appearance/CheckPatch", false).toBool(); // Default: false
+}
+//---------------------------------------------------------------------------
+void lisemqt::saveSettings()
+{
+    QSettings settings("LISEM","GUI"); // Uses HKCU\Software\MyCompany\MyApp
+    settings.setValue("Appearance/FontSize", genfontsize);
+    settings.setValue("Appearance/DarkMode", darkLISEM);
+    settings.setValue("Appearance/CheckPatch", checkforpatch);
+}
+//---------------------------------------------------------------------------
 void lisemqt::GetStorePath()
 {
     runfilelist.clear();
@@ -845,6 +868,12 @@ void lisemqt::GetStorePath()
         if (line.isEmpty())
             continue;
 
+        QFile file(line);
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            file.close();
+            runfilelist << QString(line);
+        }
+/*
         if (line.contains("dark=")) {
             QStringList s = line.split("=");
             darkLISEM = s[1].toInt() == 1;
@@ -869,23 +898,13 @@ void lisemqt::GetStorePath()
                 }
             }
         }
+        */
     }
     fff.close();
 
     if (runfilelist.count() == 0)
         return;
 
-//    if (!runfilelist[0].isEmpty())
-//    {
-        // QString S = runfilelist[0];
-
-        // QFileInfo fi(S);
-        // QDir dir = fi.absoluteDir();
-        // if (dir.exists()) {
-        //     currentDir = dir.absolutePath();
-        //     dir.setPath(S);
-        // }
-//    }
     E_runFileList->addItems(runfilelist);
     op.runfilename = runfilelist[0];
     E_runFileList->setCurrentIndex(0);
@@ -1298,5 +1317,6 @@ void lisemqt::resizeMap()
             changeSize();
 }
 //---------------------------------------------------------------
+
 
 
