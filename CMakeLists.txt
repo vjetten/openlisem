@@ -64,5 +64,6 @@ target_sources(Lisem
   changes.txt  # changes is a short list with latest changes for the installer
   compile_lisem_windows.txt
   compile_lisem_linux.txt
+
 )
 

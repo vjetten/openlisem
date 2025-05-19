@@ -360,12 +360,12 @@ typedef struct DRAIN_PROP {
 //http://blog.exys.org/entries/2010/QThread_affinity.html
 //http://thesmithfam.org/blog/2009/09/30/lock-free-multi-threading-in-qt/
 
-class TWorld: public QThread
+class TWorld: public QObject //public QThread
 {
     Q_OBJECT
 
 public:
-    TWorld(QObject *parent = nullptr);
+    explicit TWorld(QObject *parent = nullptr);
     ~TWorld();
 
     QLocale loc;
@@ -515,6 +515,7 @@ public:
         // advanced
         SwitchAdvancedOptions,
         SwitchTimeavgV,
+        SwitchErosionOutsideLoop,
         SwitchCorrectMB_WH,
         SwitchCorrectDEM,
         Switch2DDiagonalFlow,
@@ -1045,7 +1046,7 @@ public:
     // <= extend channel
 
     void InitFlowBarriers(void);
-    double DEMFB(int r, int c, int rd, int cd, bool addwh);
+    //double DEMFB(int r, int c, int rd, int cd, bool addwh);
     double FB(int r, int c, int rd, int cd);
     void SetFlowBarriers();
     void GetFlowBarrierData(QString name);
@@ -1183,12 +1184,13 @@ int showc;
     bool showInfo;
     bool noOutput;
     bool batchmode;
+
     QMutex mutex;
     QWaitCondition condition;
     void stop();
 
 protected:
-    void run();
+   // void run();
 
     // talk to the interface
     QElapsedTimer time_ms;
@@ -1214,11 +1216,20 @@ signals:
     void done(const QString &results);
     void debug(const QString &results);
     void timedb(const QString &results);
-    void show(bool showall); //use the output structure "op" declared in global.h and LisUIoutput.h
+    void show(bool); //use the output structure "op" declared in global.h and LisUIoutput.h
+    void finished();
+   // void started();
 
-private slots:   //note, was private loop but dixygen does not recognize that
+public slots:   //note, was private loop but dixygen does not recognize that
     /// the main model loop, from here all processes are called in a time loop
     void DoModel();
+    // void onPause();
+    // void onResume();
+    // void onStop();
+
+// private:
+//     std::atomic_bool paused {false};
+//     std::atomic_bool stopped {false};
 
 };
 

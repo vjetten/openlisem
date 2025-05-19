@@ -370,6 +370,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flooding SWOF flux limiter")==0)        E_FloodFluxLimiter->setValue(iii);
         if (p1.compare("Flooding SWOF Reconstruction")==0)      E_FloodReconstruction->setValue(iii);
         if (p1.compare("Use time avg V")==0)                    checkTimeavgV->setChecked(check);
+        if (p1.compare("Erosion outside 2D loop")==0)        checkErosionLoop->setChecked(check);
         if (p1.compare("Correct MB with WH")==0)                checkMB_WH->setChecked(check);
         if (p1.compare("Flood max iterations")==0)              E_FloodMaxIter->setValue(iii);
       //  if (p1.compare("Min WH flow")==0)                       E_minWHflow->setText(p);
@@ -907,6 +908,7 @@ void lisemqt::updateModelData()
     //    if (p1.compare("Min WH flow")==0)                    namelist[j].value = E_minWHflow->text();
         if (p1.compare("Timestep flood")==0)                 namelist[j].value = E_TimestepMinFlood->text();
         if (p1.compare("Use time avg V")==0)                 namelist[j].value.setNum((int) checkTimeavgV->isChecked());
+        if (p1.compare("Erosion outside 2D loop")==0)        namelist[j].value.setNum((int) checkErosionLoop->isChecked());
         if (p1.compare("Correct MB with WH")==0)             namelist[j].value.setNum((int) checkMB_WH->isChecked());
         if (p1.compare("Correct DEM")==0)                    namelist[j].value.setNum((int) checkCorrectDem->isChecked());
         if (p1.compare("Use 2D Diagonal flow")==0)           namelist[j].value.setNum((int) check2DDiagonalFlow->isChecked());

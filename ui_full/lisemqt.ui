@@ -70,7 +70,7 @@
        <enum>QTabWidget::TabPosition::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -359,7 +359,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>4</number>
+                  <number>9</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -7967,30 +7967,6 @@
                          <property name="verticalSpacing">
                           <number>4</number>
                          </property>
-                         <item row="5" column="4">
-                          <widget class="QLabel" name="label_135">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string> (m)</string>
-                           </property>
-                           <property name="wordWrap">
-                            <bool>true</bool>
-                           </property>
-                          </widget>
-                         </item>
                          <item row="2" column="0">
                           <widget class="QSpinBox" name="E_FloodMaxIter">
                            <property name="enabled">
@@ -8021,10 +7997,16 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="0" column="1" colspan="4">
-                          <widget class="QLabel" name="label_123">
+                         <item row="2" column="1" colspan="4">
+                          <widget class="QLabel" name="label_199">
                            <property name="enabled">
                             <bool>true</bool>
+                           </property>
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
                            </property>
                            <property name="font">
                             <font>
@@ -8035,14 +8017,59 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Riemann solver: 1-Rusanov; 2-HLL; 3-HLL2; </string>
+                            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Max iterations (def. 200)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                            </property>
                            <property name="alignment">
                             <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                            </property>
                           </widget>
                          </item>
-                         <item row="5" column="3">
+                         <item row="6" column="0" colspan="3">
+                          <widget class="QCheckBox" name="check2DDiagonalFlow">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Enable diagonal flow if pit water level more than</string>
+                           </property>
+                           <property name="checked">
+                            <bool>false</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="8" column="0" colspan="5">
+                          <widget class="QCheckBox" name="checkCorrectDem">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Ignore pits: set pit elevation to lowest surrounding cell (3x3 window)</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="6" column="3">
                           <widget class="QDoubleSpinBox" name="E_pitValue">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -8075,41 +8102,11 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="5" column="0" colspan="3">
-                          <widget class="QCheckBox" name="check2DDiagonalFlow">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Enable diagonal flow if pit water level more than</string>
-                           </property>
-                           <property name="checked">
-                            <bool>false</bool>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="2" column="1" colspan="4">
-                          <widget class="QLabel" name="label_199">
+                         <item row="0" column="1" colspan="4">
+                          <widget class="QLabel" name="label_123">
                            <property name="enabled">
                             <bool>true</bool>
                            </property>
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
                            <property name="font">
                             <font>
                              <pointsize>8</pointsize>
@@ -8119,7 +8116,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Max iterations (def. 200)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                            <string>Riemann solver: 1-Rusanov; 2-HLL; 3-HLL2; </string>
                            </property>
                            <property name="alignment">
                             <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -8159,27 +8156,6 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="7" column="0" colspan="5">
-                          <widget class="QCheckBox" name="checkCorrectDem">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Ignore pits: set pit elevation to lowest surrounding cell (3x3 window)</string>
-                           </property>
-                          </widget>
-                         </item>
                          <item row="4" column="0" colspan="5">
                           <widget class="QCheckBox" name="checkTimeavgV">
                            <property name="sizePolicy">
@@ -8201,6 +8177,51 @@
                            </property>
                            <property name="checked">
                             <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="6" column="4">
+                          <widget class="QLabel" name="label_135">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string> (m)</string>
+                           </property>
+                           <property name="wordWrap">
+                            <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="5" column="0" colspan="5">
+                          <widget class="QCheckBox" name="checkErosionLoop">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Do erosion outside the 2D loop</string>
                            </property>
                           </widget>
                          </item>
@@ -12268,7 +12289,7 @@
                 </font>
                </property>
                <property name="currentIndex">
-                <number>0</number>
+                <number>1</number>
                </property>
                <widget class="QWidget" name="tab_water">
                 <attribute name="title">

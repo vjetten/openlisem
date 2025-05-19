@@ -82,11 +82,13 @@ int main(int argc, char *argv[])
             op.doBatchmode = true;
 
             TWorld *W = new TWorld();
+            QThread *worldThread = new QThread();
 
             W->stopRequested = false;
             W->waitRequested = false;
             W->noInterface = noInterface;
-            W->start();
+            worldThread->start();
+
             qDebug() << "\nrunning OpenLISEM with:" << runFileName;
             return app.exec();
         } else {

@@ -359,7 +359,7 @@ void TWorld::FloodMaxandTiming()
     floodArea = 0;
     double area = _dx*_dx;
 
-   // #pragma omp parallel for reduction(+:floodVolTotMax,floodArea) num_threads(userCores)
+    #pragma omp parallel for reduction(+:floodVolTotMax,floodArea) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (floodHmxMax->Drc > minReportFloodHeight) {
             floodVolTotMax += floodHmxMax->Drc*area;
@@ -396,9 +396,6 @@ void TWorld::ChannelFlood(void)
     // determine overflow water => hmx
     // hmx is flood water, WH is overlandflow, WHrunoff etc
 
-  // ToFlood();
-    // move HWrunoff with hmxrunoff in flood domain
-
     startFlood = false;
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -424,13 +421,6 @@ void TWorld::ChannelFlood(void)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (FloodDomain->Drc > 0) {
-            // MB errors:
-            // if (WHrunoff->Drc > 0) {
-            //     hmxrunoff->Drc += WHrunoff->Drc;
-            //     hmx->Drc = hmxrunoff->Drc + WHstore->Drc;
-            //     WHrunoff->Drc = 0;
-            //     WH->Drc = WHstore->Drc;
-            // }
             V->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
             Qn->Drc = V->Drc * hmxrunoff->Drc * ChannelAdj->Drc;
         }

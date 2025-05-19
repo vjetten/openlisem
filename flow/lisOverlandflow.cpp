@@ -268,17 +268,18 @@ void TWorld::updateWHandHmx(void)
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
+        double  hmxflood = 0;
         if (FloodDomain->Drc == 0) {
             WH->Drc = WHrunoff->Drc + WHstore->Drc;
             hmxWH->Drc = WH->Drc; // in 2D flow hmx is 0, not used
             WaterVolall->Drc = WH->Drc* CHAdjDX->Drc;// WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
+            hmxflood = WHrunoff->Drc;
         } else {
             hmx->Drc = hmxrunoff->Drc + WHstore->Drc;
             hmxWH->Drc = WH->Drc + hmx->Drc; // in 2D flow hmx is 0, not used
             WaterVolall->Drc = hmxWH->Drc* CHAdjDX->Drc;// WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
+            hmxflood = WHrunoff->Drc+hmxrunoff->Drc;
         }
-
-        double  hmxflood = WHrunoff->Drc+hmxrunoff->Drc;
 
         FloodWaterVol->Drc = std::max(0.0,hmxflood - minReportFloodHeight)*CHAdjDX->Drc;
         // used in mass balance

@@ -273,22 +273,20 @@ void TWorld::TotalsFlow(void)
     if (FlowBoundaryType > 0) {
         QBoundaryTot += QBoundary*_dt;
         Qboundtotmm = QBoundaryTot*catchmentAreaFlatMM;
-       // Qtot_dt += QBoundary*_dt;
+        //Qtot_dt += QBoundary*_dt;
+        // do not add boundary to total, report separately
     }
 
     // Add outlet overland flow, for all flow methods
     FOR_ROW_COL_LDD5 {
-        //if (LDD->Drc == 5)
-            Qtot_dt += Qn->Drc*_dt;
+        Qtot_dt += Qn->Drc*_dt;
     }}
 
     //=== channel outflow ===//
     if (SwitchIncludeChannel)
     {
         FOR_ROW_COL_LDDCH5 {
-//        FOR_ROW_COL_MV_CHL {
-  //          if (LDDChannel->Drc == 5)
-                Qtot_dt += ChannelQn->Drc*_dt; //m3
+            Qtot_dt += ChannelQn->Drc*_dt; //m3
         }}
 
         #pragma omp parallel for num_threads(userCores)
@@ -328,9 +326,8 @@ void TWorld::TotalsFlow(void)
     // sum of all fluxes ONLY for display on screen
     double factor =  (QUnits == 1 ? 1.0 : 1000);
     #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L
-    {
-        Qm3total->Drc += Qn->Drc * _dt;
+    FOR_ROW_COL_MV_L {
+        Qm3total->Drc += Qn->Drc * _dt; // ONLY OVERLAND FLOW
         Qm3max->Drc = std::max(Qm3max->Drc, Qn->Drc);
         Qoutput->Drc = Qn->Drc * factor;// in m3/s
 
@@ -525,7 +522,7 @@ void TWorld::MassBalance()
     // Mass Balance water, all in m3
     double waterin = RainTot + WHinitVolTot + BaseFlowTot + BaseFlowInit + QuserInTot;// - QSideVolTot;
     double waterstore = IntercTot + IntercLitterTot + IntercHouseTot + InfilTot  + WaterVolTot + ChannelVolTot + StormDrainVolTot + RetentionVolTot;
-    double waterout = Qtot + IntercETaTot + QTiletot;
+    double waterout = Qtot + IntercETaTot + QTiletot + QBoundaryTot;
     // floodBoundaryTot is already in Qtot
     MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
 
@@ -578,8 +575,7 @@ void TWorld::MassBalance()
     {
         double detachment = DetTot + ChannelDetTot + FloodDetTot;
         double deposition = DepTot + ChannelDepTot + FloodDepTot;
-        double sediment = SedTot + ChannelSedTot + FloodSedTot + SoilLossTot;
-        //already in SoilLossTot: floodBoundarySedTot;
+        double sediment = SedTot + ChannelSedTot + FloodSedTot + SoilLossTot;// + floodBoundarySedTot; //<= is already in total
 
       //  qDebug() << "S" << DetTot<< ChannelDetTot << FloodDetTot;
       //  qDebug() << DepTot << ChannelDepTot << FloodDepTot;

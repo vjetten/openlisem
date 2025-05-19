@@ -106,7 +106,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             }}
         } // MUSCL
 
-        if (SwitchErosion) {
+        if (SwitchErosion && !SwitchErosionOutsideLoop) {
             SWOFSediment(dt_req_min, h, FlowWidth, u,v);
         }
 
@@ -126,11 +126,13 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
     correctMassBalance(sumh, h);
 
+    if (SwitchErosion && SwitchErosionOutsideLoop) {
+        SWOFSediment(_dt, h, FlowWidth, u,v);
+    }
+
     if (FlowBoundaryType > 0) {
         Boundary2Ddyn(_dt, h, u, v);
-        // calc boundary flow and decrease waterlevel on boundary
     }
-      //  qDebug() << "boun"<< QBoundary;
 
     iter_n = std::max(1,count);
     return(count > 0 ? _dt/count : _dt);
@@ -581,7 +583,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
 //-----------------------------------------------------------------------------------------------------------
 void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v)
 {
-#pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double dx = _dx;
         double dy = _dx;

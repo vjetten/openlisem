@@ -80,6 +80,36 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     // mapList will be refilled with the runfile and user choices
     // so this contains the final list of maps
 
+    // make the model world once, this structure is always needed regardless of the area
+    // W = new TWorld();
+    // // make a thread to run the world in
+    // worldThread = new QThread();
+    // W->moveToThread(worldThread);
+
+    // connect(worldThread, &QThread::started, W, &TWorld::DoModel);
+    // connect(W, &TWorld::finished, worldThread, &QThread::quit);
+    // connect(worldThread, &QThread::finished, W, &TWorld::deleteLater);
+    // connect(worldThread, &QThread::finished, worldThread, &QThread::deleteLater);
+
+    // connect(W, &TWorld::show, this, &lisemqt::worldShow);
+    // connect(W, &TWorld::done, this, &lisemqt::worldDone);
+    // connect(W, &TWorld::debug, this, &lisemqt::worldDebug);
+    // connect(W, &TWorld::timedb, this, &lisemqt::worldDebug);
+    // // connect emitted signals from the model thread to the interface routines that handle them
+
+
+// qDebug() << "Connected show -> worldShow?" << connected;
+
+// qDebug() << "Receiver thread:" << this->thread();
+// qDebug() << "Sender thread:" << W->thread();
+// connect(W, &TWorld::show, this, [](bool b){
+//     qDebug() << "RECEIVED show SIGNAL! value:" << b;
+// });
+
+//    stoprun = false;
+  //  W->waitRequested = false;
+    // run is not started so we don't accidentally do wrong things while W exists
+
     SetToolBar();
     // slots and signals
 
@@ -97,14 +127,14 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 
     setupMapPlot();
 
-    loadSettings();
+   // loadSettings();
     // gets fontsize darmokmode and checkpatch from registry
+    // not for linux, so not used
 
     if (!doBatch) {
         GetStorePath();
         // openlisem.ini file, contains runfile list, loads the first in the list
     }
-
 
     SetStyleUI();
     // do some style things
@@ -115,25 +145,12 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     //batchRunname = runname;
     op.doBatchmode = doBatch;  //copy batchmode for inside run
 
-    // make the model world once, this structure is always needed regardless of the area
-    W = new TWorld();
-    connect(W, SIGNAL(show(bool)),this, SLOT(worldShow(bool)),Qt::BlockingQueuedConnection);
-    connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
-    connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
-    connect(W, SIGNAL(timedb(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
-    // connect emitted signals from the model thread to the interface routines that handle them
-    //startplot = false; // start plotting
-    stoprun = false;
-    W->waitRequested = false;
-    // run is not started so we don't accidentally do wrong things while W exists
-
-
     setMinimumSize(1280,800);
     showMaximized();
 
-
     if (checkforpatch)
         CheckVersion();
+
     if(doBatch)
     {
         runfilelist.clear();
@@ -712,17 +729,11 @@ void lisemqt::setResultDir()
 //--------------------------------------------------------------------
 void lisemqt::savefileas()
 {
-    if (W && W->isRunning())
+    if (worldThread->isRunning())
     {
-        QMessageBox::warning(this, "openLISEM","Cannot save a file while model is running.");
+        QMessageBox::warning(this, "openLISEM","Cannot save a file while the model is running.");
         return;
     }
-
-    // if (op.runfilename.isEmpty())
-    // {
-    //     QMessageBox::warning(this, "openLISEM","No runfile active.");
-    //     //return;
-    // }
 
     QString selectedFilter;
     QString fileName = QFileDialog::getSaveFileName(this,
@@ -868,12 +879,6 @@ void lisemqt::GetStorePath()
         if (line.isEmpty())
             continue;
 
-        QFile file(line);
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            file.close();
-            runfilelist << QString(line);
-        }
-/*
         if (line.contains("dark=")) {
             QStringList s = line.split("=");
             darkLISEM = s[1].toInt() == 1;
@@ -898,7 +903,6 @@ void lisemqt::GetStorePath()
                 }
             }
         }
-        */
     }
     fff.close();
 
@@ -1162,6 +1166,7 @@ void lisemqt::resetTabAdvanced()
     E_courantFactorSed->setValue(0.2);
     //checkVariableTimestep->setChecked(false);
     checkTimeavgV->setChecked(true);
+    checkErosionLoop->setChecked(true);
     checkMB_WH->setChecked(false);
     checkLinkedList->setChecked(false);
     //checkErosionInsideLoop->setChecked(true);

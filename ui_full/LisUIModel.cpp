@@ -84,18 +84,42 @@ Make the model world and run it
 */
 void lisemqt::runmodel()
 {
-
-    if (W)
+    //NOTE op.runfilename is set in function openRunFile()
+    if (op.runfilename.isEmpty())
     {
-        if (W->waitRequested) {
-            pausemodel();
-            qDebug() << "pauze";
-            return;
-        }
+        QMessageBox::warning(this,"openLISEM",QString("Load a runfile first!"));
+        return;
     }
+
+    W = new TWorld();
+    // make a thread to run the world in
+    worldThread = new QThread();
+    W->moveToThread(worldThread);
+
+    connect(worldThread, &QThread::started, W, &TWorld::DoModel);
+    connect(W, &TWorld::finished, worldThread, &QThread::quit);
+    connect(worldThread, &QThread::finished, W, &TWorld::deleteLater);
+    connect(worldThread, &QThread::finished, worldThread, &QThread::deleteLater);
+
+    connect(W, &TWorld::show, this, &lisemqt::worldShow);
+    connect(W, &TWorld::done, this, &lisemqt::worldDone);
+    connect(W, &TWorld::debug, this, &lisemqt::worldDebug);
+    connect(W, &TWorld::timedb, this, &lisemqt::worldDebug);
+    // connect emitted signals from the model thread to the interface routines that handle them
+
+    // if (W)
+    // {
+    //     if (W->waitRequested) {
+    //         pausemodel();
+    //         qDebug() << "pauze";
+    //         return;
+    //     }
+    // }
 
     // if the model has stopped and a new run is requested, clear the datastructures
     // until that time the user can look at the old results
+    // we do that at the start of a new run and not at the end of a run,
+    //because the user wants to still switch maps in the interface after the ruin
     if (stoprun && W) {
         // destroy ALL maps
         qDeleteAll(W->maplistCTMap.begin(),W->maplistCTMap.end());
@@ -147,13 +171,6 @@ void lisemqt::runmodel()
 
     label_debug->text().clear();
 
-    //NOTE op.runfilename is set in function openRunFile()
-    if (op.runfilename.isEmpty())
-    {
-        QMessageBox::warning(this,"openLISEM",QString("Load a runfile first!"));
-        return;
-    }
-
     lastOptionSceen = tabWidgetOptions->currentIndex();
 
     showOutputDataZero();
@@ -204,15 +221,6 @@ void lisemqt::runmodel()
 
     //=======================================================================================//
 
-    // moved to lisemqt, nneeds to be done only once
-    // W = new TWorld();
-    // // make the model world !!!
-    // connect(W, SIGNAL(show(bool)),this, SLOT(worldShow(bool)),Qt::BlockingQueuedConnection);
-    // connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
-    // connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
-    // connect(W, SIGNAL(timedb(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
-    // // connect emitted signals from the model thread to the interface routines that handle them
-
     W->showInfo = true;
 
     //WhasStopped = false;
@@ -247,10 +255,11 @@ void lisemqt::runmodel()
     tabWidget->setCurrentIndex(2);
     //switch to output screen
 
-    W->start();
+    worldThread->start();
     // start the model thread, executes W->run()
 
     E_runFileList->setEnabled(false);
+    checkDoErosion->setEnabled(false);
     label_1->setEnabled(false);
     toolButton_fileOpen->setEnabled(false);
     toolButton_deleteRun->setEnabled(false);
@@ -348,8 +357,8 @@ void lisemqt::worldDone(const QString &results)
 
     // arrive here after model emits done signal
      if (W) {
-        W->quit();
-        W->wait();
+        worldThread->quit();
+        worldThread->wait();
     }
     stoprun = true;
     startplot = false;
@@ -363,12 +372,15 @@ void lisemqt::worldDone(const QString &results)
     pauseAct->setChecked(false);
 
     E_runFileList->setEnabled(true);
+    checkDoErosion->setEnabled(true);
     label_1->setEnabled(true);
     toolButton_fileOpen->setEnabled(true);
     toolButton_deleteRun->setEnabled(true);
 
-    if (doBatchmode)
+    if (doBatchmode) {
+        qDebug() << "hier";
         close();
+    }
 }
 //---------------------------------------------------------------------------
 // this function is linked to the debug signal emitted from the model world

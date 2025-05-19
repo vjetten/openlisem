@@ -611,8 +611,10 @@ private:
     QAction *fontAct;
     QAction *fontIncreaseAct;
     QAction *fontDecreaseAct;
+
     // the model world
     TWorld *W;
+    QThread *worldThread;
 
 };
 

@@ -221,8 +221,8 @@ void TWorld::reportToUI(void)
         op.FloodDepTot = FloodDepTot*0.001;
         op.FloodDetTot = FloodDetTot*0.001;
         op.FloodSedTot = FloodSedTot*0.001;
-        op.SoilLossTot = (SoilLossTot)*0.001; // convert from kg to ton
-        op.floodBoundarySedTot = floodBoundarySedTot; // not used
+        op.SoilLossTot = SoilLossTot*0.001; // convert from kg to ton
+        op.floodBoundarySedTot = floodBoundarySedTot*0.001; // not used
 
         op.OutletQs.at(0)->append(SoilLossTot_dt); //timestep output in kg! SoilLossOutlet = sum of Qs*dt and channelQs*dt and QsBoundary
         op.OutletC.at(0)->append(Qtot_dt > MIN_FLUX? SoilLossTot_dt/Qtot_dt : 0);
@@ -447,18 +447,18 @@ void TWorld::ReportTotalsNew(void)
         out << "\"Water in overland flow (mm):\"," << op.WaterVolTotmm<< "\n";
         out << "\"Water in flood (mm):\"," << 0.0 << "\n";
     } else {
-       out << QString("\"Water in overland flow (h<%1)(mm)):\",%2\n").arg(minReportFloodHeight*1000).arg(op.WaterVolTotmm);
-       out << QString("\"Water in flood (h>%1) (mm)):\",%2\n").arg(minReportFloodHeight*1000).arg(op.FloodVolmm);
+       out << QString("\"Water in overland flow (h<%1) (mm):\",%2\n").arg(minReportFloodHeight*1000).arg(op.WaterVolTotmm);
+       out << QString("\"Water in flood (h>%1) (mm):\",%2\n").arg(minReportFloodHeight*1000).arg(op.FloodVolmm);
     }
     out << "\"Water in channels (mm):\"," << op.ChannelVolTotmm<< "\n";
     out << "\"Water across boundary (mm):\"," << op.Qboundtotmm<< "\n";
     out << "\"Water in rentention (m3):\"," << op.RetentionVolTot << "\n";
-    out << "\"Total baseflow and side inflow (mm):\"," << op.BaseFlowTotmm << "\n";
+    out << "\"Total baseflow and GW inflow (mm):\"," << op.BaseFlowTotmm << "\n";
     out << "\"Total peakflow (mm):\"," << op.PeakFlowTotmm << "\n";
-    out << "\"Total outflow (overland+channel+drains+boundary) (mm):\"," << op.Qtotmm << "\n";
-    out << "\"Total outflow (overland+channel+drains+boundary) (m3):\"," << op.Qtot<< "\n";
+    out << "\"Total outflow (overland+channel) (mm):\"," << op.Qtotmm << "\n";
+    out << "\"Total outflow (overland+channel) (m3):\"," << op.Qtot<< "\n";
     out << "\"Total boundary outflow (m3):\"," << op.QBoundaryTot<< "\n";
-    out << "\"Total storm drain discharge (m3):\"," << op.Qtiletot<< "\n";
+    out << "\"Total storm/tile drain discharge (m3):\"," << op.Qtiletot<< "\n";
     out << "\"Peak time precipitation (min):\"," << op.RainpeakTime<< "\n";
     out << "\"Total discharge/Precipitation (%):\"," << op.RunoffFraction*100<< "\n";
     out << "\"Flood volume (max level) (m3):\"," << op.FloodTotMax<< "\n";
@@ -557,7 +557,7 @@ void TWorld::ReportTimeseriesPCR(void)
                 if (SwitchErosion) {
                     out << "Qsall (kg/s)\n";
                     if (FlowBoundaryType > 0)
-                        out << "QsBound (kg/s)";
+                        out << "QsBoundary (kg/s)";
                     if (SwitchIncludeChannel)
                         out << "Qschan%1"+crout_[i_].code +" (kg/s)\n";
                      else

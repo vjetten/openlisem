@@ -86,7 +86,7 @@ void lisemqt::setupPlot()
     pen2.setCosmetic(false);
 
     pen3.setWidth(2);
-    pen3.setColor("#1576BB");
+    pen3.setColor("#2687CC");
     pen3.setCosmetic(true);
 
     col.setRgb( 220,0,0,255 );

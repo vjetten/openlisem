@@ -39,21 +39,19 @@
 
 
 //---------------------------------------------------------------------------
-TWorld::TWorld(QObject *parent) :
-    QThread(parent)
+TWorld::TWorld(QObject *parent) : QObject(parent)
 {
-   moveToThread(this);
 }
 //---------------------------------------------------------------------------
 TWorld::~TWorld()
 {
 }
 //---------------------------------------------------------------------------
-void TWorld::run()
-{
-    QTimer::singleShot(0, this, SLOT(DoModel()));
-    exec();
-}
+// void TWorld::run()
+// {
+//     QTimer::singleShot(1000, this, SLOT(DoModel()));
+//     exec();
+// }
 //---------------------------------------------------------------------------
 void TWorld::stop()
 {
@@ -89,6 +87,8 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
 // the actual model with the main loop
 void TWorld::DoModel()
 {
+    qDebug() << "Thread started: " << QThread::currentThread();
+
     if (!op.doBatchmode)
         temprunname = QString(op.userAppDir+"openlisemtmp.run");
     else
@@ -303,7 +303,6 @@ void TWorld::DoModel()
 
             reportToFile();         // report hydrograohs, totals, maps etc to files
 
-
             emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
 
             //saveMBerror2file(false); //saveMBerror
@@ -322,7 +321,7 @@ void TWorld::DoModel()
                 // or use qDebug()
                 // doen't work in windows!
             }
-        }
+        } // TIME LOOP
 
         if (SwitchEndRun)
             ReportMaps();
