@@ -103,8 +103,10 @@ class lisemqt : public QMainWindow, private Ui::lisemqtClass
     Q_OBJECT
 
 public:
-    lisemqt(QWidget *parent = 0, bool doBatch = false, QString runName = "");
+    lisemqt(QWidget *parent = 0, bool doBatch = false, bool forceRes = false, QString runName = "");
     ~lisemqt();
+
+    void closeEvent(QCloseEvent *event);
 
     int genfontsize;
     double dpiscale;
@@ -121,6 +123,7 @@ public:
 
     bool darkLISEM;
     bool doBatchmode;
+    bool forceResultDir;
     bool checkforpatch;
     QString batchRunname;
 
@@ -370,6 +373,7 @@ public slots:
     void deleteRunFileList();
     void runmodel();
     void ClearOP();
+    void deleteWStructures();
     void stopmodel();
     void pausemodel();
     void shootScreen();

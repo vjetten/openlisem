@@ -48,15 +48,20 @@ int main(int argc, char *argv[])
     Fixture fixture; // <= necessary for GDAL
     QString runFileName;
     bool noInterface = false;
+    bool forceRes = false;
     // Parse command-line arguments
     for (int i = 1; i < argc; ++i) {
         QString arg = argv[i];
         if (arg == "-ni") {
             noInterface = true;
+        } else if (arg == "-f") {
+            forceRes = true;
         } else if (arg == "-r" && i + 1 < argc) {
             runFileName = argv[++i];
         } else {
-            printf("syntax:\nlisem [-ni] -r runfile \n-ni = no graphical user interface, uses runfile directly!\n");
+            printf("syntax:\nlisem [-ni] -f -r runfile \n"
+                   "-f = forces vcreation of the result directory it is does not exist. \n"
+                   "-ni = no graphical user interface, uses runfile directly.\n");
             return 0;
         }
     }
@@ -80,20 +85,22 @@ int main(int argc, char *argv[])
         if (!runFileName.isEmpty()) {
             op.runfilename = runFileName;
             op.doBatchmode = true;
+            op.forceResDir = forceRes;
 
             TWorld *W = new TWorld();
-            QThread *worldThread = new QThread();
 
             W->stopRequested = false;
             W->waitRequested = false;
             W->noInterface = noInterface;
-            worldThread->start();
+
+            W->DoModel();
 
             qDebug() << "\nrunning OpenLISEM with:" << runFileName;
             return app.exec();
         } else {
-            printf("syntax:\nLisem [-ni] -r runfile \n"
-                   "-ni = no graphical user interface, uses runfile directly!\n");
+            printf("syntax:\nlisem [-ni] -f -r runfile \n"
+                   "-f = forces vcreation of the result directory it is does not exist. \n"
+                   "-ni = no graphical user interface, uses runfile directly.\n");
             return 0;
         }
     } else {
@@ -120,13 +127,14 @@ int main(int argc, char *argv[])
             return app.exec();
         } else {
             if (!runFileName.isEmpty()) {
-                lisemqt iface(0, true, runFileName);
+                lisemqt iface(0, true, forceRes, runFileName);
                 iface.setWindowTitle(VERSION);
                 iface.show();
                 return app.exec();
             } else {
-                printf("syntax:\nlisem [-ni] -r runfile \n"
-                       "-ni = no graphical user interface, uses runfile directly!\n");
+                printf("syntax:\nlisem [-ni] -f -r runfile \n"
+                       "-f = forces vcreation of the result directory it is does not exist. \n"
+                       "-ni = no graphical user interface, uses runfile directly.\n");
                 return 0;
             }
         }

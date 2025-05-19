@@ -55,9 +55,31 @@ output op;
 // All model results are put in this structure and sent from the model
 // to the interface each timestep, defined in LisUIoutput.h
 
+void lisemqt::closeEvent(QCloseEvent *event)
+{
+    if (W) {
+        // Tell your model to stop (you must implement this!)
+        W->stopRequested = true;
+
+        // Wait for thread to finish
+         if (worldThread->isRunning()) {
+             worldThread->quit();
+             worldThread->wait(1000);
+             qDebug() << "closed";
+         }
+
+        // Optional: move W back to the main thread
+        //W->moveToThread(QApplication::instance()->thread());
+        deleteWStructures();
+        delete W;
+    }
+
+    // // Accept the close event and continue shutting down
+    event->accept();
+}
 
 //--------------------------------------------------------------------
-lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
+lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
     : QMainWindow(parent)
 {
     setupUi(this);
@@ -66,7 +88,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     darkLISEM = false;
     checkforpatch = true;
     genfontsize = 10;
-    op.nrRunsDone = 0;
     op.runfilename.clear();
     E_runFileList->clear();
 
@@ -80,35 +101,12 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     // mapList will be refilled with the runfile and user choices
     // so this contains the final list of maps
 
-    // make the model world once, this structure is always needed regardless of the area
-    // W = new TWorld();
-    // // make a thread to run the world in
-    // worldThread = new QThread();
-    // W->moveToThread(worldThread);
-
-    // connect(worldThread, &QThread::started, W, &TWorld::DoModel);
-    // connect(W, &TWorld::finished, worldThread, &QThread::quit);
-    // connect(worldThread, &QThread::finished, W, &TWorld::deleteLater);
-    // connect(worldThread, &QThread::finished, worldThread, &QThread::deleteLater);
-
-    // connect(W, &TWorld::show, this, &lisemqt::worldShow);
-    // connect(W, &TWorld::done, this, &lisemqt::worldDone);
-    // connect(W, &TWorld::debug, this, &lisemqt::worldDebug);
-    // connect(W, &TWorld::timedb, this, &lisemqt::worldDebug);
-    // // connect emitted signals from the model thread to the interface routines that handle them
-
-
-// qDebug() << "Connected show -> worldShow?" << connected;
-
-// qDebug() << "Receiver thread:" << this->thread();
-// qDebug() << "Sender thread:" << W->thread();
-// connect(W, &TWorld::show, this, [](bool b){
-//     qDebug() << "RECEIVED show SIGNAL! value:" << b;
-// });
-
-//    stoprun = false;
-  //  W->waitRequested = false;
-    // run is not started so we don't accidentally do wrong things while W exists
+    W = new TWorld();
+    connect(W, &TWorld::show, this, &lisemqt::worldShow);
+    connect(W, &TWorld::done, this, &lisemqt::worldDone);
+    connect(W, &TWorld::debug, this, &lisemqt::worldDebug);
+    connect(W, &TWorld::timedb, this, &lisemqt::worldDebug);
+    stoprun = false;
 
     SetToolBar();
     // slots and signals
@@ -131,28 +129,27 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     // gets fontsize darmokmode and checkpatch from registry
     // not for linux, so not used
 
-    if (!doBatch) {
-        GetStorePath();
+    doBatchmode = doBatch; // save as global var in iface
+    op.doBatchmode = doBatch;  //copy batchmode for inside run
+
+    forceResultDir = forceRes;
+    op.forceResDir = forceRes;
+
+    GetStorePath();
         // openlisem.ini file, contains runfile list, loads the first in the list
-    }
 
     SetStyleUI();
     // do some style things
 
     lisMpeg = new lismpeg(this);
 
-    doBatchmode = doBatch; // save as global var in iface
-    //batchRunname = runname;
-    op.doBatchmode = doBatch;  //copy batchmode for inside run
-
     setMinimumSize(1280,800);
     showMaximized();
 
-    if (checkforpatch)
+    if (checkforpatch && !doBatch)
         CheckVersion();
 
-    if(doBatch)
-    {
+    if(doBatch) {
         runfilelist.clear();
         runfilelist << runname;
 
@@ -173,11 +170,11 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
 //--------------------------------------------------------------------
 lisemqt::~lisemqt()
 {
-    saveSettings();
+   // saveSettings();
     if (!doBatchmode)
         StorePath();
     if (W)
-        delete W;
+       delete W;
 }
 //--------------------------------------------------------------------
 // NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)
@@ -193,14 +190,6 @@ void lisemqt::SetConnections()
     connect(treeView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(openMapname(QModelIndex)));
     connect(MapNameModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(editMapname(QModelIndex, QModelIndex)));
     connect(toolButton_ResultDir, SIGNAL(clicked()), this, SLOT(setResultDir()));
-
-   // obsolete
-   // connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-   // connect(checkOverlandFlow1D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-   // connect(checkOverlandFlow2Dkindyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-   // connect(checkOverlandFlow2Ddyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-
-   // connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
 
     connect(spinBoxPointtoShow,SIGNAL(valueChanged(int)),this,SLOT(onOutletChanged(int)));
 
@@ -468,6 +457,7 @@ void lisemqt::setFloodTab(bool yes)
 
 }
 //--------------------------------------------------------------------
+//  OBSOLETE
 void lisemqt::setErosionTab(bool yes)
 {
     //  yes = checkDoErosion->isChecked();
@@ -830,11 +820,6 @@ void lisemqt::openRunFile()
     if (!exst)
         E_runFileList->insertItem(0,path);
 
-    // renew runfilenames
-//    RunFileNames.clear();
-//    for (int i = 0; i <= E_runFileList->count(); i++)
-//        RunFileNames << E_runFileList->itemText(i);
-
     op.runfilename = E_runFileList->itemText(nr);
     E_runFileList->setCurrentIndex(nr);
     /* !!! this triggers runfile loading in on_E_runFileList_currentIndexChanged:
@@ -870,8 +855,7 @@ void lisemqt::GetStorePath()
     if (!fff.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
-    while (!fff.atEnd())
-    {
+    while (!fff.atEnd()) {
         QString  line = fff.readLine();
         if (line.contains('\n'))
             line.remove(line.size()-1,1);
@@ -883,23 +867,26 @@ void lisemqt::GetStorePath()
             QStringList s = line.split("=");
             darkLISEM = s[1].toInt() == 1;
         } else {
-            if (line.contains("font=")) {
-                QStringList s = line.split("=");
-                genfontsize = s[1].toInt();
-                if (genfontsize == 0)
-                    genfontsize = 11;
-                setfontSize();
-            } else {
-                if (line.contains("patch=")) {
+            if (!doBatchmode) {
+
+                if (line.contains("font=")) {
                     QStringList s = line.split("=");
-                    checkforpatch = s[1].toInt() == 1;
+                    genfontsize = s[1].toInt();
+                    if (genfontsize == 0)
+                        genfontsize = 11;
+                    setfontSize();
                 } else {
-                    QFile file(line);
-                    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                        file.close();
-                        runfilelist << QString(line);
+                    if (line.contains("patch=")) {
+                        QStringList s = line.split("=");
+                        checkforpatch = s[1].toInt() == 1;
+                    } else {
+                        QFile file(line);
+                        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                            file.close();
+                            runfilelist << QString(line);
+                        }
+                        // if the file exists and can be opened add it to the runlist
                     }
-                    // if the file exists and can be opened add it to the runlist
                 }
             }
         }
@@ -934,8 +921,10 @@ void lisemqt::StorePath()
     ts << "font=" << genfontsize << "\n";
     ts << "patch=" << (checkforpatch ? 1 : 0) << "\n";
 
-    for (int i = 0; i < E_runFileList->count(); i++)
+    for (int i = 0; i < E_runFileList->count(); i++) {
         ts << E_runFileList->itemText(i) << "\n";
+        //qDebug() << E_runFileList->itemText(i);
+    }
 
     fff.close();
 }

@@ -77,6 +77,52 @@ void lisemqt::ClearOP()
     delete op.Image;
 }
 
+void lisemqt::deleteWStructures()
+{
+    // destroy ALL maps
+    qDeleteAll(W->maplistCTMap.begin(),W->maplistCTMap.end());
+    W->maplistCTMap.clear();
+    // destroy all network structures
+    W->cr_.clear();
+    W->crch_.clear();
+    W->crlinkedldd_.clear();
+    W->crlinkedlddch_.clear();
+    W->crldd5_.clear();
+    W->crlddch5_.clear();
+    W->crout_.clear();
+    W->dcr_.clear();
+    W->crtile_.clear();
+
+    QVector <double> zero;
+    zero.clear();
+    PGraph->setSamples(zero,zero);
+    QGraph->setSamples(zero,zero);
+
+    QsGraph->setSamples(zero,zero);
+    CGraph->setSamples(zero,zero);
+
+    QtileGraph->setSamples(zero,zero);
+    QbGraph->setSamples(zero,zero);
+
+    HPlot->replot();
+
+    ClearOP(); // clear most of the op structure
+
+    // destroy swatre structures
+    if (W->initSwatreStructure) {
+        W->FreeSwatreInfo(); // free horizon structures, this calls also closeswatre
+    }
+
+    // drawing riuvers on screen structures
+    Xa.clear();
+    Ya.clear();
+    Xc.clear();
+    Yc.clear();
+    op.ObsPointX.clear();
+    op.ObsPointY.clear();
+    op.EndPointX.clear();
+    op.EndPointY.clear();
+}
 //---------------------------------------------------------------------------
 /** Run the model:
 Save the current interface as a temporary run file, read by the model
@@ -91,20 +137,6 @@ void lisemqt::runmodel()
         return;
     }
 
-    W = new TWorld();
-    // make a thread to run the world in
-    worldThread = new QThread();
-    W->moveToThread(worldThread);
-
-    connect(worldThread, &QThread::started, W, &TWorld::DoModel);
-    connect(W, &TWorld::finished, worldThread, &QThread::quit);
-    connect(worldThread, &QThread::finished, W, &TWorld::deleteLater);
-    connect(worldThread, &QThread::finished, worldThread, &QThread::deleteLater);
-
-    connect(W, &TWorld::show, this, &lisemqt::worldShow);
-    connect(W, &TWorld::done, this, &lisemqt::worldDone);
-    connect(W, &TWorld::debug, this, &lisemqt::worldDebug);
-    connect(W, &TWorld::timedb, this, &lisemqt::worldDebug);
     // connect emitted signals from the model thread to the interface routines that handle them
 
     // if (W)
@@ -122,48 +154,7 @@ void lisemqt::runmodel()
     //because the user wants to still switch maps in the interface after the ruin
     if (stoprun && W) {
         // destroy ALL maps
-        qDeleteAll(W->maplistCTMap.begin(),W->maplistCTMap.end());
-        W->maplistCTMap.clear();
-        // destroy all network structures
-        W->cr_.clear();
-        W->crch_.clear();
-        W->crlinkedldd_.clear();
-        W->crlinkedlddch_.clear();
-        W->crldd5_.clear();
-        W->crlddch5_.clear();
-        W->crout_.clear();
-        W->dcr_.clear();
-        W->crtile_.clear();
-
-        QVector <double> zero;
-        zero.clear();
-        PGraph->setSamples(zero,zero);
-        QGraph->setSamples(zero,zero);
-
-        QsGraph->setSamples(zero,zero);
-        CGraph->setSamples(zero,zero);
-
-        QtileGraph->setSamples(zero,zero);
-        QbGraph->setSamples(zero,zero);
-
-        HPlot->replot();
-
-        ClearOP(); // clear most of the op structure
-
-        // destroy swatre structures
-        if (W->initSwatreStructure) {
-            W->FreeSwatreInfo(); // free horizon structures, this calls also closeswatre
-        }
-
-        // drawing riuvers on screen structures
-        Xa.clear();
-        Ya.clear();
-        Xc.clear();
-        Yc.clear();
-        op.ObsPointX.clear();
-        op.ObsPointY.clear();
-        op.EndPointX.clear();
-        op.EndPointY.clear();
+        deleteWStructures();
     }
 
     startplot = true; // user has pressed run, used only to initiatte screen stop, after that set to false!
@@ -175,7 +166,7 @@ void lisemqt::runmodel()
 
     showOutputDataZero();
 
-    updateModelData();
+    updateModelData(); // read temporary run file
     QFile f(QString(op.userAppDir+"openlisemtmp.run"));
     if (f.exists())
         f.remove();
@@ -220,6 +211,18 @@ void lisemqt::runmodel()
     showOutputData();
 
     //=======================================================================================//
+
+    // make a thread to run the world in
+    worldThread = new QThread();
+    W->moveToThread(worldThread);
+
+    connect(worldThread, &QThread::started, W, &TWorld::DoModel);
+    connect(W, &TWorld::finished, worldThread, &QThread::quit);
+    connect(worldThread, &QThread::finished, worldThread, &QThread::deleteLater); // dlete later means these are automatically deleted when the thread finishes
+
+    // connect(worldThread, &QThread::finished, this, [this]() {
+    //     W->moveToThread(QApplication::instance()->thread());
+    // });
 
     W->showInfo = true;
 
@@ -354,12 +357,6 @@ void lisemqt::worldDone(const QString &results)
     tabWidget_out->setCurrentIndex(1);
     shootSingleScreen(0);
 
-
-    // arrive here after model emits done signal
-     if (W) {
-        worldThread->quit();
-        worldThread->wait();
-    }
     stoprun = true;
     startplot = false;
 
@@ -377,10 +374,10 @@ void lisemqt::worldDone(const QString &results)
     toolButton_fileOpen->setEnabled(true);
     toolButton_deleteRun->setEnabled(true);
 
-    if (doBatchmode) {
-        qDebug() << "hier";
-        close();
-    }
+    emit W->finished();
+    // if (doBatchmode) {
+    //     close();
+    // }
 }
 //---------------------------------------------------------------------------
 // this function is linked to the debug signal emitted from the model world

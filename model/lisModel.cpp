@@ -87,7 +87,7 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
 // the actual model with the main loop
 void TWorld::DoModel()
 {
-    qDebug() << "Thread started: " << QThread::currentThread();
+    //qDebug() << "Thread started: " << QThread::currentThread();
 
     if (!op.doBatchmode)
         temprunname = QString(op.userAppDir+"openlisemtmp.run");
@@ -103,7 +103,6 @@ void TWorld::DoModel()
     startTime=omp_get_wtime()/60.0;
 
     ETafactorTot = 0;
-
 
     try
     {
@@ -306,8 +305,7 @@ void TWorld::DoModel()
             emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
 
             //saveMBerror2file(false); //saveMBerror
-
-            if(stopRequested)
+            if (stopRequested)
                 time = EndTime;
 
             // show progress in console without GUI
@@ -326,7 +324,9 @@ void TWorld::DoModel()
         if (SwitchEndRun)
             ReportMaps();
 
-        emit done("finished");
+
+        if (!noInterface)
+            emit done("finished");
 
         if (op.doBatchmode)
         {
@@ -334,7 +334,7 @@ void TWorld::DoModel()
             qDeleteAll(maplistCTMap.begin(),maplistCTMap.end());
             maplistCTMap.clear();
 
-            //delete swatre 3D soil layer structure if exists
+            // //delete swatre 3D soil layer structure if exists
             if (initSwatreStructure)
                 FreeSwatreInfo();
 

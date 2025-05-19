@@ -132,9 +132,8 @@ void lisemqt::ParseInputData()
         if (p1.contains("["))
             continue;
 
-        if (p1.compare("Result datetime")==0) checkAddDatetime->setChecked(check);
-        if (p1.compare("Timeplot as PCRaster")==0)           checkWritePCRaster->setChecked(!check);
-      //  if (p1.compare("Report point output separate")==0)   checkSeparateOutput->setChecked(check);
+        if (p1.compare("Result datetime")==0)           checkAddDatetime->setChecked(check);
+        if (p1.compare("Timeplot as PCRaster")==0)      checkWritePCRaster->setChecked(!check);
         if (p1.compare("Report discharge units")==0)
         {
             int units = p.toInt();
@@ -521,9 +520,10 @@ void lisemqt::ParseInputData()
         }
         if (p1.compare("Result Directory")==0)
         {
-            if (doBatchmode)
+            if (doBatchmode) {
                 E_ResultDir->setText(CheckDir(p, true));
-            else
+
+            } else
                 E_ResultDir->setText(CheckDir(p, false));
             if (!QFileInfo(E_ResultDir->text()).exists() && QFileInfo(E_WorkDir).exists())
                 E_ResultDir->setText(E_WorkDir + "res/");

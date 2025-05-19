@@ -219,7 +219,7 @@ void TWorld::ParseRunfileData(void)
         }
 
         if (p1.compare("Result Directory")==0) {
-            resultDir = CheckDir(p, true);
+            resultDir = CheckDir(p, op.forceResDir);
         }
 
         // output
