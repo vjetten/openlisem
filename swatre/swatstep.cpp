@@ -51,38 +51,14 @@ dz and disZ are negative distances
   functions:\n
 - double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int nrNodes, double dtMin)\n
 - void TWorld::ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction)\n
-- void TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_drain, cTMap *_theta)\n
-- void TWorld::HeadCalc(const PROFILE *p, double *h, bool *isPonded, bool fltsat,\n
-              const double *thetaPrev, const double *hPrev, const double *kavg, const double *C,n\n
-              double dt, double WH, double qtop, double qbot)\n
+- void TWorld::calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S)\n
 */
 
 
-//--------------------------------------------------------------------------------
 // units in SWATRE are cm and K cm/sec
-//OBSOLETE
-double TWorld::SwatreStep(long i_, int r, int c, SOIL_MODEL *s, double _WH, cTMap *_drain)
-{
-    double drainfraction = 0;
 
-    s->pixel[i_].wh = _WH*100;    // WH is in m, convert to cm
-    s->pixel[i_].tiledrain = 0;
-
-    ComputeForPixel(i_, s);
-    // estimate new h and theta at the end of dt
-
-    double res = s->pixel[i_].wh*0.01; // cm to m
-
-    Perc->Drc = s->pixel[i_].percolation*0.01;
-
-    if (SwitchIncludeTile)
-        _drain->Drc = s->pixel[i_].tiledrain*0.01;  // in m
-    // drained water from the soil, already accounts for drainwidth versus i_l width
-
-    return (res);
-}
 //--------------------------------------------------------------------------------
-void TWorld::calcSinktermSWATRE(long i_,  PIXEL_INFO *pixel, double *h, double *S)
+void TWorld::calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S)
 {
     int r = pixel->r;
     int c = pixel->c;
@@ -161,9 +137,9 @@ double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int
 // Z and H in cm; table units K in cm/day converted to cm/sec, lisem time in seconds
 // NOTE: dz is negative, disZ is negative!
 
-void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)
+void TWorld::ComputeForPixel(PIXEL_INFO *pixel) //long i_, SOIL_MODEL *s)
 {
-    PIXEL_INFO *pixel = &s->pixel[i_];
+    //PIXEL_INFO *pixel = &s->pixel[i_];
     const PROFILE *p = pixel->profile;
     int r = pixel->r;
     int c = pixel->c;
@@ -188,7 +164,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)
     // memcpy(disZ, p->zone->disnod.data(), nN * sizeof(double));
 
     if (SwitchIncludeET && WH <= 0) {
-        calcSinktermSWATRE(i_, pixel, h, S);
+        calcSinktermSWATRE(pixel, h, S);
     }
     // get sinkterm S
 
@@ -428,7 +404,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)
         }
 
         // estimate new dt within lisemtimestep
-        dt = NewTimeStep(dt, hPrev, h, nN, s->minDt, SwatrePrecision);
+        dt = NewTimeStep(dt, hPrev, h, nN, swatreDT, SwatrePrecision);
 
         if (elapsedTime+dt >= _dt - TIME_EPS)
             dt = _dt - elapsedTime;

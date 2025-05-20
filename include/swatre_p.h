@@ -113,7 +113,6 @@ typedef struct PIXEL_INFO {
 //---------------------------------------------------------------------------
 typedef struct SOIL_MODEL {
     struct PIXEL_INFO  *pixel;
-    double minDt;
 } SOIL_MODEL;
 //---------------------------------------------------------------------------
 

@@ -46,12 +46,13 @@ void TWorld::InfilSwatre()
         // else
         //     WHorig = hmx->Drc;
 
-        SwatreSoilModel->pixel[i_].wh = WHorig*100;    // WH is in m, convert to cm
-        SwatreSoilModel->pixel[i_].tiledrain = 0;
+        PIXEL_INFO *pix = &SwatreSoilModel->pixel[i_];
+        pix->wh = WHorig*100;    // WH is in m, convert to cm
+        pix->tiledrain = 0;
 
-        ComputeForPixel(i_, SwatreSoilModel);
+        ComputeForPixel(pix);
 
-        double WHN = SwatreSoilModel->pixel[i_].wh*0.01;
+        double WHN = pix->wh*0.01;
 
         Perc->Drc= SwatreSoilModel->pixel[i_].percolation*0.01;
         if (SwitchIncludeTile)
@@ -64,51 +65,53 @@ void TWorld::InfilSwatre()
             }
 
             if (ProfileIDCrust->Drc > 0 && CrustFraction->Drc > 0) {
-                SwatreSoilModelCrust->pixel[i_].wh = WHorig*100;    // WH is in m, convert to cm
-                SwatreSoilModelCrust->pixel[i_].tiledrain = 0;
+                PIXEL_INFO *pixcr = &SwatreSoilModelCrust->pixel[i_];
+                pixcr->wh = WHorig*100;    // WH is in m, convert to cm
+                pixcr->tiledrain = 0;
 
-                ComputeForPixel(i_, SwatreSoilModelCrust);
+                ComputeForPixel(pixcr);
 
-                double WHcrust = SwatreSoilModel->pixel[i_].wh*0.01;
+                double WHcrust = pixcr->wh*0.01;
                 WHN = WHcrust*CrustFraction->Drc + WHN*(1-CrustFraction->Drc);
                 // weighed average
 
                 if (SwitchIncludeTile) {
-                    tilevol = CrustFraction->Drc*SwatreSoilModelCrust->pixel[i_].tiledrain + tilevol*(1-CrustFraction->Drc);
+                    tilevol = CrustFraction->Drc*pixcr->tiledrain + tilevol*(1-CrustFraction->Drc);
                 }
             }
         }
 
         if (SwitchInfilCompact) {
             if (ProfileIDCompact->Drc > 0 &&  CompactFraction->Drc > 0) {
+                PIXEL_INFO *pixcm = &SwatreSoilModelCompact->pixel[i_];
+                pixcm->wh = WHorig*100;    // WH is in m, convert to cm
+                pixcm->tiledrain = 0;
 
-                SwatreSoilModelCompact->pixel[i_].wh = WHorig*100;    // WH is in m, convert to cm
-                SwatreSoilModelCompact->pixel[i_].tiledrain = 0;
+                ComputeForPixel(pixcm);
 
-                ComputeForPixel(i_, SwatreSoilModelCompact);
-
-                double WHcompact = SwatreSoilModelCompact->pixel[i_].wh*0.01;
+                double WHcompact = pixcm->wh*0.01;
                 WHN = WHcompact*CompactFraction->Drc + WHN*(1-CompactFraction->Drc);
                 // weighted average
 
                 if (SwitchIncludeTile) {
-                    tilevol = CompactFraction->Drc*SwatreSoilModelCompact->pixel[i_].tiledrain + tilevol*(1-CompactFraction->Drc);
+                    tilevol = CompactFraction->Drc*pixcm->tiledrain + tilevol*(1-CompactFraction->Drc);
                 }
             }
         }
 
         if (SwitchGrassStrip) {
             if (ProfileIDGrass->Drc > 0 &&  GrassFraction->Drc > 0) {
-                SwatreSoilModelGrass->pixel[i_].wh = WHorig*100;    // WH is in m, convert to cm
-                SwatreSoilModelGrass->pixel[i_].tiledrain = 0;
+                PIXEL_INFO *pixgr = &SwatreSoilModelGrass->pixel[i_];
+                pixgr->wh = WHorig*100;    // WH is in m, convert to cm
+                pixgr->tiledrain = 0;
 
-                ComputeForPixel(i_, SwatreSoilModelGrass);
+                ComputeForPixel(pixgr);
 
-                double WHgrass = SwatreSoilModelCompact->pixel[i_].wh*0.01;
+                double WHgrass = pixgr->wh*0.01;
                 WHN = WHgrass*GrassFraction->Drc + WHN*(1-GrassFraction->Drc);
 
                 if (SwitchIncludeTile) {
-                    tilevol = GrassFraction->Drc*SwatreSoilModelGrass->pixel[i_].tiledrain + tilevol*(1-GrassFraction->Drc);
+                    tilevol = GrassFraction->Drc*pixgr->tiledrain + tilevol*(1-GrassFraction->Drc);
                 }
             }
         }

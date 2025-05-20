@@ -43,7 +43,6 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
     //SOIL_MODEL *s = (SOIL_MODEL *)malloc(sizeof(SOIL_MODEL));
     SOIL_MODEL *s = new SOIL_MODEL;
 
-    s->minDt = swatreDT;
     s->pixel = new PIXEL_INFO[nrValidCells];
 
     // set initial values
