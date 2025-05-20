@@ -3,8 +3,9 @@ Latest fixes and changes:
 
 see Readme.txt for a complete list
 
-250518 - v7.4.7.beta.R1-R3
+250518 - v7.4.7.beta.R1-R4
 - Added: advanaced options: 2D erosion calculations inside (slow) or outside (fast) 2D flow loop
+- BUG-FIX: updated the way Lisem deals with QThreads
 - BUG FIX: boundary flow problem with parallel sum
 - BUG FIX: correct reporting of boundary flow and channel flow
 - BUG FIX: wrong check for Missing Value in 2D flow

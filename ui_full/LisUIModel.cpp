@@ -217,7 +217,7 @@ void lisemqt::runmodel()
     W->moveToThread(worldThread);
 
     connect(worldThread, &QThread::started, W, &TWorld::DoModel);
-    connect(W, &TWorld::finished, worldThread, &QThread::quit);
+    connect(W, &TWorld::done, worldThread, &QThread::quit);
     connect(worldThread, &QThread::finished, worldThread, &QThread::deleteLater); // dlete later means these are automatically deleted when the thread finishes
 
     // connect(worldThread, &QThread::finished, this, [this]() {
@@ -374,10 +374,9 @@ void lisemqt::worldDone(const QString &results)
     toolButton_fileOpen->setEnabled(true);
     toolButton_deleteRun->setEnabled(true);
 
-    emit W->finished();
-    // if (doBatchmode) {
-    //     close();
-    // }
+    if (doBatchmode) {
+        close();
+    }
 }
 //---------------------------------------------------------------------------
 // this function is linked to the debug signal emitted from the model world

@@ -1216,9 +1216,8 @@ signals:
     void done(const QString &results);
     void debug(const QString &results);
     void timedb(const QString &results);
-    void show(bool); //use the output structure "op" declared in global.h and LisUIoutput.h
-    void finished();
-   // void started();
+    void show(bool);
+    //use the output structure "op" declared in global.h and LisUIoutput.h
 
 public slots:   //note, was private loop but dixygen does not recognize that
     /// the main model loop, from here all processes are called in a time loop

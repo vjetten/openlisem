@@ -106,6 +106,9 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
     connect(W, &TWorld::done, this, &lisemqt::worldDone);
     connect(W, &TWorld::debug, this, &lisemqt::worldDebug);
     connect(W, &TWorld::timedb, this, &lisemqt::worldDebug);
+    //connections to trigger messages and model stop from the interface
+    // e.g. if the world emits done, the worldDone is called to stop the model
+
     stoprun = false;
 
     SetToolBar();

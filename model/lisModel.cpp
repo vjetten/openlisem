@@ -326,7 +326,7 @@ void TWorld::DoModel()
 
 
         if (!noInterface)
-            emit done("finished");
+            emit done("Finished");
 
         if (op.doBatchmode)
         {
