@@ -263,13 +263,14 @@ void TWorld::DoModel()
             if(stopRequested) {
                 mutex.lock();
                 DEBUG("User interrupt... finishing time step");
+                time = EndTime;
                 mutex.unlock();
             }
 
             if (waitRequested) {
                 mutex.lock();
                 DEBUG("User pause...");
-                condition.wait(&mutex);
+                mu_condition.wait(&mutex);
                 mutex.unlock();
             }
             // check if user wants to quit or pause
@@ -298,15 +299,19 @@ void TWorld::DoModel()
 
             MassBalance();       // check water and sed mass balance
 
-            reportToUI();          // fill the "op" structure for screen output and calc some output maps
+            reportToUI();        // fill the "op" structure for screen and file output and calc some COMBO output maps
 
-            reportToFile();         // report hydrograohs, totals, maps etc to files
+            reportToFile();      // report hydrograhs, totals, maps etc to files
 
-            emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
+            // show the data and write to disk, synchronize the thread.
+            // because showing is done outsid ethe Thread in the GUI, a mutex.lock() needs top be done.
+            //MUcondition gives a wakeOne() signal at the end of the display in showWorld
+            mutex.lock();
+                emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
+            mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
+            mutex.unlock();
 
             //saveMBerror2file(false); //saveMBerror
-            if (stopRequested)
-                time = EndTime;
 
             // show progress in console without GUI
             if (op.doBatchmode && noInterface) {

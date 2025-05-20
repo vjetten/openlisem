@@ -279,8 +279,8 @@ void lisemqt::pausemodel()
             runAct->setChecked(true);
             stopAct->setChecked(false);
             pauseAct->setChecked(false);
-            label_debug->setText("User continue...");
-            W->condition.wakeAll();
+          //  label_debug->setText("User continue...");
+            W->mu_condition.wakeOne();//wakeAll();
         }
         else
         {
@@ -316,8 +316,12 @@ void lisemqt::worldShow(bool showall)
 
     showOutputData(); // show output data for all and point x
 
-    if (!showall)
+    if (!showall) {
+        W->mutex.lock();
+        W->mu_condition.wakeOne();
+        W->mutex.unlock();
         return;
+    }
 
     showPlot(); // show main plot for point X
 
@@ -341,6 +345,10 @@ void lisemqt::worldShow(bool showall)
 
     if (doShootScreens)
         shootMultipleScreens();
+
+    W->mutex.lock();
+    W->mu_condition.wakeOne();
+    W->mutex.unlock();
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldDone(const QString &results)

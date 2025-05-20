@@ -396,6 +396,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)
 
         if (isPonded || fltsat)
              qtop = -kavg[0] * ((h[0] - WH)/disZ[0] + 1) * (1.0-impfrac);
+        // else qtop is WH/dt !
 
         WH += qtop*dt;       // decrease pond with top flux
         WH = std::max(WH, 0.0);

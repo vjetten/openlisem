@@ -57,22 +57,23 @@ output op;
 
 void lisemqt::closeEvent(QCloseEvent *event)
 {
-    if (W) {
-        // Tell your model to stop (you must implement this!)
-        W->stopRequested = true;
+    // qDebug() << "closeevent";
+    // if (W) {
+    //     // Tell your model to stop (you must implement this!)
+    //     W->stopRequested = true;
 
-        // Wait for thread to finish
-         if (worldThread->isRunning()) {
-             worldThread->quit();
-             worldThread->wait(1000);
-             qDebug() << "closed";
-         }
+    //     // Wait for thread to finish
+    //      if (worldThread->isRunning()) {
+    //          worldThread->quit();
+    //          worldThread->wait(1000);
+    //          qDebug() << "closed";
+    //      }
 
-        // Optional: move W back to the main thread
-        //W->moveToThread(QApplication::instance()->thread());
-        deleteWStructures();
-        delete W;
-    }
+    //     // Optional: move W back to the main thread
+    //     //W->moveToThread(QApplication::instance()->thread());
+    //     deleteWStructures();
+    //     delete W;
+    // }
 
     // // Accept the close event and continue shutting down
     event->accept();
@@ -195,9 +196,7 @@ void lisemqt::SetConnections()
     connect(toolButton_ResultDir, SIGNAL(clicked()), this, SLOT(setResultDir()));
 
     connect(spinBoxPointtoShow,SIGNAL(valueChanged(int)),this,SLOT(onOutletChanged(int)));
-
     connect(checkFormatGtiff, SIGNAL(toggled(bool)), this, SLOT(setFormatMaps(bool)));
-
 }
 //--------------------------------------------------------------------
 void lisemqt::setFormatMaps(bool check)

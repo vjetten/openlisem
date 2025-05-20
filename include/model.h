@@ -1186,7 +1186,9 @@ int showc;
     bool batchmode;
 
     QMutex mutex;
-    QWaitCondition condition;
+    QWaitCondition mu_condition;
+    bool m_waitForGUI = true;
+
     void stop();
 
 protected:
