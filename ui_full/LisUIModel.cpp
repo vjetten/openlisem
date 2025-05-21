@@ -314,7 +314,7 @@ void lisemqt::worldShow(bool showall)
 
     startPlots(); // called once using bool startplot
 
-    showOutputData(); // show output data for all and point x
+    showOutputData(); // show output data of totals as minimumfeedback
 
     if (!showall) {
         W->mutex.lock();

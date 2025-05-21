@@ -47,21 +47,31 @@ int main(int argc, char *argv[])
 {
     Fixture fixture; // <= necessary for GDAL
     QString runFileName;
+    QTextStream consoleout(stdout);
+
     bool noInterface = false;
     bool forceRes = false;
+    bool syntax = false;
+
     // Parse command-line arguments
     for (int i = 1; i < argc; ++i) {
         QString arg = argv[i];
+        qDebug() << arg;
         if (arg == "-ni") {
             noInterface = true;
-        } else if (arg == "-f") {
+        }
+        if (arg == "-f") {
             forceRes = true;
-        } else if (arg == "-r" && i + 1 < argc) {
+        }
+        if (arg == "-r" && i + 1 < argc) {
             runFileName = argv[++i];
-        } else {
-            printf("syntax:\nlisem [-ni] -f -r runfile \n"
-                   "-f = forces vcreation of the result directory it is does not exist. \n"
-                   "-ni = no graphical user interface, uses runfile directly.\n");
+            syntax = true;
+        }
+        if (syntax) {
+            consoleout << "syntax:\nlisem [-ni] [-f] -r runfile \n"
+                       <<   "-f = create the result directory it does not exist. \n"
+                       <<   "-ni = no graphical user interface, uses runfile directly.\n";
+            consoleout.flush();
             return 0;
         }
     }
@@ -93,14 +103,16 @@ int main(int argc, char *argv[])
             W->waitRequested = false;
             W->noInterface = noInterface;
 
+            qDebug() << "\nrunning OpenLISEM with:" << runFileName;
+
             W->DoModel();
 
-            qDebug() << "\nrunning OpenLISEM with:" << runFileName;
             return app.exec();
         } else {
-            printf("syntax:\nlisem [-ni] -f -r runfile \n"
-                   "-f = forces vcreation of the result directory it is does not exist. \n"
-                   "-ni = no graphical user interface, uses runfile directly.\n");
+            consoleout << "syntax:\nlisem [-ni] [-f] -r runfile \n"
+                       <<   "-f = create the result directory it does not exist. \n"
+                       <<   "-ni = no graphical user interface, uses runfile directly.\n";
+            consoleout.flush();
             return 0;
         }
     } else {
@@ -115,7 +127,7 @@ int main(int argc, char *argv[])
         if (!dir.exists(localPath))
             dir.mkpath(localPath);
         op.userAppDir = localPath + "/";
-        QLocale loc = QLocale::system(); // current locale
+        QLocale loc = QLocale::system();
         loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
         QLocale::setDefault(loc);
 
@@ -132,9 +144,10 @@ int main(int argc, char *argv[])
                 iface.show();
                 return app.exec();
             } else {
-                printf("syntax:\nlisem [-ni] -f -r runfile \n"
-                       "-f = forces vcreation of the result directory it is does not exist. \n"
-                       "-ni = no graphical user interface, uses runfile directly.\n");
+                consoleout << "syntax:\nlisem [-ni] [-f] -r runfile \n"
+                           <<   "-f = create the result directory it does not exist. \n"
+                           <<   "-ni = no graphical user interface, uses runfile directly.\n";
+                consoleout.flush();
                 return 0;
             }
         }

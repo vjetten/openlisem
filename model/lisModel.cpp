@@ -47,12 +47,6 @@ TWorld::~TWorld()
 {
 }
 //---------------------------------------------------------------------------
-// void TWorld::run()
-// {
-//     QTimer::singleShot(1000, this, SLOT(DoModel()));
-//     exec();
-// }
-//---------------------------------------------------------------------------
 void TWorld::stop()
 {
     QMutexLocker locker(&mutex);
@@ -87,7 +81,7 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
 // the actual model with the main loop
 void TWorld::DoModel()
 {
-    //qDebug() << "Thread started: " << QThread::currentThread();
+    QTextStream consoleout(stdout); // for printing with -ni batch mode
 
     if (!op.doBatchmode)
         temprunname = QString(op.userAppDir+"openlisemtmp.run");
@@ -306,10 +300,12 @@ void TWorld::DoModel()
             // show the data and write to disk, synchronize the thread.
             // because showing is done outsid ethe Thread in the GUI, a mutex.lock() needs top be done.
             //MUcondition gives a wakeOne() signal at the end of the display in showWorld
-            mutex.lock();
-                emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
-            mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
-            mutex.unlock();
+            if (!noInterface) {
+                mutex.lock();
+                    emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
+                mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
+                mutex.unlock();
+            }
 
             //saveMBerror2file(false); //saveMBerror
 
@@ -317,21 +313,21 @@ void TWorld::DoModel()
             if (op.doBatchmode && noInterface) {
                 int x;
                 x = std::round((op.t / op.maxtime) * 100) ;
-                printf("\rprogress: %d %%                     ", x);
-                // char buffer [50];
-                // sprintf(buffer, "\rprogress: %d %%                     ", x);
-                // qDebug() << buffer;
-                // or use qDebug()
-                // doen't work in windows!
+                consoleout << "\rprogress: " << x << " %";
+                consoleout.flush();
+
+                // THIS SHOULD ALSO WORK IN LINUX
+
+                //printf("\rprogress: %d %%                     ", x);
             }
         } // TIME LOOP
 
         if (SwitchEndRun)
             ReportMaps();
 
-
-        if (!noInterface)
+        if (!noInterface) {
             emit done("Finished");
+        }
 
         if (op.doBatchmode)
         {
@@ -343,10 +339,10 @@ void TWorld::DoModel()
             if (initSwatreStructure)
                 FreeSwatreInfo();
 
-            qDebug() << "finished after "<< op.maxtime << "minutes";
-            if (noInterface)
+            if (noInterface) {
+                qDebug() << "\nfinished after "<< op.maxtime << "minutes";
                 QCoreApplication::quit();
-            else {
+            } else {
                 QApplication::quit();
             }
             // close the world model
@@ -354,12 +350,16 @@ void TWorld::DoModel()
     }
     catch(...)  // if an error occurred
     {
-        emit done("ERROR STOP: "+ErrorString);
-        if (op.doBatchmode) {qDebug() << "ERROR STOP "<< ErrorString;
-            if (noInterface)
+        if (!noInterface) {
+            emit done("ERROR STOP: "+ErrorString);
+        }
+        if (op.doBatchmode) {
+            if (noInterface) {
+                qDebug() << "ERROR STOP "<< ErrorString;
                 QCoreApplication::quit();
-            else
+            } else {
                 QApplication::quit();
+            }
         }
     }
 }
