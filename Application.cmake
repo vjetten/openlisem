@@ -90,7 +90,6 @@ ENDIF()
 #-Wno-var-tracking-assignments
 # Source files
 SET(APP_SOURCES
-    fixesandbugs.txt
     include/array.h
     include/CsfMap.h
     include/CsfRGBMap.h

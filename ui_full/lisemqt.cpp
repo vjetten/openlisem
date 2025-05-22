@@ -110,6 +110,11 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
     //connections to trigger messages and model stop from the interface
     // e.g. if the world emits done, the worldDone is called to stop the model
 
+    // dealing with digit separator comma or dot
+    W->loc = QLocale::system(); // current locale
+    W->loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
+    QLocale::setDefault(W->loc);
+
     stoprun = false;
 
     SetToolBar();
@@ -534,8 +539,8 @@ void lisemqt::setWriteOutputCSV(bool doit)
 void lisemqt::setOutputScreen()
 {
   if (W) {
-    W->noInterface = !W->noInterface;
-    showAllAct->setChecked(!W->noInterface);
+    W->noOutput = !W->noOutput;
+    showAllAct->setChecked(!W->noOutput);
   }
 }
 //--------------------------------------------------------------------

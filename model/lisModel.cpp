@@ -81,7 +81,11 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
 // the actual model with the main loop
 void TWorld::DoModel()
 {
-    QTextStream consoleout(stdout); // for printing with -ni batch mode
+    QTextStream consoleout(stdout); // for info with -ni batch mode
+    if (noInterface) {
+        consoleout << "\nrunning OpenLISEM with:" << op.runfilename << "\n\n";
+        consoleout.flush();
+    }
 
     if (!op.doBatchmode)
         temprunname = QString(op.userAppDir+"openlisemtmp.run");
@@ -117,10 +121,6 @@ void TWorld::DoModel()
 
 
         //time vraiables in sec
-        // double btd = getvaluedouble("Begin time day");
-        // double btm = getvaluedouble("Begin time");
-        // double etd = getvaluedouble("End time day");
-        // double etm = getvaluedouble("End time");
         double btd, etd, btm, etm;
         QString beginTimeString = getvaluestring("Begin Time");
         QString endTimeString = getvaluestring("End Time");
@@ -223,7 +223,7 @@ void TWorld::DoModel()
         // get all input data and create and initialize all maps and variables
 
         CountLandunits();
-        //VJ 110110 for output totals per landunit
+        //for output totals per landunit
 
         runstep = 0; //  runstep is used to initialize graph!
         printstep = 1; // printstep determines report frequency in report()
@@ -302,7 +302,7 @@ void TWorld::DoModel()
             //MUcondition gives a wakeOne() signal at the end of the display in showWorld
             if (!noInterface) {
                 mutex.lock();
-                    emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
+                emit show(); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
                 mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
                 mutex.unlock();
             }
@@ -311,14 +311,12 @@ void TWorld::DoModel()
 
             // show progress in console without GUI
             if (op.doBatchmode && noInterface) {
-                int x;
-                x = std::round((op.t / op.maxtime) * 100) ;
-                consoleout << "\rprogress: " << x << " %";
+                int x = 0;
+                x = std::round(op.t/op.maxtime * 100) ;
+                consoleout << "\rprogress: " << QString("step %1        %2 %").arg(runstep).arg(x, -3) << "        ";
                 consoleout.flush();
 
-                // THIS SHOULD ALSO WORK IN LINUX
-
-                //printf("\rprogress: %d %%                     ", x);
+                // THIS SHOULD ALSO WORK IN LINUX ???
             }
         } // TIME LOOP
 
@@ -326,6 +324,7 @@ void TWorld::DoModel()
             ReportMaps();
 
         if (!noInterface) {
+            // wrap up and close the thread
             emit done("Finished");
         }
 
@@ -340,8 +339,10 @@ void TWorld::DoModel()
                 FreeSwatreInfo();
 
             if (noInterface) {
-                qDebug() << "\nfinished after "<< op.maxtime << "minutes";
-                QCoreApplication::quit();
+                consoleout << "\n\n Finished after "<< op.maxtime << "minutes";
+                consoleout.flush();
+                //QCoreApplication::quit();
+                // no longer used because app.exec() is not called, just let it exit
             } else {
                 QApplication::quit();
             }
@@ -355,8 +356,13 @@ void TWorld::DoModel()
         }
         if (op.doBatchmode) {
             if (noInterface) {
-                qDebug() << "ERROR STOP "<< ErrorString;
-                QCoreApplication::quit();
+                consoleout << "ERROR STOP "<< ErrorString;
+                consoleout.flush();
+                #ifdef Q_OS_WIN
+                system("pause"); // waits for a key press
+                #endif
+               // QCoreApplication::quit();
+                // no longer used because app.exec() is not called, just let it exit
             } else {
                 QApplication::quit();
             }

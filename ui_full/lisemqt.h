@@ -493,7 +493,7 @@ private slots:
     void showChannelVector(bool);
 
     // functions that interact with the world thread signals
-    void worldShow(bool showall);
+    void worldShow();
     void worldDone(const QString &results);
     void worldDebug(const QString &results);
 

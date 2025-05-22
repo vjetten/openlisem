@@ -78,9 +78,6 @@ double TWorld::getvaluedouble(QString vname)
     for (int i = 0; i < nrrunnamelist; i++) {
         if(vname.toUpper() == runnamelist[i].name.toUpper())
         {
-            //            return runnamelist[i].value.replace(",",".").toDouble();
-           // QString s = runnamelist[i].value.replace(',','.');
-           // qDebug() << runnamelist[i].name << runnamelist[i].value.toDouble() << s;
             QString s = runnamelist[i].value;
 
             return loc.toDouble(s);//runnamelist[i].value.toDouble();

@@ -2,7 +2,7 @@ openLISEM
 A spatial model for simulation of the full waterbalance, overland flow, flooding and sediment erosion, transport and deposition in all flows.
 
 ============
-Date: 250424
+Date: 250522
 ============
 
 This software is subject to a DISCLAIMER and released under the copyright model GPLv3
@@ -13,9 +13,14 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
 
-LIST OF CHANGES and BUGFIXES:
-250430 - v7.4.6.betaR1
-- Improved: connection to channel based on hydraul fflow for broad crested weir (Advanced options)
+250522 - v7.4.7.beta.R1-R4
+- Added: advanced options: 2D erosion calculations inside (slow) or outside (fast) 2D flow loop
+- UPDATE: Thread behaviour was obselete. Renewed and cleaned use of the mdoel in a thread separate form the GUI
+- BUG-FIX: corrected running from a batch file, and from a cmd window, with and without GUI
+- BUG FIX: boundary flow error in parallel computing, simplified boundary flow
+- BUG FIX: correct reporting of boundary flow and channel flow
+- BUG FIX: some wrong checks for Missing Value in 2D flow, unknown behaviour
+- Improved: connection to channel based on hydraulic flow for broad crested weir (Advanced options)
 
 250424 - v7.4.6
 - BUG FIX: culverts in channel work now without masss balance error. The user has to provide the diameter of the culvert part of the
@@ -29,12 +34,15 @@ LIST OF CHANGES and BUGFIXES:
 - BUG FIX: reading pathnames sometimes result in "//"
 - BUG FIX: 2D flow gives MB error because of when domain boundary touches map edge, make sure there is a MV cell on all sides
 - BUG FIX: dynamic crusting SWATRE added
-- BUG FIX: Boundary flow for Dynamic Wave fixed and correct in output
-- Proces added: storm drain from streets
-- Process added: cell sized retention for overland flow and channelflow (also for kinematic wave) gridretention.map in m3
-- Process added: evapotranspiration added to Swatre as sinkterm
+- BUG FIX: Boundary flow for Dynamic Wave fixed and correct in output, make sure there is always 1 Missing Value cell between the area
+  and the map boundary!
+- BUG FIX: output to points now homoginized for water and sediment
+- BUG FIX: Riemann HLLc and HLLc2 (option 4 and 5) behave strangely, removed from interface choiche for now, defaults to 3
+Processes added:
+- storm drain from streets
+- cell sized retention for overland flow and channelflow (also for kinematic wave) gridretention.map (in m3)
+- evapotranspiration added to Swatre as sinkterm
 - rewrote evapotranspiration for all hydrology
-- Riemann HLLc and HLLc2 (option 4 and 5) behave strangely, removed from interface choiche for now, defaults to 3
 - Compiled with QT 6.9.0 and latest dlls includedsd
 
 250121 - v7.4.5

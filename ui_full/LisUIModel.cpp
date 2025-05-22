@@ -231,8 +231,8 @@ void lisemqt::runmodel()
     // stoprequested is used to stop the thread with the interface
     W->waitRequested = false;
     // waitrequested is used to pause the thread with the interface, only on windows machines!
-    W->noInterface = true; // if true then show something
-    W->noOutput = false;
+    W->noInterface = false; // batchmode if true show nothing
+    W->noOutput = false;// if false then show something on screen
     W->batchmode = false;
     // run without Qt interface on original runfile only
 
@@ -307,7 +307,7 @@ void lisemqt::stopmodel()
     }
 }
 //---------------------------------------------------------------------------
-void lisemqt::worldShow(bool showall)
+void lisemqt::worldShow()
 {
     progressBar->setMaximum(op.maxstep);
     progressBar->setValue(op.runstep);
@@ -316,35 +316,30 @@ void lisemqt::worldShow(bool showall)
 
     showOutputData(); // show output data of totals as minimumfeedback
 
-    if (!showall) {
-        W->mutex.lock();
-        W->mu_condition.wakeOne();
-        W->mutex.unlock();
-        return;
+    if (!W->noOutput) {
+        showPlot(); // show main plot for point X
+
+        showBaseMap(); // show shaded relief base map, only once, set startplot to false
+
+        getOutletMap();
+
+        showChannelVectorNew(); // make channel vectors once
+
+        showRoadMap(); // show road map
+
+        showHouseMap(); // show building structures map
+
+        showHardSurfaceMap(); // show parking lots etc
+
+        showImageMap();
+
+        startplot = false; //if not set to false all the above are done eahc time
+
+        showMap(); // show map with selected data
+
+        if (doShootScreens)
+            shootMultipleScreens();
     }
-
-    showPlot(); // show main plot for point X
-
-    showBaseMap(); // show shaded relief base map, only once, set startplot to false
-
-    getOutletMap();
-
-    showChannelVectorNew(); // make channel vectors once
-
-    showRoadMap(); // show road map
-
-    showHouseMap(); // show building structures map
-
-    showHardSurfaceMap(); // show parking lots etc
-
-    showImageMap();
-
-    startplot = false; //if not set to false all the above are done eahc time
-
-    showMap(); // show map with selected data
-
-    if (doShootScreens)
-        shootMultipleScreens();
 
     W->mutex.lock();
     W->mu_condition.wakeOne();
