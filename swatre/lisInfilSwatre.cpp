@@ -41,10 +41,10 @@ void TWorld::InfilSwatre()
         double tilevol = 0;
 
         double WHorig;
-        // if (FloodDomain->Drc == 0)
+        if (FloodDomain->Drc == 0)
             WHorig = WH->Drc;
-        // else
-        //     WHorig = hmx->Drc;
+        else
+            WHorig = hmx->Drc;
 
         PIXEL_INFO *pix = &SwatreSoilModel->pixel[i_];
         pix->wh = WHorig*100;    // WH is in m, convert to cm
@@ -119,12 +119,12 @@ void TWorld::InfilSwatre()
         if (SwitchIncludeTile)
             TileWaterVolSoil->Drc = tilevol;
 
-//        if (FloodDomain->Drc == 0)
+        if (FloodDomain->Drc == 0)
             WH->Drc = WHN;
-        // else
-        //     hmx->Drc = WHN;
+        else
+            hmx->Drc = WHN;
         hmxWH->Drc = hmx->Drc + WH->Drc;
-        WaterVolall->Drc = WH->Drc*CHAdjDX->Drc;
+        WaterVolall->Drc = hmxWH->Drc*CHAdjDX->Drc;
 
         InfilVol->Drc = std::max(0.0, WHorig - WHN) * FlowWidth->Drc * DX->Drc;
         // use flowwidth because impermeable is done separately

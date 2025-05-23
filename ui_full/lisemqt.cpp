@@ -55,30 +55,6 @@ output op;
 // All model results are put in this structure and sent from the model
 // to the interface each timestep, defined in LisUIoutput.h
 
-void lisemqt::closeEvent(QCloseEvent *event)
-{
-    // qDebug() << "closeevent";
-    // if (W) {
-    //     // Tell your model to stop (you must implement this!)
-    //     W->stopRequested = true;
-
-    //     // Wait for thread to finish
-    //      if (worldThread->isRunning()) {
-    //          worldThread->quit();
-    //          worldThread->wait(1000);
-    //          qDebug() << "closed";
-    //      }
-
-    //     // Optional: move W back to the main thread
-    //     //W->moveToThread(QApplication::instance()->thread());
-    //     deleteWStructures();
-    //     delete W;
-    // }
-
-    // // Accept the close event and continue shutting down
-    event->accept();
-}
-
 //--------------------------------------------------------------------
 lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
     : QMainWindow(parent)
@@ -116,6 +92,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
     QLocale::setDefault(W->loc);
 
     stoprun = false;
+    // to prevent destroying datastructures that are not created yet at the first run
 
     SetToolBar();
     // slots and signals
@@ -128,21 +105,20 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
     //use all actual mapnames from the mapList structure
 
     SetConnections();
+    // buttons and actions not in the toolbar
 
     setupPlot();
     // set up the discharge graphs
-
     setupMapPlot();
+    // set up the display maps
 
    // loadSettings();
     // gets fontsize darmokmode and checkpatch from registry
     // not for linux, so not used
 
-    doBatchmode = doBatch; // save as global var in iface
     op.doBatchmode = doBatch;  //copy batchmode for inside run
 
-    forceResultDir = forceRes;
-    op.forceResDir = forceRes;
+    op.forceResDir = forceRes; // force creation result dir if not exist
 
     GetStorePath();
         // openlisem.ini file, contains runfile list, loads the first in the list
@@ -153,21 +129,22 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
     lisMpeg = new lismpeg(this);
 
     setMinimumSize(1280,800);
-    showMaximized();
+    //showMaximized();
+    QTimer::singleShot(0, this, SLOT(showMaximized()));
 
-    if (checkforpatch && !doBatch)
+    if (checkforpatch && !op.doBatchmode)
         CheckVersion();
 
-    if(doBatch) {
-        runfilelist.clear();
-        runfilelist << runname;
+    if(op.doBatchmode) {
+        // runfilelist.clear();
+        // runfilelist << runname;
 
         op.runfilename = runname;
         GetRunfile();     // get the nrunfile and fill namelist
         ParseInputData(); // fill interface with namelist data and fill mapList
                           // also update DEFmaps for map tree view in interface
         initMapTree();    // fill the tree strcuture on page 2 with DEFmaps
-        //RunAllChecks();   // activate the maps in the tree parts in response to checks
+
         E_runFileList->insertItem(0, runname);
 
         stopAct->setChecked(false);
@@ -179,15 +156,13 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
 //--------------------------------------------------------------------
 lisemqt::~lisemqt()
 {
-   // saveSettings();
-    if (!doBatchmode)
+   // saveSettings(); regsitry, not used because not in linux
+    if (!op.doBatchmode)
         StorePath();
     if (W)
        delete W;
 }
 //--------------------------------------------------------------------
-// NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)
-// works automatically. if included here may be executed twice!!! not sure...
 void lisemqt::SetConnections()
 {
     //connect(checkPesticides, SIGNAL(toggled(bool)), this, SLOT(doCheckPesticides(bool)));
@@ -557,7 +532,6 @@ void lisemqt::SetToolBar()
 {
     toolBar->setIconSize(QSize(32,32));
 
-
     resetAllAct = new QAction(QIcon(":/2X/reset.png"), "&Reset interface and all options...", this);
     connect(resetAllAct, SIGNAL(triggered()), this, SLOT(doResetAll()));
     toolBar->addAction(resetAllAct);
@@ -856,7 +830,8 @@ void lisemqt::saveSettings()
 //---------------------------------------------------------------------------
 void lisemqt::GetStorePath()
 {
-    runfilelist.clear();
+    QStringList runfilelist;
+    //runfilelist.clear();
     QFile fff(op.userAppDir + "openlisem.ini");
 
     if (!fff.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -874,7 +849,7 @@ void lisemqt::GetStorePath()
             QStringList s = line.split("=");
             darkLISEM = s[1].toInt() == 1;
         } else {
-            if (!doBatchmode) {
+            if (!op.doBatchmode) {
 
                 if (line.contains("font=")) {
                     QStringList s = line.split("=");

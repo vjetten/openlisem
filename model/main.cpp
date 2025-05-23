@@ -56,10 +56,11 @@ int main(int argc, char *argv[])
     QString runFileName;
     bool noInterface = false;
     bool forceRes = false;
+    bool doBatch = false;
     bool syntax = true;
 
     if (argc == 1)
-        syntax = false;
+        syntax = false; // run with GUI
 
     // Parse command-line arguments
     for (int i = 1; i < argc; ++i) {
@@ -73,8 +74,18 @@ int main(int argc, char *argv[])
         if (arg == "-r" && i+1 < argc) {
             runFileName = argv[++i];
             syntax = false;
+            doBatch = true;
         }
     }
+
+    // this path is needed for openlisemtemp.run and openlisem.ini
+    QString appDataLocalPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+    QFileInfo appDataLocalFileInfo(appDataLocalPath);
+    QString localPath = appDataLocalFileInfo.absolutePath() + "/lisem";
+    QDir dir;
+    if (!dir.exists(localPath))
+        dir.mkpath(localPath);
+    op.userAppDir = localPath + "/";
 
     if (noInterface || syntax) {
     #ifdef Q_OS_WIN
@@ -99,7 +110,6 @@ int main(int argc, char *argv[])
             return 0;
         }
 
-//    if (noInterface) {
         if (!runFileName.isEmpty()) {
 
             if (!QFileInfo(runFileName).exists()) {
@@ -116,15 +126,6 @@ int main(int argc, char *argv[])
             op.runfilename = runFileName;
             op.doBatchmode = true;
             op.forceResDir = forceRes;
-
-            // this path is needed for openlisemtemp.run and openlisem.ini
-            QString appDataLocalPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-            QFileInfo appDataLocalFileInfo(appDataLocalPath);
-            QString localPath = appDataLocalFileInfo.absolutePath() + "/lisem";
-            QDir dir;
-            if (!dir.exists(localPath))
-                dir.mkpath(localPath);
-            op.userAppDir = localPath + "/";
 
             //TWorld *W = new TWorld(); // pointer is not deleted so mem leak, declare directly
             TWorld W;
@@ -146,17 +147,7 @@ int main(int argc, char *argv[])
     } else {
         // Use QApplication for GUI mode
         QApplication app(argc, argv);
-        app.setWindowIcon(QIcon(":/openlisemN.ico"));
         app.setStyle(QStyleFactory::create("Fusion"));
-
-        // this path is needed for openlisemtemp.run and openlisem.ini
-        QString appDataLocalPath = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
-        QFileInfo appDataLocalFileInfo(appDataLocalPath);
-        QString localPath = appDataLocalFileInfo.absolutePath() + "/lisem";
-        QDir dir;
-        if (!dir.exists(localPath))
-            dir.mkpath(localPath);
-        op.userAppDir = localPath + "/";
 
         // select between a standard run with GUI or a run with GUI based on a specified runfile from the command line
         if (argc <= 1) {
@@ -166,7 +157,7 @@ int main(int argc, char *argv[])
             return app.exec();
         } else {
             if (!runFileName.isEmpty()) {
-                lisemqt iface(0, true, forceRes, runFileName);
+                lisemqt iface(0, doBatch, forceRes, runFileName);
                 iface.setWindowTitle(VERSION);
                 iface.show();
                 return app.exec();

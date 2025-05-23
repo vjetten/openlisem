@@ -123,7 +123,7 @@ void lisemqt::ssetAlphaHardSurface(int v)
 //---------------------------------------------------------------------------
 // called when a model run is started
 void lisemqt::initMapPlot()
-{  
+{
 
     maxAxis1 = -1e20;
     maxAxis2 = -1e20;

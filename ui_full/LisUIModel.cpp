@@ -35,13 +35,7 @@
 #include "lisemqt.h"
 #include "global.h"
 
-//#define ClearL(list) while (list.count()) {if (!list.isEmpty()) list.removeLast();}
-
-// from CoPilot
-//#define Clear(list) list.clear(); //QList<int>().swap(list)
-//#define Cleard(list) list.clear();//QList<double>().swap(list)
 #define Clear2D(List) qDeleteAll(List.begin(), List.end());List.clear();
-//for(auto vec : list){delete vec;}list.clear();QList<QVector<double>*>().swap(list)
 
 void lisemqt::ClearOP()
 {
@@ -93,6 +87,13 @@ void lisemqt::deleteWStructures()
     W->dcr_.clear();
     W->crtile_.clear();
 
+    // delete PGraph;
+    // delete QGraph;
+    // delete QsGraph;
+    // delete CGraph;
+    // delete QtileGraph;
+    // delete QbGraph;
+
     QVector <double> zero;
     zero.clear();
     PGraph->setSamples(zero,zero);
@@ -139,6 +140,7 @@ void lisemqt::runmodel()
 
     // connect emitted signals from the model thread to the interface routines that handle them
 
+    // not sure why this?
     // if (W)
     // {
     //     if (W->waitRequested) {
@@ -153,7 +155,6 @@ void lisemqt::runmodel()
     // we do that at the start of a new run and not at the end of a run,
     //because the user wants to still switch maps in the interface after the ruin
     if (stoprun && W) {
-        // destroy ALL maps
         deleteWStructures();
     }
 
@@ -219,10 +220,6 @@ void lisemqt::runmodel()
     connect(worldThread, &QThread::started, W, &TWorld::DoModel);
     connect(W, &TWorld::done, worldThread, &QThread::quit);
     connect(worldThread, &QThread::finished, worldThread, &QThread::deleteLater); // dlete later means these are automatically deleted when the thread finishes
-
-    // connect(worldThread, &QThread::finished, this, [this]() {
-    //     W->moveToThread(QApplication::instance()->thread());
-    // });
 
     W->showInfo = true;
 
@@ -377,7 +374,8 @@ void lisemqt::worldDone(const QString &results)
     toolButton_fileOpen->setEnabled(true);
     toolButton_deleteRun->setEnabled(true);
 
-    if (doBatchmode) {
+    // not sure if this is needed?
+    if (op.doBatchmode) {
         close();
     }
 }

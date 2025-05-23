@@ -312,6 +312,7 @@ void lisemqt::SetStyleUI()
 {
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setIcon(QIcon(":/openLisemN.ico"));
+    trayIcon->setVisible(true);
     trayIcon->show();
 
     helpbox = new QDialog();

@@ -520,11 +520,8 @@ void lisemqt::ParseInputData()
         }
         if (p1.compare("Result Directory")==0)
         {
-            if (doBatchmode) {
-                E_ResultDir->setText(CheckDir(p, true));
+            E_ResultDir->setText(CheckDir(p, op.forceResDir));
 
-            } else
-                E_ResultDir->setText(CheckDir(p, false));
             if (!QFileInfo(E_ResultDir->text()).exists() && QFileInfo(E_WorkDir).exists())
                 E_ResultDir->setText(E_WorkDir + "res/");
         }

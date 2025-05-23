@@ -37,11 +37,6 @@
 /// structure to pass variables form the model to the interface.
 /// This tsructure is the link, visible by both
 
-//typedef struct LDD_COOR {
-//    int r;
-//    int c;
-//}  LDD_COOR;
-
 struct output{
     int runstep;
     int printstep;

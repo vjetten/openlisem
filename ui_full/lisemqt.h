@@ -106,8 +106,6 @@ public:
     lisemqt(QWidget *parent = 0, bool doBatch = false, bool forceRes = false, QString runName = "");
     ~lisemqt();
 
-    void closeEvent(QCloseEvent *event);
-
     int genfontsize;
     double dpiscale;
     long nrValidCells;
@@ -122,8 +120,6 @@ public:
     QString mencoderDir;
 
     bool darkLISEM;
-    bool doBatchmode;
-    bool forceResultDir;
     bool checkforpatch;
     QString batchRunname;
 
@@ -159,7 +155,7 @@ public:
     void RunAllChecks();
     void savefile(QString name);
     void SetConnections();
-    QStringList runfilelist;
+    //QStringList runfilelist;
 
     QList <QPointF> dataRain;
     QList <QPointF> dataQ;
@@ -621,6 +617,7 @@ private:
     QThread *worldThread;
 
 };
+
 
 
 #endif // LISEMQT_H
