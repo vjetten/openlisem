@@ -140,16 +140,6 @@ void lisemqt::runmodel()
 
     // connect emitted signals from the model thread to the interface routines that handle them
 
-    // not sure why this?
-    // if (W)
-    // {
-    //     if (W->waitRequested) {
-    //         pausemodel();
-    //         qDebug() << "pauze";
-    //         return;
-    //     }
-    // }
-
     // if the model has stopped and a new run is requested, clear the datastructures
     // until that time the user can look at the old results
     // we do that at the start of a new run and not at the end of a run,
@@ -212,6 +202,24 @@ void lisemqt::runmodel()
     showOutputData();
 
     //=======================================================================================//
+    // create the world and the thread it runs in
+
+    if (W) {
+        W->deleteLater(); // delete after it is finished
+    }
+
+    W = new TWorld();
+    connect(W, &TWorld::show, this, &lisemqt::worldShow);
+    connect(W, &TWorld::done, this, &lisemqt::worldDone);
+    connect(W, &TWorld::debug, this, &lisemqt::worldDebug);
+    connect(W, &TWorld::timedb, this, &lisemqt::worldDebug);
+    //connections to trigger messages and model stop from the interface
+    // e.g. if the world emits done, the worldDone is called to stop the model
+
+    // dealing with digit separator comma or dot
+    W->loc = QLocale::system(); // current locale
+    W->loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
+    QLocale::setDefault(W->loc);
 
     // make a thread to run the world in
     worldThread = new QThread();
@@ -375,9 +383,10 @@ void lisemqt::worldDone(const QString &results)
     toolButton_deleteRun->setEnabled(true);
 
     // not sure if this is needed?
-    if (op.doBatchmode) {
-        close();
-    }
+
+    // if (op.doBatchmode) {
+    //     close();
+    // }
 }
 //---------------------------------------------------------------------------
 // this function is linked to the debug signal emitted from the model world

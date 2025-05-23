@@ -313,7 +313,7 @@ void TWorld::DoModel()
             if (op.doBatchmode && noInterface) {
                 int x = 0;
                 x = std::round(op.t/op.maxtime * 100) ;
-                consoleout << "\rprogress: " << QString("step %1        %2 %   end time 3%").arg(runstep).arg(x, -3).arg(op.maxtime) << "        ";
+                consoleout << "\rprogress: " << QString("step %1        %2 %   end time %3").arg(runstep).arg(x, -3).arg(op.maxtime) << "        ";
                 consoleout.flush();
 
                 // THIS SHOULD ALSO WORK IN LINUX ???

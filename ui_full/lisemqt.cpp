@@ -78,19 +78,6 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
     // mapList will be refilled with the runfile and user choices
     // so this contains the final list of maps
 
-    W = new TWorld();
-    connect(W, &TWorld::show, this, &lisemqt::worldShow);
-    connect(W, &TWorld::done, this, &lisemqt::worldDone);
-    connect(W, &TWorld::debug, this, &lisemqt::worldDebug);
-    connect(W, &TWorld::timedb, this, &lisemqt::worldDebug);
-    //connections to trigger messages and model stop from the interface
-    // e.g. if the world emits done, the worldDone is called to stop the model
-
-    // dealing with digit separator comma or dot
-    W->loc = QLocale::system(); // current locale
-    W->loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
-    QLocale::setDefault(W->loc);
-
     stoprun = false;
     // to prevent destroying datastructures that are not created yet at the first run
 
@@ -159,8 +146,6 @@ lisemqt::~lisemqt()
    // saveSettings(); regsitry, not used because not in linux
     if (!op.doBatchmode)
         StorePath();
-    if (W)
-       delete W;
 }
 //--------------------------------------------------------------------
 void lisemqt::SetConnections()
