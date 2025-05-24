@@ -222,7 +222,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
         QinKW->Drc = Qin;
 
         _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
-        int ldd = _crlinked_.at(i_).ldd;
+        int ldd = fabs(_crlinked_.at(i_).ldd); // negative is a culvert
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
         if (_Qmax->Drcr > 0)
@@ -268,7 +268,7 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
 
         _Qsn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Sin, _Qs->Drc, _Alpha->Drc, _DX->Drc);
         _Qsn->Drc = std::min(_Qsn->Drc, Sin+_Sed->Drc/_dt);
-        int ldd = _crlinked_.at(i_).ldd;
+        int ldd = fabs(_crlinked_.at(i_).ldd);
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
         if (_Qmax->Drcr > 0) {

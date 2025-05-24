@@ -261,7 +261,7 @@ void TWorld::ChannelFlow(void)
 
                 // check if there is a culvert downstream and limit outflow if necessary
 
-                int ldd = crlinkedlddch_.at(i_).ldd;//static_cast<int>(LDDChannel->Drc); //crlinkedlddch_.at(i_).ldd;
+                int ldd = fabs(crlinkedlddch_.at(i_).ldd);
                 int cr = c+dx[ldd];
                 int rr = r+dy[ldd];
                 if (!pcr::isMV(LDDChannel->Drcr) && ChannelMaxQ->Drcr > 0)

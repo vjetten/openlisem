@@ -635,7 +635,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("OutGW");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("OutTileV");
+    namelist[i++].name = QString("OutTileVol");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("OutDet");
     namelist[i].value = QString("0");

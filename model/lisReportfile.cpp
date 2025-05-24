@@ -48,10 +48,10 @@ void TWorld::reportToFile(void)
     // report catchment averages per timestep
 
     // spatial output, maps and mapseries
-    if (!SwitchEndRun) {
+//    if (!SwitchEndRun) {
         ReportMaps();
         ReportMapSeries();
-    }
+//    }
     // report all maps and mapseries
 
     ReportErosionLandunits();

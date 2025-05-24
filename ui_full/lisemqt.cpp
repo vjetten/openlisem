@@ -1192,21 +1192,26 @@ void lisemqt::resetAll()
 
     checkWritePCRaster->setChecked(true);
 
-    checkBox_OutRunoff->setChecked(false);
-    checkBox_OutConc->setChecked(false);
-    checkBox_OutWH->setChecked(false);
-    checkBox_OutTC->setChecked(false);
-    checkBox_OutDet->setChecked(false);
-    checkBox_OutDep->setChecked(false);
-    checkBox_OutV->setChecked(false);
-    checkBox_OutInf->setChecked(false);
-    checkBox_OutSurfStor->setChecked(false);
-    //checkBox_OutChanVol->setChecked(false);
-    checkBox_OutTiledrain->setChecked(false);
-    // checkBox_OutHmx->setChecked(false);
-    // checkBox_OutQf->setChecked(false);
-    // checkBox_OutVf->setChecked(false);
-    // checkBox_OutHmxWH->setChecked(false);
+    bool check = false;
+    checkBox_OutRunoff->setChecked(check);
+    checkBox_OutWH->setChecked(check);
+    checkBox_OutV->setChecked(check);
+    checkBox_OutInterception->setChecked(check);
+    checkBox_OutSurfStor->setChecked(check);
+    checkBox_OutInf->setChecked(check);
+    checkBox_OutTiledrain->setChecked(check);
+    checkBox_OutTileVol->setChecked(check);
+    checkBox_OutTheta->setChecked(check);
+    checkBox_OutGW->setChecked(check);
+
+    checkBox_OutDet->setChecked(check);
+    checkBox_OutDep->setChecked(check);
+    checkBox_OutTC->setChecked(check);
+    checkBox_OutConc->setChecked(check);
+    checkBox_OutSed->setChecked(check);
+    checkBox_OutSL->setChecked(check);
+    checkBox_OutSedSS->setChecked(check);
+    checkBox_OutSedBL->setChecked(check);
 
     printinterval->setValue(1);
 

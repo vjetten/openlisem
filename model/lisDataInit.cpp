@@ -935,8 +935,7 @@ void TWorld::InitChannel(void)
     FOR_ROW_COL_MV_CH {
         nrValidCellsCH++;
     }
-    //crch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
-    //long i = 0;
+
     FOR_ROW_COL_MV_CH {
         LDD_COOR newcr;
         newcr.r = r;
@@ -1028,11 +1027,20 @@ void TWorld::InitChannel(void)
                 //qDebug() << ChannelMaxQ->Drc << ChannelMaxAlpha->Drc;
             }
         }}
+
+        for(long i_ =  0; i_ < crlinkedlddch_.size(); i_++) {
+            int r = crlinkedlddch_.at(i_).r;
+            int c = crlinkedlddch_.at(i_).c;
+            if (ChannelDiameter->Drc > 0) {
+                LDD_COORIN in = crlinkedlddch_.at(i_);
+                in.ldd *= -1;
+                crlinkedlddch_.replace(i_, in); // make ldd of culverts negative for drawing
+            }
+        }
+
     } else {
         ChannelDiameter = NewMap(0);
     }
-
-
     FOR_ROW_COL_MV_CH
     {
         ChannelWidthMax->Drc = ChannelWidth->Drc; // not used!
@@ -1846,7 +1854,7 @@ void TWorld::IntializeOptions(void)
     //SwitchOutputTimeUser = false;
     SwitchSeparateOutput = false;
     SwitchWriteHeaders = true; // write headers in output files in first timestep
-    SwitchEndRun = false;
+    //SwitchEndRun = false;
 
     SwitchAdvancedOptions = false;
     SwitchPsiUser = false;

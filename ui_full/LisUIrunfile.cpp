@@ -408,23 +408,23 @@ void lisemqt::ParseInputData()
 
 
         // STANDARD OUTPUT FILES
-        if (p1.compare("OutRunoff")==0)         checkBox_OutRunoff->setChecked(check);
-        if (p1.compare("OutWH")==0)             checkBox_OutWH->setChecked(check);
-        if (p1.compare("OutV")==0)              checkBox_OutV->setChecked(check);
+        if (p1.compare("OutRunoff")==0)        checkBox_OutRunoff->setChecked(check);
+        if (p1.compare("OutWH")==0)            checkBox_OutWH->setChecked(check);
+        if (p1.compare("OutV")==0)             checkBox_OutV->setChecked(check);
         if (p1.compare("OutInterception")==0)  checkBox_OutInterception->setChecked(check);
-        if (p1.compare("OutSurfStor")==0)       checkBox_OutSurfStor->setChecked(check);
-        if (p1.compare("OutInf")==0)            checkBox_OutInf->setChecked(check);
-        if (p1.compare("OutTileDrain")==0)      checkBox_OutTiledrain->setChecked(check);
-        if (p1.compare("OutTileVolume")==0)         checkBox_OutTileVol->setChecked(check);
+        if (p1.compare("OutSurfStor")==0)      checkBox_OutSurfStor->setChecked(check);
+        if (p1.compare("OutInf")==0)           checkBox_OutInf->setChecked(check);
+        if (p1.compare("OutTileDrain")==0)     checkBox_OutTiledrain->setChecked(check);
+        if (p1.compare("OutTileVolume")==0)    checkBox_OutTileVol->setChecked(check);
         if (p1.compare("OutTheta")==0)         checkBox_OutTheta->setChecked(check);
-        if (p1.compare("OutGW")==0)         checkBox_OutGW->setChecked(check);
+        if (p1.compare("OutGW")==0)            checkBox_OutGW->setChecked(check);
 
-        if (p1.compare("OutDet")==0)     checkBox_OutDet->setChecked(check);
-        if (p1.compare("OutDep")==0)     checkBox_OutDep->setChecked(check);
-        if (p1.compare("OutTC")==0)      checkBox_OutTC->setChecked(check);
-        if (p1.compare("OutConc")==0)    checkBox_OutConc->setChecked(check);
-        if (p1.compare("OutSed")==0)     checkBox_OutSed->setChecked(check);
-        if (p1.compare("OutSL")==0)      checkBox_OutSL->setChecked(check);
+        if (p1.compare("OutDet")==0)       checkBox_OutDet->setChecked(check);
+        if (p1.compare("OutDep")==0)       checkBox_OutDep->setChecked(check);
+        if (p1.compare("OutTC")==0)        checkBox_OutTC->setChecked(check);
+        if (p1.compare("OutConc")==0)      checkBox_OutConc->setChecked(check);
+        if (p1.compare("OutSed")==0)       checkBox_OutSed->setChecked(check);
+        if (p1.compare("OutSL")==0)        checkBox_OutSL->setChecked(check);
         if (p1.compare("OutSedSS")==0)     checkBox_OutSedSS->setChecked(check);
         if (p1.compare("OutSedBL")==0)     checkBox_OutSedBL->setChecked(check);
 
@@ -1126,6 +1126,7 @@ void lisemqt::updateModelData()
      //   if (p1.compare("Add timestamp")==0)   namelist[j].value.setNum((int)checkOutputTimestamp->isChecked());
 
     }
+    qDebug()<<"checktile" <<checkBox_OutTileVol->isChecked();
     //get all actual mapnames from the mapList structure
     fillNamelistMapnames(true);
 

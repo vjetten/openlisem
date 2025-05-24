@@ -223,7 +223,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Output interval")==0)                   printinterval = iii;
         //if (p1.compare("Report point output separate")==0)      SwitchSeparateOutput = iii == 1;
         if (p1.compare("Report digits out")==0)                 ReportDigitsOut = iii;
-        if (p1.compare("Report end run")==0)                    SwitchEndRun = iii == 1;
+       //if (p1.compare("Report end run")==0)                    SwitchEndRun = iii == 1;
         if (p1.compare("Include Satellite Image")==0)           SwitchImage = iii == 1;
         if (p1.compare("Erosion map units (0/1/2)")==0)     ErosionUnits = iii;
         if (p1.compare("Report discharge units")==0)        QUnits = iii;
@@ -372,7 +372,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OutSedBL")==0)          SwitchOutSedBL = iii == 1;
 
     }// first loop of runnamelist
-
+qDebug() <<"SwitchOutTileVol"<<SwitchOutTileVol;
     //##########################
 
     // get a number of options that detemrine how to read runfile parameters
@@ -602,31 +602,24 @@ void TWorld::ParseRunfileData(void)
 
     // empty filenames need to be kept because of the order of names: TODO fix this
     Outrunoff = "ro";
-    Outconc   = "conc";
     Outwh     = "wh";
-    Outrwh    = "";
     OutInt    = "int";
-    Outtc     = "tc";
-    Outeros   = "det";
-    Outdepo   = "dep";
     Outvelo   = "v";
     Outinf    = "inf";
     Outss     = "sstor";
-    Outchvol  = "";
-    OutTiledrain = "Qtile";
-    OutTheta1 = "thetaa";
-    OutTheta2 = "thetab";
-    OutTileVol = "Voltile";
-    OutTileV = "Vtile";
-    OutHmx  = "";
-    OutQf  = "Qf";
-    OutVf  = "";
-    OutHmxWH  = "";
+    OutTheta1 = "the1l";
+    OutTheta2 = "the2l";
+    OutTileVol = "tilevol";
+    OutTiledrain = "tileq";
+    OutGW = "GWH";
     OutSL  = "sloss";
+    Outtc     = "tc";
+    Outconc   = "conc";
     OutSed  = "sed";
+    Outeros   = "det";
+    Outdepo   = "dep";
     OutSedSS  = "sedSS";
     OutSedBL  = "sedBL";
-    OutGW = "GWH";
 }
 //------------------------------------------------------------------------------
 

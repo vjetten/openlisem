@@ -200,9 +200,9 @@ void TWorld::ReportMapSeries(void)
     if (SwitchOutinf)
         report(*InfilmmCum, Outinf);
 
+    // surface storagge (mm)
     if (SwitchOutss)
     {
-        //calcMapValue(*tm, *WHstore, 1000, MUL);// in mm
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             tm->Drc = WHstore->Drc  * 1000;
@@ -212,27 +212,27 @@ void TWorld::ReportMapSeries(void)
 
     if (SwitchIncludeTile|| SwitchIncludeStormDrains)
     {
-        if (SwitchOutTiledrain)
-        {
-           // calcMapValue(*tm, *TileQn, 1000, MUL);
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                tm->Drc = TileQn->Drc  * 1000;
-            }}
+        if (SwitchOutTiledrain) {
+            if (QUnits == 1)
+                report(*TileQn, OutTiledrain); //in m3/s
+            else {
+                #pragma omp parallel for num_threads(userCores)
+                FOR_ROW_COL_MV_L {
+                    tm->Drc = TileQn->Drc  * 1000;
+                }}
             report(*tm, OutTiledrain); //in l/s
         }
-        if (SwitchOutTileVol)
-        {
-            // report(*TileV, "tilev"); //in m3/s
+        }
+        if (SwitchOutTileVol) {
             report(*TileWaterVol, OutTileVol); //in m3
         }
     }
 
     if (SwitchOutTheta) {
         if (SwitchInfiltration && InfilMethod != INFIL_SWATRE) { //InfilMethod != INFIL_NONE
-            report(*ThetaI1a, "th1l");//OutTheta1);
+            report(*ThetaI1a, OutTheta1);
             if (SwitchTwoLayer)
-                report(*ThetaI2a, "th2l");//OutTheta2);
+                report(*ThetaI2a, OutTheta2);
         }
     }
 

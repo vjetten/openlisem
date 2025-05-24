@@ -555,6 +555,8 @@ void lisemqt::showOutputData()
 
 void lisemqt::showOutputDataZero()
 {
+    progressBar->setValue(0);
+
     if(op.OutletQ.length() == 0)
     {
         return;

@@ -39,7 +39,8 @@ void TWorld::InfilSwatre()
         }
 
         double tilevol = 0;
-
+        double theta = 0;
+        double perc = 0;
         double WHorig;
         if (FloodDomain->Drc == 0)
             WHorig = WH->Drc;
@@ -53,10 +54,10 @@ void TWorld::InfilSwatre()
         ComputeForPixel(pix);
 
         double WHN = pix->wh*0.01;
-
-        Perc->Drc= SwatreSoilModel->pixel[i_].percolation*0.01;
+        theta = pix->thetaroot;
+        perc = pix->percolation*0.01;
         if (SwitchIncludeTile)
-            tilevol = SwatreSoilModel->pixel[i_].tiledrain;  // is already in m3
+            tilevol = pix->tiledrain;  // is already in m3
 
         //TODO test infil swatre for crusts and compaction
         if (SwitchInfilCrust) {
@@ -71,9 +72,10 @@ void TWorld::InfilSwatre()
 
                 ComputeForPixel(pixcr);
 
-                double WHcrust = pixcr->wh*0.01;
-                WHN = WHcrust*CrustFraction->Drc + WHN*(1-CrustFraction->Drc);
                 // weighed average
+                WHN = pixcr->wh*0.01*CrustFraction->Drc + WHN*(1-CrustFraction->Drc);
+                theta = pixcr->thetaroot*CrustFraction->Drc + theta*(1-CrustFraction->Drc);
+                perc = pixcr->percolation*0.01*CrustFraction->Drc + perc*(1-CrustFraction->Drc);
 
                 if (SwitchIncludeTile) {
                     tilevol = CrustFraction->Drc*pixcr->tiledrain + tilevol*(1-CrustFraction->Drc);
@@ -89,9 +91,9 @@ void TWorld::InfilSwatre()
 
                 ComputeForPixel(pixcm);
 
-                double WHcompact = pixcm->wh*0.01;
-                WHN = WHcompact*CompactFraction->Drc + WHN*(1-CompactFraction->Drc);
-                // weighted average
+                WHN = pixcm->wh*0.01*CompactFraction->Drc + WHN*(1-CompactFraction->Drc);
+                theta = pixcm->thetaroot*CompactFraction->Drc + theta*(1-CompactFraction->Drc);
+                perc = pixcm->percolation*0.01*CompactFraction->Drc + perc*(1-CompactFraction->Drc);
 
                 if (SwitchIncludeTile) {
                     tilevol = CompactFraction->Drc*pixcm->tiledrain + tilevol*(1-CompactFraction->Drc);
@@ -107,8 +109,9 @@ void TWorld::InfilSwatre()
 
                 ComputeForPixel(pixgr);
 
-                double WHgrass = pixgr->wh*0.01;
-                WHN = WHgrass*GrassFraction->Drc + WHN*(1-GrassFraction->Drc);
+                WHN = pixgr->wh*0.01*GrassFraction->Drc + WHN*(1-GrassFraction->Drc);
+                theta = pixgr->thetaroot*GrassFraction->Drc + theta*(1-GrassFraction->Drc);
+                perc = pixgr->percolation*0.01*GrassFraction->Drc + perc*(1-GrassFraction->Drc);
 
                 if (SwitchIncludeTile) {
                     tilevol = GrassFraction->Drc*pixgr->tiledrain + tilevol*(1-GrassFraction->Drc);
@@ -116,34 +119,32 @@ void TWorld::InfilSwatre()
             }
         }
 
-        if (SwitchIncludeTile)
-            TileWaterVolSoil->Drc = tilevol;
-
         if (FloodDomain->Drc == 0)
             WH->Drc = WHN;
         else
             hmx->Drc = WHN;
         hmxWH->Drc = hmx->Drc + WH->Drc;
         WaterVolall->Drc = hmxWH->Drc*CHAdjDX->Drc;
-
         InfilVol->Drc = std::max(0.0, WHorig - WHN) * FlowWidth->Drc * DX->Drc;
         // use flowwidth because impermeable is done separately
+
+        ThetaI1a->Drc = theta;
+        Perc->Drc = perc;
+        if (SwitchIncludeTile)
+            TileWaterVolSoil->Drc = tilevol;
+
+        //find depth wetting front, estimated at depth where h is initial value, very crude
+        Lw->Drc = 0;
+        for (int j = 0; j < pix->profile->zone->nrNodes; j++) {
+//            if (j > 0 && (pix->h[j] > inith->at(j)->Drc+1.0 || pix->h[j] == 0)) {
+              if (j > 0 && pix->h[j] > -10) {
+                double l1 = pix->profile->zone->endComp[j-1]*0.01; // in m
+                double l2 = pix->profile->zone->endComp[j]*0.01; // in m
+                Lw->Drc = 0.5*(l1+l2);
+            }
+        }
     }}
 
-    //find depth wetting front, estimated at depth where h is initial value, very crude
-    Fill(*Lwmm,0);
-    for (int j = 0; j < SwatreSoilModel->pixel[0].profile->zone->nrNodes; j++) {
-        cTMap *map = inith->at(j);
-
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            if (j > 0 && SwatreSoilModel->pixel[i_].h[j] > map->Drc+1.0) {
-                double l = SwatreSoilModel->pixel[i_].profile->zone->endComp[j-1]*10; // in mm
-                double l1 = SwatreSoilModel->pixel[i_].profile->zone->endComp[j]*10; // in mm
-                Lwmm->Drc = 0.5*(l+l1);
-            }
-        }}
-    }
 
     // dump a map with h at every node
     if(SwitchDumphead) {

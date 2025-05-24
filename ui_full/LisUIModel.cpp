@@ -341,13 +341,16 @@ void lisemqt::worldShow()
         startplot = false; //if not set to false all the above are done eahc time
 
         showMap(); // show map with selected data
+        // the op structure uses POINTERS to maps. These maps are being used in the thread loop
+        // so the action must be locked by mutex, to ensure only one trhead can access the data
 
         if (doShootScreens)
             shootMultipleScreens();
     }
 
+    //qDebug() << "GUI thread waking up model thread at" << QTime::currentTime();
     W->mutex.lock();
-    W->mu_condition.wakeOne();
+    W->mu_condition.wakeAll();
     W->mutex.unlock();
 }
 //---------------------------------------------------------------------------

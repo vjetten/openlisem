@@ -54,6 +54,7 @@ profile node setup:
 
 #define LIST_INC	10
 
+#define ROOTMAX 60  // rootzone depth
 
 //----------------------------------------------------------------------------------------------
 /// read and parse profile.inp
@@ -135,7 +136,7 @@ void TWorld::ReadSwatreInputNew(void)
     zone->z[0]= zone->dz[0]*0.5;
     zone->disnod[0] = zone->z[0];
     zone->rootz[0] = 0;
-    double rootmax = -80;
+    double rootmax = -ROOTMAX;
     double sum = 0;
     for (int i = 1; i < zone->nrNodes; i++) {
         zone->dz[i]= (zone->endComp[i-1]-zone->endComp[i]);
@@ -146,6 +147,7 @@ void TWorld::ReadSwatreInputNew(void)
             sum = sum + zone->rootz[i];
         }
     }
+    // tapering distribution of from layer 1 to < rootmax, sum is 1
     for (int i = 1; i < zone->nrNodes; i++) {
         if (zone->z[i] > rootmax) {
             zone->rootz[i] /= sum;
@@ -154,8 +156,8 @@ void TWorld::ReadSwatreInputNew(void)
 
     zone->disnod[zone->nrNodes] = 0.5 * zone->dz[zone->nrNodes-1];
 
-  // for (int i = 0; i <= zone->nrNodes; i++)
-    //    qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i] << "root" << zone->rootz[i];
+ // for (int i = 0; i <= zone->nrNodes; i++)
+   //    qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i] << "root" << zone->rootz[i];
 
     //  count and check valid profiles
     QStringList checkList; // temp list to check for double profile nrs
@@ -266,7 +268,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
         h = ReadHorizonNew(SwatreTableDir, tableName);
 
         // copy horizon info to all nodes of this horizon
-        // add the proper calibration factor (ksat1 cal for hor 1, ksat2cal for hor 2 adn the rest hor 3)       
+        // add the proper calibration factor (ksat1 cal for hor 1, ksat2cal for hor 2 adn the rest hor 3)
         while (i < z->nrNodes && z->endComp[i] <= endHor ) {
             p->horizon[i] = h;
 

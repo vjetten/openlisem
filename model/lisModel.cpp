@@ -296,15 +296,18 @@ void TWorld::DoModel()
             reportToUI();        // fill the "op" structure for screen and file output and calc some COMBO output maps
 
             reportToFile();      // report hydrograhs, totals, maps etc to files
+            // reporting to file is done in nthe same thread, mdoes not need a mutex lock
 
-            // show the data and write to disk, synchronize the thread.
-            // because showing is done outsid ethe Thread in the GUI, a mutex.lock() needs top be done.
-            //MUcondition gives a wakeOne() signal at the end of the display in showWorld
+            // because showing is done outside the Thread in the GUI, a mutex.lock() is needed
+            // mu_condition gives a wakeAll() signal at the end of the display in showWorld()
             if (!noInterface) {
-                mutex.lock();
                 emit show(); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
+                mutex.lock();
+                //qDebug() << "Model thread waiting at" << QTime::currentTime();
                 mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
+                //qDebug() << "Model thread resumed at" << QTime::currentTime();
                 mutex.unlock();
+
             }
 
             //saveMBerror2file(false); //saveMBerror
@@ -320,8 +323,8 @@ void TWorld::DoModel()
             }
         } // TIME LOOP
 
-        if (SwitchEndRun)
-            ReportMaps();
+        // if (SwitchEndRun)
+        //     ReportMaps();
 
         if (!noInterface) {
             // wrap up and close the thread

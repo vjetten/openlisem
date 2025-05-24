@@ -96,11 +96,11 @@ QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
                     LDD_COORIN newcr;
                     newcr.r = rowNr;
                     newcr.c = colNr;
-                    newcr.ldd = static_cast<int> (_LDD->data[rowNr][colNr]);
+                    newcr.ldd = static_cast<int> (_LDD->data[rowNr][colNr]);/*
                     if (newcr.ldd < 1 || newcr.ldd > 9) {
                         Error("Invalid ldd found, outside range [1-9]");
                         throw 2;
-                    }
+                    }*/
 
 
                     newcr.nr = 0;

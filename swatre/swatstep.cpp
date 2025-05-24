@@ -413,14 +413,16 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel) //long i_, SOIL_MODEL *s)
 
     } // elapsedTime < lisemTimeStep
 
-    double sum = 0;
+    double sumth = 0;
     double n = 0;
     for (int i = 0; i < nN; i++) {
         if (p->zone->rootz[i] > 0){
-            sum += FindValue(h[i], p->horizon[i], H_COL, THETA_COL);
+            sumth += FindValue(h[i], p->horizon[i], H_COL, THETA_COL);
             n += 1.0;
         }
     }
+    pixel->thetaroot = sumth/n;
+
 
     //put new h back into h
     //memcpy(pixel->h.data(), h, nN * sizeof(double));

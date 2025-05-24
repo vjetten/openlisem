@@ -70,7 +70,7 @@
        <enum>QTabWidget::TabPosition::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -359,7 +359,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>9</number>
+                  <number>5</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -10541,7 +10541,7 @@
                   </font>
                  </property>
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>1</number>
                  </property>
                  <widget class="QWidget" name="tab">
                   <attribute name="title">
@@ -11521,7 +11521,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>tileq - tile drainage (l/s)</string>
+                            <string>tileq - tile drainage (units)</string>
                            </property>
                           </widget>
                          </item>
@@ -11639,7 +11639,7 @@
                             <string>mapseries saved as is &quot;ro&quot;</string>
                            </property>
                            <property name="text">
-                            <string>ro - runoff + channel discharge (l/s)</string>
+                            <string>ro - runoff + channel discharge (units)</string>
                            </property>
                           </widget>
                          </item>
@@ -11763,7 +11763,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>det - detachment (selected units)</string>
+                            <string>det - detachment (units)</string>
                            </property>
                           </widget>
                          </item>
@@ -11782,7 +11782,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>dep - deposition (select units)</string>
+                            <string>dep - deposition (units)</string>
                            </property>
                           </widget>
                          </item>
@@ -11795,7 +11795,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>sloss - soilloss (selected units)</string>
+                            <string>sloss - soilloss (units)</string>
                            </property>
                           </widget>
                          </item>
@@ -11846,7 +11846,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>sed - Sediment in flow (selected units)</string>
+                            <string>sed - Sediment in flow (units)</string>
                            </property>
                           </widget>
                          </item>
@@ -11859,7 +11859,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>SS - Suspended in flow (selected units)</string>
+                            <string>SS - Suspended in flow (units)</string>
                            </property>
                           </widget>
                          </item>
@@ -11872,7 +11872,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>BL - Bedload in flow (selected units)</string>
+                            <string>BL - Bedload in flow (units)</string>
                            </property>
                           </widget>
                          </item>

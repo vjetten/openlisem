@@ -461,7 +461,7 @@ public:
         SwitchWritePCRtimeplot,
         SwitchSeparateOutput,
         SwitchWriteHeaders,
-        SwitchEndRun,
+        //SwitchEndRun,
         SwitchResultDatetime,
         SwitchOutputTimestamp,
 
@@ -772,10 +772,12 @@ public:
     QString resultFileName;
     QString temprunname;
     /// standard names of output map series
-    QString Outrunoff, Outconc, Outwh, Outrwh, Outvelo, Outinf, Outss, Outchvol,
+    //Outchvol,OutHmx, OutVf,OutHmxWH,OutQf, Outrwh,
+    QString Outrunoff, Outconc, Outwh, Outvelo, Outinf, Outss,
     Outtc, Outeros, Outdepo, OutSL, OutSed, OutInt,OutSedSS, OutSedBL,
-    OutTiledrain, OutTileVol,OutTileV, OutHmx, OutVf, OutQf, OutHmxWH, OutTheta1, OutTheta2, OutGW;
-    bool  SwitchOutrunoff, SwitchOutconc, SwitchOutwh, SwitchOutrwh, SwitchOutvelo, SwitchOutinf, SwitchOutss, SwitchOutchvol,
+    OutTiledrain, OutTileVol, OutTheta1, OutTheta2, OutGW;
+    //SwitchOutrwh,
+    bool  SwitchOutrunoff, SwitchOutconc, SwitchOutwh, SwitchOutvelo, SwitchOutinf, SwitchOutss, SwitchOutchvol,
     SwitchOutConc, SwitchOutTC, SwitchOutDet, SwitchOutDep, SwitchOutSL, SwitchOutSed, SwitchOutInt, SwitchOutSedSS, SwitchOutSedBL,
     SwitchOutTiledrain, SwitchOutTileVol, SwitchOutHmx, SwitchOutVf, SwitchOutQf, SwitchOutHmxWH, SwitchOutTheta, SwitchOutGW;
     QString errorFileName;
