@@ -685,8 +685,7 @@ void lisemqt::setResultDir()
 //--------------------------------------------------------------------
 void lisemqt::savefileas()
 {
-    if (worldThread->isRunning())
-    {
+    if (W) {
         QMessageBox::warning(this, "openLISEM","Cannot save a file while the model is running.");
         return;
     }
@@ -708,12 +707,6 @@ void lisemqt::savefileas()
 //--------------------------------------------------------------------
 void lisemqt::saveRunFile()
 {
-//    if (W)
-//    {
-//        QMessageBox::warning(this, "openLISEM","Cannot save a file while model is running.");
-//        return;
-//    }
-
     updateModelData();
     // change runfile strings with current interface options
     savefile(op.runfilename);
@@ -721,12 +714,6 @@ void lisemqt::saveRunFile()
 //--------------------------------------------------------------------
 void lisemqt::savefile(QString name)
 {
-//    if (W)
-//    {
-//        QMessageBox::warning(this, "openLISEM","Cannot save a file while model is running.");
-//        return;
-//    }
-
     QFile fp(name);
     if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
     {
