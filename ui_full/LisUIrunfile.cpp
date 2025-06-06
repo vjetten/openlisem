@@ -273,8 +273,8 @@ void lisemqt::ParseInputData()
             if (iii == 0) checkStormDrainRect->setChecked(check);
             if (iii == 1) checkStormDrainCirc->setChecked(check);
         }
-        if (p1.compare("Drain inlet distance")==0)          E_TileInletDistance->setValue(iii);
-        if (p1.compare("Drain inlet size")==0)              E_TileInletSize->setValue(iii);
+        if (p1.compare("Drain inlet distance")==0)          E_TileInletDistance->setValue(valc);
+        if (p1.compare("Drain inlet size")==0)              E_TileInletSize->setValue(valc);
         //if (p1.compare("Use SWMM drain flow")==0)           checkTileSWMM->setChecked(check);
         if (p1.compare("Hard Surfaces")==0)                 checkHardsurface->setChecked(check);
 
@@ -943,8 +943,8 @@ void lisemqt::updateModelData()
             if (checkStormDrainRect->isChecked())           namelist[j].value.setNum(0);
             if (checkStormDrainCirc->isChecked())           namelist[j].value.setNum(1);
         }
-        if (p1.compare("Drain inlet distance")==0)          namelist[j].value.setNum((int)E_TileInletDistance->value());
-        if (p1.compare("Drain inlet size")==0)          namelist[j].value.setNum((int)E_TileInletSize->value());
+        if (p1.compare("Drain inlet distance")==0)          namelist[j].value = E_TileInletDistance->text();
+        if (p1.compare("Drain inlet size")==0)              namelist[j].value = E_TileInletSize->text();
         //if (p1.compare("Use SWMM drain flow")==0)           namelist[j].value.setNum((int)checkTileSWMM->isChecked());
 
         // conservation mtigation
@@ -1126,7 +1126,7 @@ void lisemqt::updateModelData()
      //   if (p1.compare("Add timestamp")==0)   namelist[j].value.setNum((int)checkOutputTimestamp->isChecked());
 
     }
-    qDebug()<<"checktile" <<checkBox_OutTileVol->isChecked();
+   // qDebug()<<"checktile" <<checkBox_OutTileVol->isChecked();
     //get all actual mapnames from the mapList structure
     fillNamelistMapnames(true);
 

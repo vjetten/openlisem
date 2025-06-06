@@ -172,6 +172,7 @@ void TWorld::ChannelBaseflow(void)
     }
 }
 //---------------------------------------------------------------------------
+// Channel volume with incoming rainfall and outgoing infil and retention
 void TWorld::ChannelRainandInfil(void)
 {
     // add rainfall to channel, assume no interception
@@ -193,6 +194,22 @@ void TWorld::ChannelRainandInfil(void)
                 // cannot be more than there is
                 ChannelWaterVol->Drc -= inf;
                 ChannelInfilVol->Drc = inf; // do not make infiltration cumulative, that is done in totals
+            }
+        }}
+    }
+
+    if (SwitchGridRetention) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            if (GridRetention->Drc > 0) {
+                double dvol = std::max(0.0,GridRetention->Drc - GridRetentionAct->Drc);
+                if(dvol > 0) {
+                    dvol = std::min(dvol, ChannelWaterVol->Drc);
+                    if (dvol > 0) {
+                        GridRetentionAct->Drc += dvol;
+                        ChannelWaterVol->Drc -= dvol;
+                    }
+                }
             }
         }}
     }
@@ -220,7 +237,7 @@ void TWorld::ChannelFlow(void)
 
     // for (double t = 0; t < _dt_user; t+=_dt)
     // {
-     //   double sumvol = getMassCH(ChannelWaterVol);
+        //double sumvol = MapTotal(*ChannelWaterVol);
 
         //===== channel kin wave directly here to be able to do culverts
         #pragma omp parallel for num_threads(userCores)
@@ -229,8 +246,8 @@ void TWorld::ChannelFlow(void)
             QinKW->Drc = 0; // needed for sediment
         }}
 
-
-        //  #pragma omp parallel for ordered num_threads(userCores)
+double totq = 0;
+        //#pragma omp parallel for ordered num_threads(userCores)
         // parallel doesn't work here because you have to calculate accoring to the order of cells from top to bottom, to determine the inflow
         for(long i_ =  0; i_ < crlinkedlddch_.size(); i_++)
         {
@@ -271,6 +288,9 @@ void TWorld::ChannelFlow(void)
                 ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc);
                 // adjust water valume to in and out
             }
+
+            if (crlinkedlddch_.at(i_).ldd == 5)
+                totq += ChannelQn->Drc*_dt;
         }
 
         // calc V and WH back from Qn (original width and depth)
@@ -290,32 +310,36 @@ void TWorld::ChannelFlow(void)
             // ChannelAlpha->Drc = Area > 1e-6 ? ChannelQn->Drc/std::pow(Area, 0.6) : 0.0;
             // DO NOT recalculate alpha becuase of erosion
 
-            if (SwitchGridRetention) {
-                double dvol = std::max(0.0,GridRetention->Drc - GridRetentionAct->Drc);
-                if(dvol > 0) {
-                    dvol = std::min(dvol, ChannelWaterVol->Drc);
-                    if (dvol > 0) {
-                        GridRetentionAct->Drc += dvol;
-                        ChannelWaterVol->Drc -= dvol;
+            // if (SwitchGridRetention) {
+            //     double dvol = std::max(0.0,GridRetention->Drc - GridRetentionAct->Drc);
+            //     if(dvol > 0) {
+            //         dvol = std::min(dvol, ChannelWaterVol->Drc);
+            //         if (dvol > 0) {
+            //             GridRetentionAct->Drc += dvol;
+            //             ChannelWaterVol->Drc -= dvol;
 
-                        double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
-                        double FWO = ChannelWidthO->Drc;
-                        double CHWH = Area/FWO;
-                        double Perim = FWO+2*CHWH;
-                        double Radius = (Perim > 0 ? Area/Perim : 0);
-                        double sqrtgrad = std::max(sqrt(ChannelGrad->Drc), 0.0001);
-                        double N = ChannelN->Drc;
-                        ChannelWH->Drc = CHWH;
-                        ChannelV->Drc = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
-                        ChannelQn->Drc = ChannelV->Drc * Area;
-                    }
-                }
-            }
+            //             double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
+            //             double FWO = ChannelWidthO->Drc;
+            //             double CHWH = Area/FWO;
+            //             double Perim = FWO+2*CHWH;
+            //             double Radius = (Perim > 0 ? Area/Perim : 0);
+            //             double sqrtgrad = std::max(sqrt(ChannelGrad->Drc), 0.0001);
+            //             double N = ChannelN->Drc;
+            //             ChannelWH->Drc = CHWH;
+            //             ChannelV->Drc = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
+            //             ChannelQn->Drc = ChannelV->Drc * Area;
+            //         }
+            //     }
+            // }
 
             // get the maximum for output
             maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
             maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
         }}
+    //    correctMassBalanceCH(sumvol, ChannelWaterVol);
+       // double sumvol1 = MapTotal(*ChannelWaterVol);
+
+       // qDebug() << "MB chan (aft-bef)" << sumvol << sumvol1 << totq << sumvol - sumvol1 - totq;
 
 //     }
 //     _dt=_dt_user;
@@ -404,7 +428,8 @@ double TWorld::getMassCH(cTMap *M)
     double sum2 = 0;
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        sum2 += M->Drc;
+        if (ChannelMaxQ->Drc <= 0)
+            sum2 += M->Drc;
     }}
     return sum2;
 }
@@ -412,12 +437,11 @@ double TWorld::getMassCH(cTMap *M)
 void TWorld::correctMassBalanceCH(double sum1, cTMap *M)
 {
     double sum2 = 0;
-   // double n = 0;
 
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        sum2 += M->Drc;
-  //      n += 1;
+        if (ChannelMaxQ->Drc <= 0)
+            sum2 += M->Drc;
     }}
     // total and cells active for M
     double dhtot = fabs(sum2) > 0 ? (sum1 - sum2)/sum2 : 0;

@@ -47,7 +47,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
     if (!SwitchIncludeChannel)
          return;
 
-#pragma omp parallel for num_threads(userCores)
+   #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         if (ChannelMaxQ->Drc <= 0) {
 
@@ -148,8 +148,12 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                     }
 
                 } else {
+                    // NB: this gives a larger mass balance error!
+
+                    // assume everything flows into the channel
                     ChannelWH->Drc += _h->Drc*CHAdjDX->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
                     _h->Drc = 0;
+
                     // this happens if there is very little flood water (< 5cm) and the channelWH is below the channeldepth
                     // we assume that there is no more flow towards the channel.
                     if (SwitchErosion) {
@@ -193,7 +197,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 // flow to and from channel based on broad crested weirs, freeflow or drowned
 // TUFLOW and other models use this
 // www.brighthubengineering.com
-
+// NOTE _h is WHrunoff so without microdepression storage
 void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
 {
     if (!SwitchIncludeChannel)
@@ -204,7 +208,7 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
         if (ChannelMaxQ->Drc == 0) {
             double dCHh = ChannelWH->Drc-ChannelDepth->Drc;
             double dCHh0 = std::max(dCHh, 0.0);
-            double H = _h->Drc;
+            double H = _h->Drc; // runoff height!
 
             if (H < 1e-6 && dCHh0 < 1e-6)
                 continue; // nothing to flow
@@ -219,12 +223,13 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
             bool tochannel = true;
             double transfer_volume = 0;
             double Cd = 0.56; // 2/3 * 0.86
-            double factor= 2.0*_dt*ChannelDX->Drc;
+            double factor = 2.0*_dt*ChannelDX->Drc;
             //do not use factor 2 for flow on both sides
 
             double H_eq = (dCHh*area_channel + H*area_surface)/CellArea->Drc;
+            //double H_eq = (dCHh*area_channel + (H+WHstore->Drc)*area_surface)/CellArea->Drc;
+            // equilibrium level
 
-            // if (dCHh < 0) {
             if (H_eq < 0) {  //happenns if neg vol in channel is larger than vol land, so all goes into channel
                 needed_volume = (H-std::max(0.0, H_eq))*area_surface;
                 // potentially all surface water flows into channel
@@ -257,7 +262,7 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
                     needed_volume = (dCHh - H_eq)*area_channel;
                     // vol needed to reach equilibrium level
 
-                    // broad crested weir flow if channel is leadng
+                    // broad crested weir flow if channel is leading
                     double Cd = 0.65/sqrt(1+dCHh0/ChannelDepth->Drc);
                     double transfer_volume_fromchan =factor*Cd*sqrt(GRAV)*0.5443*sqrt(dCHh0)*(dCHh0-H);
                     //0.5443 = (2/3)^1.5
@@ -275,7 +280,7 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
                 ChannelWaterVol->Drc -= transfer_volume;
             }
 
-            // Update heights
+            // Update water height from volume
             ChannelWH->Drc = ChannelWaterVol->Drc / area_channel;
             _h->Drc = (WaterVolall->Drc-MicroStoreVol->Drc) / area_surface;
 
@@ -287,7 +292,7 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
                 hmxWH->Drc = WH->Drc;
             }
 
-            // new equilibrium levels
+            // new equilibrium levels erosion
             if (SwitchErosion) {
                 if (tochannel) {
                     double sed = transfer_volume * SSCFlood->Drc;

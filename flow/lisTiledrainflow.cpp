@@ -43,38 +43,27 @@ void TWorld::ToTiledrainAll()
     {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_TILEL {
-          RunoffVolinToTile->Drc = 0;
-          double fractiontotile = 0;;
-          double MaxVol = DX->Drc*TileArea->Drc; //(pi r^2 or heightxwidth, done in datainit
+            RunoffVolinToTile->Drc = 0;
+            double MaxVol = DX->Drc*TileArea->Drc;
 
-          if (TileWaterVol->Drc >= MaxVol)
-            fractiontotile = 0;
-          else {
-            fractiontotile = 0.03/(RoadWidthDX->Drc*DX->Drc)*(DX->Drc/TileDrainDistance);
-            fractiontotile = std::max(0.0, std::min(1.0,fractiontotile));
-           // qDebug() << fractiontotile;
-            // every tile cell has a subtraction of water, based on the inlet fraction in the street
-            // assumed entry is 0.1 * 0.3 m
-            // if a road is divided over more cells, this probably overewstimates the entrance
+            if (TileWaterVol->Drc < MaxVol) {
 
-            double dh = fractiontotile*WHrunoff->Drc;
-            if (FloodDomain ->Drc > 0) {
-                dh = fractiontotile*hmxrunoff->Drc;
+                // double roadvol = WHrunoff->Drc*RoadWidthHSDX->Drc*DX->Drc; // m3 vol water on hard surfaces
+                // double volin = _dt*std::sqrt(2*GRAV*WHrunoff->Drc)*TileDrainSize * (DX->Drc/TileDrainDistance) * RoadWidthHSDX->Drc/_dx;// Bernouilly flow through a hole
+                // if (FloodDomain->Drc > 0) {
+                //     volin = _dt*std::sqrt(2*GRAV*hmxrunoff->Drc)*TileDrainSize * (DX->Drc/TileDrainDistance) * RoadWidthHSDX->Drc/_dx;
+                // }
+                // RunoffVolinToTile->Drc = std::min(volin, roadvol);
+                // RunoffVolinToTile->Drc = std::min(WaterVolall->Drc, RunoffVolinToTile->Drc);
+
+                RunoffVolinToTile->Drc = WaterVolall->Drc * TileDrainSize/CHAdjDX->Drc*RoadWidthHSDX->Drc/_dx*(DX->Drc/TileDrainDistance);
+                double volin = _dt*std::sqrt(2*GRAV*WHrunoff->Drc)*TileDrainSize * (DX->Drc/TileDrainDistance) * RoadWidthHSDX->Drc/_dx;// Bernouilly flow through a hole
+                RunoffVolinToTile->Drc = std::min(volin, RunoffVolinToTile->Drc);
+                RunoffVolinToTile->Drc = std::min(std::max(0.0, MaxVol - TileWaterVol->Drc), RunoffVolinToTile->Drc);
+
+                WaterVolall->Drc -= RunoffVolinToTile->Drc;
+
             }
-
-            RunoffVolinToTile->Drc = dh*CHAdjDX->Drc;
-
-            // adjust water height
-            WaterVolall->Drc -= dh*CHAdjDX->Drc;
-            if (FloodDomain->Drc == 0) {
-                WHrunoff->Drc -= dh;
-                WH->Drc -= dh;
-            } else {
-                hmxrunoff->Drc -= dh;
-                hmx->Drc -= dh;
-            }
-            hmxWH->Drc = WH->Drc + hmx->Drc;
-          }
         }}
     }
 }
@@ -166,7 +155,8 @@ void TWorld::TileFlow(void)
   FOR_ROW_COL_MV_L {
     TileQn->Drc = 0;
   }}
-
+double tot = MapTotal(*TileWaterVol);
+double totq = 0;
   // #pragma omp parallel for ordered num_threads(userCores)
   // parallel doesn't work here because the order of cells has to be maintained
   for(long i_ =  0; i_ < crlinkedlddtile_.size(); i_++) {
@@ -190,6 +180,13 @@ void TWorld::TileFlow(void)
       TileWaterVol->Drc = TileWaterVol->Drc + _dt*(Qin - TileQn->Drc);
       TileWaterVol->Drc = std::max(0.0, TileWaterVol->Drc);
       TileWaterVol->Drc = std::min(TileWaterVol->Drc, TileArea->Drc * DX->Drc);
+
+      if (crlinkedlddtile_.at(i_).ldd == 5)
+          totq += TileQn->Drc*_dt;
   }
+
+double tot1 = MapTotal(*TileWaterVol);
+qDebug() << tot << tot1 << totq << tot-tot1-totq;
+
 }
 //---------------------------------------------------------------------------

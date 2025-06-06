@@ -35,8 +35,8 @@ void TWorld::InfilSwatre()
         // profile 0 is for impermeable surfaces
         if (ProfileID->Drc <= 0 || fractionImperm->Drc > 0.999) {
             InfilVol->Drc = 0;
-            continue;
-        }
+            //continue;
+        } else {
 
         double tilevol = 0;
         double theta = 0;
@@ -48,14 +48,20 @@ void TWorld::InfilSwatre()
             WHorig = hmx->Drc;
 
         PIXEL_INFO *pix = &SwatreSoilModel->pixel[i_];
-        pix->wh = WHorig*100;    // WH is in m, convert to cm
+        pix->wh = WHorig;    // WH is in m, convert to cm
         pix->tiledrain = 0;
 
-        ComputeForPixel(pix);
+        double WHN = WHorig;
 
-        double WHN = pix->wh*0.01;
+// #pragma omp critical
+// {
+    // This part runs one thread at a time
+            ComputeForPixel(pix, WHN);
+//}
+         //double WHN = pix->wh;
+
         theta = pix->thetaroot;
-        perc = pix->percolation*0.01;
+        perc = pix->percolation;
         if (SwitchIncludeTile)
             tilevol = pix->tiledrain;  // is already in m3
 
@@ -67,15 +73,15 @@ void TWorld::InfilSwatre()
 
             if (ProfileIDCrust->Drc > 0 && CrustFraction->Drc > 0) {
                 PIXEL_INFO *pixcr = &SwatreSoilModelCrust->pixel[i_];
-                pixcr->wh = WHorig*100;    // WH is in m, convert to cm
+                pixcr->wh = WHorig;    // WH is in m, convert to cm
                 pixcr->tiledrain = 0;
 
-                ComputeForPixel(pixcr);
+            //    ComputeForPixel(pixcr);
 
                 // weighed average
-                WHN = pixcr->wh*0.01*CrustFraction->Drc + WHN*(1-CrustFraction->Drc);
+                WHN = pixcr->wh*CrustFraction->Drc + WHN*(1-CrustFraction->Drc);
                 theta = pixcr->thetaroot*CrustFraction->Drc + theta*(1-CrustFraction->Drc);
-                perc = pixcr->percolation*0.01*CrustFraction->Drc + perc*(1-CrustFraction->Drc);
+                perc = pixcr->percolation*CrustFraction->Drc + perc*(1-CrustFraction->Drc);
 
                 if (SwitchIncludeTile) {
                     tilevol = CrustFraction->Drc*pixcr->tiledrain + tilevol*(1-CrustFraction->Drc);
@@ -86,14 +92,14 @@ void TWorld::InfilSwatre()
         if (SwitchInfilCompact) {
             if (ProfileIDCompact->Drc > 0 &&  CompactFraction->Drc > 0) {
                 PIXEL_INFO *pixcm = &SwatreSoilModelCompact->pixel[i_];
-                pixcm->wh = WHorig*100;    // WH is in m, convert to cm
+                pixcm->wh = WHorig;    // WH is in m, convert to cm
                 pixcm->tiledrain = 0;
 
-                ComputeForPixel(pixcm);
+            //    ComputeForPixel(pixcm);
 
-                WHN = pixcm->wh*0.01*CompactFraction->Drc + WHN*(1-CompactFraction->Drc);
+                WHN = pixcm->wh*CompactFraction->Drc + WHN*(1-CompactFraction->Drc);
                 theta = pixcm->thetaroot*CompactFraction->Drc + theta*(1-CompactFraction->Drc);
-                perc = pixcm->percolation*0.01*CompactFraction->Drc + perc*(1-CompactFraction->Drc);
+                perc = pixcm->percolation*CompactFraction->Drc + perc*(1-CompactFraction->Drc);
 
                 if (SwitchIncludeTile) {
                     tilevol = CompactFraction->Drc*pixcm->tiledrain + tilevol*(1-CompactFraction->Drc);
@@ -104,14 +110,14 @@ void TWorld::InfilSwatre()
         if (SwitchGrassStrip) {
             if (ProfileIDGrass->Drc > 0 &&  GrassFraction->Drc > 0) {
                 PIXEL_INFO *pixgr = &SwatreSoilModelGrass->pixel[i_];
-                pixgr->wh = WHorig*100;    // WH is in m, convert to cm
+                pixgr->wh = WHorig;    // WH is in m, convert to cm
                 pixgr->tiledrain = 0;
 
-                ComputeForPixel(pixgr);
+            //    ComputeForPixel(pixgr);
 
-                WHN = pixgr->wh*0.01*GrassFraction->Drc + WHN*(1-GrassFraction->Drc);
+                WHN = pixgr->wh*GrassFraction->Drc + WHN*(1-GrassFraction->Drc);
                 theta = pixgr->thetaroot*GrassFraction->Drc + theta*(1-GrassFraction->Drc);
-                perc = pixgr->percolation*0.01*GrassFraction->Drc + perc*(1-GrassFraction->Drc);
+                perc = pixgr->percolation*GrassFraction->Drc + perc*(1-GrassFraction->Drc);
 
                 if (SwitchIncludeTile) {
                     tilevol = GrassFraction->Drc*pixgr->tiledrain + tilevol*(1-GrassFraction->Drc);
@@ -124,27 +130,34 @@ void TWorld::InfilSwatre()
         else
             hmx->Drc = WHN;
         hmxWH->Drc = hmx->Drc + WH->Drc;
+
         WaterVolall->Drc = hmxWH->Drc*CHAdjDX->Drc;
-        InfilVol->Drc = std::max(0.0, WHorig - WHN) * FlowWidth->Drc * DX->Drc;
+
+        InfilVol->Drc = (WHorig - WHN) * FlowWidth->Drc * DX->Drc;
+ //       if (WHorig - WHN < 0)
+ //           qDebug() << r << c << WHorig << WHN << (WHorig - WHN) << fractionImperm->Drc << FlowWidth->Drc;
+//        InfilVol->Drc = std::max(0.0, WHorig - WHN) * FlowWidth->Drc * DX->Drc;
         // use flowwidth because impermeable is done separately
 
         ThetaI1a->Drc = theta;
-        Perc->Drc = perc;
+        Perc->Drc = perc/_dt; //from m to m/sec
         if (SwitchIncludeTile)
             TileWaterVolSoil->Drc = tilevol;
-
+/*
         //find depth wetting front, estimated at depth where h is initial value, very crude
         Lw->Drc = 0;
         for (int j = 0; j < pix->profile->zone->nrNodes; j++) {
-//            if (j > 0 && (pix->h[j] > inith->at(j)->Drc+1.0 || pix->h[j] == 0)) {
-              if (j > 0 && pix->h[j] > -10) {
+              cTMap *map = inith->at(j);
+              if (j > 0 && pix->h[j] > map->Drc) {
                 double l1 = pix->profile->zone->endComp[j-1]*0.01; // in m
                 double l2 = pix->profile->zone->endComp[j]*0.01; // in m
                 Lw->Drc = 0.5*(l1+l2);
             }
         }
-    }}
+*/
+        }
 
+    }}
 
     // dump a map with h at every node
     if(SwitchDumphead) {

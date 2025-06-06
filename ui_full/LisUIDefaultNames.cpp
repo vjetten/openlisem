@@ -485,7 +485,7 @@ void lisemqt::defaultRunFile()
   //  namelist[i++].name = QString("Use SWMM drain flow");
     namelist[i].value = QString("20");
     namelist[i++].name = QString("Drain inlet distance");
-    namelist[i].value = QString("0.020");
+    namelist[i].value = QString("0.030");
     namelist[i++].name = QString("Drain inlet size");
 
     //### EROSION

@@ -372,7 +372,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OutSedBL")==0)          SwitchOutSedBL = iii == 1;
 
     }// first loop of runnamelist
-qDebug() <<"SwitchOutTileVol"<<SwitchOutTileVol;
+//qDebug() <<"SwitchOutTileVol"<<SwitchOutTileVol;
     //##########################
 
     // get a number of options that detemrine how to read runfile parameters

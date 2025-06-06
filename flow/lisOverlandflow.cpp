@@ -50,19 +50,20 @@ void TWorld::OverlandFlow(void)
     } else {
 
         CalcVelDisch();
+
+        // if (SwitchChannel2DflowConnect)
+        //     ToChannelAlt();
+        // else
+            ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
+
+     //   CalcVelDisch();
         // overland flow velocity, discharge and alpha
         // V is needed in erosion
 
         if (SwitchErosion) {
             cell_FlowDetachment();
-                // kine wave based flow detachment
-                //cell_FlowDetachmentContinuous(r,c);
+            // kine wave based flow detachment
         }
-
-       // if (SwitchChannel2DflowConnect)
-       //     ToChannelAlt();
-       // else
-            ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
 
         OverlandFlow1D();   // kinematic wave of water and sediment
 

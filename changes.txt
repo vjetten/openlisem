@@ -3,7 +3,8 @@ Latest fixes and changes:
 
 see Readme.txt for a complete list
 
-250524 - v7.4.7.beta.R1-R4
+250524 - v7.4.7.beta.R1-R5
+- Added: Inflow into stormdrains according to water pressure above tileinlet
 - Added: advanced options: 2D erosion calculations inside (slow) or outside (fast) 2D flow loop
 - UPDATE: Thread behaviour was obselete. Renewed and cleaned use of the mdoel in a thread separate form the GUI
 - BUG-FIX: corrected running from a batch file, and from a cmd window, with and without GUI

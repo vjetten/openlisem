@@ -137,7 +137,7 @@ double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int
 // Z and H in cm; table units K in cm/day converted to cm/sec, lisem time in seconds
 // NOTE: dz is negative, disZ is negative!
 
-void TWorld::ComputeForPixel(PIXEL_INFO *pixel) //long i_, SOIL_MODEL *s)
+void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double &wh) //long i_, SOIL_MODEL *s)
 {
     //PIXEL_INFO *pixel = &s->pixel[i_];
     const PROFILE *p = pixel->profile;
@@ -146,12 +146,12 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel) //long i_, SOIL_MODEL *s)
   //  qDebug() << i_ << r << c << p->profileId;
     int nN = p->zone->nrNodes;
     double dt = _dt/5;
-    double WH = pixel->wh;
+    double WH = wh *100;//pixel->wh*100; // convert m to cm
     double elapsedTime = 0;
     double drainout = 0;
     double percolation = 0;
     int tnode = pixel->tilenode;
-    double impfrac = fractionImperm->Drc;//pixel->impfrac;
+    double impfrac = fractionImperm->Drc;
     NODE_ARRAY kavg, k, C, theta, thetaPrev, h, hPrev, dz, disZ, S;
 
     for (int j = 0; j < nN; j++) {
@@ -238,7 +238,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel) //long i_, SOIL_MODEL *s)
         // disZ is negative !!!
 
         // check if ponded: 1st compare fluxes, 2nd compare store
-        qtop = -WH/dt;// * (1.0-impfrac);
+        qtop = -WH/dt;
         // top flux is water/timestep (cm/sec), negative downward
         // only for non impermeable surfaces. if more than 0.99 impermeable, swatstep is not done in infiltration()!
         isPonded = (qtop < qmax);
@@ -285,13 +285,12 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel) //long i_, SOIL_MODEL *s)
         NODE_ARRAY thoma, thomb, thomc, thomf, beta;
         //HeadCalc(p, h, &isPonded, fltsat, thetaPrev, hPrev, kavg, C, dt, WH, qtop, qbot);
 
-
         // First node : 0 (include boundary cond. qtop or pond)
         if (isPonded || fltsat) {
             // h at soil surface prescribed, ponding
-            thomc[0] = -dt * kavg[1]/(dz[0]*disZ[1]);
-            thomb[0] = -thomc[0] + C[0] + dt*kavg[0]/(disZ[0]*dz[0]);
-            thomf[0] = C[0]*h[0] + dt/(-dz[0]) * (kavg[0] - kavg[1]) + dt*kavg[0]*WH/(disZ[0]*dz[0]);
+            thomc[0] = -dt * kavg[1]/dz[0]/disZ[1];
+            thomb[0] = -thomc[0] + C[0] + dt*kavg[0]/disZ[0]/dz[0];
+            thomf[0] = C[0]*h[0] + dt/(-dz[0]) * (kavg[0] - kavg[1]) + dt*kavg[0]*WH/disZ[0]/dz[0];
         } else {
             //  q at soil surface prescribed, qtop = rainfall
             isPonded = false;
@@ -303,10 +302,10 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel) //long i_, SOIL_MODEL *s)
 
         // Intermediate nodes: i = 1 to n-2
         for (int i = 1; i < nN-1; i++) {
-            thoma[i] = -dt*kavg[i]/(dz[i]*disZ[i]);
-            thomc[i] = -dt*kavg[i+1]/(dz[i]*disZ[i+1]);
+            thoma[i] = -dt*kavg[i]/dz[i]/disZ[i];
+            thomc[i] = -dt*kavg[i+1]/dz[i]/disZ[i+1];
             thomb[i] = -thoma[i] - thomc[i] + C[i];
-            thomf[i] = C[i]*h[i] + dt/-dz[i]*(kavg[i]-kavg[i+1]) - dt*S[i];  //!!!! according to Belmans
+            thomf[i] = C[i]*h[i] + dt/-dz[i]*(kavg[i]-kavg[i+1]) - dt*S[i];  //add sinkterm according to Belmans
             // Belmans: E = h + (dt/C*dz)K+1/2 + (dt/C*dz)K-1/2 - (dt/C)*S;
             // F = C*E = Ch + dt*dz*K+1/2 +dt*dz*K-1/2  -dt*S
             //dh/dt = 1/C* 1/dz etc -dt*S/C eq 6 page 275
@@ -314,7 +313,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel) //long i_, SOIL_MODEL *s)
         }
 
         // last node : nN-1 (include boundary cond. qbot)
-        thoma[nN-1] = -dt*kavg[nN-1]/(dz[nN-1]*disZ[nN-1]);
+        thoma[nN-1] = -dt*kavg[nN-1]/dz[nN-1]/disZ[nN-1];
         thomb[nN-1] = -thoma[nN-1] + C[nN-1];
         thomf[nN-1] = C[nN-1]*h[nN-1] + dt/(-dz[nN-1])*(kavg[nN-1]+qbot) - dt*S[nN-1];
 
@@ -427,12 +426,13 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel) //long i_, SOIL_MODEL *s)
     //put new h back into h
     //memcpy(pixel->h.data(), h, nN * sizeof(double));
     for (int j = 0; j < nN; j++) {
-      pixel->h[j] = h[j];
+        pixel->h[j] = h[j];
     }
     // these variables can all be direcvtly saved to the maps, inflated pixel structure
-    pixel->wh = WH;
+    //pixel->wh = WH*0.01; //convert cm to m
+    wh = WH;
     pixel->tiledrain = drainout;
-    pixel->percolation = -percolation; // in cm
+    pixel->percolation = -percolation*0.01; // cm to m, this is not a flux?
 
 }
 //--------------------------------------------------------------------------------

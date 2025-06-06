@@ -1142,7 +1142,7 @@ public:
                   const double *thetaPrev, const double *hPrev, const double *kavg, const double *dimoca,
                   double dt, double pond, double qtop, double qbot);
     double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes, double dtMin, double precParam);
-    void ComputeForPixel(PIXEL_INFO *pixel); //long i_, SOIL_MODEL *s);
+    void ComputeForPixel(PIXEL_INFO *pixel, double &wh);
     double DmcNode(double head,const  HORIZON *hor,bool on_dmch);
     double FindValue(double value,const  HORIZON *hor, int colv, int col);
     double HNode(double theta,const  HORIZON *hor); // obsolete

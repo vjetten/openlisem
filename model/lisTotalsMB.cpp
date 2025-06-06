@@ -300,13 +300,13 @@ void TWorld::TotalsFlow(void)
 
 
     //=== storm drain flow
-    QTile = 0;
+   // QTile = 0;
     if(SwitchIncludeStormDrains || SwitchIncludeTile) {
             // sum the tile outlets
             FOR_ROW_COL_MV_TILEL {
                 if (LDDTile->Drc == 5) {
-                    QTiletot += TileQn->Drc * _dt;
-                    QTile += TileQn->Drc;
+                   // QTiletot += TileQn->Drc * _dt;
+                   // QTile += TileQn->Drc;
                 }
             }}
         //urban volume in drains

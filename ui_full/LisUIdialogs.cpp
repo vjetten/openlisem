@@ -696,7 +696,7 @@ void lisemqt::on_checkIncludeChannel_toggled(bool checked)
 {
     groupChannelParams->setEnabled(checked);
     checkMapChannels->setEnabled(checked);
-
+    groupAdvChannel->setEnabled(checked);
    // checkMapNameModel(CHANNELMAPS, 0, checked);
 }
 //---------------------------------------------------------------------------
