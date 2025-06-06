@@ -46,25 +46,25 @@ void TWorld::InfilSwatre()
             InfilVol->Drc = 0;
             //continue;
         } else {
-            int tid = omp_get_thread_num();
-            NODES& local = threadBuffers[tid];
+            // int tid = omp_get_thread_num();
+            // NODES& local = threadBuffers[tid];
 
             // Reset all vectors to zero before use
-            local.theta.fill(0.0);
-            local.kavg.fill(0.0);
-            local.k.fill(0.0);
-            local.C.fill(0.0);
-            local.thetaPrev.fill(0.0);
-            local.h.fill(0.0);
-            local.hPrev.fill(0.0);
-            local.dz.fill(0.0);
-            local.disZ.fill(0.0);
-            local.S.fill(0.0);
-            local.thoma.fill(0.0);
-            local.thomb.fill(0.0);
-            local.thomc.fill(0.0);
-            local.thomf.fill(0.0);
-            local.beta.fill(0.0);
+            // local.theta.fill(0.0);
+            // local.kavg.fill(0.0);
+            // local.k.fill(0.0);
+            // local.C.fill(0.0);
+            // local.thetaPrev.fill(0.0);
+            // local.h.fill(0.0);
+            // local.hPrev.fill(0.0);
+            // local.dz.fill(0.0);
+            // local.disZ.fill(0.0);
+            // local.S.fill(0.0);
+            // local.thoma.fill(0.0);
+            // local.thomb.fill(0.0);
+            // local.thomc.fill(0.0);
+            // local.thomf.fill(0.0);
+            // local.beta.fill(0.0);
 
             double tilevol = 0;
             double theta = 0;
@@ -78,7 +78,7 @@ void TWorld::InfilSwatre()
             SwatreSoilModel->pixel[i_].wh = WHorig;    // WH is in m, convert to cm
             SwatreSoilModel->pixel[i_].tiledrain = 0;
 
-            ComputeForPixel(i_, SwatreSoilModel, local);
+            ComputeForPixel(i_, SwatreSoilModel);//, local);
 
             double WHN = SwatreSoilModel->pixel[i_].wh;
 
@@ -98,7 +98,7 @@ void TWorld::InfilSwatre()
                     SwatreSoilModelCrust->pixel[i_].wh = WHorig;    // WH is in m, convert to cm
                     SwatreSoilModelCrust->pixel[i_].tiledrain = 0;
 
-                  //  ComputeForPixel(i_, SwatreSoilModelCrust);
+                    ComputeForPixel(i_, SwatreSoilModelCrust);
 
                     double WHcrust = SwatreSoilModelCrust->pixel[i_].wh;
                     WHN = WHcrust*CrustFraction->Drc + WHN*(1-CrustFraction->Drc);
@@ -119,7 +119,7 @@ void TWorld::InfilSwatre()
                     SwatreSoilModelCompact->pixel[i_].wh = WHorig;    // WH is in m, convert to cm
                     SwatreSoilModelCompact->pixel[i_].tiledrain = 0;
 
-               //     ComputeForPixel(i_, SwatreSoilModelCompact);
+                    ComputeForPixel(i_, SwatreSoilModelCompact);
 
                     double WHcompact = SwatreSoilModelCompact->pixel[i_].wh;
                     WHN = WHcompact*CompactFraction->Drc + WHN*(1-CompactFraction->Drc);
@@ -137,7 +137,7 @@ void TWorld::InfilSwatre()
                     SwatreSoilModelGrass->pixel[i_].wh = WHorig;    // WH is in m, convert to cm
                     SwatreSoilModelGrass->pixel[i_].tiledrain = 0;
 
-                 //   ComputeForPixel(i_, SwatreSoilModelGrass);
+                    ComputeForPixel(i_, SwatreSoilModelGrass);
 
                     double WHgrass = SwatreSoilModelGrass->pixel[i_].wh;
                     WHN = WHgrass*GrassFraction->Drc + WHN*(1-GrassFraction->Drc);

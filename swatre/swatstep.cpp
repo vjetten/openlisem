@@ -58,7 +58,8 @@ dz and disZ are negative distances
 // units in SWATRE are cm and K cm/sec
 
 //--------------------------------------------------------------------------------
-void TWorld::calcSinktermSWATRE(PIXEL_INFO *pixel, QVector<double> h, QVector<double> S)
+//void TWorld::calcSinktermSWATRE(PIXEL_INFO *pixel, QVector<double> h, QVector<double> S)
+void TWorld::calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S)
 {
     int r = pixel->r;
     int c = pixel->c;
@@ -110,8 +111,8 @@ void TWorld::calcSinktermSWATRE(PIXEL_INFO *pixel, QVector<double> h, QVector<do
     }
 }
 //--------------------------------------------------------------------------------
-//double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int nrNodes, double dtMin, double precParam)
-double TWorld::NewTimeStep(double prevDt,QVector <double> hLast,QVector <double> h,int nrNodes, double dtMin, double precParam)
+double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int nrNodes, double dtMin, double precParam)
+//double TWorld::NewTimeStep(double prevDt,QVector <double> hLast,QVector <double> h,int nrNodes, double dtMin, double precParam)//
 {
    // double precParam = SwatrePrecision;
     // note "5" is a precision factor determining next timestep, set to 5 in old lisem
@@ -146,7 +147,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
     int c = pixel->c;
   //  qDebug() << i_ << r << c << p->profileId;
     int nN = p->zone->nrNodes;
-    double dt = _dt/SwatrePrecision; //!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    double dt = _dt/5;//SwatrePrecision; //!!!!!!!!!!!!!!!!!!!!!!!!!!!
     double WH = pixel->wh*100;
     double elapsedTime = 0;
     double drainout = 0;
@@ -174,26 +175,26 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
     // QVector <double> beta(MAX_NODES+3, 0.0);
 
 
-    // double* theta = new double[MAX_NODES+3]();
-    // double* kavg  = new double[MAX_NODES+3]();
-    // double* k     = new double[MAX_NODES+3]();
-    // double* C     = new double[MAX_NODES+3]();
-    // double* thetaPrev = new double[MAX_NODES+3]();
-    // double* h     = new double[MAX_NODES+3]();
-    // double* hPrev = new double[MAX_NODES+3]();
-    // double* dz    = new double[MAX_NODES+3]();
-    // double* disZ  = new double[MAX_NODES+3]();
-    // double* S     = new double[MAX_NODES+3]();
-    // double* thoma = new double[MAX_NODES+3]();
-    // double* thomb = new double[MAX_NODES+3]();
-    // double* thomc = new double[MAX_NODES+3]();
-    // double* thomf = new double[MAX_NODES+3]();
-    // double* beta  = new double[MAX_NODES+3]();
+    double* theta = new double[MAX_NODES+3]();
+    double* kavg  = new double[MAX_NODES+3]();
+    double* k     = new double[MAX_NODES+3]();
+    double* C     = new double[MAX_NODES+3]();
+    double* thetaPrev = new double[MAX_NODES+3]();
+    double* h     = new double[MAX_NODES+3]();
+    double* hPrev = new double[MAX_NODES+3]();
+    double* dz    = new double[MAX_NODES+3]();
+    double* disZ  = new double[MAX_NODES+3]();
+    double* S     = new double[MAX_NODES+3]();
+    double* thoma = new double[MAX_NODES+3]();
+    double* thomb = new double[MAX_NODES+3]();
+    double* thomc = new double[MAX_NODES+3]();
+    double* thomf = new double[MAX_NODES+3]();
+    double* beta  = new double[MAX_NODES+3]();
 
     for (int j = 0; j < nN; j++) {
-      l.h[j] = pixel->h[j];
-      l.dz[j] = p->zone->dz[j];
-      l.disZ[j] = p->zone->disnod[j];
+      h[j] = pixel->h[j];
+      dz[j] = p->zone->dz[j];
+      disZ[j] = p->zone->disnod[j];
     }
     // memcpy(h, pixel->h.data(), nN * sizeof(double));
     // memcpy(dz, p->zone->dz.data(), nN * sizeof(double));
@@ -212,42 +213,42 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
 
         // get nodal values of theta, K, dif moist cap
         for (int j = 0; j < nN; j++) {
-            l.k[j] = FindValue(l.h[j], p->horizon[j], H_COL, K_COL);
+            k[j] = FindValue(h[j], p->horizon[j], H_COL, K_COL);
             // K in cm/sec from h, ksatcal filled with values for ksat1,2,3
-            l.C[j] = FindValue(l.h[j], p->horizon[j], DMCH_COL, DMCC_COL);
+            C[j] = FindValue(h[j], p->horizon[j], DMCH_COL, DMCC_COL);
                     //DmcNode(h[j], p->horizon[j],  true); // true is more detailed method, false is DMCH directly from H
             // differential moisture capacity d(theta)/d(h), tangent moisture retention curve
-            l.theta[j] = FindValue(l.h[j], p->horizon[j], H_COL, THETA_COL);
+            theta[j] = FindValue(h[j], p->horizon[j], H_COL, THETA_COL);
             // moisture content from H
         }
 
         // per pixel correction of Ks and Pore for org mat and density
         // near saturated so for h > -1 cm, and only for topsoil, assumed to be 30 cm
         if (SwitchOMCorrection) {
-            for (int j = 0; j < nN && p->zone->endComp[j] <= 30 && l.h[j] > -10; j++) {
-                l.k[j] = pixel->corrKsOA*l.k[j] + pixel->corrKsOB;
+            for (int j = 0; j < nN && p->zone->endComp[j] <= 30 && h[j] > -10; j++) {
+                k[j] = pixel->corrKsOA*k[j] + pixel->corrKsOB;
                // theta[j] = pixel->corrPOA*theta[j] + pixel->corrPOB;
                // theta gives mass balance error because this decouples Theta from H?
             }
         }
 
         if (SwitchDensCorrection) {
-            for (int j = 0; j < nN  && p->zone->endComp[j] <= 30 && l.h[j] > -10.0; j++) {
-                l.k[j] = pixel->corrKsDA*l.k[j] + pixel->corrKsDB;
+            for (int j = 0; j < nN  && p->zone->endComp[j] <= 30 && h[j] > -10.0; j++) {
+                k[j] = pixel->corrKsDA*k[j] + pixel->corrKsDB;
               //  theta[j] = pixel->corrPDA*theta[j] + pixel->corrPDB;
             }
         }
 
         // do calibration after dens and OM calculations
         for (int j = 0; j < nN; j++) {
-             l.k[j] *= p->KsatCal[j];
+             k[j] *= p->KsatCal[j];
         }
 
         // average K for 1st to n-1 node, top node is done below
         // original swatre artithmetric mean, Vauclin nin Belmans says geometric mean!
         #pragma omp parallel for num_threads(userCores)
         for(int j = 1; j < nN; j++) {
-            l.kavg[j] = (l.k[j]+l.k[j-1])/2.0;
+            kavg[j] = (k[j]+k[j-1])/2.0;
             //kavg[j] = sqrt(k[j]*k[j-1]);
         }
 
@@ -263,14 +264,14 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
         if (SwitchDensCorrection)
             Ksat = pixel->corrKsDA*Ksat + pixel->corrKsDB;
 
-        l.kavg[0] = sqrt(Ksat * l.k[0]);
-        l.kavg[0] *= (1.0-impfrac);
+        kavg[0] = sqrt(Ksat * k[0]);
+        kavg[0] *= (1.0-impfrac);
 
         // adjust kavg[0] for roads and houses, impermeable fraction
         // max possible always geometric mean
         // geometric avg of ksat and k[0] => is used for max possible
 
-        qmax = l.kavg[0]*(WH-l.h[0])/l.disZ[0] - l.kavg[0];
+        qmax = kavg[0]*(WH-h[0])/disZ[0] - kavg[0];
         // Darcy: = -k(dh/dz+1) = -kdh/dz-k
         // disZ is negative !!!
 
@@ -289,7 +290,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
                 ThetaSat = FindValue(0, p->horizon[i], H_COL, THETA_COL);
                 // if (SwitchDensCorrection && p->zone->endComp[i] <= 30)
                 //     ThetaSat = pixel->corrPDA*ThetaSat + pixel->corrPDB;
-                space += (ThetaSat - l.theta[i]) * -l.dz[i];
+                space += (ThetaSat - theta[i]) * -dz[i];
             }
             isPonded = WH > space;
         }
@@ -297,7 +298,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
         // check if profile is completely saturated (flstsat)
         fltsat = true;
         for (int i = nN-1; i >= 0; i--) {
-            if (l.h[i] < 0) {
+            if (h[i] < 0) {
                 fltsat = false;
                 break;
             }
@@ -310,11 +311,11 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
         if (SwitchImpermeable)
             qbot = 0;
         else
-            qbot = l.kavg[nN-1]*(l.h[nN-1]-l.h[nN-2])/l.disZ[nN-1] - l.kavg[nN-1];
+            qbot = kavg[nN-1]*(h[nN-1]-h[nN-2])/disZ[nN-1] - kavg[nN-1];
 
         for (int j = 0; j < nN; j++) {
-          l.hPrev[j] = l.h[j];
-          l.thetaPrev[j] = l.theta[j];
+          hPrev[j] = h[j];
+          thetaPrev[j] = theta[j];
         }
         //std::memcpy(hPrev, h, nN * sizeof(double));
         //std::memcpy(thetaPrev, theta, nN * sizeof(double));
@@ -324,23 +325,23 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
         // First node : 0 (include boundary cond. qtop or pond)
         if (isPonded || fltsat) {
             // h at soil surface prescribed, ponding
-            l.thomc[0] = -dt * l.kavg[1]/l.dz[0]/l.disZ[1];
-            l.thomb[0] = -l.thomc[0] + l.C[0] + dt*l.kavg[0]/l.disZ[0]/l.dz[0];
-            l.thomf[0] = l.C[0]*l.h[0] + dt/(-l.dz[0]) * (l.kavg[0] - l.kavg[1]) + dt*l.kavg[0]*WH/l.disZ[0]/l.dz[0];
+            thomc[0] = -dt * kavg[1]/dz[0]/disZ[1];
+            thomb[0] = -thomc[0] + C[0] + dt*kavg[0]/disZ[0]/dz[0];
+            thomf[0] = C[0]*h[0] + dt/(-dz[0]) * (kavg[0] - kavg[1]) + dt*kavg[0]*WH/disZ[0]/dz[0];
         } else {
             //  q at soil surface prescribed, qtop = rainfall
             isPonded = false;
-            l.thomc[0] = -dt * l.kavg[1] / (l.dz[0]*l.disZ[1]);
-            l.thomb[0] = -l.thomc[0] + l.C[0];
-            l.thomf[0] = l.C[0]*l.h[0] + dt/(-l.dz[0]) * (-qtop - l.kavg[1]) - dt*l.S[0];
+            thomc[0] = -dt * kavg[1] / (dz[0]*disZ[1]);
+            thomb[0] = -thomc[0] + C[0];
+            thomf[0] = C[0]*h[0] + dt/(-dz[0]) * (-qtop - kavg[1]) - dt*S[0];
         }
 
         // Intermediate nodes: i = 1 to n-2
         for (int i = 1; i < nN-1; i++) {
-            l.thoma[i] = -dt*l.kavg[i]/l.dz[i]/l.disZ[i];
-            l.thomc[i] = -dt*l.kavg[i+1]/l.dz[i]/l.disZ[i+1];
-            l.thomb[i] = -l.thoma[i] - l.thomc[i] + l.C[i];
-            l.thomf[i] = l.C[i]*l.h[i] + dt/-l.dz[i]*(l.kavg[i]-l.kavg[i+1]) - dt*l.S[i];  //add sinkterm according to Belmans
+            thoma[i] = -dt*kavg[i]/dz[i]/disZ[i];
+            thomc[i] = -dt*kavg[i+1]/dz[i]/disZ[i+1];
+            thomb[i] = -thoma[i] - thomc[i] + C[i];
+            thomf[i] = C[i]*h[i] + dt/-dz[i]*(kavg[i]-kavg[i+1]) - dt*S[i];  //add sinkterm according to Belmans
             // Belmans: E = h + (dt/C*dz)K+1/2 + (dt/C*dz)K-1/2 - (dt/C)*S;
             // F = C*E = Ch + dt*dz*K+1/2 +dt*dz*K-1/2  -dt*S
             //dh/dt = 1/C* 1/dz etc -dt*S/C eq 6 page 275
@@ -348,47 +349,47 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
         }
 
         // last node : nN-1 (include boundary cond. qbot)
-        l.thoma[nN-1] = -dt*l.kavg[nN-1]/l.dz[nN-1]/l.disZ[nN-1];
-        l.thomb[nN-1] = -l.thoma[nN-1] + l.C[nN-1];
-        l.thomf[nN-1] = l.C[nN-1]*l.h[nN-1] + dt/(-l.dz[nN-1])*(l.kavg[nN-1]+qbot) - dt*l.S[nN-1];
+        thoma[nN-1] = -dt*kavg[nN-1]/dz[nN-1]/disZ[nN-1];
+        thomb[nN-1] = -thoma[nN-1] + C[nN-1];
+        thomf[nN-1] = C[nN-1]*h[nN-1] + dt/(-dz[nN-1])*(kavg[nN-1]+qbot) - dt*S[nN-1];
 
         // Gaussian elimination and backsubstitution h - first time
-        double alpha = l.thomb[0];
-        l.h[0] = l.thomf[0] / alpha;
+        double alpha = thomb[0];
+        h[0] = thomf[0] / alpha;
         for (int i = 1; i < nN; i++) {
-            l.beta[i] = l.thomc[i-1] / alpha;
-            alpha = l.thomb[i] - l.thoma[i] * l.beta[i];
-            l.h[i] = (l.thomf[i] - l.thoma[i] * l.h[i-1]) / alpha;
+            beta[i] = thomc[i-1] / alpha;
+            alpha = thomb[i] - thoma[i] * beta[i];
+            h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
         }
         for (int i = (nN-2); i >= 0; i--)
-            l.h[i] -= l.beta[i+1] * l.h[i+1];
+            h[i] -= beta[i+1] * h[i+1];
 
         // correct tridiagonal matrix
         for (int i = 0; i < nN; i++) {
-            double thetaNew = FindValue(l.h[i], p->horizon[i], H_COL, THETA_COL);
+            double thetaNew = FindValue(h[i], p->horizon[i], H_COL, THETA_COL);
 
             // if (SwitchDensCorrection && p->zone->endComp[i] <= 30 && h[i] > -10.0)
             //     thetaNew = pixel->corrPDA*thetaNew + pixel->corrPDB;
             // if (SwitchOMCorrection && p->zone->endComp[i] <= 30 && h[i] > -10.0)
             //     thetaNew = pixel->corrPOA*thetaNew + pixel->corrPOB;
 
-            double CNew = FindValue(l.h[i], p->horizon[i], DMCH_COL, DMCC_COL);
-            l.thomb[i] = l.thomb[i] - l.C[i] + CNew;
-            l.thomf[i] = l.thomf[i] - l.C[i]*l.hPrev[i] + CNew*l.h[i]
-                    - thetaNew + l.thetaPrev[i];
+            double CNew = FindValue(h[i], p->horizon[i], DMCH_COL, DMCC_COL);
+            thomb[i] = thomb[i] - C[i] + CNew;
+            thomf[i] = thomf[i] - C[i]*hPrev[i] + CNew*h[i]
+                    - thetaNew + thetaPrev[i];
         }
 
         // Gaussian elimination and backsubstitution h - second time
-        alpha = l.thomb[0];
-        l.h[0] = l.thomf[0] / alpha;
+        alpha = thomb[0];
+        h[0] = thomf[0] / alpha;
         for (int i = 1; i < nN; i++) {
-            l.beta[i] = l.thomc[i-1] / alpha;
-            alpha = l.thomb[i] - l.thoma[i] * l.beta[i];
-            l.h[i] = (l.thomf[i] - l.thoma[i] * l.h[i-1]) / alpha;
+            beta[i] = thomc[i-1] / alpha;
+            alpha = thomb[i] - thoma[i] * beta[i];
+            h[i] = (thomf[i] - thoma[i] * h[i-1]) / alpha;
         }
 
         for (int i = (nN-2); i >= 0; i--)
-            l.h[i] -= l.beta[i+1] * l.h[i+1];
+            h[i] -= beta[i+1] * h[i+1];
 
         // we don't need this unless for output
         // for (int j = 0; j < nN; j++)
@@ -400,12 +401,12 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
         if (SwitchImpermeable)
             qbot = 0;
         else
-            qbot = -l.kavg[nN-1]*(l.h[nN-1]-l.h[nN-2])/l.disZ[nN-1] - l.kavg[nN-1];
+            qbot = -kavg[nN-1]*(h[nN-1]-h[nN-2])/disZ[nN-1] - kavg[nN-1];
         //qbot = kavg[n-1]*(h[n-1]-h[n-2])/disZ[n-1] - kavg[n-1];
         percolation += qbot*dt;
 
         if (isPonded || fltsat)
-             qtop = -l.kavg[0] * ((l.h[0] - WH)/l.disZ[0] + 1) * (1.0-impfrac);
+             qtop = -kavg[0] * ((h[0] - WH)/disZ[0] + 1) * (1.0-impfrac);
         // else qtop is WH/dt !
 
         WH += qtop*dt;       // decrease pond with top flux
@@ -418,18 +419,18 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
         //--- calculate tile drain ---//
         //TODO: CHECK THIS
         if (SwitchIncludeTile && tnode > 0) {
-            if (l.h[tnode] >= TileEntrySuction) {
-                double vollayer = -l.disZ[tnode]*0.01 * CHAdjDX->Drc; // m3
-                qdrain =  0.01*l.k[tnode]*dt*TileDiameter->Drc*DX->Drc; // m3
-                double water = l.theta[tnode] * vollayer; // m3
+            if (h[tnode] >= TileEntrySuction) {
+                double vollayer = -disZ[tnode]*0.01 * CHAdjDX->Drc; // m3
+                qdrain =  0.01*k[tnode]*dt*TileDiameter->Drc*DX->Drc; // m3
+                double water = theta[tnode] * vollayer; // m3
                 // total amonut of water available to drain in this node (m3)
                 // note: distnode has a negative value (in cm so 0.01)
                 qdrain = std::min(qdrain, water);
                 // cannot have more drainage than water available
                 water -= qdrain;
-                l.theta[tnode] = water/vollayer; //m3/m3
-                l.h[tnode] = FindValue(l.theta[tnode], p->horizon[tnode], THETA_COL, H_COL );
-                l.hPrev[tnode] = l.h[tnode];
+                theta[tnode] = water/vollayer; //m3/m3
+                h[tnode] = FindValue(theta[tnode], p->horizon[tnode], THETA_COL, H_COL );
+                hPrev[tnode] = h[tnode];
                 // new h from theta
 
                 drainout += qdrain;
@@ -438,7 +439,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
         }
 
         // estimate new dt within lisemtimestep
-        dt = NewTimeStep(dt, l.hPrev, l.h, nN, swatreDT, SwatrePrecision);
+        dt = NewTimeStep(dt, hPrev, h, nN, swatreDT, SwatrePrecision);
 
         if (elapsedTime+dt >= _dt - TIME_EPS)
             dt = _dt - elapsedTime;
@@ -452,7 +453,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
 
     for (int i = 0; i < nN; i++) {
         if (p->zone->rootz[i] > 0){
-            sumth += FindValue(l.h[i], p->horizon[i], H_COL, THETA_COL);
+            sumth += FindValue(h[i], p->horizon[i], H_COL, THETA_COL);
             n += 1.0;
         }
     }
@@ -461,7 +462,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
     //put new h back into h
     //memcpy(pixel->h.data(), h, nN * sizeof(double));
     for (int j = 0; j < nN; j++) {
-        pixel->h[j] = l.h[j];
+        pixel->h[j] = h[j];
     }
     // these variables can all be direcvtly saved to the maps, inflated pixel structure
     pixel->wh = WH*0.01; //convert cm to m
@@ -484,21 +485,21 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
     // thomf.clear();
     // beta.clear();
 
-   // delete[] theta;
-   // delete[] kavg;
-   // delete[] k;
-   // delete[] C;
-   // delete[] thetaPrev;
-   // delete[] h;
-   // delete[] hPrev;
-   // delete[] dz;
-   // delete[] disZ;
-   // delete[] S;
-   // delete[] thoma;
-   // delete[] thomb;
-   // delete[] thomc;
-   // delete[] thomf;
-   // delete[] beta ;
+   delete[] theta;
+   delete[] kavg;
+   delete[] k;
+   delete[] C;
+   delete[] thetaPrev;
+   delete[] h;
+   delete[] hPrev;
+   delete[] dz;
+   delete[] disZ;
+   delete[] S;
+   delete[] thoma;
+   delete[] thomb;
+   delete[] thomc;
+   delete[] thomf;
+   delete[] beta ;
 
 }
 //--------------------------------------------------------------------------------
