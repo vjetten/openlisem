@@ -137,16 +137,16 @@ double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int
 // Z and H in cm; table units K in cm/day converted to cm/sec, lisem time in seconds
 // NOTE: dz is negative, disZ is negative!
 
-void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double &wh) //long i_, SOIL_MODEL *s)
+void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)
 {
-    //PIXEL_INFO *pixel = &s->pixel[i_];
+    PIXEL_INFO *pixel = &s->pixel[i_];
     const PROFILE *p = pixel->profile;
     int r = pixel->r;
     int c = pixel->c;
   //  qDebug() << i_ << r << c << p->profileId;
     int nN = p->zone->nrNodes;
-    double dt = _dt/5;
-    double WH = wh *100;//pixel->wh*100; // convert m to cm
+    double dt = _dt/5; //!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    double WH = pixel->wh*100;
     double elapsedTime = 0;
     double drainout = 0;
     double percolation = 0;
@@ -429,8 +429,7 @@ void TWorld::ComputeForPixel(PIXEL_INFO *pixel, double &wh) //long i_, SOIL_MODE
         pixel->h[j] = h[j];
     }
     // these variables can all be direcvtly saved to the maps, inflated pixel structure
-    //pixel->wh = WH*0.01; //convert cm to m
-    wh = WH;
+    pixel->wh = WH*0.01; //convert cm to m
     pixel->tiledrain = drainout;
     pixel->percolation = -percolation*0.01; // cm to m, this is not a flux?
 
