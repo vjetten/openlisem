@@ -912,7 +912,8 @@ public:
     // => TODO: SOAP infil model, swatre works better for now
     void cell_Soilwater(long i_); //SOAP
     double calcSinkterm(long i_,  double WH, double *S);
-    void calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S);
+    //void calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S);
+    void calcSinktermSWATRE(PIXEL_INFO *pixel, QVector<double> h, QVector<double> S);
     double calculateDayLength(double latitude, int dayNumber);
     void VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
     void BrooksCorey(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
@@ -1137,12 +1138,12 @@ public:
     HORIZON *ReadHorizonNew(QString tablePath, QString tableName);
     LUT *ReadSoilTableNew(QString fileName);
     void checkFileForInvalidLetters(const QString &filePath);
+    QVector<NODES> threadBuffers;
 
-    void HeadCalc(const PROFILE *p, double *h, bool *isPonded, bool fltsat,
-                  const double *thetaPrev, const double *hPrev, const double *kavg, const double *dimoca,
-                  double dt, double pond, double qtop, double qbot);
-    double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes, double dtMin, double precParam);
-    void ComputeForPixel(long i_, SOIL_MODEL *s);
+    //double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes, double dtMin, double precParam);
+    double NewTimeStep(double prevDt,QVector <double> hLast,QVector <double> h,int nrNodes, double dtMin, double precParam);
+    //void ComputeForPixel(long i_, SOIL_MODEL *s);
+    void ComputeForPixel(long i_, SOIL_MODEL *s, NODES local);
     double DmcNode(double head,const  HORIZON *hor,bool on_dmch);
     double FindValue(double value,const  HORIZON *hor, int colv, int col);
     double HNode(double theta,const  HORIZON *hor); // obsolete

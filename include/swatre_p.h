@@ -30,7 +30,7 @@
 #include <QtCore>
 
 #define MAX_NODES            20
-//#define MAX_NODES_P          (MAX_NODES+3)
+#define MAX_NODES_P          (MAX_NODES+3)
 
 // maximum amount of ponding that is regarded as no ponding (0)
 #define POND_EPS             (1.0E-8)
@@ -62,6 +62,46 @@
          etc.
 
 */
+//---------------------------------------------------------------------------
+struct NODES {
+    QVector<double> theta;
+    QVector<double> kavg;
+    QVector<double> k;
+    QVector<double> C;
+    QVector<double> thetaPrev;
+    QVector<double> h;
+    QVector<double> hPrev;
+    QVector<double> dz;
+    QVector<double> disZ;
+    QVector<double> S;
+    QVector<double> thoma;
+    QVector<double> thomb;
+    QVector<double> thomc;
+    QVector<double> thomf;
+    QVector<double> beta;
+
+
+    // Constructor that initializes all vectors with size NR and fills with 0.0
+    NODES(int NR) {
+        theta     = QVector<double>(NR, 0.0);
+        kavg      = QVector<double>(NR, 0.0);
+        k         = QVector<double>(NR, 0.0);
+        C         = QVector<double>(NR, 0.0);
+        thetaPrev = QVector<double>(NR, 0.0);
+        h         = QVector<double>(NR, 0.0);
+        hPrev     = QVector<double>(NR, 0.0);
+        dz        = QVector<double>(NR, 0.0);
+        disZ      = QVector<double>(NR, 0.0);
+        S         = QVector<double>(NR, 0.0);
+        thoma     = QVector<double>(NR, 0.0);
+        thomb     = QVector<double>(NR, 0.0);
+        thomc     = QVector<double>(NR, 0.0);
+        thomf     = QVector<double>(NR, 0.0);
+        beta      = QVector<double>(NR, 0.0);
+    }
+};
+
+ //---------------------------------------------------------------------------
 typedef struct ZONE   {
     int  nrNodes;
     QVector <double> dz;
@@ -89,7 +129,8 @@ typedef struct PROFILE {
     QVector <double> KsatCal;
 } PROFILE;
 //---------------------------------------------------------------------------
-typedef double NODE_ARRAY[MAX_NODES+3];
+//typedef double NODE_ARRAY[MAX_NODES+3];
+// doe snot woirk in OMP
 //---------------------------------------------------------------------------
 typedef struct PIXEL_INFO {
     const PROFILE *profile;    /** profile this pixel belongs to */

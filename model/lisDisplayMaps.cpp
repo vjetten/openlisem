@@ -363,10 +363,9 @@ void TWorld::GetComboMaps()
     if(SwitchInfiltration)
     {
         AddComboMap(0,"Infiltration","mm",InfilmmCum,LegendMap[cl],Legend[cl],false,false,1.0,1.0);
-        if (InfilMethod == INFIL_SWATRE)
-            AddComboMap(0,"Depth wetting front (h>-10cm)","mm",Lwmm,LegendMap[cl],Legend[cl],false,false,1.0,1.0);  // swatre?
-        else
+        if (InfilMethod ==!INFIL_SWATRE) {
             AddComboMap(0,"Depth wetting front","mm",Lwmm,LegendMap[cl],Legend[cl],false,false,1.0,1.0);  // swatre?
+        }
         if (SwitchInfilCrust) {
             cl = 6;
             AddComboMap(0,"Crust Fraction","-",CrustFraction,LegendMap[cl],Legend[cl],false,false,1.0,0.001);

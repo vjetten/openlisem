@@ -40,6 +40,14 @@ functions:
 // read optional Hinit maps
 SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
 {
+    int numThreads = omp_get_max_threads();
+   // QVector<NODES> threadBuffers;
+    threadBuffers.reserve(numThreads);
+
+    for (int i = 0; i < numThreads; ++i) {
+        threadBuffers.append(NODES(MAX_NODES+3));
+    }
+
     //SOIL_MODEL *s = (SOIL_MODEL *)malloc(sizeof(SOIL_MODEL));
     SOIL_MODEL *s = new SOIL_MODEL;
 
