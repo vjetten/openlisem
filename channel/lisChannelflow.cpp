@@ -310,6 +310,7 @@ double totq = 0;
             // ChannelAlpha->Drc = Area > 1e-6 ? ChannelQn->Drc/std::pow(Area, 0.6) : 0.0;
             // DO NOT recalculate alpha becuase of erosion
 
+            // moved to rainfall infiltration
             // if (SwitchGridRetention) {
             //     double dvol = std::max(0.0,GridRetention->Drc - GridRetentionAct->Drc);
             //     if(dvol > 0) {

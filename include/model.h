@@ -473,6 +473,7 @@ public:
 
 
         // infiltration,
+        SwitchSwatreDry,
         SwitchInfilCompact,
         SwitchInfilCrust,
         SwitchDynamicCrusting,

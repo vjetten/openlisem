@@ -107,7 +107,6 @@ void TWorld::calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S)
 
         ETa->Drc = tot;
         ETaCum->Drc += tot;
-
     }
 }
 //--------------------------------------------------------------------------------
@@ -139,25 +138,34 @@ double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int
 // Z and H in cm; table units K in cm/day converted to cm/sec, lisem time in seconds
 // NOTE: dz is negative, disZ is negative!
 
-void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
+// #define dz(j) p->zone->dz[j]
+// #define disZ(j) p->zone->disnod[j]
+
+void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
 {
     PIXEL_INFO *pixel = &s->pixel[i_];
     const PROFILE *p = pixel->profile;
     int r = pixel->r;
     int c = pixel->c;
-  //  qDebug() << i_ << r << c << p->profileId;
     int nN = p->zone->nrNodes;
-    double dt = _dt/5;//SwatrePrecision; //!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    double WH = pixel->wh*100;
+
+    double dt = _dt/5;//SwatrePrecision; // start dt, precision set to 6 like in old code.
+                                     // A higher precision gives less infiltration
+    double WH = pixel->wh*100; // m to cm
+    int tnode = pixel->tilenode;
+    double impfrac = fractionImperm->Drc;
+
     double elapsedTime = 0;
     double drainout = 0;
     double percolation = 0;
-    int tnode = pixel->tilenode;
-    double impfrac = fractionImperm->Drc;
-    // DO NOT USE STATIC ARRAYS, they are shared bgetween threadfs in omp, so this causes a big mess "striping"
+
+    //  qDebug() << i_ << r << c << p->profileId;
+
+    // DO NOT USE STATIC ARRAYS, they are shared bgetween threads in omp, so race conditions occuur, striping
     //NODE_ARRAY kavg, k, C, theta, thetaPrev, h, hPrev, dz, disZ, S;
     //NODE_ARRAY thoma, thomb, thomc, thomf, beta;
 
+    // slower:
     // QVector <double> theta(MAX_NODES+3, 0.0);
     // QVector <double> kavg(MAX_NODES+3, 0.0);
     // QVector <double> k(MAX_NODES+3, 0.0);
@@ -201,7 +209,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
     // memcpy(disZ, p->zone->disnod.data(), nN * sizeof(double));
 
     if (SwitchIncludeET && WH <= 0) {
-    //    calcSinktermSWATRE(pixel, h, S);
+        calcSinktermSWATRE(pixel, h, S);
     }
     // get sinkterm S
 
@@ -227,7 +235,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
         if (SwitchOMCorrection) {
             for (int j = 0; j < nN && p->zone->endComp[j] <= 30 && h[j] > -10; j++) {
                 k[j] = pixel->corrKsOA*k[j] + pixel->corrKsOB;
-               // theta[j] = pixel->corrPOA*theta[j] + pixel->corrPOB;
+                theta[j] = pixel->corrPOA*theta[j] + pixel->corrPOB;
                // theta gives mass balance error because this decouples Theta from H?
             }
         }
@@ -235,7 +243,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
         if (SwitchDensCorrection) {
             for (int j = 0; j < nN  && p->zone->endComp[j] <= 30 && h[j] > -10.0; j++) {
                 k[j] = pixel->corrKsDA*k[j] + pixel->corrKsDB;
-              //  theta[j] = pixel->corrPDA*theta[j] + pixel->corrPDB;
+                theta[j] = pixel->corrPDA*theta[j] + pixel->corrPDB;
             }
         }
 
@@ -246,10 +254,15 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s, NODES l)
 
         // average K for 1st to n-1 node, top node is done below
         // original swatre artithmetric mean, Vauclin nin Belmans says geometric mean!
-        #pragma omp parallel for num_threads(userCores)
-        for(int j = 1; j < nN; j++) {
-            kavg[j] = (k[j]+k[j-1])/2.0;
-            //kavg[j] = sqrt(k[j]*k[j-1]);
+        // for(int j = 1; j < nN; j++) {
+        //     kavg[j] = (k[j]+k[j-1])/2.0;
+        //     //kavg[j] = sqrt(k[j]*k[j-1]);
+        // }
+        switch (KavgType) {
+            case 0: for(int j = 1; j < nN; j++) { kavg[j] = Aavg(k[j],k[j-1]);} break;
+            case 1: for(int j = 1; j < nN; j++) { kavg[j] = Savg(k[j],k[j-1]);} break;
+            case 2: for(int j = 1; j < nN; j++) { kavg[j] = Havg(k[j],k[j-1],dz[j],dz[j-1]); }break;
+            case 3: for(int j = 1; j < nN; j++) { kavg[j] = Mavg(k[j],k[j-1]);} break;
         }
 
         //--- boundary conditions ---

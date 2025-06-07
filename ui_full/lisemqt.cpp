@@ -1001,6 +1001,7 @@ void lisemqt::resetTabInfiltration()
     checkInfilHinit->setChecked(false);
     checkIncludeTiledrains->setChecked(false);
     checkSwatreOutput->setChecked(false);
+    checkSwatreDry->setChecked(false);
     //checkGeometric->setChecked(true);
     E_SWATREDtsec->setValue(2.0);
     E_SwatreTableDir->setText("");

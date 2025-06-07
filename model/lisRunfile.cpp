@@ -250,14 +250,14 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include crusts")==0)                    SwitchInfilCrust =   iii == 1;
         if (p1.compare("Dynamic crusting")==0)                  {
             SwitchDynamicCrusting =   iii == 1;
-            //qDebug() << iii << SwitchDynamicCrusting ;
         }
-        if (p1.compare("Use one matrix potential")==0)          SwitchHinit4all  =  iii == 1;
+        if (p1.compare("Use one matrix potential")==0)          SwitchHinit4all =    iii == 1;
         if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =  iii == 1;
         if (p1.compare("Nr input layers")==0)                   SwitchNrLayers =     iii == 1;
         if (p1.compare("Psi user input")==0)                    SwitchPsiUser =      iii == 1;
         if (p1.compare("Swatre output")==0)                     SwitchDumphead =     iii == 1;
-        if (p1.compare("Include tile drains")==0)               SwitchIncludeTile = iii == 1;
+        if (p1.compare("Include tile drains")==0)               SwitchIncludeTile =  iii == 1;
+        if (p1.compare("Swatre dry")==0)                        SwitchSwatreDry =    iii == 1;
 
         //channels and GW
         if (p1.compare("Include main channels")==0)             SwitchIncludeChannel = iii == 1;

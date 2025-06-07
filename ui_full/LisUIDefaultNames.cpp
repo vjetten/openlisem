@@ -381,6 +381,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("SWATRE internal minimum timestep");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Swatre output");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Swatre dry");
     namelist[i].value = QString("inithead");
     namelist[i++].name = QString("Matric head files");
     // namelist[i].value = QString("1");

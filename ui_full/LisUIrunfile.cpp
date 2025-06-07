@@ -221,13 +221,13 @@ void lisemqt::ParseInputData()
         if (p1.compare("SoilWB nodes 1")==0)                spinNodes1->setValue(iii);
         if (p1.compare("SoilWB nodes 2")==0)                spinNodes2->setValue(iii);
         if (p1.compare("SoilWB nodes 3")==0)                spinNodes3->setValue(iii);
-        //if (p1.compare("SoilWB dt factor")==0)              spinInfdt->setValue(valc);
         if (p1.compare("Infil Kavg")==0)                    comboBox_Kmean->setCurrentIndex(iii);
         if (p1.compare("Van Genuchten")==0)                 spinSoilPhysics->setValue(valc);
         if (p1.compare("Swatre output")==0)                 checkSwatreOutput->setChecked(check);
         if (p1.compare("SWATRE internal minimum timestep")==0) E_SWATREDtsec->setValue(valc);
-        if (p1.compare("Include tile drains")==0)          checkIncludeTiledrains->setChecked(check);
-        if (p1.compare("Tile entry suction")==0)           spinTileSuction->setValue(valc);
+        if (p1.compare("Include tile drains")==0)           checkIncludeTiledrains->setChecked(check);
+        if (p1.compare("Tile entry suction")==0)            spinTileSuction->setValue(valc);
+        if (p1.compare("Swatre dry")==0)                    checkSwatreDry->setChecked(check);
 
         // FLOW
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
@@ -861,6 +861,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Swatre output")==0)                 namelist[j].value.setNum((int)checkSwatreOutput->isChecked());
         if (p1.compare("Include tile drains")==0)           namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
         if (p1.compare("Tile entry suction")==0)            namelist[j].value.setNum(spinTileSuction->value());
+        if (p1.compare("Swatre dry")==0)                    namelist[j].value.setNum((int)checkSwatreDry->isChecked());
 
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());

@@ -90,6 +90,7 @@ void TWorld::InitParameters(void)
     swatreDT = getvaluedouble("SWATRE internal minimum timestep");
     TileEntrySuction = getvaluedouble("Tile entry suction");
     TileEntrySuction = std::max(-100.0,std::min(TileEntrySuction, 0.0));
+    KavgType = getvalueint("Infil Kavg");
 
     GW_recharge = getvaluedouble("GW recharge factor");
     GW_flow = getvaluedouble("GW flow factor");

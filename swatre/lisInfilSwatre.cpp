@@ -40,12 +40,15 @@ void TWorld::InfilSwatre()
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
+        InfilVol->Drc = 0;
 
         // profile 0 is for impermeable surfaces
-        if (ProfileID->Drc <= 0 || fractionImperm->Drc > 0.999) {
-            InfilVol->Drc = 0;
-            //continue;
-        } else {
+        if (ProfileID->Drc <= 0 || fractionImperm->Drc > 0.999)
+            continue;
+        if (SwitchSwatreDry && WH->Drc == 0 && Rain->Drc == 0)
+            continue;
+
+        //else {
             // int tid = omp_get_thread_num();
             // NODES& local = threadBuffers[tid];
 
@@ -167,7 +170,7 @@ void TWorld::InfilSwatre()
             Perc->Drc = perc/_dt; //from m to m/sec
             if (SwitchIncludeTile)
                 TileWaterVolSoil->Drc = tilevol;
-        }
+  //      }
 
     }}
 
