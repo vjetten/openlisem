@@ -57,6 +57,9 @@ void TWorld::GetInputData(void)
     InitChannel();
     //## read and initialize all channel maps and variables
 
+    InitGroundwater();
+    // GW, CHECK if can be done unrelated to channel
+
     InitFlood();
     // vars for dyn wave
 
@@ -915,6 +918,9 @@ void TWorld::InitChannel(void)
     ChannelQsr = NewMap(0);
     ChannelV = NewMap(0);//
     ChannelWH = NewMap(0);
+    ChannelWidthB = NewMap(0);
+    ChannelPerimeter = NewMap(0);
+    ChannelCos = NewMap(0);
 
     ChannelAlpha = NewMap(0);//
     ChannelDX = NewMap(0); //!!!!!!!!!!!!!!!! dit moet DX zijn
@@ -938,9 +944,12 @@ void TWorld::InitChannel(void)
     }
 
     FOR_ROW_COL_MV_CH {
-        LDD_COOR newcr;
+        LDD_COORCH newcr;
         newcr.r = r;
         newcr.c = c;
+        newcr.culvert = false;
+        newcr.shape = SHAPERECT;
+
         crch_ << newcr;
     }
     crlinkedlddch_= MakeLinkedList(LDDChannel);
@@ -979,14 +988,16 @@ void TWorld::InitChannel(void)
     }
 
     ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
+    cover(*ChannelSide, *LDD, 0);
+    FOR_ROW_COL_MV_CHL {
+        ChannelCos->Drc = cos(atan(ChannelSide->Drc));
+    }}
+
     ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
     checkMap(*LDDChannel,*ChannelGrad, LARGER, 1.0, "Channel Gradient must be SINE of slope angle (not tangent)");
-    //calcValue(*ChannelGrad, 0.001, MAX);
-    //VJ 171002 better to check and set Q to 0 in the code
     ChannelN = ReadMap(LDDChannel, getvaluename("chanman"));
 
     cover(*ChannelGrad, *LDD, 0);
-    cover(*ChannelSide, *LDD, 0);
     cover(*ChannelN, *LDD, 0);
 
     ChannelQSide = NewMap(0);
@@ -1000,9 +1011,9 @@ void TWorld::InitChannel(void)
         calcValue(*ChannelKsat, ChKsatCalibration, MUL);
         // ksat in m3 is does not change during the run
         ChannelInfM3 = NewMap(0);
-        FOR_ROW_COL_MV_CH {
+        FOR_ROW_COL_MV_CHL {
             ChannelInfM3->Drc =  ChannelKsat->Drc * _dt/3600000.0 * ChannelDX->Drc * ChannelWidthO->Drc;
-        }
+        }}
 
         // ChannelStore = NewMap(0.050); // 10 cm deep * 0.5 porosity
         // store not used?
@@ -1018,6 +1029,8 @@ void TWorld::InitChannel(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             if (ChannelDiameter->Drc > 0) {
+                crch_[i_].culvert = true;
+                crch_[i_].shape = SHAPECIRC;
                 ChannelDiameter->Drc /= 1000;
                 double area = PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;
                 ChannelMaxArea->Drc = area;
@@ -1046,50 +1059,6 @@ void TWorld::InitChannel(void)
     {
         ChannelWidthMax->Drc = ChannelWidth->Drc; // not used!
         // make always a rectangular channel
-    }
-
-    if (SwitchGWflow) {
-
-        LDDbaseflow = ReadMap(LDD, getvaluename("lddbase"));
-        crlinkedlddbase_= MakeLinkedList(LDDbaseflow);
-
-        BaseflowL = ReadMap(LDDChannel, getvaluename("basereach")); // bottom width in m
-        FOR_ROW_COL_MV_L {
-            BaseflowL->Drc = pow(_dx/BaseflowL->Drc,GW_slope*2);
-        }}
-
-        GWVol = NewMap(0); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
-        Qbase = NewMap(0);
-        GWWH = NewMap(0);
-        GWU = NewMap(0);
-        GWV = NewMap(0);
-        GWN = NewMap(0);
-        GWWHmax = NewMap(0);
-
-        GWdeep = NewMap(0);
-        GWrecharge = NewMap(0);
-        GWout = NewMap(0);
-        GWz = NewMap(0);
-        GWgrad = NewMap(0);
-
-        FOR_ROW_COL_MV_L {
-            //GWz->Drc = DEM->Drc - SoilDepth1->Drc - (SwitchTwoLayer ? SoilDepth2->Drc : 0.0);
-            if (SwitchTwoLayer)
-                GWz->Drc = DEM->Drc - SoilDepth2->Drc;
-            else
-                GWz->Drc = DEM->Drc - SoilDepth1->Drc;
-            tm->Drc = SoilDepth2->Drc;
-        }}
-        Average3x3(*GWz, *LDD, false);
-
-        Average3x3(*tm, *LDD, false);
-        FOR_ROW_COL_MV_L {
-            GWN->Drc = 0.1+pow(tm->Drc,2.0/3.0)*qSqrt(0.1)/(Ksat2->Drc/3600000/_dt);
-        }}
-
-        Average3x3(*GWN, *LDD, false);
-        report(*GWN,"gwn.map");
-
     }
 
     if(SwitchErosion) {
@@ -1182,6 +1151,56 @@ void TWorld::InitChannel(void)
         }}
     }
 }
+
+//--------------------------------------------------------------------------
+//CHECK if can be done unrelated to channel
+void TWorld::InitGroundwater(void)
+{
+    if (SwitchGWflow) {
+
+        LDDbaseflow = ReadMap(LDD, getvaluename("lddbase"));
+        crlinkedlddbase_= MakeLinkedList(LDDbaseflow);
+
+        BaseflowL = ReadMap(LDDChannel, getvaluename("basereach")); // bottom width in m
+        FOR_ROW_COL_MV_L {
+            BaseflowL->Drc = pow(_dx/BaseflowL->Drc,GW_slope*2);
+        }}
+
+        GWVol = NewMap(0); //ReadMap(LDD, getvaluename("gwlevel")); // bottom width in m
+        Qbase = NewMap(0);
+        GWWH = NewMap(0);
+        GWU = NewMap(0);
+        GWV = NewMap(0);
+        GWN = NewMap(0);
+        GWWHmax = NewMap(0);
+
+        GWdeep = NewMap(0);
+        GWrecharge = NewMap(0);
+        GWout = NewMap(0);
+        GWz = NewMap(0);
+        GWgrad = NewMap(0);
+
+        FOR_ROW_COL_MV_L {
+            //GWz->Drc = DEM->Drc - SoilDepth1->Drc - (SwitchTwoLayer ? SoilDepth2->Drc : 0.0);
+            if (SwitchTwoLayer)
+                GWz->Drc = DEM->Drc - SoilDepth2->Drc;
+            else
+                GWz->Drc = DEM->Drc - SoilDepth1->Drc;
+            tm->Drc = SoilDepth2->Drc;
+        }}
+
+        Average3x3(*GWz, *LDD, false);
+
+        Average3x3(*tm, *LDD, false);
+        FOR_ROW_COL_MV_L {
+            GWN->Drc = 0.1+pow(tm->Drc,2.0/3.0)*qSqrt(0.1)/(Ksat2->Drc/3600000/_dt);
+        }}
+
+        Average3x3(*GWN, *LDD, false);
+        report(*GWN,"gwn.map");
+
+    }
+}
 //---------------------------------------------------------------------------
 void TWorld::InitFlood(void)
 {
@@ -1227,22 +1246,21 @@ void TWorld::InitFlood(void)
 //---------------------------------------------------------------------------
 void TWorld::DiagonalFlowDEM()
 {
-    Fill(*tma,0);
-    Fill(*tmb,0);
     FOR_ROW_COL_MV_L {
         double Z = DEM->Drc;
         double z_x1 =  c > 0 && !MV(r,c-1)         ? DEM->data[r][c-1] : Z;
         double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? DEM->data[r][c+1] : Z;
         double z_y1 =  r > 0 && !MV(r-1,c)         ? DEM->data[r-1][c] : Z;
         double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? DEM->data[r+1][c] : Z;
-
-
+        int Ldd = 0;
+        int ldd = static_cast <int>(LDD->Drc);
+/*
+ *  DEM based:
         double z_x11 =  c > 0 && r > 0 && !MV(r-1,c-1)         ? DEM->data[r-1][c-1] : Z;
         double z_x21 =  c > 0 && r < _nrRows-1 && !MV(r+1,c-1) ? DEM->data[r+1][c-1] : Z;
         double z_y11 =  r > 0 && c < _nrCols-1 && !MV(r-1,c+1)         ? DEM->data[r-1][c+1] : Z;
         double z_y21 =  r < _nrRows-1 && c < _nrCols-1 && !MV(r+1,c+1) ? DEM->data[r+1][c+1] : Z;
 
-/*
         //note: true blockage if the diagonal cells are higher than the centre cell will not be flagged
         // left blockage
         if (z_x1 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
@@ -1253,8 +1271,8 @@ void TWorld::DiagonalFlowDEM()
                     z2 = false;
             }
 
-            if(z1) tma->Drc = 7;
-            if(z2) tma->Drc = 1;
+            if(z1) Ldd = 7;
+            if(z2) Ldd = 1;
         }
         // right blockage
         if (z_x2 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
@@ -1264,8 +1282,8 @@ void TWorld::DiagonalFlowDEM()
                 if (z_y11 < z_y21)
                     z2 = false;
             }
-            if(z1) tma->Drc = 9;
-            if(z2) tma->Drc = 3;
+            if(z1) Ldd = 9;
+            if(z2) Ldd = 3;
         }
         // upper blockage
         if (z_y1 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
@@ -1275,8 +1293,8 @@ void TWorld::DiagonalFlowDEM()
                 if (z_x11 < z_x21)
                     z2 = false;
             }
-            if(z1) tma->Drc = 7;
-            if(z2) tma->Drc = 9;
+            if(z1) Ldd = 7;
+            if(z2) Ldd = 9;
         }
         //lower blockage
         if (z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
@@ -1286,52 +1304,31 @@ void TWorld::DiagonalFlowDEM()
                 if (z_x21 < z_y21)
                     z2 = false;
             }
-            if(z1) tma->Drc = 1;
-            if(z2) tma->Drc = 3;
-        }
-
-// ldd map based:
-        int ldd = (int) LDD->Drc;
-        if (z_x1 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-            if (ldd == 1 || ldd == 7)
-                tmb->Drc = ldd;
-        }
-        if (z_x2 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-            if (ldd == 3 || ldd == 9)
-                tmb->Drc = ldd;
-        }
-        if (z_y1 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-            if (ldd == 7 || ldd == 9)
-                tmb->Drc = ldd;
-        }
-        if (z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-            if (ldd == 1 || ldd == 3)
-                tmb->Drc = ldd;
+            if(z1) Ldd = 1;
+            if(z2) Ldd = 3;
         }
 */
-        int ldd = static_cast <int>(LDD->Drc);
+
+        // if the center cell is lower than Z in the X and Y direction, take the ldd value
         if (z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
             if (ldd == 1 || ldd == 3 || ldd == 7 || ldd == 9)
-                tma->Drc = ldd;
+                Ldd = ldd;
         }
 
-//          DEMdz->Drc = tma->Drc;
         // do not include channels, channels will do the outflow
         if(SwitchIncludeChannel && ChannelWidth->Drc > 0) {
-            tma->Drc = 0;
-            tmb->Drc = 0;
+            Ldd = 0;
         }
 
-        // make a list of pits
-        if (tma->Drc > 0) {
+        // make a list of pits for diagonal flow in SWOF
+        if (Ldd > 0) {
             LDD_COORldd dclrc;
             dclrc.r = r;
             dclrc.c = c;
-            dclrc.ldd = static_cast <int>(tma->Drc);;
+            dclrc.ldd = Ldd;
             dcr_ << dclrc;
         }
     }}
-    //report(*tma,"diagflow.map");
 }
 //---------------------------------------------------------------------------
 void TWorld::CorrectDEM(cTMap *h, cTMap * g)
@@ -2241,8 +2238,10 @@ void TWorld::InitTiledrains(void)
             TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
             FOR_ROW_COL_MV_TILEL {
                 TileArea->Drc = TileDiameter->Drc*TileDiameter->Drc*0.25*PI;// PI r^2
-                TileMaxQ->Drc = TileArea->Drc*std::pow(TileArea->Drc/(PI*TileDiameter->Drc),2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+                TileMaxQ->Drc = TileArea->Drc * std::pow(TileArea->Drc/(PI*TileDiameter->Drc),2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+                // max Q is V*A when full
                 TileMaxAlpha->Drc  = TileArea->Drc/std::pow(TileMaxQ->Drc, BETAcirc);
+                // BETAcirc is set to 0.6 but may be different
             }}
         }
 

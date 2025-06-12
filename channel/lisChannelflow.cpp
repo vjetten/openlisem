@@ -58,27 +58,6 @@ void TWorld::ChannelFlowandErosion()
 
 }
 //---------------------------------------------------------------------------
-double TWorld::pipeThetafroma(int r, int c, double a)
-{
-    if (a < 1) {
-        double theta_next;
-        double theta = PI;
-        double tol = 1e-6;
-        // get angle theta from a
-        for (int j = 0; j < 50; j++ ) {
-           double f = (theta - sin(theta)) / (2 * PI) - a;
-           double df = (1 - cos(theta)) / (2 * PI);
-           theta_next = theta - f / df;
-           if (abs(theta_next - theta) < tol)
-               break;
-           theta = theta_next;
-        }
-        return(theta_next);
-    } else {
-        return(2.*PI);
-    }
-}
-//---------------------------------------------------------------------------
 void TWorld::ChannelVelocityandDischarge()
 {
     // velocity, alpha, Q
@@ -158,7 +137,7 @@ void TWorld::ChannelBaseflow(void)
             }
            // Qbase->Drc *= 2.0;
 
-            if (ChannelMaxQ->Drc <= 0) {
+            if (!crch_[i_].culvert) {//if (ChannelMaxQ->Drc <= 0) {
                 ChannelWaterVol->Drc += Qbase->Drc;
                 GWVol->Drc = std::max(0.0, GWVol->Drc - Qbase->Drc);
                 GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
@@ -178,7 +157,7 @@ void TWorld::ChannelRainandInfil(void)
     // add rainfall to channel, assume no interception
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (ChannelMaxQ->Drc <= 0)
+        if (!crch_[i_].culvert) //if (ChannelMaxQ->Drc <= 0)
             ChannelWaterVol->Drc += Rainc->Drc*ChannelWidth->Drc*DX->Drc;
 
        // ChannelWaterVol->Drc += ChannelQSide->Drc;
@@ -189,7 +168,7 @@ void TWorld::ChannelRainandInfil(void)
     if (SwitchChannelInfil) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            if (ChannelMaxQ->Drc <= 0) {
+            if (!crch_[i_].culvert) {//if (ChannelMaxQ->Drc <= 0) {
                 double inf = std::min(ChannelWaterVol->Drc, ChannelInfM3->Drc);
                 // cannot be more than there is
                 ChannelWaterVol->Drc -= inf;
@@ -246,7 +225,7 @@ void TWorld::ChannelFlow(void)
             QinKW->Drc = 0; // needed for sediment
         }}
 
-double totq = 0;
+//double totq = 0;
         //#pragma omp parallel for ordered num_threads(userCores)
         // parallel doesn't work here because you have to calculate accoring to the order of cells from top to bottom, to determine the inflow
         for(long i_ =  0; i_ < crlinkedlddch_.size(); i_++)
@@ -289,49 +268,29 @@ double totq = 0;
                 // adjust water valume to in and out
             }
 
-            if (crlinkedlddch_.at(i_).ldd == 5)
-                totq += ChannelQn->Drc*_dt;
+            // if (crlinkedlddch_.at(i_).ldd == 5)
+            //     totq += ChannelQn->Drc*_dt;
         }
 
         // calc V and WH back from Qn (original width and depth)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            //  ChannelQ->Drc = ChannelQn->Drc;  // NOT because needed in erosion!
-            double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
-            if (ChannelMaxQ->Drc > 0) {
-                double a = Area/ChannelMaxArea->Drc;
-                double theta = pipeThetafroma(r,c,a);
-                ChannelWH->Drc = 0.5*ChannelDiameter->Drc*(1-cos(theta/2.0));
-            } else
-                ChannelWH->Drc = Area/ChannelWidth->Drc;
+            //  ChannelQ->Drc = ChannelQn->Drc;
+            // NOT because needed in erosion!
+            if (crch_[i_].culvert) {
+                chanHandPCirc(r, c);
+                // double a = Area/ChannelMaxArea->Drc;
+                // double theta = pipeThetafroma(r,c,a);
+                // ChannelWH->Drc = 0.5*ChannelDiameter->Drc*(1-cos(theta/2.0));
+            } else {
+                chanHandPRect(r, c);
+                //ChannelWH->Drc = Area/ChannelWidth->Drc;
                 // new channel WH, use adjusted channelWidth
-
+            }
+            double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
             ChannelV->Drc = std::min(_CHMaxV, (Area > 1e-12 ? ChannelQn->Drc/Area : 0.0));
             // ChannelAlpha->Drc = Area > 1e-6 ? ChannelQn->Drc/std::pow(Area, 0.6) : 0.0;
             // DO NOT recalculate alpha becuase of erosion
-
-            // moved to rainfall infiltration
-            // if (SwitchGridRetention) {
-            //     double dvol = std::max(0.0,GridRetention->Drc - GridRetentionAct->Drc);
-            //     if(dvol > 0) {
-            //         dvol = std::min(dvol, ChannelWaterVol->Drc);
-            //         if (dvol > 0) {
-            //             GridRetentionAct->Drc += dvol;
-            //             ChannelWaterVol->Drc -= dvol;
-
-            //             double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
-            //             double FWO = ChannelWidthO->Drc;
-            //             double CHWH = Area/FWO;
-            //             double Perim = FWO+2*CHWH;
-            //             double Radius = (Perim > 0 ? Area/Perim : 0);
-            //             double sqrtgrad = std::max(sqrt(ChannelGrad->Drc), 0.0001);
-            //             double N = ChannelN->Drc;
-            //             ChannelWH->Drc = CHWH;
-            //             ChannelV->Drc = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrtgrad/N);
-            //             ChannelQn->Drc = ChannelV->Drc * Area;
-            //         }
-            //     }
-            // }
 
             // get the maximum for output
             maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);

@@ -144,8 +144,9 @@ SET(APP_SOURCES
     swatre/swatinp.cpp
     channel/lisChannelflood.cpp
     channel/lisChannelflow.cpp
-    channel/lisExtendedChannel.cpp
+    #channel/lisExtendedChannel.cpp
     channel/lisDischargein.cpp
+    channel/lisChannelAux.cpp
     flow/lisFlowBarriers.cpp
     flow/lisGWflow.cpp
     flow/lisKinematic.cpp

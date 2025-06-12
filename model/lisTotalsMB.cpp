@@ -305,8 +305,8 @@ void TWorld::TotalsFlow(void)
             // sum the tile outlets
             FOR_ROW_COL_MV_TILEL {
                 if (LDDTile->Drc == 5) {
-                   // QTiletot += TileQn->Drc * _dt;
-                   // QTile += TileQn->Drc;
+                   QTiletot += TileQn->Drc * _dt;
+                   //QTile += TileQn->Drc;
                 }
             }}
         //urban volume in drains

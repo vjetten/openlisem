@@ -115,8 +115,6 @@
 #define FOR_ROW_COL_LDDCH5 for(long i_ = nrValidCellsLDDCH5-1; i_ >= 0; i_--)\
 {int r = crlddch5_[i_].r; int c = crlddch5_[i_].c;
 
-// #define FOR_ROW_COL_MV_CHL for(long i_ = nrValidCellsCH-1; i_ >= 0; i_--)\
-// {int r = crch_[i_]->r; int c = crch_[i_]->c;
 #define FOR_ROW_COL_MV_CHL for(long i_ = 0; i_ < nrValidCellsCH; i_++)\
 {int r = crch_[i_].r; int c = crch_[i_].c;
 
@@ -179,6 +177,10 @@
 #define K2D_METHOD_KINDYN  3
 #define K2D_METHOD_DYN   2
 
+#define SHAPERECT 1
+#define SHAPECIRC 2
+#define SHAPETRAP 3
+#define SHAPETRIA 4
 
 //---------------------------------------------------------------------------
 /// structure containing pointers to all maps
@@ -202,6 +204,13 @@ typedef struct LDD_COOR {
     int r;
     int c;
 }  LDD_COOR;
+//---------------------------------------------------------------------------list
+typedef struct LDD_COORCH {
+    int r;
+    int c;
+    bool culvert;
+    int shape;
+}  LDD_COORCH;
 //---------------------------------------------------------------------------list
 typedef struct LDD_COORldd {
     int r;
@@ -385,7 +394,7 @@ public:
     long nrValidCellsWS;
     long nrValidCellsTile;
     QVector <LDD_COOR> cr_;
-    QVector <LDD_COOR> crch_;
+    QVector <LDD_COORCH> crch_;
     QVector <LDD_COORIN> crlinkedldd_;
     QVector <LDD_COORIN> crlinkedlddch_;
     QVector <LDD_COORIN> crlinkedlddbase_;
@@ -411,8 +420,10 @@ public:
     QVector <cTMap*> maplistCTMap;
     int maplistnr;
 
-    /// variable declaration list of all maps with comments:
+//---------------------------------------
+/// variable declaration list of all maps
 #include "TMmapVariables.h"
+//---------------------------------------
 
     /// SwitchXXX are boolean options that are set in interface and runfile, mainly corrsponding to checkboxes in the UI
 
@@ -830,6 +841,7 @@ public:
     void InitStandardInput(void);
     void InitLULCInput(void);
     void InitSoilInput(void);
+    void InitGroundwater(void);
     void InitFlood(void);
     void InitMeteoInput(void);
     void InitScreenChanNetwork();
@@ -963,7 +975,7 @@ public:
     void ToChannel();
     void ToChannelAlt();
     void ToFlood();
-    void ToTiledrainAll();
+    void ToTiledrain();
     // <= OF
 
     //SWMM pipe flow
@@ -986,7 +998,10 @@ public:
     void ChannelFlood(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V);
     void ChannelOverflowAlt(cTMap *_h, cTMap *_V);
-
+    void chanHandPCirc(int r, int c);
+    void chanHandPRect(int r, int c);
+    void chanHandPTrap(int r, int c);
+    void chanHandPTria(int r, int c);
     // tiles/stormdrains
     void TileFlow(void);
     void TileFlowSWMM(void);

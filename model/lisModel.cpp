@@ -275,7 +275,7 @@ void TWorld::DoModel()
 
             HydrologyProcesses();  // hydrological processes in one loop, incl splash
 
-            ToTiledrainAll();  // fraction going into tiledrain directly from surface
+            ToTiledrain();  // fraction going into tiledrain directly from surface
 
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 

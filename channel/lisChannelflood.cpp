@@ -49,7 +49,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (ChannelMaxQ->Drc <= 0) {
+        if (!crch_[i_].culvert) {//ChannelMaxQ->Drc <= 0) {
 
             double dH = std::max(0.0, (ChannelWH->Drc-ChannelDepth->Drc)); // water higher than channel depth
             double H = _h->Drc;
@@ -170,7 +170,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (ChannelMaxQ->Drc <= 0 && _h->Drc > 0) {
+        if (!crch_[i_].culvert && _h->Drc > 0) {
             if (SwitchKinematic2D == K2D_METHOD_KINDYN) {
                 hmx->Drc = _h->Drc + WHstore->Drc;
                 hmxWH->Drc = hmx->Drc;
@@ -205,7 +205,7 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (ChannelMaxQ->Drc == 0) {
+        if (!crch_[i_].culvert) {//ChannelMaxQ->Drc == 0) {
             double dCHh = ChannelWH->Drc-ChannelDepth->Drc;
             double dCHh0 = std::max(dCHh, 0.0);
             double H = _h->Drc; // runoff height!
