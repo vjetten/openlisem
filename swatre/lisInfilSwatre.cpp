@@ -168,8 +168,9 @@ void TWorld::InfilSwatre()
 
             ThetaI1a->Drc = theta;
             Perc->Drc = perc/_dt; //from m to m/sec
-            if (SwitchIncludeTile)
+            if (SwitchIncludeTile) {
                 TileWaterVolSoil->Drc = tilevol;
+            }
   //      }
 
     }}

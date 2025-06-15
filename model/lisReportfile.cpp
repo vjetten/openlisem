@@ -204,7 +204,7 @@ void TWorld::reportToUI(void)
     op.Qtot = Qtot; // all outflow through channel and runoff for all open and outlets boundaries
 
     op.QBoundaryTot = QBoundaryTot;
-    op.Qtiletot = QTiletot;  //average tile output over all tile outlets as a flux in m3/s
+    op.Qtiletot = QTiletot;  //total volume of water in tiles in m3
     op.MB = MB;
 
     if (SwitchErosion) {
@@ -237,7 +237,7 @@ void TWorld::reportToUI(void)
     op.OutletQ.at(0)->append(Qtot_dt * QUNIT/_dt); //Qtot_dt is in m3
 
     op.Qbound.append(QBoundary*QUNIT);
-    op.Qtile.append(QTile*QUNIT);  //average tile output over all tile outlets as a flox in l/s
+    op.Qtile.append(QTile*QUNIT);  //average tile output over all tile outlets as a flux in l/s
 
     op.OutletQtot.replace(0,Qtot); // cumulative tot outflow
     op.OutletChannelWH.at(0)->append(0);

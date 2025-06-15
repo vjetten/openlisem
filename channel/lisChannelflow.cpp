@@ -244,7 +244,8 @@ void TWorld::ChannelFlow(void)
             QinKW->Drc = Qin;
 
             // if inflow is >= Qmax and room in the pipe-outflow is less than the inflow, vol is full, Qn = Qmax
-            if (ChannelMaxQ->Drc > 0 && Qin > ChannelMaxQ->Drc && 0.5*(Qin + ChannelQ->Drc) > 0.95*ChannelMaxQ->Drc) {
+            if (ChannelMaxQ->Drc > 0 && ChannelWaterVol->Drc+_dt*(Qin - ChannelQ->Drc) > ChannelDX->Drc*ChannelMaxArea->Drc) {
+                //Qin > ChannelMaxQ->Drc && 0.5*(Qin + ChannelQ->Drc) > 0.95*ChannelMaxQ->Drc) {
                 ChannelQn->Drc = ChannelMaxQ->Drc;
                 Qin = std::min(Qin, ChannelMaxQ->Drc);
                 QinKW->Drc = Qin;
@@ -279,9 +280,6 @@ void TWorld::ChannelFlow(void)
             // NOT because needed in erosion!
             if (crch_[i_].culvert) {
                 chanHandPCirc(r, c);
-                // double a = Area/ChannelMaxArea->Drc;
-                // double theta = pipeThetafroma(r,c,a);
-                // ChannelWH->Drc = 0.5*ChannelDiameter->Drc*(1-cos(theta/2.0));
             } else {
                 chanHandPRect(r, c);
                 //ChannelWH->Drc = Area/ChannelWidth->Drc;

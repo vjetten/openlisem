@@ -210,8 +210,7 @@ void TWorld::ReportMapSeries(void)
         report(*tm, Outss);
     }
 
-    if (SwitchIncludeTile|| SwitchIncludeStormDrains)
-    {
+    if (SwitchIncludeTile|| SwitchIncludeStormDrains) {
         if (SwitchOutTiledrain) {
             if (QUnits == 1)
                 report(*TileQn, OutTiledrain); //in m3/s
@@ -220,8 +219,8 @@ void TWorld::ReportMapSeries(void)
                 FOR_ROW_COL_MV_L {
                     tm->Drc = TileQn->Drc  * 1000;
                 }}
-            report(*tm, OutTiledrain); //in l/s
-        }
+                report(*tm, OutTiledrain); //in l/s
+            }
         }
         if (SwitchOutTileVol) {
             report(*TileWaterVol, OutTileVol); //in m3

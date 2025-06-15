@@ -282,9 +282,9 @@ void TWorld::DoModel()
             // these are all non-threaded
             ChannelFlowandErosion();    // do ordered LDD solutions channel, tiles, drains, non threaded
 
-            if (SwitchUseSWMMflow)
-              TileFlowSWMM();
-            else
+            // if (SwitchUseSWMMflow)
+            //   TileFlowSWMM();
+            // else
               TileFlow();          // tile drain flow kin wave
 
             TotalsHydro();       // calculate all totals and cumulative values

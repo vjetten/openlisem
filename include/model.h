@@ -109,16 +109,16 @@
 #define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < nrValidCells; i_++)\
  {int r = cr_[i_].r; int c = cr_[i_].c;
 
-#define FOR_ROW_COL_LDD5 for(long i_ = nrValidCellsLDD5-1; i_ >= 0; i_--)\
+#define FOR_ROW_COL_LDD5 for(long i_ = 0; i_ < nrValidCellsLDD5; i_++)\
 {int r = crldd5_[i_].r; int c = crldd5_[i_].c;
 
-#define FOR_ROW_COL_LDDCH5 for(long i_ = nrValidCellsLDDCH5-1; i_ >= 0; i_--)\
+#define FOR_ROW_COL_LDDCH5 for(long i_ = 0; i_ < nrValidCellsLDDCH5; i_++)\
 {int r = crlddch5_[i_].r; int c = crlddch5_[i_].c;
 
 #define FOR_ROW_COL_MV_CHL for(long i_ = 0; i_ < nrValidCellsCH; i_++)\
 {int r = crch_[i_].r; int c = crch_[i_].c;
 
-#define FOR_ROW_COL_MV_TILEL for(long i_ = nrValidCellsTile-1; i_ >= 0; i_--)\
+#define FOR_ROW_COL_MV_TILEL for(long i_ = 0; i_ < nrValidCellsTile; i_++)\
 {int r = crtile_[i_].r; int c = crtile_[i_].c;
 
 #define FOR_ROW_COL_MV_OUTL for(int i_ = 0; i_ < crout_.size(); i_++)\
@@ -224,7 +224,6 @@ typedef struct LDD_COORIN {
     int ldd;
     QVector <LDD_COOR> inn;
     int nr;
-    //LDD_COOR *inn;
 }  LDD_COORIN;
 //---------------------------------------------------------------------------
 typedef struct LDD_COORloc {

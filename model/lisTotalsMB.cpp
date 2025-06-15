@@ -303,20 +303,23 @@ void TWorld::TotalsFlow(void)
    // QTile = 0;
     if(SwitchIncludeStormDrains || SwitchIncludeTile) {
             // sum the tile outlets
+            QTiletot = 0;
+            QTile = 0;
             FOR_ROW_COL_MV_TILEL {
                 if (LDDTile->Drc == 5) {
-                   QTiletot += TileQn->Drc * _dt;
-                   //QTile += TileQn->Drc;
+                  QTiletot += TileQn->Drc * _dt;
+                  QTile += TileQn->Drc;
                 }
             }}
+        qDebug() << QTile;
         //urban volume in drains
         if (SwitchIncludeStormDrains) {
             StormDrainVolTot = MapTotal(*TileWaterVol);
         }
 
         // agriculture volume in tiles
-        if (SwitchIncludeTile){
-            StormDrainVolTot = MapTotal(*TileWaterVolSoil);
+        if (SwitchIncludeTile) {
+           StormDrainVolTot += MapTotal(*TileWaterVolSoil);
         }
         // output
         StormDrainTotmm = StormDrainVolTot*catchmentAreaFlatMM;
@@ -344,7 +347,7 @@ void TWorld::TotalsFlow(void)
         //     Qm3max->Drc = std::max(Qm3max->Drc, QBoundFlow->Drc+ChannelQn->Drc);
         // }
 
-        Qoutput->Drc = Qoutput->Drc < 1e-12 ? 0.0 : Qoutput->Drc;
+        Qoutput->Drc = Qoutput->Drc < 1e-10 ? 0.0 : Qoutput->Drc;
     }}
     // Total outflow in m3 for all timesteps
     // does NOT include flood water leaving domain (floodBoundaryTot)

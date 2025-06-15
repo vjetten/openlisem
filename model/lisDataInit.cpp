@@ -2237,6 +2237,7 @@ void TWorld::InitTiledrains(void)
         if (SwitchDrainCircular) {
             TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
             FOR_ROW_COL_MV_TILEL {
+                TileN->Drc = 0.025;
                 TileArea->Drc = TileDiameter->Drc*TileDiameter->Drc*0.25*PI;// PI r^2
                 TileMaxQ->Drc = TileArea->Drc * std::pow(TileArea->Drc/(PI*TileDiameter->Drc),2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
                 // max Q is V*A when full
@@ -2275,8 +2276,7 @@ void TWorld::InitShade(void)
     double maxDem = -1e9;
     double minDem = 1e9;
 
-    FOR_ROW_COL_MV
-    {
+    FOR_ROW_COL_MV {
         //        double Incl = 15.0/180.0*PI;
         //        double Decl = 300/180.0*PI;
         double mat[9];

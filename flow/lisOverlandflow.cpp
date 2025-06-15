@@ -221,8 +221,9 @@ void TWorld::ToChannelAlt()
 
             WaterVolall->Drc -= volintochan;
             ChannelWaterVol->Drc += volintochan;
-            WHrunoff->Drc = (WaterVolall->Drc - MicroStoreVol->Drc)/CHAdjDX->Drc;
-            WH->Drc = WHrunoff->Drc + WHstore->Drc;
+            WHrunoff->Drc = std::max(0.0,WaterVolall->Drc - MicroStoreVol->Drc)/CHAdjDX->Drc;
+            WH->Drc = WaterVolall->Drc/CHAdjDX->Drc;
+            hmxWH->Drc = WH->Drc + hmx->Drc;
 
             if (SwitchErosion) {
                 double sed = volintochan * SSCFlood->Drc;

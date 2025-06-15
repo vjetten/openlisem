@@ -282,13 +282,13 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
 
             // Update water height from volume
             ChannelWH->Drc = ChannelWaterVol->Drc / area_channel;
-            _h->Drc = (WaterVolall->Drc-MicroStoreVol->Drc) / area_surface;
+            _h->Drc = std::max(0.0, WaterVolall->Drc-MicroStoreVol->Drc) / area_surface;
 
             if (SwitchKinematic2D == K2D_METHOD_KINDYN) {
-                hmx->Drc = _h->Drc + WHstore->Drc;
+                hmx->Drc = WaterVolall->Drc/area_surface;
                 hmxWH->Drc = hmx->Drc;
             } else {
-                WH->Drc = _h->Drc + WHstore->Drc;
+                WH->Drc =  WaterVolall->Drc/area_surface; ///_h->Drc + WHstore->Drc;
                 hmxWH->Drc = WH->Drc;
             }
 
