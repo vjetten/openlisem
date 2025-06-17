@@ -207,6 +207,7 @@ void TWorld::ChannelFlow(void)
 {
    int dy[10] = {0,1,1,1,0,0,0,-1,-1,-1};
    int dx[10] = {0,-1,0,1,-1,0,1,-1,0,1};
+
     // if (SwitchChannelKinwaveDt) {
     //     if (_dt_user > _dtCHkin) {
     //         double n = _dt_user/_dtCHkin;
@@ -216,7 +217,8 @@ void TWorld::ChannelFlow(void)
 
     // for (double t = 0; t < _dt_user; t+=_dt)
     // {
-        //double sumvol = MapTotal(*ChannelWaterVol);
+
+        double sumvol = MapTotal(*ChannelWaterVol);
 
         //===== channel kin wave directly here to be able to do culverts
         #pragma omp parallel for num_threads(userCores)
@@ -225,14 +227,14 @@ void TWorld::ChannelFlow(void)
             QinKW->Drc = 0; // needed for sediment
         }}
 
-//double totq = 0;
-        //#pragma omp parallel for ordered num_threads(userCores)
-        // parallel doesn't work here because you have to calculate accoring to the order of cells from top to bottom, to determine the inflow
+        double totq = 0;
+
         for(long i_ =  0; i_ < crlinkedlddch_.size(); i_++)
         {
             int r = crlinkedlddch_.at(i_).r;
             int c = crlinkedlddch_.at(i_).c;
             double Qin = 0;
+            double volMax = ChannelMaxArea->Drc*DX->Drc;
 
             if (crlinkedlddch_.at(i_).nr > 0) {
                 for(int j = 0; j < crlinkedlddch_.at(i_).nr; j++) {
@@ -240,45 +242,48 @@ void TWorld::ChannelFlow(void)
                     int cr = crlinkedlddch_.at(i_).inn[j].c;
                     Qin += ChannelQn->Drcr;
                 }
+
+                // if total inflow causes vol > max volume, adjust inflow incoming TileQn
+                if (ChannelMaxQ->Drc > 0 &&
+                    ChannelWaterVol->Drc+_dt*(Qin-ChannelQ->Drc) >= volMax) {
+                    double maxq = std::min(ChannelMaxQ->Drc, (volMax - ChannelWaterVol->Drc)/_dt + ChannelQ->Drc);
+
+                    for(int j = 0; j < crlinkedlddch_.at(i_).nr; j++) {
+                        int rr = crlinkedlddch_.at(i_).inn[j].r;
+                        int cr = crlinkedlddch_.at(i_).inn[j].c;
+                        ChannelQn->Drcr = maxq * ChannelQn->Drcr/Qin;
+                        // incoming TileQn is a fraction of maxq
+                    }
+                    Qin = maxq;
+                }
             }
             QinKW->Drc = Qin;
 
-            // if inflow is >= Qmax and room in the pipe-outflow is less than the inflow, vol is full, Qn = Qmax
-            if (ChannelMaxQ->Drc > 0 && ChannelWaterVol->Drc+_dt*(Qin - ChannelQ->Drc) > ChannelDX->Drc*ChannelMaxArea->Drc) {
-                //Qin > ChannelMaxQ->Drc && 0.5*(Qin + ChannelQ->Drc) > 0.95*ChannelMaxQ->Drc) {
-                ChannelQn->Drc = ChannelMaxQ->Drc;
-                Qin = std::min(Qin, ChannelMaxQ->Drc);
-                QinKW->Drc = Qin;
-                ChannelWaterVol->Drc = ChannelDX->Drc*ChannelMaxArea->Drc;
-                // water vol is filled circular pipe
-            } else {
-                ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, _dt, DX->Drc, ChannelMaxQ->Drc, ChannelMaxAlpha->Drc);
-                ChannelQn->Drc = std::min(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
-                // no more outflow than there is water
+            ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, _dt, DX->Drc, ChannelMaxQ->Drc, ChannelMaxAlpha->Drc);
+            ChannelQn->Drc = std::min(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
+            // no more outflow than there is water
 
-                // check if there is a culvert downstream and limit outflow if necessary
+            // check if there is a culvert downstream and limit outflow if necessary
+            int ldd = fabs(crlinkedlddch_.at(i_).ldd);
+            int cr = c+dx[ldd];
+            int rr = r+dy[ldd];
+            if (ldd != 5 && !pcr::isMV(LDDChannel->Drcr) && ChannelMaxQ->Drcr > 0)
+                ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelMaxQ->Drcr);
 
-                int ldd = fabs(crlinkedlddch_.at(i_).ldd);
-                int cr = c+dx[ldd];
-                int rr = r+dy[ldd];
-                if (!pcr::isMV(LDDChannel->Drcr) && ChannelMaxQ->Drcr > 0)
-                    ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelMaxQ->Drcr);
-
-                ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(Qin - ChannelQn->Drc);
-                ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc);
-                // adjust water valume to in and out
-            }
-
-            // if (crlinkedlddch_.at(i_).ldd == 5)
-            //     totq += ChannelQn->Drc*_dt;
         }
-
+int full = 0;
         // calc V and WH back from Qn (original width and depth)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            //  ChannelQ->Drc = ChannelQn->Drc;
-            // NOT because needed in erosion!
-            if (crch_[i_].culvert) {
+            ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(QinKW->Drc - ChannelQn->Drc);
+            ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc);
+
+            if (ChannelMaxQ->Drc > 0 && ChannelWaterVol->Drc >= ChannelMaxArea->Drc*DX->Drc) {
+                qDebug() << "f";
+                full+=1;
+            }
+
+            if (ChannelMaxQ->Drc) {
                 chanHandPCirc(r, c);
             } else {
                 chanHandPRect(r, c);
@@ -293,15 +298,17 @@ void TWorld::ChannelFlow(void)
             // get the maximum for output
             maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
             maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
-        }}
-    //    correctMassBalanceCH(sumvol, ChannelWaterVol);
-       // double sumvol1 = MapTotal(*ChannelWaterVol);
 
-       // qDebug() << "MB chan (aft-bef)" << sumvol << sumvol1 << totq << sumvol - sumvol1 - totq;
+            if (LDDChannel->Drc == 5)
+                 totq = ChannelQn->Drc*_dt;
+        }}
+        double sumvol1 = MapTotal(*ChannelWaterVol);
+
+        qDebug() << "MB chan (aft-bef)" << sumvol << sumvol1 << totq << sumvol - sumvol1 - totq << MB << full;
 
 //     }
 //     _dt=_dt_user;
-   //     delete drain;
+
 }
 
 void TWorld::ChannelSedimentFlow()

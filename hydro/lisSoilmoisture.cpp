@@ -52,7 +52,7 @@
 
 double TWorld::calculateDayLength(double latitude, int dayNumber)
 {
-    const double degreesToRadians = PI / 180.0;
+    const double degreesToRadians = M_PI / 180.0;
 
     // Convert latitude from degrees to radians
     latitude *= degreesToRadians;
@@ -62,7 +62,7 @@ double TWorld::calculateDayLength(double latitude, int dayNumber)
     const double axialTiltRadians = 23.44 * degreesToRadians;
 
     // Day angle in radians
-    double dayAngle = 2 * PI * (dayNumber - 1) / 365;
+    double dayAngle = 2 * M_PI * (dayNumber - 1) / 365;
 
     // Calculate the declination angle in radians
     double declination = asin(sin(axialTiltRadians) * sin(dayAngle));
@@ -71,7 +71,7 @@ double TWorld::calculateDayLength(double latitude, int dayNumber)
     double hourAngle = acos(-tan(latitude) * tan(declination));
 
     // Calculate day length in hours
-    double dayLength = (2.0 * hourAngle) * (180.0 / PI) / 15.0;
+    double dayLength = (2.0 * hourAngle) * (180.0 / M_PI) / 15.0;
 
     return dayLength;
 }
@@ -955,7 +955,7 @@ void TWorld::cell_SWATRECalc(long i_)
     delete[] thomb;
     delete[] thomc;
     delete[] thomf;
-    delete[] disnod;   
+    delete[] disnod;
 }
 
 

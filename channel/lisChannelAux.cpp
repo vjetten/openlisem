@@ -29,24 +29,25 @@
 //---------------------------------------------------------------------------
 double TWorld::pipeThetafroma(int r, int c, double a)
 {
-    if (a < 1) {
-        double theta_next;
-        double theta = PI;
-        double tol = 1e-6;
-        // get angle theta from a, relative area (Area/AreaMax)
-        for (int j = 0; j < 50; j++ ) {
-           double f = (theta - sin(theta)) / (2 * PI) - a;
-           double df = (1 - cos(theta)) / (2 * PI);
-           theta_next = theta - f / df;
-           if (abs(theta_next - theta) < tol)
-               break;
-           theta = theta_next;
-        }
-        return(theta_next);
-    } else {
-        return(2.*PI);
+    const double TOLERANCE = 1e-6;
+    const int MAX_ITER = 100;
+
+    if (a <= 0.0) return 0.0;
+    if (a >= 1.0) return M_PI * 2;
+
+    double theta = M_PI; // Initial guess
+    for (int i = 0; i < MAX_ITER; ++i) {
+        double f = (theta - std::sin(theta)) / (2.0 * M_PI) - a;
+        double df = (1.0 - std::cos(theta)) / (2.0 * M_PI);
+        double delta = f / df;
+        theta -= delta;
+        if (std::abs(delta) < TOLERANCE)
+            break;
     }
+
+    return theta;
 }
+
 //---------------------------------------------------------------------------
 void TWorld::chanHandPCirc(int r, int c)//, double Area)
 {

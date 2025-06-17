@@ -2276,7 +2276,7 @@ void TWorld::InitShade(void)
     double maxDem = -1e9;
     double minDem = 1e9;
 
-    FOR_ROW_COL_MV {
+    FOR_ROW_COL_MV_L {
         //        double Incl = 15.0/180.0*PI;
         //        double Decl = 300/180.0*PI;
         double mat[9];
@@ -2286,10 +2286,10 @@ void TWorld::InitShade(void)
         minDem = std::min(DEM->Drc, minDem);
         maxDem = std::max(DEM->Drc, maxDem);
 
-        for (int i = 0; i < 9; i++)
+        for (int i = 0; i < 9; i++) {
             mat[i] = DEM->Drc;
-        if (r > 0 && r < _nrRows-1 && c > 0 && c < _nrCols-1)
-        {
+        }
+        if (r > 0 && r < _nrRows-1 && c > 0 && c < _nrCols-1) {
             if(!pcr::isMV(LDD->data[r-1][c-1]))
                 mat[0] = DEM->data[r-1][c-1];
             if(!pcr::isMV(LDD->data[r-1][c  ]))
@@ -2314,16 +2314,6 @@ void TWorld::InitShade(void)
         dx = (mat[2] + 2*mat[5] + mat[8] - mat[0] -2*mat[3] - mat[6])/(8*_dx);
         dy = (mat[0] + 2*mat[1] + mat[2] - mat[6] -2*mat[7] - mat[8])/(8*_dx);
 
-        //        if (dy < 0)
-        //            aspect = atan(dx/dy)+2*PI;
-        //        else
-        //            if (dy > 0)
-        //                aspect = atan(dx/dy)+PI;
-        //            else
-        //                aspect = 0;
-        //Shade->Drc = cos(Incl)*Grad->Drc*cos(aspect-Decl) + sin(Incl)*cos(asin(Grad->Drc));
-
-
         //http://edndoc.esri.com/arcobjects/9.2/net/shared/geoprocessing/spatial_analyst_tools/how_hillshade_works.htm
         //Burrough, P. A. and McDonell, R.A., 1998. Principles of Geographical Information Systems (Oxford University Press, New York), p. 190.
         double z_factor = 2.0;
@@ -2345,24 +2335,22 @@ void TWorld::InitShade(void)
         double Zenith_rad = 70.0 * PI / 180.0;
         double Azimuth_rad = 240 * PI / 180.0;
         tma->Drc = 255.0 * ( ( cos(Zenith_rad) * cos(Slope_rad) ) + ( sin(Zenith_rad) * sin(Slope_rad) * cos(Azimuth_rad - Aspect_rad) ) );
-    }
+    }}
     double MaxV = mapMaximum(*tma);
     double MinV = mapMinimum(*tma);
 
-    FOR_ROW_COL_MV
-    {
+    FOR_ROW_COL_MV_L {
         tma->Drc = (tma->Drc-MinV)/(MaxV-MinV);
         // VJ add a bit of elevation for enhanced effect
         tma->Drc = 0.8*tma->Drc+0.2*(DEM->Drc - minDem)/(maxDem-minDem);
         //ShadeBW->Drc = Shade->Drc;
-    }
+    }}
     MaxV = mapMaximum(*tma);
     MinV = mapMinimum(*tma);
-    FOR_ROW_COL_MV
-    {
+    FOR_ROW_COL_MV_L {
         ShadeBW->Drc = (tma->Drc-MinV)/(MaxV-MinV);
         // VJ add a bit of elevation for enhanced effect
-    }
+    }}
 
 }
 //---------------------------------------------------------------------------

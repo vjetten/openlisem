@@ -155,11 +155,12 @@ void lisemqt::DefaultMapnames()
 
     DEFmaps.append("0;Storm drains/Tile drains");
     DEFmaps.append("2;LDD;lddtile.map;LDD of tile drain system (must be one system connected to the outlet);lddtile");
-    DEFmaps.append("2;Opening;tileinlet.map;size of openings connecting surface to tile drain system (in m2);tilesink");
+    //DEFmaps.append("2;Opening;tileinlet.map;size of openings connecting surface to tile drain system (in m2);tilesink");
+    // obsolete
     DEFmaps.append("2;Diameter;tilediameter.map;Tile drain pipe diameter (m);tilediameter");
     DEFmaps.append("2;Width;tilewidth.map;Tile drain pipe width, total in cell if more than one drain (m);tilewidth");
     DEFmaps.append("2;Height;tileheight.map;Tile drain pipe height (m);tileheight");
-    DEFmaps.append("2;Depth;tiledepth.map;Tile drain pipe depth below surface (m);tiledepth");
+    DEFmaps.append("2;Depth;tiledepth.map;Soil: tile drain pipe depth below surface (m);tiledepth");
     DEFmaps.append("2;Gradient;tilegrad.map;Slope gradient of the tile drains (-);tilegrad");
     DEFmaps.append("2;N;tileman.map;Mannings n of the tile drains (-);tileman");
 

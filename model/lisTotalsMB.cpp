@@ -300,10 +300,9 @@ void TWorld::TotalsFlow(void)
 
 
     //=== storm drain flow
-   // QTile = 0;
     if(SwitchIncludeStormDrains || SwitchIncludeTile) {
             // sum the tile outlets
-            QTiletot = 0;
+        //    QTiletot = 0;
             QTile = 0;
             FOR_ROW_COL_MV_TILEL {
                 if (LDDTile->Drc == 5) {
@@ -311,7 +310,7 @@ void TWorld::TotalsFlow(void)
                   QTile += TileQn->Drc;
                 }
             }}
-        qDebug() << QTile;
+
         //urban volume in drains
         if (SwitchIncludeStormDrains) {
             StormDrainVolTot = MapTotal(*TileWaterVol);
