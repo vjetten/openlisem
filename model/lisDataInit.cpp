@@ -164,7 +164,7 @@ void TWorld::InitParameters(void)
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
         SwitchLinkedList = false; //getvalueint("Use linked List") == 1;
         SwitchPerimeterKW = getvalueint("Use Perimeter KW") == 1;
-        _dtCHkin = getvaluedouble("Channel Kinwave dt");
+        _dtCHkin = _dx/2;//getvaluedouble("Channel Kinwave dt");
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
         SwitchChannelWFinflow = false;//getvalueint("Channel WF inflow") == 1;
         SwatrePrecision = 6;// getvaluedouble("SWATRE precision");
@@ -176,7 +176,7 @@ void TWorld::InitParameters(void)
         F_pitValue = _dx/100;
         SwitchLinkedList = false;
         SwitchPerimeterKW = false;
-        _dtCHkin = 60.0;
+        _dtCHkin = _dx/2;
         SwitchChannel2DflowConnect = false;
         SwitchChannelWFinflow = false;
 

@@ -48,11 +48,20 @@ void TWorld::ChannelFlowandErosion()
 
     ChannelBaseflow();              // add stationary and GW baseflow if selected
 
+    // _dt_user = _dt;
+    // _dt = _dx/2.0;
+    // for (double t = 0; t < _dt_user; t+=_dt)
+    // {
+
     ChannelVelocityandDischarge();  // maaings V Q Aplha
 
     ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
 
     ChannelFlow();                  // channel kin wave for water
+
+    //}
+
+    //_dt = _dt_user;
 
     ChannelSedimentFlow();          // kin wave for sediment and substances
 
@@ -205,109 +214,92 @@ void TWorld::ChannelRainandInfil(void)
 //---------------------------------------------------------------------------
 void TWorld::ChannelFlow(void)
 {
-   int dy[10] = {0,1,1,1,0,0,0,-1,-1,-1};
-   int dx[10] = {0,-1,0,1,-1,0,1,-1,0,1};
+    int dy[10] = {0,1,1,1,0,0,0,-1,-1,-1};
+    int dx[10] = {0,-1,0,1,-1,0,1,-1,0,1};
 
-    // if (SwitchChannelKinwaveDt) {
-    //     if (_dt_user > _dtCHkin) {
-    //         double n = _dt_user/_dtCHkin;
-    //         _dt = _dt_user/n;
-    //     }
-    // }
+  //  double sumvol = MapTotal(*ChannelWaterVol);
+  //  double totq = 0;
 
-    // for (double t = 0; t < _dt_user; t+=_dt)
-    // {
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        ChannelQn->Drc = 0;
+        QinKW->Drc = 0; // needed for sediment
+    }}
 
-        double sumvol = MapTotal(*ChannelWaterVol);
+    for(long i_ =  0; i_ < crlinkedlddch_.size(); i_++)
+    {
+        int r = crlinkedlddch_.at(i_).r;
+        int c = crlinkedlddch_.at(i_).c;
+        double Qin = 0;
+        double volMax = ChannelMaxArea->Drc*DX->Drc;
 
-        //===== channel kin wave directly here to be able to do culverts
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            ChannelQn->Drc = 0;
-            QinKW->Drc = 0; // needed for sediment
-        }}
+        if (crlinkedlddch_.at(i_).nr > 0) {
+            for(int j = 0; j < crlinkedlddch_.at(i_).nr; j++) {
+                int rr = crlinkedlddch_.at(i_).inn[j].r;
+                int cr = crlinkedlddch_.at(i_).inn[j].c;
+                Qin += ChannelQn->Drcr;
+            }
 
-        double totq = 0;
+            // if total inflow causes vol > max volume, adjust inflow incoming TileQn
+            if (ChannelMaxQ->Drc > 0 &&
+                ChannelWaterVol->Drc+_dt*(Qin-ChannelQ->Drc) >= volMax) {
+                double maxq = std::min(ChannelMaxQ->Drc, (volMax - ChannelWaterVol->Drc)/_dt + ChannelQ->Drc);
 
-        for(long i_ =  0; i_ < crlinkedlddch_.size(); i_++)
-        {
-            int r = crlinkedlddch_.at(i_).r;
-            int c = crlinkedlddch_.at(i_).c;
-            double Qin = 0;
-            double volMax = ChannelMaxArea->Drc*DX->Drc;
-
-            if (crlinkedlddch_.at(i_).nr > 0) {
                 for(int j = 0; j < crlinkedlddch_.at(i_).nr; j++) {
                     int rr = crlinkedlddch_.at(i_).inn[j].r;
                     int cr = crlinkedlddch_.at(i_).inn[j].c;
-                    Qin += ChannelQn->Drcr;
+                    ChannelQn->Drcr = maxq * ChannelQn->Drcr/Qin;
+                    // incoming TileQn is a fraction of maxq
                 }
-
-                // if total inflow causes vol > max volume, adjust inflow incoming TileQn
-                if (ChannelMaxQ->Drc > 0 &&
-                    ChannelWaterVol->Drc+_dt*(Qin-ChannelQ->Drc) >= volMax) {
-                    double maxq = std::min(ChannelMaxQ->Drc, (volMax - ChannelWaterVol->Drc)/_dt + ChannelQ->Drc);
-
-                    for(int j = 0; j < crlinkedlddch_.at(i_).nr; j++) {
-                        int rr = crlinkedlddch_.at(i_).inn[j].r;
-                        int cr = crlinkedlddch_.at(i_).inn[j].c;
-                        ChannelQn->Drcr = maxq * ChannelQn->Drcr/Qin;
-                        // incoming TileQn is a fraction of maxq
-                    }
-                    Qin = maxq;
-                }
+                Qin = maxq;
             }
-            QinKW->Drc = Qin;
-
-            ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, _dt, DX->Drc, ChannelMaxQ->Drc, ChannelMaxAlpha->Drc);
-            ChannelQn->Drc = std::min(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
-            // no more outflow than there is water
-
-            // check if there is a culvert downstream and limit outflow if necessary
-            int ldd = fabs(crlinkedlddch_.at(i_).ldd);
-            int cr = c+dx[ldd];
-            int rr = r+dy[ldd];
-            if (ldd != 5 && !pcr::isMV(LDDChannel->Drcr) && ChannelMaxQ->Drcr > 0)
-                ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelMaxQ->Drcr);
-
         }
-int full = 0;
-        // calc V and WH back from Qn (original width and depth)
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL {
-            ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(QinKW->Drc - ChannelQn->Drc);
-            ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc);
+        QinKW->Drc = Qin;
 
-            if (ChannelMaxQ->Drc > 0 && ChannelWaterVol->Drc >= ChannelMaxArea->Drc*DX->Drc) {
-                qDebug() << "f";
-                full+=1;
-            }
+        ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, _dt, DX->Drc, ChannelMaxQ->Drc, ChannelMaxAlpha->Drc);
+        ChannelQn->Drc = std::min(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
+        // no more outflow than there is water
 
-            if (ChannelMaxQ->Drc) {
-                chanHandPCirc(r, c);
-            } else {
-                chanHandPRect(r, c);
-                //ChannelWH->Drc = Area/ChannelWidth->Drc;
-                // new channel WH, use adjusted channelWidth
-            }
-            double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
-            ChannelV->Drc = std::min(_CHMaxV, (Area > 1e-12 ? ChannelQn->Drc/Area : 0.0));
-            // ChannelAlpha->Drc = Area > 1e-6 ? ChannelQn->Drc/std::pow(Area, 0.6) : 0.0;
-            // DO NOT recalculate alpha becuase of erosion
+        // check if there is a culvert downstream and limit outflow if necessary
+        int ldd = fabs(crlinkedlddch_.at(i_).ldd);
+        int cr = c+dx[ldd];
+        int rr = r+dy[ldd];
+        if (ldd != 5 && !pcr::isMV(LDDChannel->Drcr) && ChannelMaxQ->Drcr > 0)
+            ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelMaxQ->Drcr);
 
-            // get the maximum for output
-            maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
-            maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
+    }
+   // int full = 0;
+    // calc V and WH back from Qn (original width and depth)
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(QinKW->Drc - ChannelQn->Drc);
+        ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc);
 
-            if (LDDChannel->Drc == 5)
-                 totq = ChannelQn->Drc*_dt;
-        }}
-        double sumvol1 = MapTotal(*ChannelWaterVol);
+     //   if (ChannelMaxQ->Drc > 0 && ChannelWaterVol->Drc >= ChannelMaxArea->Drc*DX->Drc) {
+     //       full+=1;
+     //   }
 
-        qDebug() << "MB chan (aft-bef)" << sumvol << sumvol1 << totq << sumvol - sumvol1 - totq << MB << full;
+        if (ChannelMaxQ->Drc) {
+            chanHandPCirc(r, c);
+        } else {
+            chanHandPRect(r, c);
+            //ChannelWH->Drc = Area/ChannelWidth->Drc;
+        }
+        double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
+        ChannelV->Drc = std::min(_CHMaxV, (Area > 1e-12 ? ChannelQn->Drc/Area : 0.0));
+        // ChannelAlpha->Drc = Area > 1e-6 ? ChannelQn->Drc/std::pow(Area, 0.6) : 0.0;
+        // DO NOT recalculate alpha becuase of erosion
 
-//     }
-//     _dt=_dt_user;
+        // get the maximum for output
+        maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
+        maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
+
+     //   if (LDDChannel->Drc == 5)
+     //        totq += ChannelQn->Drc*_dt;
+    }}
+//    double sumvol1 = MapTotal(*ChannelWaterVol);
+
+ //   qDebug() << "MB chan (aft-bef)" << sumvol << sumvol1 << totq << sumvol - sumvol1 - totq << MB << full;
 
 }
 
