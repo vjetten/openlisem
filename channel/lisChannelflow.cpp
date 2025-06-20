@@ -46,7 +46,7 @@ void TWorld::ChannelFlowandErosion()
 
    // ChannelRainandInfil();          // subtract infil, add rainfall
 
-    ChannelBaseflow();              // add stationary and GW baseflow if selected
+    //ChannelBaseflow();              // add stationary and GW baseflow if selected
 
     // _dt_user = _dt;
     // _dt = _dx/2.0;
@@ -88,27 +88,6 @@ void TWorld::ChannelVelocityandDischarge()
         //ChannelAlpha->Drc = ChannelQ->Drc/std::pow(Area, 0.6);
         ChannelAlpha->Drc = pow(ChannelN->Drc/sqrt(ChannelGrad->Drc) * pow(ChannelPerimeter->Drc, 2.0/3.0),0.6);  // no difference
     }}
-/*
-    // velocity, alpha, Q
-    #pragma omp parallel num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
-        double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
-        double FWO = ChannelWidthO->Drc;
-        ChannelWH->Drc = Area/FWO;
-        double Perim = FWO+2*ChannelWH->Drc;
-        if (ChannelMaxQ->Drc > 0) {
-            double a = Area/ChannelMaxArea->Drc;
-            double theta = pipeThetafroma(r,c,a);
-            Perim = ChannelDiameter->Drc/2.0*theta;
-            ChannelWH->Drc = 0.5*ChannelDiameter->Drc*(1-cos(theta/2.0));
-        }
-        double Radius = (Perim > 1e-6 ? Area/Perim : 0);
-        ChannelV->Drc = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc);
-        ChannelQ->Drc = ChannelV->Drc * Area;
-        //ChannelAlpha->Drc = ChannelQ->Drc/std::pow(Area, 0.6);
-        ChannelAlpha->Drc = pow(ChannelN->Drc/sqrt(ChannelGrad->Drc) * pow(Perim, 2.0/3.0),0.6);  // no difference
-    }}
-    */
 }
 
 //---------------------------------------------------------------------------
@@ -335,7 +314,6 @@ void TWorld::ChannelFlow(void)
      //        totq += ChannelQn->Drc*_dt;
     }}
 //    double sumvol1 = MapTotal(*ChannelWaterVol);
-report(*ChannelWH,"chwh");
  //   qDebug() << "MB chan (aft-bef)" << sumvol << sumvol1 << totq << sumvol - sumvol1 - totq << MB << full;
 
 }

@@ -277,7 +277,10 @@ void TWorld::DoModel()
 
             ToTiledrain();  // fraction going into tiledrain directly from surface
 
-            ChannelRainandInfil();          // subtract infil, retention,  add rainfall
+            if (SwitchIncludeChannel) {
+                ChannelRainandInfil();  // subtract infil, retention,  add rainfall
+                ChannelBaseflow();              // add stationary and GW baseflow if selected
+            }
 
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
