@@ -1,11 +1,13 @@
 openLISEM
 A spatial model for simulation of the full waterbalance, overland flow, flooding and sediment erosion, transport and deposition in all flows.
+The model can be downloaded from:
+https://github.com/vjetten/openlisem/releases/tag/lisem_bin
 
 ============
-Date: 250607
+Date: 250617
 ============
 
-This software is subject to a DISCLAIMER and released under the copyright model GPLv3
+This software is under the copyright model GPLv3 (distributed with the model) and subject to additional disclaimers.
 
 For questions contact v.g.jetten AD utwente.nl
 
@@ -13,15 +15,15 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
 
-250607 - v7.4.7.beta.R1-R5
+250617 - v7.4.7.beta.R1-R6
 - Added: Option to stop SWATRE when there is no rainfall or runoff in a cell (faster)
 - Added: Inflow into stormdrains according to water pressure above inlet
 - Added: D erosion calculations inside (slow) or outside (fast) 2D flow loop (Advanced options)
 - Added: connection to channel based on hydraulic flow for broad crested weir (Advanced options)
 - UPDATE: Thread behaviour was obselete. Renewed and cleaned use of the model in a thread separate form the GUI
+- BUG-FIX: Fixed confined flow with a Kionematic Wave in culverts and pipes
 - BUG-FIX: Shared memory structured caused wrong results in SWATRE parallel computing, showed as striping on screen
 - BUG-FIX: corrected running from a batch file, and from a cmd window, with and without GUI
-- BUG FIX: boundary flow error in parallel computing, simplified boundary flow
 - BUG FIX: correct calculation and reporting of boundary flow and channel flow
 - BUG FIX: some wrong checks for Missing Value in 2D flow, unknown behaviour
 - BUG-FIX: output tilemaps repaired

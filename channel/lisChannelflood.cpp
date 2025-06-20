@@ -40,8 +40,6 @@ functions: \n
 #include "operation.h"
 #include "global.h"
 
-#define SQRT2G 4.42869
-
 void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 {
     if (!SwitchIncludeChannel)
@@ -62,31 +60,21 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
                 continue;
             // no diff in water level, no flow, continue
 
-            // VELOCITIES
-            double VtoChan = V->Drc;
-            double fracA = std::min(1.0, _dt*VtoChan/(0.5*ChannelAdj->Drc));
-            // fraction from _h to channel based on average flood velocity
-            double VfromChan = sqrt(2*GRAV*dH); //Bernoulli
-
-           // VfromChan = 0.56*std::sqrt(2*GRAV)*std::pow(dH, 0.5)*sqrt(1-pow((dH-H)/dH,1.5));
-
-            //see https://www.engineeringtoolbox.com/velocity-head-d_916.html
-            double fracC = std::min(1.0, _dt*VfromChan/(0.5*ChannelAdj->Drc));
-            // fraction from channel to surrounding
-
+            double Cd = 0.56;
             double cwa = ChannelWidth->Drc/ChannelAdj->Drc;
-
             bool dosimpel = false;
 
-            if (dH > H)   // flow from channel
-            {
+            if (dH > H) {
+                // flow from channel
+                double VfromChan = Cd*SQRT2G*pow(dH-H,1.5)/H;
+                double fracC = std::min(1.0, _dt*VfromChan/(0.5*ChannelAdj->Drc));
+                // fraction from channel to surrounding
                 double dwh = fracC * (dH-H);
                 // amount flowing from channel
                 if (H + dwh*cwa > dH-dwh) {
                     // if flow causes situation to reverse (channel dips below _h)
                     dosimpel = true;
                 } else {
-
                     _h->Drc  += dwh*cwa;
                     ChannelWH->Drc -= dwh;
 
@@ -99,6 +87,8 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
             }
             else   // flow to channel
             {
+                double VtoChan = V->Drc;//=Cd*SQRT2G*pow(H-dH,1.5)/H;
+                double fracA = std::min(1.0, _dt*VtoChan/(0.5*ChannelAdj->Drc));
                 double dwh = fracA * (H-dH);
                 // amount flowing to channel
                 if (dH + dwh/cwa > H-dwh) {
@@ -223,49 +213,39 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
             bool tochannel = true;
             double transfer_volume = 0;
             double Cd = 0.56; // 2/3 * 0.86
-            double factor = 2.0*_dt*ChannelDX->Drc;
+            double lengthfactor = 2.0*_dt*ChannelDX->Drc;
+            double velocityfactor = V->Drc*V->Drc/(2*GRAV);
             //do not use factor 2 for flow on both sides
 
             double H_eq = (dCHh*area_channel + H*area_surface)/CellArea->Drc;
             //double H_eq = (dCHh*area_channel + (H+WHstore->Drc)*area_surface)/CellArea->Drc;
             // equilibrium level
 
-            if (H_eq < 0) {  //happenns if neg vol in channel is larger than vol land, so all goes into channel
-                needed_volume = (H-std::max(0.0, H_eq))*area_surface;
+            if (H_eq < 0) {
+                //happenns if neg vol in channel is larger than vol land, so all goes into channel
+                needed_volume = H*area_surface;
                 // potentially all surface water flows into channel
 
-                double freeflow_tochan = factor*Cd*SQRT2G*std::pow(H,1.5);
+                double freeflow_tochan = lengthfactor*Cd*SQRT2G*std::pow(H+velocityfactor,1.5);
                 //free flow broad crested weir, water flows over edge to deeper water in channel
 
                 transfer_volume = std::min(freeflow_tochan, needed_volume);
             } else {
+                // an equilibrium is reached
                 if (H > dCHh0) {
                     // surface water higher than channel, eq of drowned broad crested weir
                     needed_volume = (H - H_eq)*area_surface;
                     // vol needed to reach equilibrium level
-                    double Cd = 0.56;
-                    double velocityfactor = (V->Drc*V->Drc)/(2*GRAV);
-                    double transfer_volume_tochan =factor*Cd*sqrt(GRAV)*0.5443*sqrt(H+velocityfactor)*(H-dCHh0);
-
-                    //transfer_volume_tochan = factor*Cd*SQRT2G*std::pow(H,1.5);
-                    // //free flow broad crested weir
-                    // if (H > 1e-6)
-                    //     transfer_volume_tochan *= std::sqrt(1-std::pow((H-dCHh)/H,1.5));
-                    // //add drowned flow if opposing water pressure
-
-                    //transfer_volume_tochan = std::max(transfer_volume_tochan, factor*V->Drc);
-                    //if surface velocity is higher take that
-
-                    transfer_volume = qMin(transfer_volume_tochan, needed_volume);
+                    double transfer_volume_tochan = lengthfactor*Cd*SQRT2G*std::pow(H+velocityfactor - dCHh0,1.5);
+                    // drowned flow to channel with velocity of approach
+                    transfer_volume = std::min(transfer_volume_tochan, needed_volume);
                 } else {
                     // flow from channel, drowned weir
                     needed_volume = (dCHh - H_eq)*area_channel;
                     // vol needed to reach equilibrium level
 
-                    // broad crested weir flow if channel is leading
-                    double Cd = 0.65/sqrt(1+dCHh0/ChannelDepth->Drc);
-                    double transfer_volume_fromchan =factor*Cd*sqrt(GRAV)*0.5443*sqrt(dCHh0)*(dCHh0-H);
-                    //0.5443 = (2/3)^1.5
+                    double transfer_volume_fromchan = lengthfactor*Cd*SQRT2G*std::pow(dCHh0 - H,1.5);
+                    // drowned flow from channel
 
                     transfer_volume = std::min(transfer_volume_fromchan, needed_volume);
                     tochannel = false;

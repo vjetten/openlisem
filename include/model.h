@@ -59,6 +59,7 @@
 #define HMIN 1e-6
 #define DO_SEDDEP 1
 #define GRAV 9.8067
+#define SQRT2G 4.42869
 
 #define he_ca 1e-12
 #define ve_ca 1e-12

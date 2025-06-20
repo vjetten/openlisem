@@ -51,9 +51,9 @@ void TWorld::OverlandFlow(void)
 
         CalcVelDisch();
 
-        // if (SwitchChannel2DflowConnect)
-        //     ToChannelAlt();
-        // else
+        if (SwitchChannel2DflowConnect)
+            ToChannelAlt();
+        else
             ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
 
      //   CalcVelDisch();
@@ -206,18 +206,14 @@ void TWorld::ToChannelAlt()
                 continue;
             // cannot flow into channel if water level in channel is higher than runoff depth
 
-            double pressureflow = 2.0*_dt*ChannelDX->Drc*0.56*sqrt(2*GRAV)*std::pow(WHrunoff->Drc, 1.5);
-            // is this dt * L * H * Cd*sqrt(2GH) so instead of V we have Cd*sqrt(2GH)
-
+            // potentially all surface water flows into channel
             double Cd = 0.56;
-            double velocityfactor = (V->Drc*V->Drc)/(2*GRAV);
-            double transfer_volume_tochan = 2.0*_dt*ChannelDX->Drc*WHrunoff->Drc * Cd*sqrt(GRAV)*0.5443*sqrt(WHrunoff->Drc+velocityfactor);
+            double lengthfactor = 2.0*_dt*ChannelDX->Drc;
+            double velocityfactor = V->Drc*V->Drc/(2*GRAV);
+            double freeflow_tochan = lengthfactor*Cd*SQRT2G*std::pow(WHrunoff->Drc+velocityfactor,1.5);
+            //free flow broad crested weir, water flows over edge to deeper water in channel
 
-            // discharge as free flow broad crested weir
-            //double velocityflow = 2.0*_dt*(ChannelDX->Drc*WHrunoff->Drc)*V->Drc; // sec * m2 * m/s = m3
-            // overland flow discharge
-            //double volintochan = std::min(std::max(velocityflow, pressureflow), WHrunoff->Drc*CHAdjDX->Drc);
-            double volintochan = std::min(transfer_volume_tochan, CHAdjDX->Drc * WHrunoff->Drc);
+            double volintochan = std::min(freeflow_tochan, CHAdjDX->Drc * WHrunoff->Drc);
 
             WaterVolall->Drc -= volintochan;
             ChannelWaterVol->Drc += volintochan;
