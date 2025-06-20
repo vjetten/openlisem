@@ -1127,7 +1127,7 @@ void lisemqt::updateModelData()
      //   if (p1.compare("Add timestamp")==0)   namelist[j].value.setNum((int)checkOutputTimestamp->isChecked());
 
     }
-   // qDebug()<<"checktile" <<checkBox_OutTileVol->isChecked();
+
     //get all actual mapnames from the mapList structure
     fillNamelistMapnames(true);
 

@@ -44,7 +44,7 @@ void TWorld::ChannelFlowandErosion()
 
     SwitchChannelKinWave = true;    // set to false for experimental swof in channel
 
-    ChannelRainandInfil();          // subtract infil, add rainfall
+   // ChannelRainandInfil();          // subtract infil, add rainfall
 
     ChannelBaseflow();              // add stationary and GW baseflow if selected
 
@@ -335,7 +335,7 @@ void TWorld::ChannelFlow(void)
      //        totq += ChannelQn->Drc*_dt;
     }}
 //    double sumvol1 = MapTotal(*ChannelWaterVol);
-
+report(*ChannelWH,"chwh");
  //   qDebug() << "MB chan (aft-bef)" << sumvol << sumvol1 << totq << sumvol - sumvol1 - totq << MB << full;
 
 }

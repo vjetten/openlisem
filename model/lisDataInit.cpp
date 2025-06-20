@@ -989,14 +989,16 @@ void TWorld::InitChannel(void)
 
     // channel unsat side inflow, not used!
     //ChannelQSide = NewMap(0);
-
+Fill(*tma,0);
     FOR_ROW_COL_MV_CHL {
-       // ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
-        ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc)); // same as DX else mass balance problems
+        ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
+       // ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc)); // same as DX else mass balance problems
 
          if (SwitchBuffers) {
-             if (Buffers->Drc > 0)
+             if (Buffers->Drc > 0) {
                 ChannelDepth->Drc = 0.1;
+                ChannelSide->Drc = 0;
+             }
          }
 
         ChannelCos->Drc = cos(atan(ChannelSide->Drc));
@@ -1016,8 +1018,9 @@ void TWorld::InitChannel(void)
                 crch_[i_].shape = SHAPETRIA;
             }
         }
+        tma->Drc = crch_[i_].shape;
     }}
-
+report(*tma,"chanshape.map");
     if (SwitchChannelInfil) {
         ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
         cover(*ChannelKsat, *LDD, 0);
@@ -1053,8 +1056,8 @@ void TWorld::InitChannel(void)
     FOR_ROW_COL_MV_CHL {
         double perim;
         switch (crch_[i_].shape) {
-            case SHAPERECT : ChannelMaxArea->Drc = ChannelWidthO->Drc*ChannelDepth->Drc; // or ChannelWidth ?
-                perim = ChannelWidthO->Drc*2*ChannelDepth->Drc;
+            case SHAPERECT : ChannelMaxArea->Drc = ChannelWidth->Drc*ChannelDepth->Drc; // or ChannelWidth ?
+                perim = ChannelWidth->Drc*2*ChannelDepth->Drc;
                 break;
             case SHAPECIRC : ChannelMaxArea->Drc = M_PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;
                 perim = M_PI*ChannelDiameter->Drc;
@@ -1062,10 +1065,10 @@ void TWorld::InitChannel(void)
                 //circ is always confined flow
                 break;
             case SHAPETRAP : ChannelMaxArea->Drc = 0.5*(ChannelWidthB->Drc + ChannelWidth->Drc)*ChannelDepth->Drc;
-                perim = ChannelWidthB->Drc+2*ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+                perim = ChannelWidthB->Drc+2*ChannelDepth->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
                 break;
             case SHAPETRIA : ChannelMaxArea->Drc = 0.5*ChannelWidth->Drc*ChannelDepth->Drc;
-                perim = 2*ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+                perim = 2*ChannelDepth->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
                 break;
         }
 

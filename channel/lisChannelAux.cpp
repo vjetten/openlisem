@@ -63,28 +63,43 @@ void TWorld::chanHandPTrap(int r, int c)//, double Area)
 {
     // if not drowned use abc rule, else assume a rectangular section above trapezium channel
     double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
+
+    if (ChannelSide->Drc == 0) {
+        chanHandPRect(r,c);
+        return;
+    }
+    // A = h*(wb + m*h)
+    // A=wb​h+mh2 -> mh2+wb​h−A=0
+    //P=wb​+2*sqrt(h^2+(mh)^2) =wb​+2h*sqrt(1+m2)
+
     if (Area < ChannelMaxArea->Drc) {
-        ChannelWH->Drc = (-ChannelWidthB->Drc+std::sqrt(ChannelWidthB->Drc*ChannelWidthB->Drc
-                            -4*ChannelSide->Drc*Area))/(2*ChannelSide->Drc);
-        ChannelPerimeter->Drc = ChannelWidthB->Drc+2*ChannelWH->Drc/ChannelCos->Drc;
-                //*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+        double B = ChannelWidthB->Drc;
+        ChannelWH->Drc = (-B + std::sqrt(B*B + 4*ChannelSide->Drc*Area))/(2.0*ChannelSide->Drc);
     } else {
         // drowned
-        ChannelWH->Drc = ChannelDepth->Drc + (Area-ChannelMaxArea->Drc)/ChannelWidth->Drc;
-        ChannelPerimeter->Drc = ChannelWidthB->Drc+2*ChannelDepth->Drc/ChannelCos->Drc;//*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+        double dh = (ChannelWaterVol->Drc-ChannelMaxArea->Drc*ChannelDX->Drc)/(ChannelWidth->Drc*DX->Drc);
+        ChannelWH->Drc = ChannelDepth->Drc + dh;//(Area-ChannelMaxArea->Drc)/ChannelWidth->Drc;
     }
+    ChannelPerimeter->Drc = ChannelWidthB->Drc+2*ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+
+    //if (ChannelWH->Drc > 0)
+      //  qDebug() << r<<c<<ChannelWH->Drc << Area << ChannelMaxArea->Drc;
 }
 //---------------------------------------------------------------------------
 void TWorld::chanHandPTria(int r, int c)//, double Area)
 {
+    if (ChannelSide->Drc == 0) {
+        chanHandPRect(r,c);
+        return;
+    }
     // if drowned assume a rectangular section above triangular channel
     double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
     if (Area < ChannelMaxArea->Drc) {
         ChannelWH->Drc = std::sqrt(Area/ChannelSide->Drc);
-        ChannelPerimeter->Drc = 2*ChannelWH->Drc/ChannelCos->Drc;//*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+        ChannelPerimeter->Drc = 2*ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
     } else {
         ChannelWH->Drc = ChannelDepth->Drc + (Area-ChannelMaxArea->Drc)/ChannelWidth->Drc;
-        ChannelPerimeter->Drc = 2*ChannelDepth->Drc/ChannelCos->Drc;//*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+        ChannelPerimeter->Drc = 2*ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
     }
 }
 //---------------------------------------------------------------------------

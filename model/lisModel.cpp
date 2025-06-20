@@ -277,15 +277,14 @@ void TWorld::DoModel()
 
             ToTiledrain();  // fraction going into tiledrain directly from surface
 
+            ChannelRainandInfil();          // subtract infil, retention,  add rainfall
+
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
 
             // these are all non-threaded
             ChannelFlowandErosion();    // do ordered LDD solutions channel, tiles, drains, non threaded
 
-            // if (SwitchUseSWMMflow)
-            //   TileFlowSWMM();
-            // else
-              TileFlow();          // tile drain flow kin wave
+            TileFlow();          // tile drain flow kin wave
 
             TotalsHydro();       // calculate all totals and cumulative values
             TotalsFlow();

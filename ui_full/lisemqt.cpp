@@ -685,7 +685,7 @@ void lisemqt::setResultDir()
 //--------------------------------------------------------------------
 void lisemqt::savefileas()
 {
-    if (W) {
+    if (W && !stoprun) {
         QMessageBox::warning(this, "openLISEM","Cannot save a file while the model is running.");
         return;
     }
