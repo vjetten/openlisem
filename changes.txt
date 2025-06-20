@@ -3,7 +3,7 @@ Latest fixes and changes:
 
 see Readme.txt for a complete list
 
-250617 - v7.4.7.beta.R1-R6
+250620 - v7.4.7.beta.R1-R6
 - Added: Differetn channel shapes: rectangular, circular, trapezium and triangular. The last two are controlled with the sachhel side angle.
 - Added: A channel culvert map that has confined flow in these pizels, with shape values: 1=rect,2=circ,3=trap,4=tri.
 - Added: Option to stop SWATRE when there is no rainfall or runoff in a cell (faster)

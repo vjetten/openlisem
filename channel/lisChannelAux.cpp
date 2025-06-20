@@ -70,7 +70,7 @@ void TWorld::chanHandPTrap(int r, int c)//, double Area)
     }
     // A = h*(wb + m*h)
     // A=wb​h+mh2 -> mh2+wb​h−A=0
-    //P=wb​+2*sqrt(h^2+(mh)^2) =wb​+2h*sqrt(1+m2)
+    // P=wb​+2*sqrt(h^2+(mh)^2) =wb​+2h*sqrt(1+m2)
 
     if (Area < ChannelMaxArea->Drc) {
         double B = ChannelWidthB->Drc;
