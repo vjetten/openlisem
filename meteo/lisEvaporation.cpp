@@ -238,7 +238,7 @@ double TWorld::getETaFactor()
     double day = floor(time/86400.0);
     double hour = std::min(24.0,std::max(0.0, time/3600.0-day*24.0));
     double Ld = (2.0*acos(-tan(latitude*0.01745329) * tan(asin(0.397789 * sin(0.017214*(day-1)))))) * 3.8197186;
-    double ETafactor = std::max(0.0,sin((-0.5-hour/Ld)*PI)) / Ld*_dt/3600.0*PI*0.5;
+    double ETafactor = std::max(0.0,sin((-0.5-hour/Ld)*M_PI)) / Ld*_dt/3600.0*M_PI*0.5;
 //qDebug() << "Ld" << day << hour << Ld << ETafactor;
     return ETafactor;
 }
@@ -349,14 +349,14 @@ void TWorld::cell_ETa(int r, int c)
             // evaporation for any ponded surfaces
             if (hmxWH->Drc > 0) {
                 double WH_ = 0;
-                double ETa_pond = ETp_;                
+                double ETa_pond = ETp_;
                 if (FloodDomain->Drc > 0) {
                     WH_ = hmx->Drc;
                 } else {
                     WH_ = WH->Drc;
                 }
 
-                ETa_pond = std::min(ETa_pond, WH_);                
+                ETa_pond = std::min(ETa_pond, WH_);
                 WH_ = WH_ - ETa_pond;
 
                 if (FloodDomain->Drc > 0) {

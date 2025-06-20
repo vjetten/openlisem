@@ -54,23 +54,26 @@
 
 #define SHOWDEBUG (showr == 270 && showc == 318)
 
-#define PI 3.14159265
+//#define PI 3.14159265
 
 #define HMIN 1e-6
 #define DO_SEDDEP 1
 #define GRAV 9.8067
 #define SQRT2G 4.42869
+#define GRAV_DEM 4.90335
 
 #define he_ca 1e-12
 #define ve_ca 1e-12
 
 #define EPSILON 1e-10
 
-#define GRAV_DEM 4.90335
-
 #define BETArect 0.6
 #define BETAcirc 0.6
 
+#define SHAPERECT 1
+#define SHAPECIRC 2
+#define SHAPETRAP 3
+#define SHAPETRIA 4
 
 #define Aavg(a,b)  (0.5*(a+b))
 #define Savg(a,b)  sqrt(a*b)
@@ -178,10 +181,6 @@
 #define K2D_METHOD_KINDYN  3
 #define K2D_METHOD_DYN   2
 
-#define SHAPERECT 1
-#define SHAPECIRC 2
-#define SHAPETRAP 3
-#define SHAPETRIA 4
 
 //---------------------------------------------------------------------------
 /// structure containing pointers to all maps
@@ -209,9 +208,11 @@ typedef struct LDD_COOR {
 typedef struct LDD_COORCH {
     int r;
     int c;
+    //int ldd;
     bool culvert;
     int shape;
 }  LDD_COORCH;
+
 //---------------------------------------------------------------------------list
 typedef struct LDD_COORldd {
     int r;
@@ -444,9 +445,7 @@ public:
         SwitchInfiltration,
         // channel and Overland flow
         SwitchIncludeChannel,
-       // SwitchChannelBaseflow,
         SwitchChannelBaseflowStationary,
-        SwitchChannelAdjustCHW,
         SwitchChannelInfil,
         SwitchGWflow,
         SwitchGW2Dflow,

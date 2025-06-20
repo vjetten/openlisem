@@ -72,6 +72,26 @@ void TWorld::ChannelVelocityandDischarge()
     // velocity, alpha, Q
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
+        switch (crch_[i_].shape) {
+            case SHAPERECT : ChannelPerimeter->Drc = ChannelWidthO->Drc+2*ChannelWH->Drc;
+                ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelDX->Drc*ChannelWidthO->Drc);
+                // use real perimeter for velocity, not chanHandPRect(r,c,Area);
+                break;
+            case SHAPECIRC : chanHandPCirc(r,c); break; // this is always a culvert!
+            case SHAPETRAP : chanHandPTrap(r,c); break;
+            case SHAPETRIA : chanHandPTria(r,c); break;
+        }
+        double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
+        double Radius = (ChannelPerimeter->Drc > 1e-6 ? Area/ChannelPerimeter->Drc : 0);
+        ChannelV->Drc = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc);
+        ChannelQ->Drc = ChannelV->Drc * Area;
+        //ChannelAlpha->Drc = ChannelQ->Drc/std::pow(Area, 0.6);
+        ChannelAlpha->Drc = pow(ChannelN->Drc/sqrt(ChannelGrad->Drc) * pow(ChannelPerimeter->Drc, 2.0/3.0),0.6);  // no difference
+    }}
+/*
+    // velocity, alpha, Q
+    #pragma omp parallel num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
         double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
         double FWO = ChannelWidthO->Drc;
         ChannelWH->Drc = Area/FWO;
@@ -88,6 +108,7 @@ void TWorld::ChannelVelocityandDischarge()
         //ChannelAlpha->Drc = ChannelQ->Drc/std::pow(Area, 0.6);
         ChannelAlpha->Drc = pow(ChannelN->Drc/sqrt(ChannelGrad->Drc) * pow(Perim, 2.0/3.0),0.6);  // no difference
     }}
+    */
 }
 
 //---------------------------------------------------------------------------
@@ -146,7 +167,7 @@ void TWorld::ChannelBaseflow(void)
             }
            // Qbase->Drc *= 2.0;
 
-            if (!crch_[i_].culvert) {//if (ChannelMaxQ->Drc <= 0) {
+            if (!crch_[i_].culvert) {
                 ChannelWaterVol->Drc += Qbase->Drc;
                 GWVol->Drc = std::max(0.0, GWVol->Drc - Qbase->Drc);
                 GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
@@ -166,22 +187,33 @@ void TWorld::ChannelRainandInfil(void)
     // add rainfall to channel, assume no interception
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (!crch_[i_].culvert) //if (ChannelMaxQ->Drc <= 0)
+        if (!crch_[i_].culvert)
             ChannelWaterVol->Drc += Rainc->Drc*ChannelWidth->Drc*DX->Drc;
+        // goes for all channel shapes
 
        // ChannelWaterVol->Drc += ChannelQSide->Drc;
-        // add unsaturated side inflow
+       // add unsaturated side inflow
     }}
 
     // subtract infiltration, no infil in culverts
     if (SwitchChannelInfil) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            if (!crch_[i_].culvert) {//if (ChannelMaxQ->Drc <= 0) {
+            if (!crch_[i_].culvert) {
+                switch (crch_[i_].shape) {
+                    case SHAPERECT : chanHandPRect(r,c); break;
+                    case SHAPECIRC : chanHandPCirc(r,c); break;
+                    case SHAPETRAP : chanHandPTrap(r,c); break;
+                    case SHAPETRIA : chanHandPTria(r,c); break;
+                }
+                ChannelInfM3->Drc = ChannelPerimeter->Drc * ChannelKsat->Drc * _dt/3600000.0 * ChannelDX->Drc;
+                // infiltration over entire perimeter !
                 double inf = std::min(ChannelWaterVol->Drc, ChannelInfM3->Drc);
                 // cannot be more than there is
                 ChannelWaterVol->Drc -= inf;
-                ChannelInfilVol->Drc = inf; // do not make infiltration cumulative, that is done in totals
+                ChannelInfilVol->Drc = inf;
+                // do not make infiltration cumulative, that is done in totals
+                // TODO check this
             }
         }}
     }
@@ -208,6 +240,7 @@ void TWorld::ChannelRainandInfil(void)
         FOR_ROW_COL_MV_CHL {
             ChannelWaterVol->Drc += QuserIn->Drc * _dt;
             // add user defined discharge
+            //TODO add outlet dicharge from stromdrrains
         }}
     }
 }
@@ -241,7 +274,8 @@ void TWorld::ChannelFlow(void)
             }
 
             // if total inflow causes vol > max volume, adjust inflow incoming TileQn
-            if (ChannelMaxQ->Drc > 0 &&
+            // if !switchculverts then ChannelCulvert has only 0
+            if (ChannelCulvert->Drc > 0 &&
                 ChannelWaterVol->Drc+_dt*(Qin-ChannelQ->Drc) >= volMax) {
                 double maxq = std::min(ChannelMaxQ->Drc, (volMax - ChannelWaterVol->Drc)/_dt + ChannelQ->Drc);
 
@@ -256,7 +290,10 @@ void TWorld::ChannelFlow(void)
         }
         QinKW->Drc = Qin;
 
-        ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, _dt, DX->Drc, ChannelMaxQ->Drc, ChannelMaxAlpha->Drc);
+        if (!SwitchCulverts)
+            ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, _dt, DX->Drc, 0,0);
+        else
+            ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, _dt, DX->Drc, ChannelMaxQ->Drc, ChannelMaxAlpha->Drc);
         ChannelQn->Drc = std::min(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
         // no more outflow than there is water
 
@@ -264,26 +301,26 @@ void TWorld::ChannelFlow(void)
         int ldd = fabs(crlinkedlddch_.at(i_).ldd);
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
-        if (ldd != 5 && !pcr::isMV(LDDChannel->Drcr) && ChannelMaxQ->Drcr > 0)
+        if (!pcr::isMV(LDDChannel->Drcr) && ChannelCulvert->Drcr > 0)
             ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelMaxQ->Drcr);
 
     }
-   // int full = 0;
+    // int full = 0;
+
     // calc V and WH back from Qn (original width and depth)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(QinKW->Drc - ChannelQn->Drc);
         ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc);
 
-     //   if (ChannelMaxQ->Drc > 0 && ChannelWaterVol->Drc >= ChannelMaxArea->Drc*DX->Drc) {
+     //   if (ChannelCulvert->Drc > 0 && ChannelWaterVol->Drc >= ChannelMaxArea->Drc*DX->Drc) {
      //       full+=1;
      //   }
-
-        if (ChannelMaxQ->Drc) {
-            chanHandPCirc(r, c);
-        } else {
-            chanHandPRect(r, c);
-            //ChannelWH->Drc = Area/ChannelWidth->Drc;
+        switch (crch_[i_].shape) {
+            case SHAPERECT : chanHandPRect(r,c); break;
+            case SHAPECIRC : chanHandPCirc(r,c); break; // this is always a culvert!
+            case SHAPETRAP : chanHandPTrap(r,c); break;
+            case SHAPETRIA : chanHandPTria(r,c); break;
         }
         double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
         ChannelV->Drc = std::min(_CHMaxV, (Area > 1e-12 ? ChannelQn->Drc/Area : 0.0));
@@ -294,7 +331,7 @@ void TWorld::ChannelFlow(void)
         maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
         maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
 
-     //   if (LDDChannel->Drc == 5)
+        //   if (LDDChannel->Drc == 5)
      //        totq += ChannelQn->Drc*_dt;
     }}
 //    double sumvol1 = MapTotal(*ChannelWaterVol);
@@ -385,7 +422,7 @@ double TWorld::getMassCH(cTMap *M)
     double sum2 = 0;
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (ChannelMaxQ->Drc <= 0)
+        if (ChannelCulvert->Drc == 0)
             sum2 += M->Drc;
     }}
     return sum2;
@@ -397,7 +434,7 @@ void TWorld::correctMassBalanceCH(double sum1, cTMap *M)
 
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (ChannelMaxQ->Drc <= 0)
+        if (ChannelCulvert->Drc == 0)
             sum2 += M->Drc;
     }}
     // total and cells active for M

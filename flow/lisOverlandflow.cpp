@@ -88,7 +88,7 @@ void TWorld::OverlandFlow2Ddyn(void)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (ChannelMaxQ->Drc <= 0) {
+        if (!crch_.at(i_).culvert) {
             WH->Drc = WHrunoff->Drc + WHstore->Drc;
             hmxWH->Drc = /*hmx->Drc + */WH->Drc;
             WaterVolall->Drc = CHAdjDX->Drc*WH->Drc;
@@ -149,7 +149,7 @@ void TWorld::ToChannel()
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (WHrunoff->Drc > 0 && FloodDomain->Drc == 0 && ChannelMaxQ->Drc <= 0) {
+        if (WHrunoff->Drc > 0 && FloodDomain->Drc == 0 && !crch_.at(i_).culvert) {
 
             double fractiontochannel = std::min(1.0, _dt*V->Drc/(0.5*ChannelAdj->Drc));
             // fraction to channel calc from half the adjacent area width and flow velocity
@@ -199,7 +199,7 @@ void TWorld::ToChannelAlt()
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (WHrunoff->Drc > 0 && FloodDomain->Drc == 0 && ChannelMaxQ->Drc <= 0) {
+        if (WHrunoff->Drc > 0 && FloodDomain->Drc == 0 && !crch_.at(i_).culvert) {
 
             if (SwitchKinematic2D == K2D_METHOD_KINDYN &&
                     WHrunoff->Drc <= std::max(0.0 , ChannelWH->Drc - ChannelDepth->Drc))

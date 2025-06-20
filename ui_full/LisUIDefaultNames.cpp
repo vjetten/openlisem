@@ -111,9 +111,10 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Depth;chandepth.map;Channel depth, zero (0) depth is considered infinite (m);chandepth");
     DEFmaps.append("2;Gradient;changrad.map;Slope gradient of channel bed (-);changrad");
     DEFmaps.append("2;Side angle;chanside.map;Channel side angle (tan angle  channel side and surface: 0 is rectangular);chanside");
+    DEFmaps.append("2;ChannelDiameter;chandiameter.map;Diameter of circular pipe (mm);chandiam");
+    DEFmaps.append("2;ChannelCulvert;chanculvert.map; values > 0 are culverts in the channel: 1=rectangular;2=circul;ar,3=trapezium,4=triagular;chancul");
     DEFmaps.append("2;N;chanman.map;Mannings n of channel bed (-);chanman");
     DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
-    DEFmaps.append("2;ChannelDiameter;chandiameter.map;Diameter of culvert pipe (mm);chandiam");
     DEFmaps.append("2;QinPoints;QinPoints.map;Locations in channel network where discharge is added from a text record. Unique nr > 0;qinpoints");
     DEFmaps.append("2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh");
     DEFmaps.append("2;Stationary baseflow;baseflow.map;Stationary baseflow maintained in the run (m3/s at the outlet);baseflow");

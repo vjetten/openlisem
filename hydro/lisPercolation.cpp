@@ -601,6 +601,7 @@ void TWorld::cell_SlopeStability(int r, int c)
 
 void TWorld::cell_Channelinfow1(int r, int c)
 {
+    /*
    ChannelQSide->Drc = 0.0;
 
    //    if (ChannelWH->Drc > ChannelDepth->Drc - 0.05)
@@ -608,7 +609,7 @@ void TWorld::cell_Channelinfow1(int r, int c)
 
    bool doUnsat = false;
 
-   if (/* !doUnsat && */ Lw->Drc < 0.01)
+   if (Lw->Drc < 0.01)
         return;
 
    // double massbal = 0;
@@ -648,6 +649,7 @@ void TWorld::cell_Channelinfow1(int r, int c)
    //        CHin2 = 0;
 
    ChannelQSide->Drc = DX_*(CHin1*h*h/dL);// + CHin2*h2*h2/dL); // m3
+   */
 }
 //---------------------------------------------------------------------------
 // Side inflow into channel from saturated part of the soil (Lw_), causes decrease of Lw_
@@ -655,6 +657,7 @@ void TWorld::cell_Channelinfow1(int r, int c)
 // afactor 2.0 is applied to Ksat because the flow is from both sides
 void TWorld::cell_Channelinfow2(int r, int c)
 {
+    /*
    ChannelQSide->Drc = 0.0;
 
    if (ChannelWH->Drc > ChannelDepth->Drc - 0.05)
@@ -770,7 +773,7 @@ void TWorld::cell_Channelinfow2(int r, int c)
         //qDebug() << r << c << "nan" << CHin1 << CHin2 << CHin3 << Lw_ << i;
    }
    // update channel side inflow, sometimes nan occurs  in lw
-
+*/
 }
 
 /*!

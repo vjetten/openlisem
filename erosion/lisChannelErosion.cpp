@@ -138,7 +138,7 @@ void TWorld::ChannelFlowDetachmentNew()
 
                     detachment = ChannelY->Drc * maxTC * TransportFactor; //std::min(TransportFactor, sswatervol);
 
-                    if (SwitchCulverts && ChannelMaxQ->Drc > 0)
+                    if (SwitchCulverts && ChannelCulvert->Drc > 0)
                         detachment = 0;
                     // not detahcment in culverts
 

@@ -904,9 +904,6 @@ void TWorld::InitChannel(void)
     if(!SwitchIncludeChannel)
         return;
 
-    //SedToChannel = NewMap(0);
-    //ChannelFlowWidth = NewMap(0);
-    ChannelWidthMax = NewMap(0);
     ChannelWaterVol = NewMap(0);
     ChannelQ = NewMap(0);
     ChannelQb = NewMap(0); //baseflow
@@ -933,8 +930,9 @@ void TWorld::InitChannel(void)
     LDDChannel = InitMaskChannel(getvaluename("lddchan"));
     // LDDChannel is the mask for channels
 
+    // make 0 values into MV
     FOR_ROW_COL_MV_CH {
-        if (LDDChannel->Drc == 0)
+        if (LDDChannel->Drc <= 0)
             SET_MV_REAL8(&LDDChannel->Drc);
     }
 
@@ -947,6 +945,7 @@ void TWorld::InitChannel(void)
         LDD_COORCH newcr;
         newcr.r = r;
         newcr.c = c;
+        //newcr.ldd = 0; // needed?
         newcr.culvert = false;
         newcr.shape = SHAPERECT;
 
@@ -954,6 +953,7 @@ void TWorld::InitChannel(void)
     }
     crlinkedlddch_= MakeLinkedList(LDDChannel);
 
+    // not used?
     crlddch5_.clear();
     FOR_ROW_COL_MV_CH {
         if (LDDChannel->Drc == 5) {
@@ -969,29 +969,15 @@ void TWorld::InitChannel(void)
     checkMap(*LDDChannel, *ChannelWidth, SMALLEREQUAL, 0, "Channel width must be larger than 0.");
 
     ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
+    checkMap(*LDDChannel, *ChannelDepth, SMALLEREQUAL, 0, "Channel depth must be larger than 0.");
+
     cover(*ChannelWidth, *LDD,0);
     cover(*ChannelDepth, *LDD,0);
 
     ChannelWidthO = NewMap(0);
 
-    FOR_ROW_COL_MV_CH {
-        ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
-
-        ChannelWidthO->Drc = ChannelWidth->Drc;
-      //  ChannelDepthO->Drc = ChannelDepth->Drc;
-
-        SwitchChannelAdjustCHW = true;
-        if (SwitchChannelAdjustCHW && ChannelWidth->Drc  > 0.95* _dx) {
-            ChannelWidth->Drc = 0.95*_dx;
-            //ChannelDepth->Drc *= ChannelWidthO->Drc/ChannelWidth->Drc; //(0.95*_dx);
-        }
-    }
-
     ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
     cover(*ChannelSide, *LDD, 0);
-    FOR_ROW_COL_MV_CHL {
-        ChannelCos->Drc = cos(atan(ChannelSide->Drc));
-    }}
 
     ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
     checkMap(*LDDChannel,*ChannelGrad, LARGER, 1.0, "Channel Gradient must be SINE of slope angle (not tangent)");
@@ -999,66 +985,103 @@ void TWorld::InitChannel(void)
 
     cover(*ChannelGrad, *LDD, 0);
     cover(*ChannelN, *LDD, 0);
-
-    ChannelQSide = NewMap(0);
-
     calcValue(*ChannelN, ChnCalibration, MUL);
 
-    if (SwitchChannelInfil)
-    {
+    // channel unsat side inflow, not used!
+    //ChannelQSide = NewMap(0);
+
+    FOR_ROW_COL_MV_CHL {
+       // ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
+        ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc)); // same as DX else mass balance problems
+
+         if (SwitchBuffers) {
+             if (Buffers->Drc > 0)
+                ChannelDepth->Drc = 0.1;
+         }
+
+        ChannelCos->Drc = cos(atan(ChannelSide->Drc));
+
+        ChannelWidthO->Drc = ChannelWidth->Drc;
+
+        if (ChannelWidth->Drc > 0.95* _dx) {
+            ChannelWidth->Drc = 0.95*_dx;
+        }
+
+        ChannelWidthB->Drc = ChannelWidth->Drc;
+        if (ChannelSide->Drc > 0) {
+            ChannelWidthB->Drc = std::max(0.0,ChannelWidth->Drc - 2*ChannelDepth->Drc*ChannelSide->Drc);
+            crch_[i_].shape = SHAPETRAP;
+            if (ChannelWidthB->Drc == 0) {
+                ChannelSide->Drc = ChannelWidthO->Drc/(2*ChannelDepth->Drc);
+                crch_[i_].shape = SHAPETRIA;
+            }
+        }
+    }}
+
+    if (SwitchChannelInfil) {
         ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
         cover(*ChannelKsat, *LDD, 0);
         calcValue(*ChannelKsat, ChKsatCalibration, MUL);
         // ksat in m3 is does not change during the run
         ChannelInfM3 = NewMap(0);
-        FOR_ROW_COL_MV_CHL {
-            ChannelInfM3->Drc =  ChannelKsat->Drc * _dt/3600000.0 * ChannelDX->Drc * ChannelWidthO->Drc;
-        }}
-
-        // ChannelStore = NewMap(0.050); // 10 cm deep * 0.5 porosity
-        // store not used?
+        // FOR_ROW_COL_MV_CHL {
+        //     ChannelInfM3->Drc =  ChannelKsat->Drc * _dt/3600000.0 * ChannelDX->Drc * ChannelWidthO->Drc;
+        // }}
+        // depends on perimeter! recalc during run
     }
 
     ChannelMaxQ = NewMap(0);
     ChannelMaxAlpha = NewMap(0);
     ChannelMaxArea = NewMap(0);
     if (SwitchCulverts) {
-
+        ChannelCulvert = ReadMap(LDDChannel, getvaluename("chancul"));
         ChannelDiameter = ReadMap(LDDChannel, getvaluename("chandiam"));
-        //cover(*ChannelDiameter, *LDD,0);
-        #pragma omp parallel for num_threads(userCores)
+        cover(*ChannelDiameter, *LDD, 0);
+        cover(*ChannelCulvert, *LDD, 0);
+
         FOR_ROW_COL_MV_CHL {
-            if (ChannelDiameter->Drc > 0) {
+            if (ChannelCulvert->Drc > 0) {
                 crch_[i_].culvert = true;
-                crch_[i_].shape = SHAPECIRC;
-                ChannelDiameter->Drc /= 1000;
-                double area = PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;
-                ChannelMaxArea->Drc = area;
-                double perim = PI*ChannelDiameter->Drc;
-                //ChannelN->Drc = 0.012;
-                ChannelMaxQ->Drc = std::pow(area/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
-                ChannelMaxAlpha->Drc = (ChannelWidth->Drc*ChannelDepth->Drc)/std::pow(ChannelMaxQ->Drc, 0.6);
-                //qDebug() << ChannelMaxQ->Drc << ChannelMaxAlpha->Drc;
+                crch_[i_].shape = (int) ChannelCulvert->Drc;
             }
         }}
-
-        for(long i_ =  0; i_ < crlinkedlddch_.size(); i_++) {
-            int r = crlinkedlddch_.at(i_).r;
-            int c = crlinkedlddch_.at(i_).c;
-            if (ChannelDiameter->Drc > 0) {
-                LDD_COORIN in = crlinkedlddch_.at(i_);
-                in.ldd *= -1;
-                crlinkedlddch_.replace(i_, in); // make ldd of culverts negative for drawing
-            }
-        }
-
     } else {
         ChannelDiameter = NewMap(0);
+        ChannelCulvert = NewMap(0);
     }
-    FOR_ROW_COL_MV_CH
-    {
-        ChannelWidthMax->Drc = ChannelWidth->Drc; // not used!
-        // make always a rectangular channel
+
+    FOR_ROW_COL_MV_CHL {
+        double perim;
+        switch (crch_[i_].shape) {
+            case SHAPERECT : ChannelMaxArea->Drc = ChannelWidthO->Drc*ChannelDepth->Drc; // or ChannelWidth ?
+                perim = ChannelWidthO->Drc*2*ChannelDepth->Drc;
+                break;
+            case SHAPECIRC : ChannelMaxArea->Drc = M_PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;
+                perim = M_PI*ChannelDiameter->Drc;
+                //crch_[i_].culvert = SwitchCulverts;
+                //circ is always confined flow
+                break;
+            case SHAPETRAP : ChannelMaxArea->Drc = 0.5*(ChannelWidthB->Drc + ChannelWidth->Drc)*ChannelDepth->Drc;
+                perim = ChannelWidthB->Drc+2*ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+                break;
+            case SHAPETRIA : ChannelMaxArea->Drc = 0.5*ChannelWidth->Drc*ChannelDepth->Drc;
+                perim = 2*ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+                break;
+        }
+
+        // used for confined flow
+        ChannelMaxQ->Drc = std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
+        ChannelMaxAlpha->Drc = ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, 0.6);
+    }}
+
+    for(long i_ =  0; i_ < crlinkedlddch_.size(); i_++) {
+        int r = crlinkedlddch_.at(i_).r;
+        int c = crlinkedlddch_.at(i_).c;
+        if (ChannelDiameter->Drc > 0) {
+            LDD_COORIN in = crlinkedlddch_.at(i_);
+            in.ldd *= -1;
+            crlinkedlddch_.replace(i_, in); // make ldd of culverts negative for drawing
+        }
     }
 
     if(SwitchErosion) {
@@ -1224,7 +1247,7 @@ void TWorld::InitFlood(void)
     hlly21_2 = NewMap(0);
     iter_n = 0;
 
-    dcr_.clear(); // clear list of pits  that need diagonal flow
+    dcr_.clear(); // clear list of M_PIts  that need diagonal flow
     if (Switch2DDiagonalFlow)
         DiagonalFlowDEM();
 
@@ -1263,9 +1286,9 @@ void TWorld::DiagonalFlowDEM()
 
         //note: true blockage if the diagonal cells are higher than the centre cell will not be flagged
         // left blockage
-        if (z_x1 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-            bool z1 = z_x11 < Z+F_pitValue;
-            bool z2 = z_y11 < Z+F_pitValue;
+        if (z_x1 > Z+F_M_PItValue && z_y1 > Z+F_M_PItValue && z_y2 > Z+F_M_PItValue) {
+            bool z1 = z_x11 < Z+F_M_PItValue;
+            bool z2 = z_y11 < Z+F_M_PItValue;
             if (z1 && z2) {
                 if (z_x11 < z_y11)
                     z2 = false;
@@ -1275,9 +1298,9 @@ void TWorld::DiagonalFlowDEM()
             if(z2) Ldd = 1;
         }
         // right blockage
-        if (z_x2 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-            bool z1 = z_y11 < Z+F_pitValue;
-            bool z2 = z_y21 < Z+F_pitValue;
+        if (z_x2 > Z+F_M_PItValue && z_y1 > Z+F_M_PItValue && z_y2 > Z+F_M_PItValue) {
+            bool z1 = z_y11 < Z+F_M_PItValue;
+            bool z2 = z_y21 < Z+F_M_PItValue;
             if (z1 && z2) {
                 if (z_y11 < z_y21)
                     z2 = false;
@@ -1286,9 +1309,9 @@ void TWorld::DiagonalFlowDEM()
             if(z2) Ldd = 3;
         }
         // upper blockage
-        if (z_y1 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-            bool z1 = z_x11 < Z+F_pitValue;
-            bool z2 = z_x21 < Z+F_pitValue;
+        if (z_y1 > Z+F_M_PItValue && z_x1 > Z+F_M_PItValue && z_x2 > Z+F_M_PItValue) {
+            bool z1 = z_x11 < Z+F_M_PItValue;
+            bool z2 = z_x21 < Z+F_M_PItValue;
             if (z1 && z2) {
                 if (z_x11 < z_x21)
                     z2 = false;
@@ -1297,9 +1320,9 @@ void TWorld::DiagonalFlowDEM()
             if(z2) Ldd = 9;
         }
         //lower blockage
-        if (z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-            bool z1 = z_x21 < Z+F_pitValue;
-            bool z2 = z_y21 < Z+F_pitValue;
+        if (z_y2 > Z+F_M_PItValue && z_x1 > Z+F_M_PItValue && z_x2 > Z+F_M_PItValue) {
+            bool z1 = z_x21 < Z+F_M_PItValue;
+            bool z2 = z_y21 < Z+F_M_PItValue;
             if (z1 && z2) {
                 if (z_x21 < z_y21)
                     z2 = false;
@@ -1320,7 +1343,7 @@ void TWorld::DiagonalFlowDEM()
             Ldd = 0;
         }
 
-        // make a list of pits for diagonal flow in SWOF
+        // make a list of M_PIts for diagonal flow in SWOF
         if (Ldd > 0) {
             LDD_COORldd dclrc;
             dclrc.r = r;
@@ -1361,7 +1384,7 @@ void TWorld::CorrectDEM(cTMap *h, cTMap * g)
             g->Drc = 0.001;
         }
     }}
-    //report(*tmb, "dempits.map");
+    //report(*tmb, "demM_PIts.map");
 }
 //---------------------------------------------------------------------------
 void TWorld::InitErosion(void)
@@ -1537,7 +1560,7 @@ void TWorld::InitErosion(void)
         if (CohesionSoil->Drc < 0)
             Y->Drc = 0; // to force max strength
 
-        // empirical analysis based on Limburg data, dating 1989
+        // emM_PIrical analysis based on Limburg data, dating 1989
         // aggr stab is Lowe test median drops to halve an aggregate
         if (SwitchSplashEQ == 1) {
             if (AggrStab->Drc > 0)
@@ -2238,8 +2261,8 @@ void TWorld::InitTiledrains(void)
             TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
             FOR_ROW_COL_MV_TILEL {
                 TileN->Drc = 0.025;
-                TileArea->Drc = TileDiameter->Drc*TileDiameter->Drc*0.25*PI;// PI r^2
-                TileMaxQ->Drc = TileArea->Drc * std::pow(TileArea->Drc/(PI*TileDiameter->Drc),2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+                TileArea->Drc = TileDiameter->Drc*TileDiameter->Drc*0.25*M_PI;// M_PI r^2
+                TileMaxQ->Drc = TileArea->Drc * std::pow(TileArea->Drc/(M_PI*TileDiameter->Drc),2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
                 // max Q is V*A when full
                 TileMaxAlpha->Drc  = TileArea->Drc/std::pow(TileMaxQ->Drc, BETAcirc);
                 // BETAcirc is set to 0.6 but may be different
@@ -2277,8 +2300,8 @@ void TWorld::InitShade(void)
     double minDem = 1e9;
 
     FOR_ROW_COL_MV_L {
-        //        double Incl = 15.0/180.0*PI;
-        //        double Decl = 300/180.0*PI;
+        //        double Incl = 15.0/180.0*M_PI;
+        //        double Decl = 300/180.0*M_PI;
         double mat[9];
         double dx, dy;//, aspect;
         double factor = 1.0;
@@ -2323,17 +2346,17 @@ void TWorld::InitShade(void)
         {
             Aspect_rad = atan2(dy, -dx);
             if (Aspect_rad < 0)
-                Aspect_rad = 2*PI + Aspect_rad;
+                Aspect_rad = 2*M_PI + Aspect_rad;
         }
         else
         {
             if(dy > 0)
-                Aspect_rad = PI/2.0;
+                Aspect_rad = M_PI/2.0;
             else
-                Aspect_rad = 2*PI - PI/2.0;
+                Aspect_rad = 2*M_PI - M_PI/2.0;
         }
-        double Zenith_rad = 70.0 * PI / 180.0;
-        double Azimuth_rad = 240 * PI / 180.0;
+        double Zenith_rad = 70.0 * M_PI / 180.0;
+        double Azimuth_rad = 240 * M_PI / 180.0;
         tma->Drc = 255.0 * ( ( cos(Zenith_rad) * cos(Slope_rad) ) + ( sin(Zenith_rad) * sin(Slope_rad) * cos(Azimuth_rad - Aspect_rad) ) );
     }}
     double MaxV = mapMaximum(*tma);

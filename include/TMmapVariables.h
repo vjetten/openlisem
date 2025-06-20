@@ -293,7 +293,6 @@ cTMap
 *ChannelWaterVol,            //!<
 //*Channelq,                   //!<
 *ChannelAlpha,               //!<
-*ChannelWidthMax,           //!<
 *ChannelDX,                  //!<
 *ChannelKsat,                //!<
 *ChannelInfM3,                //!<
@@ -350,6 +349,7 @@ cTMap
 *GridRetention,                    //!<
 *GridRetentionAct,
 *ChannelDiameter,                //!<
+*ChannelCulvert,                //!<
 *ChannelMaxQ,                //!<
 *ChannelMaxAlpha,                //!<
 *ChannelMaxArea,

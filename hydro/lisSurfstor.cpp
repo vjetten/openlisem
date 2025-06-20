@@ -48,7 +48,7 @@ void TWorld::GridCell()
         if(SwitchIncludeChannel) {
             if (ChannelWidth->Drc > 0){
                 dxa = _dx - ChannelWidth->Drc;
-                if (SwitchCulverts && ChannelMaxQ->Drc > 0)
+                if (SwitchCulverts && ChannelCulvert->Drc > 0)
                     dxa = _dx;
             }
         }
