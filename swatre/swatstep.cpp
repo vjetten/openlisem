@@ -149,7 +149,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
     int c = pixel->c;
     int nN = p->zone->nrNodes;
 
-    double dt = _dt/5;//SwatrePrecision; // start dt, precision set to 6 like in old code.
+    double dt = swatreDT;//_dt/2;//SwatrePrecision; // start dt, precision set to 6 like in old code.
                                      // A higher precision gives less infiltration
     double WH = pixel->wh*100; // m to cm
     int tnode = pixel->tilenode;

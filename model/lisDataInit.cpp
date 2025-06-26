@@ -167,7 +167,7 @@ void TWorld::InitParameters(void)
         _dtCHkin = _dx/2;//getvaluedouble("Channel Kinwave dt");
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
         SwitchChannelWFinflow = false;//getvalueint("Channel WF inflow") == 1;
-        SwatrePrecision = 6;// getvaluedouble("SWATRE precision");
+        SwatrePrecision = getvaluedouble("SWATRE precision");
     } else {
         F_MaxIter = 200;
         F_minWH = he_ca;
@@ -430,6 +430,7 @@ void TWorld::InitLULCInput(void)
     if (SwitchGridRetention) {
         GridRetention = ReadMap(LDD, getvaluename("gridretention"));
         GridRetentionAct = NewMap(0);
+        RetentionVolTotPot = MapTotal(*GridRetention);
     }
 
     //===== interception =====
@@ -1773,6 +1774,7 @@ void TWorld::IntializeData(void)
     // needs to be done here because profile uses data like impermable fration, tiledrain etc
     if (InfilMethod == INFIL_SWATRE) {
 
+        qDebug() << "swatre" << swatreDT << SwatrePrecision;
         // VJ 110420 added tiledrain depth for all profiles, is all used in infiltration
         SwatreSoilModel = InitSwatre(ProfileID);
         if (SwatreSoilModel == nullptr)

@@ -264,6 +264,7 @@ void TWorld::TotalsFlow(void)
             if (GridRetentionAct->Drc > 0)
                 RetentionVolTot += GridRetentionAct->Drc;// MapTotal(*GridRetentionAct);
         }}
+        qDebug() << RetentionVolTot << RetentionVolTotPot;
     }
 
     //=== all discharges ===//

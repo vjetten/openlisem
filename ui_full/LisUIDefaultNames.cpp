@@ -118,8 +118,8 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;QinPoints;QinPoints.map;Locations in channel network where discharge is added from a text record. Unique nr > 0;qinpoints");
     DEFmaps.append("2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh");
     DEFmaps.append("2;Stationary baseflow;baseflow.map;Stationary baseflow maintained in the run (m3/s at the outlet);baseflow");
-    DEFmaps.append("2;Baseflow network;lddbaseflow.map;LDD perpendicular to the river;lddbase");
-    DEFmaps.append("2;Baseflow contrib. area;basedistance.map;Distance to river (m);basereach");
+    DEFmaps.append("2;Baseflow network;lddgroundwater.map;LDD perpendicular to the river;lddbase");
+    DEFmaps.append("2;Baseflow contrib. area;gwdistance.map;Distance to river (m);basereach");
     DEFmaps.append("2;WHInit;WHinit.map;Initial floodlevel (m);whinit");
     DEFmaps.append("2;WHBound;whboundary.map;Area that will have a forced user defined water level (0,1);whbound");
 
@@ -692,8 +692,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel Max V");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Channel 2D flow connect");
-    // namelist[i].value = QString("6");
-    // namelist[i++].name = QString("SWATRE precision");
+    namelist[i].value = QString("6");
+    namelist[i++].name = QString("SWATRE precision");
 
  //   namelist[i].value = QString("0");
  //   namelist[i++].name = QString("Calculate erosion inside 2D loop");
