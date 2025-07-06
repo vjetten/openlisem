@@ -1124,6 +1124,9 @@ public:
     double getMass(cTMap *M);
     double getMassSed(cTMap *M, double th);
 
+    void floodCount(cTMap *h);
+    void floodFill(cTMap *raster, cTMap* labels, int row, int col, int currentlabel);
+
     // => SWATRE
     /// filenames for Swatre soil information
     QList <int> ProfileIDList;

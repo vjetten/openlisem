@@ -157,8 +157,8 @@ void TWorld::TileFlow(void)
     //  return;
     // wothout fluxes no MB errror anyway!
 
-    double tot = MapTotal(*TileWaterVol);
-    double totq = 0;
+  //  double tot = MapTotal(*TileWaterVol);
+  //  double totq = 0;
 
     Fill(*tmc, 0);
     for(long i_ =  0; i_ < crlinkedlddtile_.size(); i_++) {
@@ -204,13 +204,13 @@ void TWorld::TileFlow(void)
             full+=1;
         //TileWaterVol->Drc = std::min(TileWaterVol->Drc, TileArea->Drc*DX->Drc);
         // gives always MB errors!
-        if (LDDTile->Drc == 5)
-            totq = TileQn->Drc*_dt;
+        //if (LDDTile->Drc == 5)
+          //  totq = TileQn->Drc*_dt;
     }}
 
     // check if no MB loss in this function
-    double tot1 = MapTotal(*TileWaterVol);
-    qDebug() << tot << tot1 << totq << tot-tot1-totq << full << MB;
+    //double tot1 = MapTotal(*TileWaterVol);
+    //qDebug() << tot << tot1 << totq << tot-tot1-totq << full << MB;
 
 }
 

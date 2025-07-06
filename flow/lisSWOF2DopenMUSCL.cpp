@@ -84,7 +84,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
                 dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
 
-            } while (dt1 > dt_req_min && step < 9);
+            } while (dt1 > dt_req_min && step < 5);
 
             doSWOFStV(dt_req_min, h, u, v);
 
@@ -133,7 +133,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     if (FlowBoundaryType > 0) {
         Boundary2Ddyn(_dt, h, u, v);
     }
-
+floodCount(h);
     iter_n = std::max(1,count);
     return(count > 0 ? _dt/count : _dt);
 
@@ -145,34 +145,18 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
     double factor = exp(-0.005*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
     double factor2 = factor;//pow(factor,0.667); // manning reduction V=h^2/3
 
-/* THIS GIVES ARTIFACTS
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        tmd->Drc = 1;
-       if (h->Drc > he_ca) {
-           tmd->Drc = 1;
-            int x = 2 + static_cast<int>(std::max(u->Drc,v->Drc)*dt)/_dx;
-            // make more active cells to avoid non aexisting barriers
-            if (tmd->Drc == 1) {
-                for(int j = -x; j <= x; j++) {
-                    c+=j;
-                    r+=j;
-                    if (c > 0 && r > 0 && c <_nrCols-1 && r <_nrRows-1 & !MV(r,c))
-                        tmd->Drc = 1;
-                }
-
-                // if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
-                // if (c < _nrCols-1 && !MV(r,c+1)) tmd->data[r][c+1] = 1;
-                // if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
-                // if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
-           }
-        }
-    }}
-*/
-    Fill(*tmd, 1);
+    Fill(*tmd,0);
     // map edges are zero, avoid domain touching the edges
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
+        if (h->Drc > he_ca)
+            tmd->Drc = 1;
+
+        // if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
+        // if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
+        // if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
+        // if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
+
         if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
             tmd->Drc = 0;
         if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)

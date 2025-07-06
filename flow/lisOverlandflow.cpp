@@ -143,7 +143,6 @@ void TWorld::ToChannel()
             if (fractiontochannel > 0) {
                 double dwh = fractiontochannel*WHrunoff->Drc;
                 double dvol = dwh*CHAdjDX->Drc;//fractiontochannel*(WaterVolall->Drc - MicroStoreVol->Drc);
-               // qDebug() << fractiontochannel << dwh << dvol << hmx->Drc;
 
                 // water diverted to the channel
                 ChannelWaterVol->Drc += dvol;

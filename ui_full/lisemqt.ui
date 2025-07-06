@@ -695,8 +695,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>838</width>
-                <height>548</height>
+                <width>835</width>
+                <height>547</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">
@@ -2353,9 +2353,9 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>0</y>
+                <y>-185</y>
                 <width>1013</width>
-                <height>802</height>
+                <height>793</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
@@ -2391,7 +2391,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>3</number>
+                  <number>10</number>
                  </property>
                  <property name="iconSize">
                   <size>

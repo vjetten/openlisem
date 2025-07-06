@@ -611,7 +611,6 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
     correctMassBalance(sumh, h);
 
-    //qDebug() << _dt/count << count << dt_req_min;
     iter_n = std::max(1,count);
     return(count > 0 ? _dt/count : _dt);
 }

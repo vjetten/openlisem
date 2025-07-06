@@ -565,3 +565,45 @@ void TWorld::correctMassBalanceSed(double sum1, cTMap *M, double th)
         }
     }}
 }
+//---------------------------------------------------------------------------
+#include <QQueue>
+#include <QPoint>
+
+void TWorld::floodFill(cTMap *raster, cTMap* labels, int row, int col, int currentlabel)
+{
+    int dr[4] = {-1,0,1,0};
+    int dc[4] = {0,-1,0,1};
+    QQueue<QPoint> q;
+    q.enqueue(QPoint(row, col));
+    //labels->data[row][col] = currentlabel;
+
+    while (!q.isEmpty()) {
+        QPoint pt = q.dequeue();
+        int r = pt.x();
+        int c = pt.y();
+
+        // Directions: up, down, left, right
+        for (int i= 0; i < 4; i++) {
+            int nr = r + dr[i];
+            int nc = c + dc[i];
+            if (nr >= 0 && nr < _nrRows && nc >= 0 && nc < _nrCols) {
+                if (raster->data[nr][nc] != 0 && labels->data[nr][nc] == 0) {
+                    labels->data[nr][nc] = currentlabel;
+                    q.enqueue(QPoint(nr, nc));
+                }
+            }
+        }
+    }
+}
+
+void TWorld::floodCount(cTMap *h)
+{
+    Fill(*tmb,0);
+    int currentlabel = 1;
+    FOR_ROW_COL_MV_L {
+        if (h->Drc == 0 and tmb->Drc == 0)
+            floodFill(h,tmb, r,c,currentlabel++);
+    }}
+report(*h,"h");
+report(*tmb,"ff");
+}
