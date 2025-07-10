@@ -348,6 +348,8 @@ cTMap
 *Buffers,                    //!<
 *GridRetention,                    //!<
 *GridRetentionAct,
+*ChanRetention,                    //!<
+*ChanRetentionAct,
 *ChannelDiameter,                //!<
 *ChannelCulvert,                //!<
 *ChannelMaxQ,                //!<

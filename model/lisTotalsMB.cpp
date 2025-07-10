@@ -211,6 +211,17 @@ void TWorld::TotalsFlow(void)
     //     runoffTotalCell->Drc = std::max(0.0, RainCumFlat->Drc*1000-InterceptionmmCum->Drc-InfilmmCum->Drc);
     // }}
 
+
+    RetentionVolTot = 0;
+    if (SwitchGridRetention) {
+        FOR_ROW_COL_MV_L {
+            if (GridRetentionAct->Drc > 0)
+                RetentionVolTot += GridRetentionAct->Drc;
+        }}
+        RetentionVolTotmm = RetentionVolTot*catchmentAreaFlatMM;
+        qDebug() << "OF" << RetentionVolTot << RetentionVolTotPot;
+    }
+
     //=== channel flow ===//
     if (SwitchIncludeChannel) {
         ChannelVolTot = MapTotal(*ChannelWaterVol); //m3
@@ -256,16 +267,18 @@ void TWorld::TotalsFlow(void)
         BaseFlowTotmm = BaseFlowTot*catchmentAreaFlatMM; //mm
         BaseFlowInitmm = BaseFlowInit*catchmentAreaFlatMM;
 
+        if (SwitchGridRetention) {
+            ChanRetentionVolTot = 0;
+            FOR_ROW_COL_MV_CHL {
+                if (ChanRetentionAct->Drc > 0)
+                    ChanRetentionVolTot += ChanRetentionAct->Drc;
+            }}
+            RetentionVolTotmm += ChanRetentionVolTot*catchmentAreaFlatMM;
+            qDebug() << "chan" << ChanRetentionVolTot << ChanRetentionVolTotPot;
+        }
+
     }
 
-    if (SwitchGridRetention) {
-        RetentionVolTot = 0;
-        FOR_ROW_COL_MV_L {
-            if (GridRetentionAct->Drc > 0)
-                RetentionVolTot += GridRetentionAct->Drc;// MapTotal(*GridRetentionAct);
-        }}
-        qDebug() << RetentionVolTot << RetentionVolTotPot;
-    }
 
     //=== all discharges ===//
     Qtot_dt = 0;

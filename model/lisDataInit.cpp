@@ -261,6 +261,25 @@ void TWorld::InitStandardInput(void)
     DEM = ReadMap(LDD, getvaluename("dem"));
     MBm = NewMap(0);
 
+
+    Fill(*tma,0);
+    for(long i_ =  0; i_ < crlinkedldd_.size(); i_++) {
+        int r = crlinkedldd_.at(i_).r;
+        int c = crlinkedldd_.at(i_).c;
+
+        for (int j = -1; j < 2; j++)
+            for (int i = -1; i < 2; i++) {
+                if ((r+j > 0 && r+j < _nrRows) && (c+i > 0 && c+i < _nrCols)) {
+                    if (DEM->Drc < DEM->data[r+j][c+i])
+                        tma->Drc = DEM->data[r+j][c+i];
+                    else
+                        tma->Drc = DEM->Drc;
+                }
+            }
+
+    }
+    report(*tma, "demadj.map");
+
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     //checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
 
@@ -344,6 +363,7 @@ void TWorld::InitStandardInput(void)
 
     ChannelAdj = NewMap(_dx);
     CHAdjDX = NewMap(0);
+
 }
 //---------------------------------------------------------------------------
 void TWorld::InitMeteoInput(void)
@@ -427,6 +447,8 @@ void TWorld::InitLULCInput(void)
     calcValue(*RR, RRCalibration, MUL);
 
     RetentionVolTot = 0;
+    RetentionVolTotmm = 0;
+    RetentionVolTotPot = 0;
     if (SwitchGridRetention) {
         GridRetention = ReadMap(LDD, getvaluename("gridretention"));
         GridRetentionAct = NewMap(0);
@@ -1021,7 +1043,7 @@ Fill(*tma,0);
         }
         tma->Drc = crch_[i_].shape;
     }}
-report(*tma,"chanshape.map");
+
     if (SwitchChannelInfil) {
         ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
         cover(*ChannelKsat, *LDD, 0);
@@ -1077,6 +1099,13 @@ report(*tma,"chanshape.map");
         ChannelMaxQ->Drc = std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
         ChannelMaxAlpha->Drc = ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, 0.6);
     }}
+
+    ChanRetentionVolTotPot = 0;
+    if (SwitchGridRetention) {
+        ChanRetention = ReadMap(LDD, getvaluename("chanretention"));
+        ChanRetentionAct = NewMap(0);
+        ChanRetentionVolTotPot = MapTotal(*ChanRetention);
+    }
 
     for(long i_ =  0; i_ < crlinkedlddch_.size(); i_++) {
         int r = crlinkedlddch_.at(i_).r;

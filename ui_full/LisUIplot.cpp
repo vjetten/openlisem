@@ -446,7 +446,14 @@ void lisemqt::showOutputData()
 
     label_qtot->setText(format.arg(QString::number(op.Qtotmm,'f',dig)));
     label_infiltot->setText(format.arg(QString::number(op.InfilTotmm,'f',dig)));
-    label_surfstor->setText(format.arg(QString::number(op.SurfStormm,'f',dig)));
+    if (checkGridRentention) {
+        label_37->setText("Surf.Store+Ret (mm)");
+        label_surfstor->setText(format.arg(QString::number(op.SurfStormm+op.RetentionVolTotmm,'f',dig)));
+    }
+    else {
+        label_37->setText("Surf. Store (mm)");
+        label_surfstor->setText(format.arg(QString::number(op.SurfStormm,'f',dig)));
+    }
     label_interctot->setText(format.arg(QString::number(op.IntercTotmm+op.IntercHouseTotmm+op.IntercLitterTotmm,'f',dig)));
     if (E_OFWaveType->currentIndex() == 0 && !checkIncludeChannel->isChecked())
         label_floodVolmm->setText(format.arg(QString::number(0,'f',dig)));

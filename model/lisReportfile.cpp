@@ -193,6 +193,7 @@ void TWorld::reportToUI(void)
     op.BaseFlowTotmm = BaseFlowTotmm;
     op.PeakFlowTotmm = PeakFlowTotmm;
     op.RetentionVolTot = RetentionVolTot;
+    op.RetentionVolTotmm = RetentionVolTotmm;
 
     op.FloodVolmm = floodVolTotmm;
     op.FloodTotMax = floodVolTotMax;

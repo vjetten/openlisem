@@ -490,6 +490,7 @@ void lisemqt::initOP()
     op.SedTot = 0;
     op.ChannelVolTotmm = 0;
     op.RetentionVolTot = 0;
+    op.RetentionVolTotmm = 0;
     op.ChannelSedTot = 0;
     op.ChannelDepTot = 0;
     op.ChannelDetTot = 0;

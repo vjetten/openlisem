@@ -197,15 +197,16 @@ void TWorld::ChannelRainandInfil(void)
         }}
     }
 
+// TODO: chan retention for sediment!
     if (SwitchGridRetention) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            if (GridRetention->Drc > 0) {
-                double dvol = std::max(0.0,GridRetention->Drc - GridRetentionAct->Drc);
+            if (ChanRetention->Drc > 0) {
+                double dvol = std::max(0.0,ChanRetention->Drc - ChanRetentionAct->Drc);
                 if(dvol > 0) {
                     dvol = std::min(dvol, ChannelWaterVol->Drc);
                     if (dvol > 0) {
-                        GridRetentionAct->Drc += dvol;
+                        ChanRetentionAct->Drc += dvol;
                         ChannelWaterVol->Drc -= dvol;
                     }
                 }
