@@ -153,10 +153,10 @@ void TWorld::SWOFSedimentDiffusion(double dt, cTMap *h,cTMap *u,cTMap *v, cTMap 
         double dvx2 = bc2 ? std::abs(v->data[r][c+1] - v->Drc) : 0;
         double duy2 = br2 ? std::abs(u->data[r+1][c] - u->Drc) : 0;
 
-        double dux = std::max(dux1,dux2);
-        double dvy = std::max(dvy1,dvy2);
-        double dvx = std::max(dvx1,dvx2);
-        double duy = std::max(duy1,duy2);
+        double dux = qMax(dux1,dux2);
+        double dvy = qMax(dvy1,dvy2);
+        double dvx = qMax(dvx1,dvx2);
+        double duy = qMax(duy1,duy2);
 
         //diffusion coefficient according to J.Smagorinski (1964)
         double eddyvs = cdx * cdy * sqrt(dux*dux + dvy*dvy +  0.5 * (dvx +duy)*(dvx +duy));
@@ -178,8 +178,8 @@ void TWorld::SWOFSedimentDiffusion(double dt, cTMap *h,cTMap *u,cTMap *v, cTMap 
             if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr))
             {
                 //diffusion coefficient eta
-                double coeff = SSDepthFlood->Drc > 0 ? dt * eta * std::min(1.0, SSDepthFlood->Drcr/SSDepthFlood->Drc) : 0.0;
-                coeff = std::min(coeff, courant_factorSed);
+                double coeff = SSDepthFlood->Drc > 0 ? dt * eta * qMin(1.0, SSDepthFlood->Drcr/SSDepthFlood->Drc) : 0.0;
+                coeff = qMin(coeff, courant_factorSed);
                 flux[i] = coeff*_SS->Drc;
                 if (i == 0) tma->Drcr += flux[i];
                 if (i == 1) tmb->Drcr += flux[i];
@@ -251,8 +251,8 @@ void TWorld::SWOFSedimentFlowInterpolation(double dt, cTMap *h, cTMap *u,cTMap *
                 dss = courant_factorSed *  _SS->Drc;
 
             //should not travel more distance than cell size
-            double dsx = xn*std::min(fabs(u_)/velocity,1.0);
-            double dsy = yn*std::min(fabs(v_)/velocity,1.0);
+            double dsx = xn*qMin(fabs(u_)/velocity,1.0);
+            double dsy = yn*qMin(fabs(v_)/velocity,1.0);
 
             //cell directions
             int dx[4] = {0, 1, 1, 0};
@@ -390,8 +390,8 @@ void TWorld::SWOFSedimentLayerDepth(int r , int c, double h, double velocity)
     //critical shear stress for bed level motion by van rijn
     double critsheart = (critshearvel*critshearvel)/ (((ps-pw)/pw) * GRAV*d50m);
     //rough bed bed load layer depth by Hu en Hui
-    BLDepthFlood->Drc = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), factor*h), 0.1);
-    SSDepthFlood->Drc = std::max(h - BLDepthFlood->Drc,0.0);
+    BLDepthFlood->Drc = qMin(qMin(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), factor*h), 0.1);
+    SSDepthFlood->Drc = qMax(h - BLDepthFlood->Drc,0.0);
 }
 //--------------------------------------------------------------------------------------------
 /**
@@ -476,9 +476,9 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap 
             //first check if sediment goes to suspended sediment layer or to bed layer
             double TransportFactor;
 
-            double maxTC = std::max(SSTCFlood->Drc - SSCFlood->Drc, 0.0) ;
+            double maxTC = qMax(SSTCFlood->Drc - SSCFlood->Drc, 0.0) ;
             // positive difference: TC deficit becomes detachment (ppositive)
-            double minTC = std::min(SSTCFlood->Drc - SSCFlood->Drc, 0.0) ;
+            double minTC = qMin(SSTCFlood->Drc - SSCFlood->Drc, 0.0) ;
             // negative diff, becomes deposition
 
             deposition = 0;
@@ -490,7 +490,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap 
                 //TransportFactor = (1-exp(-dt*TSettlingVelocitySS/hf)) * sswatervol;
                 TransportFactor = dt * SettlingVelocitySS->Drc * wf*DX->Drc;
 
-                deposition  = std::max(TransportFactor*  minTC, -SS);
+                deposition  = qMax(TransportFactor*  minTC, -SS);
 
                 // exceptions
                 // if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
@@ -549,7 +549,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap 
                     detachment = (1-StoneFraction->Drc) * detachment;
                     // no flow detachment on stony surfaces
 
-                    detachment *= std::min(1.0, std::max(0.0, 1.0 - (RoadWidthHSDX->Drc/_dx)));
+                    detachment *= qMin(1.0, qMax(0.0, 1.0 - (RoadWidthHSDX->Drc/_dx)));
                     // no flow detachment on hard surfaces, map is 0 is not selected
 
                     if (SwitchHouses)
@@ -581,7 +581,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap 
             DepFlood->Drc += deposition;
             SS += deposition;
             SS += detachment;
-            SSFlood->Drc = std::max(0.0,SS);
+            SSFlood->Drc = qMax(0.0,SS);
 
             // ########### DO BEDLOAD
             if (SwitchUse2Phase) {
@@ -599,8 +599,8 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap 
                     // there is BL transport
 
                     //### calc concentration and net transport capacity
-                    maxTC = std::max(BLTCFlood->Drc - BLCFlood->Drc,0.0);
-                    minTC = std::min(BLTCFlood->Drc - BLCFlood->Drc,0.0);
+                    maxTC = qMax(BLTCFlood->Drc - BLCFlood->Drc,0.0);
+                    minTC = qMin(BLTCFlood->Drc - BLCFlood->Drc,0.0);
                     // unit kg/m3
                     if (minTC < 0) {
                         // IN KG/CELL
@@ -611,7 +611,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap 
                         // deposition can occur on roads and on soil (so use flowwidth)
 
                         // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
-                        deposition = std::max(minTC * TransportFactor, -BL);
+                        deposition = qMax(minTC * TransportFactor, -BL);
                         // cannot have more depo than sediment present
 
                         if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
@@ -654,9 +654,9 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap 
                             // units s * m/s * m * m = m3
                             //TransportFactor = dt * TSettlingVelocityBL * DX->Drc * SoilWidthDX->Drc;
                             TransportFactor = dt * SettlingVelocityBL->Drc * wf*DX->Drc;
-                            //TransportFactor = std::min(TransportFactor, bldischarge * dt);
+                            //TransportFactor = qMin(TransportFactor, bldischarge * dt);
 
-                            detachment = maxTC * std::min(TransportFactor, blwatervol);
+                            detachment = maxTC * qMin(TransportFactor, blwatervol);
                             // unit = kg/m3 * m3 = kg
 
                             if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
@@ -674,7 +674,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap 
                             if (SwitchHouses)
                                 detachment = (1-HouseCover->Drc)*detachment;
 
-                            detachment *= std::min(1.0, std::max(0.0, 1.0 - (RoadWidthHSDX->Drc/_dx)));
+                            detachment *= qMin(1.0, qMax(0.0, 1.0 - (RoadWidthHSDX->Drc/_dx)));
                             // no flow detachment on hard surfaces, map is 0 is not selected
 
                             // no flow det from house roofs
@@ -683,7 +683,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap 
                             /* TODO: CHECK THIS no flow detachment on snow */
                             //is there erosion and sedimentation under the snowdeck?
 
-                            detachment = std::max(0.0,detachment);
+                            detachment = qMax(0.0,detachment);
 
                             //detachment = DetachMaterial(r,c,1,false,false,true, detachment);
                             detachment *= Y->Drc;
@@ -704,7 +704,7 @@ void TWorld::SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap 
                     BLDetFlood->Drc += detachment;
                     BL += detachment;
                     BL += deposition;
-                    BLFlood->Drc = std::max(0.0,BL);
+                    BLFlood->Drc = qMax(0.0,BL);
                 }  // BL exist
             } // 2 phase
         } // h > MIN_HEIGHT

@@ -49,8 +49,7 @@ void               copy                (cTMap& raster,
 
 QList <int>        countUnits          (cTMap const& raster);
 
-void               fill                (cTMap& raster,
-                                        double value);
+//void               fill                (cTMap& raster, double value);
 
 double             mapTotal            (cTMap const& raster);
 

@@ -238,7 +238,7 @@ double TWorld::FB(int r, int c, int rd, int cd)
     }
     else if(rd == 1 && cd == 1)
     {
-        return dem + (std::max(std::max(FlowBarrierS->Drc,FlowBarrierE->Drc),std::max(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0))));
+        return dem + (qMax(qMax(FlowBarrierS->Drc,FlowBarrierE->Drc),qMax(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0))));
     }
     else if(rd == 0 && cd == 1)
     {
@@ -246,7 +246,7 @@ double TWorld::FB(int r, int c, int rd, int cd)
     }
     else if(rd == -1 && cd == 1)
     {
-        return dem + (std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),std::max(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0))));
+        return dem + (qMax(qMax(FlowBarrierN->Drc,FlowBarrierE->Drc),qMax(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0))));
     }
     else if(rd == -1 && cd == 0)
     {
@@ -254,14 +254,14 @@ double TWorld::FB(int r, int c, int rd, int cd)
     }
     else if(rd == -1 && cd == -1)
     {
-        return dem + (std::max(std::max(FlowBarrierN->Drc,FlowBarrierW->Drc),std::max(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0))));
+        return dem + (qMax(qMax(FlowBarrierN->Drc,FlowBarrierW->Drc),qMax(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0))));
     }
     else if(rd == 0 && cd == -1)
     {
         return dem + (FlowBarrierW->Drc);
     }else if(rd == 1 && cd == -1)
     {
-        return dem + (std::max(std::max(FlowBarrierS->Drc,FlowBarrierW->Drc),std::max(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0))));
+        return dem + (qMax(qMax(FlowBarrierS->Drc,FlowBarrierW->Drc),qMax(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0))));
     }
 
     return 0;

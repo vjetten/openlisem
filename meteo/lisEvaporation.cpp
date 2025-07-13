@@ -225,7 +225,7 @@ void TWorld::GetETSatMap(double currenttime)
                 ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+ETSeriesMaps[currentrow].name;
                 throw 1;
             } else {
-                ETp->Drc = std::max(0.0,_M->Drc *tt);
+                ETp->Drc = qMax(0.0,_M->Drc *tt);
             }
         }}
     }
@@ -236,9 +236,9 @@ void TWorld::GetETSatMap(double currenttime)
 double TWorld::getETaFactor()
 {
     double day = floor(time/86400.0);
-    double hour = std::min(24.0,std::max(0.0, time/3600.0-day*24.0));
+    double hour = qMin(24.0,qMax(0.0, time/3600.0-day*24.0));
     double Ld = (2.0*acos(-tan(latitude*0.01745329) * tan(asin(0.397789 * sin(0.017214*(day-1)))))) * 3.8197186;
-    double ETafactor = std::max(0.0,sin((-0.5-hour/Ld)*M_PI)) / Ld*_dt/3600.0*M_PI*0.5;
+    double ETafactor = qMax(0.0,sin((-0.5-hour/Ld)*M_PI)) / Ld*_dt/3600.0*M_PI*0.5;
 //qDebug() << "Ld" << day << hour << Ld << ETafactor;
     return ETafactor;
 }
@@ -262,10 +262,10 @@ void TWorld::cell_ETa(int r, int c)
             //  drying out canopy
             double CStor_  = CStor->Drc;
             if (CStor_ > 0) {
-                double ETa_int = std::min(ETp_, CStor_);
+                double ETa_int = qMin(ETp_, CStor_);
                 CStor_ = CStor_- ETa_int;
 
-                RainCumInt->Drc = std::max(0.0, RainCumInt->Drc-ETa_int);
+                RainCumInt->Drc = qMax(0.0, RainCumInt->Drc-ETa_int);
                 if (CStor_ < 1e-5)
                     RainCumInt->Drc = 0;
                 // restart the cumulative process when CStor is dried out
@@ -279,7 +279,7 @@ void TWorld::cell_ETa(int r, int c)
             {
                 double CvH = HouseCover->Drc;
                 double HS = HStor->Drc;
-                double ETa_int = std::min(ETp_, HS);
+                double ETa_int = qMin(ETp_, HS);
                 HStor->Drc = HS - ETa_int;
                 IntercETa->Drc += CvH * ETa_int * Area;
                 IntercHouse->Drc =  Area * CvH * HS;
@@ -288,7 +288,7 @@ void TWorld::cell_ETa(int r, int c)
             if (SwitchLitter && LCStor->Drc > 0) {
                 double CvL = Litter->Drc;
                 double LCS = LCStor->Drc;
-                double ETa_int = std::min(ETp_, LCS);
+                double ETa_int = qMin(ETp_, LCS);
                 LCStor->Drc = LCS- ETa_int;
                 IntercETa->Drc += CvL * ETa_int * Area;
                 LInterc->Drc =  CvL * LCS * Area;
@@ -318,12 +318,12 @@ void TWorld::cell_ETa(int r, int c)
                 // there is an infiltration front less than SD1 plants can still transpire
                 if(Lw_ < SoilDepth1->Drc) {
                     double moist = Lw_ * (pore-theta);
-                    eta = std::min(moist, ETa_soil);
+                    eta = qMin(moist, ETa_soil);
                     moist = moist - eta; // new mositure
                     Lw->Drc = moist/(pore-theta);  // new wetting front
                     tot = tot + eta;
                     // adjust moisture content layer 1
-                    double dL = std::max(0.0,Lw_-Lw->Drc);
+                    double dL = qMax(0.0,Lw_-Lw->Drc);
                     double m1 = dL*thetafc; // av moist freed layer
                     double m2= (SoilDepth1->Drc-Lw_)*(Thetaeff->Drc-thetar);
                     // av moist below old wetting front
@@ -332,7 +332,7 @@ void TWorld::cell_ETa(int r, int c)
                 }
             } else {
                 double moist = (theta-thetar) * SoilDepth1->Drc;
-                eta = std::min(moist, ETa_soil);
+                eta = qMin(moist, ETa_soil);
                 moist = moist - eta;
                 Thetaeff->Drc = moist/SoilDepth1->Drc + thetar;
                 tot = tot + eta;
@@ -340,7 +340,7 @@ void TWorld::cell_ETa(int r, int c)
             //evap from dry soil surface
             if (hmxWH->Drc == 0) {
                 double moist = (theta-thetar) * SoilDepth1->Drc;
-                eta = std::min(moist, ETp_*theta_e);
+                eta = qMin(moist, ETp_*theta_e);
                 moist = moist - eta;
                 Thetaeff->Drc = moist/SoilDepth1->Drc + thetar;
                 tot = tot + eta;
@@ -356,7 +356,7 @@ void TWorld::cell_ETa(int r, int c)
                     WH_ = WH->Drc;
                 }
 
-                ETa_pond = std::min(ETa_pond, WH_);
+                ETa_pond = qMin(ETa_pond, WH_);
                 WH_ = WH_ - ETa_pond;
 
                 if (FloodDomain->Drc > 0) {

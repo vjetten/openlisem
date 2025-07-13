@@ -51,16 +51,16 @@ void TWorld::ToTiledrain()
                 //double volin = WaterVolall->Drc * TileDrainSize/CHAdjDX->Drc * (DX->Drc/TileDrainDistance);//* RoadWidthHSDX->Drc/_dx
                 // fraction of volume, not used
 
-                double volin = _dt*std::sqrt(2*GRAV*WHrunoff->Drc)*TileDrainSize * (DX->Drc/TileDrainDistance) * RoadWidthHSDX->Drc/_dx;
+                double volin = _dt*qSqrt(2*GRAV*WHrunoff->Drc)*TileDrainSize * (DX->Drc/TileDrainDistance) * RoadWidthHSDX->Drc/_dx;
                 // Bernouilly flow s*m/s*m2=m3 through a hole * fraction of distance compared to cellsize
 
                 // qDebug() << volin <<  WaterVolall->Drc << RunoffVolinToTile->Drc;
-                RunoffVolinToTile->Drc = std::min(volin, WaterVolall->Drc-MicroStoreVol->Drc);//RunoffVolinToTile->Drc);
-                RunoffVolinToTile->Drc = std::min(MaxVol - TileWaterVol->Drc, RunoffVolinToTile->Drc);
+                RunoffVolinToTile->Drc = qMin(volin, WaterVolall->Drc-MicroStoreVol->Drc);//RunoffVolinToTile->Drc);
+                RunoffVolinToTile->Drc = qMin(MaxVol - TileWaterVol->Drc, RunoffVolinToTile->Drc);
                 WaterVolall->Drc -= RunoffVolinToTile->Drc;
 
                 WH->Drc = WaterVolall->Drc/CHAdjDX->Drc;
-                WHrunoff->Drc = std::max(0.0, WH->Drc-WHstore->Drc);
+                WHrunoff->Drc = qMax(0.0, WH->Drc-WHstore->Drc);
                 hmxWH->Drc = WH->Drc + hmx->Drc;
             }
         }}
@@ -111,9 +111,9 @@ void TWorld::CalcVelDischCircular()
               TileQ->Drc = 0;
           else
               TileQ->Drc = std::pow(Area/Perim, 5.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
-          TileQ->Drc = std::min(TileQ->Drc, TileMaxQ->Drc);
+          TileQ->Drc = qMin(TileQ->Drc, TileMaxQ->Drc);
           TileAlpha->Drc = std::pow(std::pow(Perim, 2.0/3.0)*TileN->Drc/sqrt(TileGrad->Drc), 0.6);
-          TileAlpha->Drc = std::min(TileAlpha->Drc, TileMaxAlpha->Drc);
+          TileAlpha->Drc = qMin(TileAlpha->Drc, TileMaxAlpha->Drc);
 
           //TileAlpha->Drc  = Area/std::pow(TileQ->Drc, BETAcirc);
    //  }
@@ -178,7 +178,7 @@ void TWorld::TileFlow(void)
 
             // if total inflow causes vol > max volume, adjust inflow incoming TileQn
             if (TileWaterVol->Drc+_dt*(Qin-TileQ->Drc) >= volMax) {
-                double maxq = std::min(TileMaxQ->Drc, (volMax - TileWaterVol->Drc)/_dt + TileQ->Drc);
+                double maxq = qMin(TileMaxQ->Drc, (volMax - TileWaterVol->Drc)/_dt + TileQ->Drc);
 
                 for(int j = 0; j < NR; j++) {
                     int rr = crlinkedlddtile_.at(i_).inn[j].r;
@@ -192,17 +192,17 @@ void TWorld::TileFlow(void)
         tmc->Drc = Qin;
 
         TileQn->Drc = IterateToQnew(Qin, TileQ->Drc, TileAlpha->Drc, _dt, DX->Drc, TileMaxQ->Drc, TileMaxAlpha->Drc);
-        TileQn->Drc = std::min(Qin+TileWaterVol->Drc/_dt, TileQn->Drc);
-        TileQn->Drc = std::min(TileQn->Drc, TileMaxQ->Drc);
+        TileQn->Drc = qMin(Qin+TileWaterVol->Drc/_dt, TileQn->Drc);
+        TileQn->Drc = qMin(TileQn->Drc, TileMaxQ->Drc);
     }
 
     #pragma omp parallel for ordered num_threads(userCores)
     FOR_ROW_COL_MV_TILEL {
         TileWaterVol->Drc = TileWaterVol->Drc + _dt*(tmc->Drc - TileQn->Drc);
-        TileWaterVol->Drc = std::max(0.0, TileWaterVol->Drc);
+        TileWaterVol->Drc = qMax(0.0, TileWaterVol->Drc);
         if (TileWaterVol->Drc >= TileArea->Drc*DX->Drc)
             full+=1;
-        //TileWaterVol->Drc = std::min(TileWaterVol->Drc, TileArea->Drc*DX->Drc);
+        //TileWaterVol->Drc = qMin(TileWaterVol->Drc, TileArea->Drc*DX->Drc);
         // gives always MB errors!
         //if (LDDTile->Drc == 5)
           //  totq = TileQn->Drc*_dt;

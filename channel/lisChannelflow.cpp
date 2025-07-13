@@ -83,7 +83,7 @@ void TWorld::ChannelVelocityandDischarge()
         }
         double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
         double Radius = (ChannelPerimeter->Drc > 1e-6 ? Area/ChannelPerimeter->Drc : 0);
-        ChannelV->Drc = std::min(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc);
+        ChannelV->Drc = qMin(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc);
         ChannelQ->Drc = ChannelV->Drc * Area;
         //ChannelAlpha->Drc = ChannelQ->Drc/std::pow(Area, 0.6);
         ChannelAlpha->Drc = pow(ChannelN->Drc/sqrt(ChannelGrad->Drc) * pow(ChannelPerimeter->Drc, 2.0/3.0),0.6);  // no difference
@@ -138,8 +138,8 @@ void TWorld::ChannelBaseflow(void)
                 bedrock=chanbot;
                 double dH = bedrock + GWWH->Drc - chanbot;
                 if (dH > 0 && GWWH->Drc > 0) {
-                   //Qbase->Drc = std::min(GWVol->Drc, 2.0 * dH/GWWH->Drc * GWout->Drc);
-                //   Qbase->Drc = std::min(GWVol->Drc, 2.0 * fabs(GWout->Drc));
+                   //Qbase->Drc = qMin(GWVol->Drc, 2.0 * dH/GWWH->Drc * GWout->Drc);
+                //   Qbase->Drc = qMin(GWVol->Drc, 2.0 * fabs(GWout->Drc));
                    Qbase->Drc = 2*GWout->Drc;
                    // use the fraction of GWout flow that reaches the channel
                 }
@@ -148,7 +148,7 @@ void TWorld::ChannelBaseflow(void)
 
             if (!crch_[i_].culvert) {
                 ChannelWaterVol->Drc += Qbase->Drc;
-                GWVol->Drc = std::max(0.0, GWVol->Drc - Qbase->Drc);
+                GWVol->Drc = qMax(0.0, GWVol->Drc - Qbase->Drc);
                 GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
             }
             // m3 added per timestep, adjust the volume and height, not in culverts
@@ -187,7 +187,7 @@ void TWorld::ChannelRainandInfil(void)
                 }
                 ChannelInfM3->Drc = ChannelPerimeter->Drc * ChannelKsat->Drc * _dt/3600000.0 * ChannelDX->Drc;
                 // infiltration over entire perimeter !
-                double inf = std::min(ChannelWaterVol->Drc, ChannelInfM3->Drc);
+                double inf = qMin(ChannelWaterVol->Drc, ChannelInfM3->Drc);
                 // cannot be more than there is
                 ChannelWaterVol->Drc -= inf;
                 ChannelInfilVol->Drc = inf;
@@ -202,9 +202,9 @@ void TWorld::ChannelRainandInfil(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             if (ChanRetention->Drc > 0) {
-                double dvol = std::max(0.0,ChanRetention->Drc - ChanRetentionAct->Drc);
+                double dvol = qMax(0.0,ChanRetention->Drc - ChanRetentionAct->Drc);
                 if(dvol > 0) {
-                    dvol = std::min(dvol, ChannelWaterVol->Drc);
+                    dvol = qMin(dvol, ChannelWaterVol->Drc);
                     if (dvol > 0) {
                         ChanRetentionAct->Drc += dvol;
                         ChannelWaterVol->Drc -= dvol;
@@ -257,7 +257,7 @@ void TWorld::ChannelFlow(void)
             // if !switchculverts then ChannelCulvert has only 0
             if (ChannelCulvert->Drc > 0 &&
                 ChannelWaterVol->Drc+_dt*(Qin-ChannelQ->Drc) >= volMax) {
-                double maxq = std::min(ChannelMaxQ->Drc, (volMax - ChannelWaterVol->Drc)/_dt + ChannelQ->Drc);
+                double maxq = qMin(ChannelMaxQ->Drc, (volMax - ChannelWaterVol->Drc)/_dt + ChannelQ->Drc);
 
                 for(int j = 0; j < crlinkedlddch_.at(i_).nr; j++) {
                     int rr = crlinkedlddch_.at(i_).inn[j].r;
@@ -274,7 +274,7 @@ void TWorld::ChannelFlow(void)
             ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, _dt, DX->Drc, 0,0);
         else
             ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, _dt, DX->Drc, ChannelMaxQ->Drc, ChannelMaxAlpha->Drc);
-        ChannelQn->Drc = std::min(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
+        ChannelQn->Drc = qMin(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
         // no more outflow than there is water
 
         // check if there is a culvert downstream and limit outflow if necessary
@@ -282,7 +282,7 @@ void TWorld::ChannelFlow(void)
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
         if (!pcr::isMV(LDDChannel->Drcr) && ChannelCulvert->Drcr > 0)
-            ChannelQn->Drc = std::min(ChannelQn->Drc, ChannelMaxQ->Drcr);
+            ChannelQn->Drc = qMin(ChannelQn->Drc, ChannelMaxQ->Drcr);
 
     }
     // int full = 0;
@@ -291,7 +291,7 @@ void TWorld::ChannelFlow(void)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(QinKW->Drc - ChannelQn->Drc);
-        ChannelWaterVol->Drc = std::max(0.0, ChannelWaterVol->Drc);
+        ChannelWaterVol->Drc = qMax(0.0, ChannelWaterVol->Drc);
 
      //   if (ChannelCulvert->Drc > 0 && ChannelWaterVol->Drc >= ChannelMaxArea->Drc*DX->Drc) {
      //       full+=1;
@@ -303,13 +303,13 @@ void TWorld::ChannelFlow(void)
             case SHAPETRIA : chanHandPTria(r,c); break;
         }
         double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
-        ChannelV->Drc = std::min(_CHMaxV, (Area > 1e-12 ? ChannelQn->Drc/Area : 0.0));
+        ChannelV->Drc = qMin(_CHMaxV, (Area > 1e-12 ? ChannelQn->Drc/Area : 0.0));
         // ChannelAlpha->Drc = Area > 1e-6 ? ChannelQn->Drc/std::pow(Area, 0.6) : 0.0;
         // DO NOT recalculate alpha becuase of erosion
 
         // get the maximum for output
-        maxChannelflow->Drc = std::max(maxChannelflow->Drc, ChannelQn->Drc);
-        maxChannelWH->Drc = std::max(maxChannelWH->Drc, ChannelWH->Drc);
+        maxChannelflow->Drc = qMax(maxChannelflow->Drc, ChannelQn->Drc);
+        maxChannelWH->Drc = qMax(maxChannelWH->Drc, ChannelWH->Drc);
 
         //   if (LDDChannel->Drc == 5)
      //        totq += ChannelQn->Drc*_dt;
@@ -423,7 +423,7 @@ void TWorld::correctMassBalanceCH(double sum1, cTMap *M)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
             M->Drc = M->Drc*(1.0 + dhtot);            // <- distribution weighted to h
-            M->Drc = std::max(M->Drc , 0.0);
+            M->Drc = qMax(M->Drc , 0.0);
         }}
     }
 }

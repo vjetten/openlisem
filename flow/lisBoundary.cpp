@@ -75,18 +75,18 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
 
             if (flag > 0) {
                 double Qbflux = sqrt(u->Drc*u->Drc + v->Drc*v->Drc)*Area;
-                h->Drc = std::max(0.0, h->Drc - Qbflux*dt/CHAdjDX->Drc);
+                h->Drc = qMax(0.0, h->Drc - Qbflux*dt/CHAdjDX->Drc);
                 //adjust boundary cells
 
                 QBoundary += Qbflux;
                 QBoundFlow->Drc = Qbflux; // not used anywhere !!!! use it to sum watershed boundary flow later
                 if (SwitchErosion) {
-                    double ds = std::min(SSFlood->Drc, SSCFlood->Drc*QBoundFlow->Drc*dt);
+                    double ds = qMin(SSFlood->Drc, SSCFlood->Drc*QBoundFlow->Drc*dt);
                     SSFlood->Drc -= ds;
                     QsBoundary += ds/dt; //in kg/s
 
                     if (SwitchUse2Phase) {
-                        ds = std::min(BLFlood->Drc, BLCFlood->Drc*QBoundFlow->Drc*dt);
+                        ds = qMin(BLFlood->Drc, BLCFlood->Drc*QBoundFlow->Drc*dt);
                         BLFlood->Drc -= ds;
                         QsBoundary += ds/dt;
                     }

@@ -49,7 +49,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
     FOR_ROW_COL_MV_CHL {
         if (!crch_[i_].culvert) {
 
-            double dH = std::max(0.0, (ChannelWH->Drc-ChannelDepth->Drc)); // water higher than channel depth
+            double dH = qMax(0.0, (ChannelWH->Drc-ChannelDepth->Drc)); // water higher than channel depth
             double H = _h->Drc;
 
             if (dH <= 1e-6 && H <= 1e-6)
@@ -67,7 +67,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
             if (dH > H) {
                 // flow from channel
                 double VfromChan = Cd*SQRT2G*pow(dH-H,1.5)/H;
-                double fracC = std::min(1.0, _dt*VfromChan/(0.5*ChannelAdj->Drc));
+                double fracC = qMin(1.0, _dt*VfromChan/(0.5*ChannelAdj->Drc));
                 // fraction from channel to surrounding
                 double dwh = fracC * (dH-H);
                 // amount flowing from channel
@@ -88,7 +88,7 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
             else   // flow to channel
             {
                 double VtoChan = V->Drc;//=Cd*SQRT2G*pow(H-dH,1.5)/H;
-                double fracA = std::min(1.0, _dt*VtoChan/(0.5*ChannelAdj->Drc));
+                double fracA = qMin(1.0, _dt*VtoChan/(0.5*ChannelAdj->Drc));
                 double dwh = fracA * (H-dH);
                 // amount flowing to channel
                 if (dH + dwh/cwa > H-dwh) {
@@ -205,7 +205,7 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
             }
 
             double dCHh = ChannelWH->Drc-ChannelDepth->Drc;
-            double dCHh0 = std::max(dCHh, 0.0);
+            double dCHh0 = qMax(dCHh, 0.0);
             double H = _h->Drc; // runoff height!
 
             if (H < 1e-6 && dCHh0 < 1e-6)
@@ -238,7 +238,7 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
                     needed_volume = negvol + (H-heq)*CellArea->Drc;
                     // transfer_volume = vol needed for equilibrium level
                 }
-                transfer_volume = std::min(freeflow_tochan, needed_volume);
+                transfer_volume = qMin(freeflow_tochan, needed_volume);
                 //m3 free flow broad crested weir, water flows over edge to deeper water in channel
                 tochannel = true;
             } else {
@@ -252,7 +252,7 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
                     // vol needed to reach equilibrium level
                     double transfer_volume_tochan = lengthfactor*Cd*SQRT2G*std::pow(H+velocityfactor - dCHh0,1.5);
                     // drowned flow to channel with velocity of approach
-                    transfer_volume = std::min(transfer_volume_tochan, needed_volume);
+                    transfer_volume = qMin(transfer_volume_tochan, needed_volume);
                     tochannel = true;
                 } else {
                     // flow from channel, drowned weir in the other dircetion, no added velocity
@@ -260,7 +260,7 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
                     // vol needed to reach equilibrium level
                     double transfer_volume_fromchan = lengthfactor*Cd*SQRT2G*std::pow(dCHh0 - H,1.5);
                     // drowned flow from channel
-                    transfer_volume = std::min(transfer_volume_fromchan, needed_volume);
+                    transfer_volume = qMin(transfer_volume_fromchan, needed_volume);
                     tochannel = false;
                 }
             }
@@ -281,7 +281,7 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
                 case SHAPETRIA : chanHandPTria(r,c); break;
             }
             // update surface water height
-            _h->Drc = std::max(0.0, WaterVolall->Drc-MicroStoreVol->Drc) / area_surface;
+            _h->Drc = qMax(0.0, WaterVolall->Drc-MicroStoreVol->Drc) / area_surface;
 
             if (SwitchKinematic2D == K2D_METHOD_KINDYN) {
                 hmx->Drc = WaterVolall->Drc/area_surface;
@@ -350,14 +350,14 @@ void TWorld::FloodMaxandTiming()
     FOR_ROW_COL_MV_L {
         if (hmxWH->Drc > minReportFloodHeight) {
             floodTime->Drc += _dt/60;
-            floodHmxMax->Drc = std::max(floodHmxMax->Drc, hmxWH->Drc);
+            floodHmxMax->Drc = qMax(floodHmxMax->Drc, hmxWH->Drc);
             // for output
         }
 
-        floodVMax->Drc = std::max(floodVMax->Drc, V->Drc);
-        floodVHMax->Drc = std::max(floodVHMax->Drc, V->Drc*hmxWH->Drc);
+        floodVMax->Drc = qMax(floodVMax->Drc, V->Drc);
+        floodVHMax->Drc = qMax(floodVHMax->Drc, V->Drc*hmxWH->Drc);
         // max velocity
-        WHmax->Drc = std::max(WHmax->Drc, hmxWH->Drc);
+        WHmax->Drc = qMax(WHmax->Drc, hmxWH->Drc);
     }}
     floodVolTotMax = 0;
     floodArea = 0;
@@ -380,7 +380,7 @@ void TWorld::FloodMaxandTiming()
         }
     }}
 
-    floodAreaMax = std::max(floodArea,floodAreaMax);
+    floodAreaMax = qMax(floodArea,floodAreaMax);
 }
 //---------------------------------------------------------------------------
 // NOTE THIS function is only called for Kinematic+dynamic wave

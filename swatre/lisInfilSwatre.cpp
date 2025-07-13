@@ -94,7 +94,7 @@ void TWorld::InfilSwatre()
             //TODO test infil swatre for crusts and compaction
             if (SwitchInfilCrust) {
                 if (SwitchDynamicCrusting && ProfileIDCrust->Drc > 0) {
-                    CrustFraction->Drc = std::min(1.0, CrustFraction0->Drc + (1.0-exp(-0.2*std::max(0.0, RainCumCrust->Drc*1000))));
+                    CrustFraction->Drc = qMin(1.0, CrustFraction0->Drc + (1.0-exp(-0.2*qMax(0.0, RainCumCrust->Drc*1000))));
                 }
 
                 if (ProfileIDCrust->Drc > 0 && CrustFraction->Drc > 0) {
@@ -163,7 +163,7 @@ void TWorld::InfilSwatre()
             InfilVol->Drc = (WHorig - WHN) * FlowWidth->Drc * DX->Drc;
      //       if (WHorig - WHN < 0)
      //           qDebug() << r << c << WHorig << WHN << (WHorig - WHN) << fractionImperm->Drc << FlowWidth->Drc;
-    //        InfilVol->Drc = std::max(0.0, WHorig - WHN) * FlowWidth->Drc * DX->Drc;
+    //        InfilVol->Drc = qMax(0.0, WHorig - WHN) * FlowWidth->Drc * DX->Drc;
             // use flowwidth because impermeable is done separately
 
             ThetaI1a->Drc = theta;

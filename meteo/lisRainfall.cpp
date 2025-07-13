@@ -612,7 +612,7 @@ double TWorld::getmaxRainfall()
         for (int i = 0; i < nrRainfallseries-1; i++) {
             auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[i].name)));
             avg = MapTotal(*_M)/nrCells;
-            maxv = std::max(avg, maxv);
+            maxv = qMax(avg, maxv);
         }
     } else {
         avg = 0;
@@ -620,7 +620,7 @@ double TWorld::getmaxRainfall()
             for (int j = 0; j < RainfallSeries[i].intensity.size(); j++)
                 avg = avg + RainfallSeries[i].intensity[j]*tt;
         }
-        maxv = std::max(maxv, avg);
+        maxv = qMax(maxv, avg);
     }
     return (maxv);
 }

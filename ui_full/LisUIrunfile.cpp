@@ -146,7 +146,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Report format GTiff")==0)            checkFormatGtiff->setChecked(check);
         if (p1.compare("End run report")==0)                 checkEndRunReport->setChecked(check);
         if (p1.compare("Include Satellite Image")==0)        checksatImage->setChecked(check);
-        if (p1.compare("Output interval")==0)                printinterval->setValue(std::max(1,iii));
+        if (p1.compare("Output interval")==0)                printinterval->setValue(qMax(1,iii));
         if (p1.compare("Erosion map units (0/1/2)")==0)
         {
             int units = p.toInt();
@@ -837,7 +837,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Swatre table directory")==0)         namelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
         if (p1.compare("Swatre profile file")==0)            namelist[j].value = E_SwatreTableName->text();//SwatreTableName;
         if (p1.compare("SWATRE internal minimum timestep")==0) {
-            swatreDT = std::min(E_Timestep->text().toDouble(), E_SWATREDtsec->value());
+            swatreDT = qMin(E_Timestep->text().toDouble(), E_SWATREDtsec->value());
             namelist[j].value.setNum(swatreDT,'g',6);
         }
 

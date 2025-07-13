@@ -58,7 +58,7 @@ void TWorld::TotalsHydro(void)
         RainTot += ptot*_dx*_dx; // in m3
 
         oldrainpeak  = Rainpeak;
-        Rainpeak = std::max(Rainpeak, rainfall);
+        Rainpeak = qMax(Rainpeak, rainfall);
         if (oldrainpeak  < Rainpeak)
             RainpeakTime = time;
     }
@@ -73,7 +73,7 @@ void TWorld::TotalsHydro(void)
         SnowTot += snowmelt; // in m3
 
         oldsnowpeak = Snowpeak;
-        Snowpeak = std::max(Snowpeak, snowmelt);
+        Snowpeak = qMax(Snowpeak, snowmelt);
         if (oldsnowpeak < Snowpeak)
             SnowpeakTime = time;
     }
@@ -130,7 +130,7 @@ void TWorld::TotalsHydro(void)
     //=== infiltration ===//
     if(SwitchInfiltration) {
         InfilTot += MapTotal(*InfilVol);   //obsolete + MapTotal(*InfilVolKinWave);
-        InfilTotmm = std::max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
+        InfilTotmm = qMax(0.0 ,(InfilTot)*catchmentAreaFlatMM);
         // used in reporting
         // infiltration mm and m3
 
@@ -208,7 +208,7 @@ void TWorld::TotalsFlow(void)
     // #pragma omp parallel for num_threads(userCores)
     // FOR_ROW_COL_MV_L {
     //     //runoffTotalCell->Drc += (Qn->Drc)* _dt * catchmentAreaFlatMM; // in mm !!!!
-    //     runoffTotalCell->Drc = std::max(0.0, RainCumFlat->Drc*1000-InterceptionmmCum->Drc-InfilmmCum->Drc);
+    //     runoffTotalCell->Drc = qMax(0.0, RainCumFlat->Drc*1000-InterceptionmmCum->Drc-InfilmmCum->Drc);
     // }}
 
 
@@ -229,7 +229,7 @@ void TWorld::TotalsFlow(void)
 
         if (SwitchChannelInfil) {
             InfilTot += MapTotal(*ChannelInfilVol); //m3
-            InfilTotmm = std::max(0.0 ,(InfilTot)*catchmentAreaFlatMM);
+            InfilTotmm = qMax(0.0 ,(InfilTot)*catchmentAreaFlatMM);
 
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
@@ -344,7 +344,7 @@ void TWorld::TotalsFlow(void)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         Qm3total->Drc += Qn->Drc * _dt; // ONLY OVERLAND FLOW
-        Qm3max->Drc = std::max(Qm3max->Drc, Qn->Drc);
+        Qm3max->Drc = qMax(Qm3max->Drc, Qn->Drc);
         Qoutput->Drc = Qn->Drc * factor;// in m3/s
 
         FHI->Drc = Qn->Drc*(V->Drc + 0.5);
@@ -352,12 +352,12 @@ void TWorld::TotalsFlow(void)
         // if(SwitchIncludeChannel) {
         //     Qoutput->Drc += ChannelQn->Drc * factor;
         //     Qm3total->Drc += ChannelQn->Drc * _dt;
-        //     Qm3max->Drc = std::max(Qm3max->Drc, ChannelQn->Drc);
+        //     Qm3max->Drc = qMax(Qm3max->Drc, ChannelQn->Drc);
         // }
         // if(FlowBoundaryType > 0) {
         //     Qoutput->Drc += QBoundFlow->Drc * factor;
         //     Qm3total->Drc += QBoundFlow->Drc * _dt;
-        //     Qm3max->Drc = std::max(Qm3max->Drc, QBoundFlow->Drc+ChannelQn->Drc);
+        //     Qm3max->Drc = qMax(Qm3max->Drc, QBoundFlow->Drc+ChannelQn->Drc);
         // }
 
         Qoutput->Drc = Qoutput->Drc < 1e-10 ? 0.0 : Qoutput->Drc;
@@ -560,13 +560,13 @@ void TWorld::MassBalance()
         FOR_ROW_COL_MV_L {
             double dH = dV/(CHAdjDX->Drc); // avg error in m on wet cells
             if (FloodDomain->Drc == 0 && WHrunoff->Drc > 0) {
-                WHrunoff->Drc = std::max(0.0,WHrunoff->Drc + dH);
+                WHrunoff->Drc = qMax(0.0,WHrunoff->Drc + dH);
                 WH->Drc = WHrunoff->Drc + WHstore->Drc;
                 hmxWH->Drc = WH->Drc + hmx->Drc;
                 WaterVolall->Drc = WH->Drc*CHAdjDX->Drc;//WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;
             }
             if (FloodDomain->Drc > 0 && hmxrunoff->Drc > 0) {
-                hmxrunoff->Drc = std::max(0.0,hmxrunoff->Drc + dH);
+                hmxrunoff->Drc = qMax(0.0,hmxrunoff->Drc + dH);
                 hmx->Drc = hmxrunoff->Drc + WHstore->Drc;
                 hmxWH->Drc = WH->Drc + hmx->Drc;
                 WaterVolall->Drc = hmxWH->Drc*CHAdjDX->Drc;//WHrunoff->Drc*CHAdjDX->Drc + MicroStoreVol->Drc;

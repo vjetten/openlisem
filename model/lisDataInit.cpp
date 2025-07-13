@@ -92,7 +92,7 @@ void TWorld::InitParameters(void)
     SoilWBdtfactor = 2;//getvaluedouble("SoilWB dt factor"); // not really used, only for soap but soap not working
     swatreDT = getvaluedouble("SWATRE internal minimum timestep");
     TileEntrySuction = getvaluedouble("Tile entry suction");
-    TileEntrySuction = std::max(-100.0,std::min(TileEntrySuction, 0.0));
+    TileEntrySuction = qMax(-100.0,qMin(TileEntrySuction, 0.0));
     KavgType = getvalueint("Infil Kavg");
 
     GW_recharge = getvaluedouble("GW recharge factor");
@@ -147,7 +147,7 @@ void TWorld::InitParameters(void)
     // VJ 170923 moved all 2D switches here
     minReportFloodHeight = getvaluedouble("Minimum reported flood height");
     courant_factor = getvaluedouble("Flooding courant factor");
-    courant_factorSed = std::min(0.2,courant_factor);
+    courant_factorSed = qMin(0.2,courant_factor);
     // courant_factor_sed = getvaluedouble("Flooding courant factor diffusive");
     TimestepfloodMin = getvaluedouble("Timestep flood");
     F_pitValue = getvaluedouble("Pit Value");
@@ -159,7 +159,7 @@ void TWorld::InitParameters(void)
         F_MaxIter = getvalueint("Flood max iterations");
         F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
         F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
-        F_scheme = std::min(3,F_scheme);
+        F_scheme = qMin(3,F_scheme);
         F_minWH = he_ca;//getvaluedouble("Min WH flow");   //HLL HLL2 Rusanov
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
         SwitchLinkedList = false; //getvalueint("Use linked List") == 1;
@@ -221,7 +221,8 @@ void TWorld::InitStandardInput(void)
 
     FOR_ROW_COL_MV {
         if (LDD->Drc == 0)
-            SET_MV_REAL8(&LDD->Drc);
+            SET_MV_REAL4(&LDD->Drc);
+        //SET_MV_REAL8(&LDD->Drc);
     }
 
     tm = NewMap(0); // temp map for aux calculations
@@ -517,8 +518,8 @@ void TWorld::InitLULCInput(void)
     RoadWidthHSDX = NewMap(0);
     if (SwitchRoadsystem || SwitchHardsurface)
         FOR_ROW_COL_MV_L {
-            //double frac = std::min(1.0,(HardSurface->Drc*_dx + RoadWidthDX->Drc)/_dx);
-            RoadWidthHSDX->Drc = std::min(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
+            //double frac = qMin(1.0,(HardSurface->Drc*_dx + RoadWidthDX->Drc)/_dx);
+            RoadWidthHSDX->Drc = qMin(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
         }}
 
     if (SwitchHouses)
@@ -554,7 +555,7 @@ void TWorld::InitLULCInput(void)
             frac = RoadWidthHSDX->Drc/_dx;
         if (SwitchRoadsystem && SwitchHouses )
             frac = RoadWidthHSDX->Drc/_dx + HouseCover->Drc;
-        fractionImperm->Drc = std::min(std::max(0.0, frac), 1.0);
+        fractionImperm->Drc = qMin(qMax(0.0, frac), 1.0);
         // 0 is fully permeable, 1 = impermeable
     }}
 
@@ -600,11 +601,11 @@ void TWorld::calcSoilPhysics(cTMap *Ksat, cTMap *lambda, cTMap *thfc, cTMap *thr
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
 
-        double logks = log(std::min(1000.0,std::max(0.5,Ksat->Drc))); //NOTE ln = log, log = log10
+        double logks = log(qMin(1000.0,qMax(0.5,Ksat->Drc))); //NOTE ln = log, log = log10
         // see the excel file with the regression equations in auxfiles
         // the regression fit has cm as output unit.
         lambda->Drc = 0.0849*logks+0.159;
-        lambda->Drc = std::min(std::max(0.1,lambda->Drc),0.7);
+        lambda->Drc = qMin(qMax(0.1,lambda->Drc),0.7);
 
         psiae->Drc = exp( -0.3012*logks + 3.5164);
         if (!SwitchPsiUser)
@@ -617,7 +618,7 @@ void TWorld::calcSoilPhysics(cTMap *Ksat, cTMap *lambda, cTMap *thfc, cTMap *thr
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        psi->Drc = std::max(psi->Drc, psiae->Drc);
+        psi->Drc = qMax(psi->Drc, psiae->Drc);
         psi->Drc *= 0.01*calpsi;
         psiae->Drc *= 0.01;
         Ksat->Drc *= calk;
@@ -647,8 +648,8 @@ void TWorld::InitSoilInput(void)
     else
         DensFact  = NewMap(1.0);
     FOR_ROW_COL_MV_L {
-        DensFact->Drc = std::min(1.2, std::max(0.9, DensFact->Drc));
-        OMcorr->Drc = std::min(2.0, std::max(-2.0, OMcorr->Drc));
+        DensFact->Drc = qMin(1.2, qMax(0.9, DensFact->Drc));
+        OMcorr->Drc = qMin(2.0, qMax(-2.0, OMcorr->Drc));
     }}
 
     if (SwitchInfilCrust) {
@@ -1034,7 +1035,7 @@ Fill(*tma,0);
 
         ChannelWidthB->Drc = ChannelWidth->Drc;
         if (ChannelSide->Drc > 0) {
-            ChannelWidthB->Drc = std::max(0.0,ChannelWidth->Drc - 2*ChannelDepth->Drc*ChannelSide->Drc);
+            ChannelWidthB->Drc = qMax(0.0,ChannelWidth->Drc - 2*ChannelDepth->Drc*ChannelSide->Drc);
             crch_[i_].shape = SHAPETRAP;
             if (ChannelWidthB->Drc == 0) {
                 ChannelSide->Drc = ChannelWidthO->Drc/(2*ChannelDepth->Drc);
@@ -1191,13 +1192,13 @@ Fill(*tma,0);
                 ChannelY->Drc = 1.0;
             } else {
                 if (SwitchEfficiencyDETCH == 1)
-                    ChannelY->Drc = std::min(1.0, 1.0/(0.89+0.56*fabs(ChannelCohesion->Drc)));
+                    ChannelY->Drc = qMin(1.0, 1.0/(0.89+0.56*fabs(ChannelCohesion->Drc)));
                 else
                     if (SwitchEfficiencyDETCH == 2)
-                        ChannelY->Drc = std::min(1.0, 0.79*exp(-0.85*fabs(ChannelCohesion->Drc)));
+                        ChannelY->Drc = qMin(1.0, 0.79*exp(-0.85*fabs(ChannelCohesion->Drc)));
                     else
                         if (SwitchEfficiencyDETCH == 3)
-                            ChannelY->Drc = std::min(1.0, 1.0/(2.0*fabs(ChannelCohesion->Drc)));
+                            ChannelY->Drc = qMin(1.0, 1.0/(2.0*fabs(ChannelCohesion->Drc)));
                         else
                             if (SwitchEfficiencyDETCH == 4)
                                 ChannelY->Drc = DirectEfficiency;
@@ -1582,13 +1583,13 @@ void TWorld::InitErosion(void)
             Y->Drc = 1.0;
         else {
             if (SwitchEfficiencyDET == 1)
-                Y->Drc = std::min(1.0, 1.0/(0.89+0.56*fabs(CohesionSoil->Drc)));
+                Y->Drc = qMin(1.0, 1.0/(0.89+0.56*fabs(CohesionSoil->Drc)));
             else
                 if (SwitchEfficiencyDET == 2)
-                    Y->Drc = std::min(1.0, 0.79*exp(-0.85*fabs(CohesionSoil->Drc)));
+                    Y->Drc = qMin(1.0, 0.79*exp(-0.85*fabs(CohesionSoil->Drc)));
                 else
                     if (SwitchEfficiencyDET == 3)
-                        Y->Drc = std::min(1.0, 1.0/(2.0*fabs(CohesionSoil->Drc)));
+                        Y->Drc = qMin(1.0, 1.0/(2.0*fabs(CohesionSoil->Drc)));
         }
         if (CohesionSoil->Drc < 0)
             Y->Drc = 0; // to force max strength
@@ -1597,8 +1598,8 @@ void TWorld::InitErosion(void)
         // aggr stab is Lowe test median drops to halve an aggregate
         if (SwitchSplashEQ == 1) {
             if (AggrStab->Drc > 0)
-                SplashStrength->Drc = 5.331*pow(std::max(ASCalibration*AggrStab->Drc, 1.0),-0.238);
-                //SplashStrength->Drc = 2.82/std::max(ASCalibration*AggrStab->Drc, 1.0);
+                SplashStrength->Drc = 5.331*pow(qMax(ASCalibration*AggrStab->Drc, 1.0),-0.238);
+                //SplashStrength->Drc = 2.82/qMax(ASCalibration*AggrStab->Drc, 1.0);
                 //splashb = 2.96;
                 //redone as y = 5.3361x^-0.238  excell
         }
@@ -1644,7 +1645,7 @@ void TWorld::IntializeData(void)
     MDS = NewMap(0);
     FOR_ROW_COL_MV {
         double RRmm = 10 * RR->Drc;
-        MDS->Drc = std::max(0.0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
+        MDS->Drc = qMax(0.0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
         MDS->Drc /= 1000; // convert to m
     }
 
@@ -2188,7 +2189,7 @@ void TWorld::FindStationaryBaseFlow()
                                     double FW = ChannelWidth->Drc;
                                     P = FW + 2.0*h;
                                     A = FW*h;
-                                    F = std::max(0.0, 1.0 - q/(sqrt(ChannelGrad->Drc)/ChannelN->Drc*A*pow(A/P,2.0/3.0)));
+                                    F = qMax(0.0, 1.0 - q/(sqrt(ChannelGrad->Drc)/ChannelN->Drc*A*pow(A/P,2.0/3.0)));
                                     dF = (5.0*FW+6.0*h)/(3.0*h*P);
                                     h1 = h - F/dF;
                                     // function divided by derivative
@@ -2340,8 +2341,8 @@ void TWorld::InitShade(void)
         double dx, dy;//, aspect;
         double factor = 1.0;
 
-        minDem = std::min(DEM->Drc, minDem);
-        maxDem = std::max(DEM->Drc, maxDem);
+        minDem = qMin(DEM->Drc, minDem);
+        maxDem = qMax(DEM->Drc, maxDem);
 
         for (int i = 0; i < 9; i++) {
             mat[i] = DEM->Drc;
@@ -2450,7 +2451,7 @@ void TWorld::InitNewSoilProfile()
     vgn1 = NewMap(0);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        double ks = log(std::min(1000.0,std::max(0.5,Ksat1->Drc))); //NOTE ln = log, log = log10
+        double ks = log(qMin(1000.0,qMax(0.5,Ksat1->Drc))); //NOTE ln = log, log = log10
         // see the excel file with the regression equations in auxfiles
         // the regression fit has cm as output unit.
        vgalpha1->Drc = 100*0.0119*exp(0.4657*ks);//(0.02*ks + 0.0095); // in m-1
@@ -2462,7 +2463,7 @@ void TWorld::InitNewSoilProfile()
         vgn2 = NewMap(0);
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            double ks = log(std::min(1000.0,std::max(0.5,Ksat2->Drc))); //NOTE ln = log, log = log10
+            double ks = log(qMin(1000.0,qMax(0.5,Ksat2->Drc))); //NOTE ln = log, log = log10
             // see the excel file with the regression equations in auxfiles
             // the regression fit has cm as output unit.
            vgalpha2->Drc = 100*0.0119*exp(0.4657*ks);//(0.02*ks + 0.0095); // in m-1
@@ -2475,7 +2476,7 @@ void TWorld::InitNewSoilProfile()
         vgn3 = NewMap(0);
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            double ks = log(std::min(1000.0,std::max(0.5,Ksat3->Drc))); //NOTE ln = log, log = log10
+            double ks = log(qMin(1000.0,qMax(0.5,Ksat3->Drc))); //NOTE ln = log, log = log10
             // see the excel file with the regression equations in auxfiles
             // the regression fit has cm as output unit.
            vgalpha3->Drc = 100*0.0119*exp(0.4657*ks);//(0.02*ks + 0.0095); // in m-1
@@ -2492,7 +2493,7 @@ void TWorld::InitNewSoilProfile()
     if (SwitchThreeLayer)
         nN3_ = getvalueint("SoilWB nodes 3");
     SoilWBdtfactor = 2.0;//getvaluedouble("SoilWB dt factor");
-    swatreDT = std::min(SoilWBdtfactor, _dt);
+    swatreDT = qMin(SoilWBdtfactor, _dt);
     KavgType = getvalueint("Infil Kavg");
     int vg = getvalueint("Van Genuchten");
     SwitchBrooksCorey = bool(vg == 1);

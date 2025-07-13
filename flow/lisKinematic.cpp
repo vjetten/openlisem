@@ -76,7 +76,7 @@ double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol,
     double totwater = vol + Qj1i*_dt;   // add upstream water to volume water in cell
     if (totwater <= 1e-10)
         return (Qsn);
-    Qsn = std::min(totsed/_dt, Qj1i1 * totsed/totwater);
+    Qsn = qMin(totsed/_dt, Qj1i1 * totsed/totwater);
     return (Qsn); // outflow is new concentration * new out flux
 
 }
@@ -124,7 +124,7 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
     else
         Sj1i1 = 0;
 
-    return std::max(0.0 ,Sj1i1);
+    return qMax(0.0 ,Sj1i1);
 }
 //---------------------------------------------------------------------------
 /**
@@ -167,18 +167,18 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     //C is unit volume of water, dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
     Qkx = (deltaTX*Qin + Qold*ab_pQ) / (deltaTX + ab_pQ);
     // explicit first guess Qkx
-    Qkx = std::max(Qkx, 1e-30);
+    Qkx = qMax(Qkx, 1e-30);
 
     count = 0;
     do {
         fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   // Current k function f(Qkx)  where in+out=0 or needs to iterste to 0, i.e. > epsilon
         dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  // Current k derivative of function df(Qkx)/dt
         Qkx   -= fQkx / dfQkx;                                // next estimate Newton-Rapson
-        Qkx   = std::max(Qkx, 1e-30);
+        Qkx   = qMax(Qkx, 1e-30);
 
         // limit flux and alpha to culvert/pipe max
         if (Qm > 0) {
-            Qkx = std::min(Qkx, Qm);
+            Qkx = qMin(Qkx, Qm);
             if (Qkx == Qm) {
                 alpha = Am;
                 count = MAX_ITERS;
@@ -190,7 +190,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     // stop when mass balance function ~0
    // itercount = count; // not used
 
-    return std::max(0.0, Qkx);
+    return qMax(0.0, Qkx);
 }
 
 //---------------------------------------------------------------------------
@@ -226,7 +226,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
         if (_Qmax->Drcr > 0)
-            _Qn->Drc = std::min(_Qmax->Drcr, _Qn->Drc);
+            _Qn->Drc = qMin(_Qmax->Drcr, _Qn->Drc);
 
         //the following causes major problmes: water level rises to extreme levels because there is no flow out!
         // if (FloodDomain->Drcr > 0)
@@ -267,7 +267,7 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
         }
 
         _Qsn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Sin, _Qs->Drc, _Alpha->Drc, _DX->Drc);
-        _Qsn->Drc = std::min(_Qsn->Drc, Sin+_Sed->Drc/_dt);
+        _Qsn->Drc = qMin(_Qsn->Drc, Sin+_Sed->Drc/_dt);
         int ldd = fabs(_crlinked_.at(i_).ldd);
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
@@ -278,7 +278,7 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
         }
 
             // no more sediment outflow than total sed in cell
-        _Sed->Drc = std::max(0.0, Sin*_dt + _Sed->Drc - _Qsn->Drc*_dt);
+        _Sed->Drc = qMax(0.0, Sin*_dt + _Sed->Drc - _Qsn->Drc*_dt);
             // new sed volume based on all fluxes and org sed present
     }
 
@@ -400,7 +400,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
             int cr = colNr+dx[ldd];
             int rr = rowNr+dy[ldd];
             if (_Qmax->Drcr > 0)
-                _Qn->data[rowNr][colNr] = std::min(_Qmax->Drcr, _Qn->data[rowNr][colNr]);
+                _Qn->data[rowNr][colNr] = qMin(_Qmax->Drcr, _Qn->data[rowNr][colNr]);
 
             temp=list;
             list=list->prev;
@@ -525,10 +525,10 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
             _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
                                             Sin, _Qs->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _DX->data[rowNr][colNr]);
 
-            _Qsn->data[rowNr][colNr] = std::min(_Qsn->data[rowNr][colNr], Sin+_Sed->data[rowNr][colNr]/_dt);
+            _Qsn->data[rowNr][colNr] = qMin(_Qsn->data[rowNr][colNr], Sin+_Sed->data[rowNr][colNr]/_dt);
             // no more sediment outflow than total sed in cell
 
-            _Sed->data[rowNr][colNr] = std::max(0.0, Sin*_dt + _Sed->data[rowNr][colNr] - _Qsn->data[rowNr][colNr]*_dt);
+            _Sed->data[rowNr][colNr] = qMax(0.0, Sin*_dt + _Sed->data[rowNr][colNr] - _Qsn->data[rowNr][colNr]*_dt);
             // new sed volume based on all fluxes and org sed present
 
             /* cell rowN, colNr is now done */

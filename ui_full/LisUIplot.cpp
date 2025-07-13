@@ -322,19 +322,19 @@ void lisemqt::showPlot()
     int _j = op.OutletQ[index]->count()-1; // last value index
 
     for (int i = 0; i < OutletIndices.count(); i++)  {
-        qmax[i] = std::max(qmax[i], 1.1*op.OutletQ[i]->at(_j));
+        qmax[i] = qMax(qmax[i], 1.1*op.OutletQ[i]->at(_j));
         if (flowboundary)
-            qmax[i] = std::max(qmax[i], 1.1*op.Qbound[_j]);
+            qmax[i] = qMax(qmax[i], 1.1*op.Qbound[_j]);
         if(tileanddrains)
-            qmax[i] = std::max(qmax[i], 1.1*op.Qtile[_j]);
+            qmax[i] = qMax(qmax[i], 1.1*op.Qtile[_j]);
 
         if (checkDoErosion->isChecked()) {
-            qsmax[i] = std::max(qsmax[i] , 1.1*op.OutletQs[i]->at(_j));
-            cmax[i] = std::max(cmax[i] , 1.1*op.OutletC[i]->at(_j));
+            qsmax[i] = qMax(qsmax[i] , 1.1*op.OutletQs[i]->at(_j));
+            cmax[i] = qMax(cmax[i] , 1.1*op.OutletC[i]->at(_j));
         }
     }
 
-    pmax = std::max(pmax, 2.0*op.Pmm[_j]);
+    pmax = qMax(pmax, 2.0*op.Pmm[_j]);
 
     if(checkDoErosion->isChecked())
     {
@@ -465,7 +465,7 @@ void lisemqt::showOutputData()
     //  label_litterstore->setText(QString::number(op.LitterStorageTotmm,'f',dig));
 
     // peak time
-    label_QPfrac->setText(format.arg(QString::number((op.RainTotmm > 0 ? std::max(0.0,op.Qtotmm-op.BaseFlowTotmm)/op.RainTotmm*100 : 0),'f',dig)));
+    label_QPfrac->setText(format.arg(QString::number((op.RainTotmm > 0 ? qMax(0.0,op.Qtotmm-op.BaseFlowTotmm)/op.RainTotmm*100 : 0),'f',dig)));
     label_ppeaktime->setText(format.arg(QString::number(op.RainpeakTime,'f',2)));
 
     // mass balance
@@ -537,7 +537,7 @@ void lisemqt::showOutputData()
 
         double SDR = op.DetTotSplash + op.ChannelDetTot + op.DetTotFlow;
         SDR = (SDR > 0? 100*op.SoilLossTot/(SDR) : 0);
-        SDR = std::min(SDR ,100.0);
+        SDR = qMin(SDR ,100.0);
         label_SDR->setText(format.arg(QString::number(SDR,'f',dig)));
     } else {
         QString zero = QString::number(0,'f',E_DigitsOut->value());

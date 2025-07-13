@@ -186,7 +186,7 @@ void TWorld::reportToUI(void)
 
     op.RunoffFraction = 0;
     if (op.RainTotmm > 0)
-        op.RunoffFraction = std::max(0.0, (op.Qtotmm - op.BaseFlowTotmm)/op.RainTotmm);
+        op.RunoffFraction = qMax(0.0, (op.Qtotmm - op.BaseFlowTotmm)/op.RainTotmm);
     op.WaterVolTotmm = WaterVolRunoffmm;
     op.StormDrainTotmm = StormDrainTotmm;
     op.ChannelVolTotmm = ChannelVolTotmm;
@@ -818,8 +818,8 @@ void TWorld::ReportErosionLandunits(void)
         for (int i = 0; i < landUnitNr; i++)
             if (unitList[i].nr == (int)LandUnit->Drc) {
                 unitList[i].var0 += CellArea->Drc/10000;//ha
-             //   unitList[i].var1 += std::max(0.0,TotalSoillossMap->Drc/1000); //ton/cell
-             //   unitList[i].var2 += std::min(0.0,TotalSoillossMap->Drc/1000);
+             //   unitList[i].var1 += qMax(0.0,TotalSoillossMap->Drc/1000); //ton/cell
+             //   unitList[i].var2 += qMin(0.0,TotalSoillossMap->Drc/1000);
                 unitList[i].var1 += TotalSoillossMap->Drc/1000;
             }
     }}
@@ -875,12 +875,12 @@ void TWorld::FloodStatistics(void)
                 i++;
             if (i > 0)
                 i--;
-            nr = std::max(nr, i);
+            nr = qMax(nr, i);
             //qDebug() << nr << i << floodHmxMax->Drc;
             floodList[i].var1 += area; // area flooded in this class
             floodList[i].var2 += area*floodHmxMax->Drc; // vol flooded in this class
-            floodList[i].var3 = std::max(floodTime->Drc/60.0,floodList[i].var3); // max time in this class
-            floodList[i].var4 = std::max(floodTimeStart->Drc/60.0,floodList[i].var4); // max time in this class
+            floodList[i].var3 = qMax(floodTime->Drc/60.0,floodList[i].var3); // max time in this class
+            floodList[i].var4 = qMax(floodTimeStart->Drc/60.0,floodList[i].var4); // max time in this class
             if (SwitchHouses)
                 floodList[i].var5 += HouseCover->Drc*area;
             if (SwitchRoadsystem)

@@ -82,11 +82,12 @@ set_property(DIRECTORY PROPERTY CMAKE_CONFIGURE_DEPENDS "")
 
 # Compiler flags
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -std=c++11 -fpermissive ${OpenMP_CXX_FLAGS}")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_FLOAT -O2 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -std=c++11 -fpermissive ${OpenMP_CXX_FLAGS}")
     IF(UNIX)
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wl,-rpath=${ORIGIN}./lib")
     ENDIF()
 ENDIF()
+#-DUSE_FLOAT
 #-Wno-var-tracking-assignments
 # Source files
 SET(APP_SOURCES
@@ -111,7 +112,7 @@ SET(APP_SOURCES
     include/raster.h
     include/swatre_p.h
     include/TMmapVariables.h
-    #include/VectormapVariables.h
+    include/PrecisionConfig.h
     include/version.h
     maps/CsfMap.cpp
     maps/CsfRGBMap.cpp

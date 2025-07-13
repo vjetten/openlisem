@@ -94,9 +94,9 @@ void TWorld::cell_FlowDetachment()
             double detachment = 0;
             double TransportFactor = 0;
 
-            maxTC = std::max(TC->Drc - Conc->Drc,0.0);
+            maxTC = qMax(TC->Drc - Conc->Drc,0.0);
             // positive difference: TC defi  cit becomes detachment (positive)
-            minTC = std::min(TC->Drc - Conc->Drc,0.0);
+            minTC = qMin(TC->Drc - Conc->Drc,0.0);
             // negative difference: TC surplus becomes deposition (negative)
             // unit kg/m3
 
@@ -110,7 +110,7 @@ void TWorld::cell_FlowDetachment()
                 deposition = minTC * TransportFactor;
                 // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
 
-                deposition = std::max(deposition, -Sed->Drc);
+                deposition = qMax(deposition, -Sed->Drc);
 
                 if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
                     deposition = 0;
@@ -154,11 +154,11 @@ void TWorld::cell_FlowDetachment()
 
                 TransportFactor = _dt*SettlingVelocitySS->Drc * DX->Drc * SoilWidthDX->Drc;
                 // soilwidth is erodible surface
-                // TransportFactor = std::min(TransportFactor, Q->Drc*_dt);
+                // TransportFactor = qMin(TransportFactor, Q->Drc*_dt);
                 // detachment can only come from soil, not roads (so do not use flowwidth)
                 // units s * m/s * m * m = m3
 
-                detachment = Y->Drc * maxTC * TransportFactor;//std::min(TransportFactor, erosionwv);
+                detachment = Y->Drc * maxTC * TransportFactor;//qMin(TransportFactor, erosionwv);
                 // unit = kg/m3 * m3 = kg (/cell)
 
                 // exceptions
@@ -181,7 +181,7 @@ void TWorld::cell_FlowDetachment()
                 if (SwitchSnowmelt)
                     detachment = (1-Snowcover->Drc) * detachment;
 
-                detachment *= std::min(1.0, std::max(0.0, 1.0 - (RoadWidthHSDX->Drc/_dx)));
+                detachment *= qMin(1.0, qMax(0.0, 1.0 - (RoadWidthHSDX->Drc/_dx)));
                 // no flow detachment on hard surfaces, map is 0 is not selected
 
                 if (SwitchSedtrap && SedMaxVolume->Drc > 0)
@@ -233,9 +233,9 @@ void TWorld::cell_FlowDetachmentContinuous()
             double detachment = 0;
 
             //### deposition ###
-            deposition = _dt*std::min(1.0, SettlingVelocitySS->Drc/WH->Drc) * -Sed->Drc;
+            deposition = _dt*qMin(1.0, SettlingVelocitySS->Drc/WH->Drc) * -Sed->Drc;
             // fraction of sediment always depostits
-            deposition = std::max(deposition, -Sed->Drc);
+            deposition = qMax(deposition, -Sed->Drc);
 
             //if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
             //   deposition = 0;
@@ -274,9 +274,9 @@ void TWorld::cell_FlowDetachmentContinuous()
 
             //### detachment ###
             if (CohesionSoil->Drc > 0) {
-                double sed = std::max(0.0, Sed->Drc + deposition);
+                double sed = qMax(0.0, Sed->Drc + deposition);
                 double conc = MaxConcentration(WaterVolall->Drc, sed);
-                detachment = Y->Drc * std::max(0.0, TC->Drc - conc) * _dt*SettlingVelocitySS->Drc * DX->Drc * SoilWidthDX->Drc;
+                detachment = Y->Drc * qMax(0.0, TC->Drc - conc) * _dt*SettlingVelocitySS->Drc * DX->Drc * SoilWidthDX->Drc;
                 // unit = kg/m3 * m3 = kg (/cell)
 
                 if (GrassFraction->Drc > 0)
@@ -294,7 +294,7 @@ void TWorld::cell_FlowDetachmentContinuous()
                 if (SwitchSnowmelt)
                     detachment = (1-Snowcover->Drc) * detachment;
 
-                detachment *= std::min(1.0, std::max(0.0, 1.0 - (RoadWidthHSDX->Drc/_dx)));
+                detachment *= qMin(1.0, qMax(0.0, 1.0 - (RoadWidthHSDX->Drc/_dx)));
                 // no flow detachment on hard surfaces, map is 0 is not selected
 
                 if (SwitchSedtrap && SedMaxVolume->Drc > 0)
@@ -312,7 +312,7 @@ void TWorld::cell_FlowDetachmentContinuous()
             // add to sediment in flow (IN KG/CELL)
             Sed->Drc += detachment;
             Sed->Drc += deposition;
-            Sed->Drc = std::max(0.0, Sed->Drc);
+            Sed->Drc = qMax(0.0, Sed->Drc);
             DETFlow->Drc += detachment;
             DEP->Drc += deposition;
             Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);

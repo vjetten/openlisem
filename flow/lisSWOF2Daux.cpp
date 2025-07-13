@@ -71,17 +71,17 @@ void TWorld::SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *
                 // 1e component: Massa flux per meter ( dus (m3/s)/(m) = m2/s, wat dezelfde berekening is als momentum = h*u)
                 rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->Drcr, vx->Drcr, vy->Drcr);
                 double flux = std::abs(rec.v[0]);
-                double dH = std::min(h->Drc *0.9, flux*dt_req_min/_dx);
+                double dH = qMin(h->Drc *0.9, flux*dt_req_min/_dx);
 
                 h->Drc -= dH;
                 tmc->Drcr += dH;
 
                 if (SwitchErosion) {
-                    double dS = std::min(0.9*SSFlood->Drc, dH*CHAdjDX->Drc*SSCFlood->Drc);
+                    double dS = qMin(0.9*SSFlood->Drc, dH*CHAdjDX->Drc*SSCFlood->Drc);
                     SSFlood->Drc -= dS;
                     tma->Drcr += dS;
                     if (SwitchUse2Phase) {
-                        double dBL = std::min(0.9*BLFlood->Drc, dH*CHAdjDX->Drc*BLCFlood->Drc);
+                        double dBL = qMin(0.9*BLFlood->Drc, dH*CHAdjDX->Drc*BLCFlood->Drc);
                         BLFlood->Drc -= dBL;
                         tmb->Drcr += dBL;
                     }
@@ -144,7 +144,7 @@ for(long i_= 0; i_ < dcr_.size(); i_++) {
             // 1e component: Massa flux per meter ( dus (m3/s)/(m) = m2/s, wat dezelfde berekening is als momentum = h*u)
             rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->Drcr, vx->Drcr, vy->Drcr);
             double flux = std::abs(rec.v[0]);
-            double dH = std::min(h->Drc *0.9, flux*dt_req_min/_dx);
+            double dH = qMin(h->Drc *0.9, flux*dt_req_min/_dx);
 
             h->Drc -= dH;
             //h->Drcr += dH;
@@ -152,12 +152,12 @@ for(long i_= 0; i_ < dcr_.size(); i_++) {
             //Qdiag->Drc = flux;
 
             if (SwitchErosion) {
-                double dS = std::min(0.9*SSFlood->Drc, dH*CHAdjDX->Drc*SSCFlood->Drc);
+                double dS = qMin(0.9*SSFlood->Drc, dH*CHAdjDX->Drc*SSCFlood->Drc);
                 SSFlood->Drc -= dS;
                 //SSFlood->Drcr += dS;
                 tma->Drcr += dS;
                 if (SwitchUse2Phase) {
-                    double dBL = std::min(0.9*BLFlood->Drc, dH*CHAdjDX->Drc*BLCFlood->Drc);
+                    double dBL = qMin(0.9*BLFlood->Drc, dH*CHAdjDX->Drc*BLCFlood->Drc);
                     BLFlood->Drc -= dBL;
                     tmb->Drcr += dBL;
                 }
@@ -199,10 +199,10 @@ double TWorld::limiter(double a, double b)
 
     if (F_fluxLimiter == (int)MINMOD) {
         if (a >= 0 && b >= 0)
-            return std::min(a, b);
+            return qMin(a, b);
         else
             if (a <= 0 && b <= 0)
-                return std::max(a, b);
+                return qMax(a, b);
             else
                 return 0.;
     }
@@ -257,12 +257,12 @@ vec4 TWorld::F_HLL4(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
         if(h_L < he_ca) {
             c1 = u_R - 2*sqrt_grav_h_R;
         } else {
-            c1 = std::min(u_L-sqrt_grav_h_L, u_R-sqrt_grav_h_R); // as u-sqrt(grav_h) <= u+sqrt(grav_h)
+            c1 = qMin(u_L-sqrt_grav_h_L, u_R-sqrt_grav_h_R); // as u-sqrt(grav_h) <= u+sqrt(grav_h)
         }
         if(h_R < he_ca) {
             c2 = u_L + 2*sqrt_grav_h_L;//sqrt(GRAV*h_L);
         } else {
-            c2 = std::max(u_L+sqrt_grav_h_L, u_R+sqrt_grav_h_R); // as u+sqrt(grav_h) >= u-sqrt(grav_h)
+            c2 = qMax(u_L+sqrt_grav_h_L, u_R+sqrt_grav_h_R); // as u+sqrt(grav_h) >= u-sqrt(grav_h)
         }
 
         //cfl is the velocity to calculate the real cfl=max(fabs(c1),fabs(c2))*tx with tx=dt/dx
@@ -298,7 +298,7 @@ vec4 TWorld::F_HLL4(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
                     } else {
                         f3 = f1*v_R;
                     }
-                    cfl = std::max(fabs(c1), fabs(c2));
+                    cfl = qMax(fabs(c1), fabs(c2));
                 }
     }
     hll.v[0] = f1;
@@ -332,15 +332,15 @@ vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
         if(h_L < he_ca) {
             c1 = u_R - 2*sqrt_grav_h_R;//sqrt(GRAV*h_R);
         } else {
-            c1 = std::min(u_L-sqrt_grav_h_L, u_R-sqrt_grav_h_R); // as u-sqrt(grav_h) <= u+sqrt(grav_h)
+            c1 = qMin(u_L-sqrt_grav_h_L, u_R-sqrt_grav_h_R); // as u-sqrt(grav_h) <= u+sqrt(grav_h)
         }
         if(h_R < he_ca) {
             c2 = u_L + 2*sqrt_grav_h_L;//sqrt(GRAV*h_L);
         } else {
-            c2 = std::max(u_L+sqrt_grav_h_L, u_R+sqrt_grav_h_R); // as u+sqrt(grav_h) >= u-sqrt(grav_h)
+            c2 = qMax(u_L+sqrt_grav_h_L, u_R+sqrt_grav_h_R); // as u+sqrt(grav_h) >= u-sqrt(grav_h)
         }
         double tmp = 1./(c2-c1);
-        double t1 = (std::min(c2,0.) - std::min(c1,0.))*tmp;
+        double t1 = (qMin(c2,0.) - qMin(c1,0.))*tmp;
         double t2 = 1. - t1;
         double t3 = (c2*fabs(c1) - c1*fabs(c2))*0.5*tmp;
         double c_star = (c1*h_R *(u_R - c2) - c2*h_L *(u_L - c1))/(h_R *(u_R - c2) - h_L *(u_L - c1)) ;
@@ -352,7 +352,7 @@ vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
         }else{
             f3=f1*v_R;
         }
-        cfl = std::max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition max(fabs(c1),fabs(c2))*tx with tx=dt/dx
+        cfl = qMax(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition max(fabs(c1),fabs(c2))*tx with tx=dt/dx
     }
     hll.v[0] = f1;
     hll.v[1] = f2;
@@ -379,17 +379,17 @@ vec4 TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
         double sqrt_grav_h_R = sqrt(grav_h_R);
         double q_R = u_R*h_R;
         double q_L = u_L*h_L;
-        double c1 = std::min(u_L-sqrt_grav_h_L,u_R-sqrt_grav_h_R);   // as u-sqrt(grav_h) <= u+sqrt(grav_h)
-        double c2 = std::max(u_L+sqrt_grav_h_L,u_R+sqrt_grav_h_R);   // as u+sqrt(grav_h) >= u-sqrt(grav_h)
+        double c1 = qMin(u_L-sqrt_grav_h_L,u_R-sqrt_grav_h_R);   // as u-sqrt(grav_h) <= u+sqrt(grav_h)
+        double c2 = qMax(u_L+sqrt_grav_h_L,u_R+sqrt_grav_h_R);   // as u+sqrt(grav_h) >= u-sqrt(grav_h)
         double tmp = 1./(c2-c1);
-        double t1 = (std::min(c2,0.)-std::min(c1,0.))*tmp;
+        double t1 = (qMin(c2,0.)-qMin(c1,0.))*tmp;
         double t2 = 1.-t1;
         double t3 = (c2*fabs(c1)-c1*fabs(c2))*0.5*tmp;
 
         f1 = t1*q_R+t2*q_L-t3*(h_R-h_L);
         f2 = t1*(q_R*u_R+grav_h_R*h_R*0.5)+t2*(q_L*u_L+grav_h_L*h_L*0.5)-t3*(q_R-q_L);
         f3 = t1*q_R*v_R+t2*q_L*v_L-t3*(h_R*v_R-h_L*v_L);
-        cfl = std::max(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition max(fabs(c1),fabs(c2))*tx with tx=dt/dx
+        cfl = qMax(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition max(fabs(c1),fabs(c2))*tx with tx=dt/dx
     }
     hll.v[0] = f1;
     hll.v[1] = f2;
@@ -416,31 +416,31 @@ vec4 TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double
         double halfR = GRAV*h_R*h_R*0.5;
         double q_R = u_R*h_R;
         double q_L = u_L*h_L;
-        double c1 = std::min(u_L-sqrt(grav_h_L),u_R-sqrt(grav_h_R));
-        double c2 = std::max(u_L+sqrt(grav_h_L),u_R+sqrt(grav_h_R));
+        double c1 = qMin(u_L-sqrt(grav_h_L),u_R-sqrt(grav_h_R));
+        double c2 = qMax(u_L+sqrt(grav_h_L),u_R+sqrt(grav_h_R));
 
-        //cfl is the velocity to calculate the real cfl=std::max(fabs(c1),fabs(c2))*tx with tx=dt/dx
+        //cfl is the velocity to calculate the real cfl=qMax(fabs(c1),fabs(c2))*tx with tx=dt/dx
         if (fabs(c1)<EPSILON && fabs(c2)<EPSILON){              //dry state
             f1=0.;
             f2=0.;
             f3=0.;
-            cfl=0.; //std::max(fabs(c1),fabs(c2))=0
-        }else if (c1>=EPSILON){ //supercritical flow, from left to right : we have std::max(abs(c1),abs(c2))=c2>0
+            cfl=0.; //qMax(fabs(c1),fabs(c2))=0
+        }else if (c1>=EPSILON){ //supercritical flow, from left to right : we have qMax(abs(c1),abs(c2))=c2>0
             f1=q_L;   //flux
             f2=q_L*u_L+halfL;  //flux*velocity + 0.5*(wave velocity squared)
             f3=q_L*v_L; //flux *velocity
-            cfl=c2; //std::max(fabs(c1),fabs(c2))=c2>0
-        }else if (c2<=-EPSILON){ //supercritical flow, from right to left : we have std::max(abs(c1),abs(c2))=-c1>0
+            cfl=c2; //qMax(fabs(c1),fabs(c2))=c2>0
+        }else if (c2<=-EPSILON){ //supercritical flow, from right to left : we have qMax(abs(c1),abs(c2))=-c1>0
             f1=q_R;
             f2=q_R*u_R+halfR;
             f3=q_R*v_R;
-            cfl=fabs(c1); //std::max(fabs(c1),fabs(c2))=fabs(c1)
+            cfl=fabs(c1); //qMax(fabs(c1),fabs(c2))=fabs(c1)
         }else{ //subcritical flow
             double tmp = 1./(c2-c1);
             f1=(c2*q_L-c1*q_R)*tmp + c1*c2*(h_R-h_L)*tmp;
             f2=(c2*(q_L*u_L+halfL) - c1*(q_R*u_R+halfR))*tmp + c1*c2*(q_R-q_L)*tmp;
             f3=(c2*(q_L*v_L)-c1*(q_R*v_R))*tmp + c1*c2*(h_R*v_R-h_L*v_L)*tmp;
-            cfl=std::max(fabs(c1),fabs(c2));
+            cfl=qMax(fabs(c1),fabs(c2));
         }
     }
     hll.v[0] = f1;
@@ -464,7 +464,7 @@ vec4 TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
         f3 = 0.;
         cfl = 0.;
     }else{
-        cfl = std::max(fabs(u_L)+sqrt(GRAV*h_L),fabs(u_R)+sqrt(GRAV*h_R));
+        cfl = qMax(fabs(u_L)+sqrt(GRAV*h_L),fabs(u_R)+sqrt(GRAV*h_R));
         double q_R = u_R*h_R;
         double q_L = u_L*h_L;
         f1 = ((q_L+q_R) - cfl*(h_R-h_L))*0.5;
@@ -540,7 +540,7 @@ void TWorld::correctMassBalance(double sum1, cTMap *M)
     FOR_ROW_COL_MV_L {
         if(M->Drc > 0) {
             M->Drc = M->Drc*Mcorr;            // <- distribution weighted to h
-            M->Drc = std::max(M->Drc , 0.0);
+            M->Drc = qMax(M->Drc , 0.0);
         }
     }}
 }
@@ -561,7 +561,7 @@ void TWorld::correctMassBalanceSed(double sum1, cTMap *M, double th)
     FOR_ROW_COL_MV_L {
         if(M->Drc > th) {
             M->Drc = M->Drc*Mcorr;
-            M->Drc = std::max(M->Drc , 0.0);
+            M->Drc = qMax(M->Drc , 0.0);
         }
     }}
 }

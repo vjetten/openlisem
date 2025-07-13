@@ -433,14 +433,14 @@ void lisemqt::fontSelect()
 void lisemqt::fontDecrease()
 {
     genfontsize--;
-    genfontsize = std::max(6, genfontsize);
+    genfontsize = qMax(6, genfontsize);
     setfontSize();
 }
 //---------------------------------------------------------------
 void lisemqt::fontIncrease()
 {
     genfontsize++;
-    genfontsize = std::min(32, genfontsize);
+    genfontsize = qMin(32, genfontsize);
     setfontSize();
 }
 //---------------------------------------------------------------

@@ -132,11 +132,11 @@ void TWorld::ToChannel()
     FOR_ROW_COL_MV_CHL {
         if (WHrunoff->Drc > 0 && FloodDomain->Drc == 0 && !crch_.at(i_).culvert) {
 
-            double fractiontochannel = std::min(1.0, _dt*V->Drc/(0.5*ChannelAdj->Drc));
+            double fractiontochannel = qMin(1.0, _dt*V->Drc/(0.5*ChannelAdj->Drc));
             // fraction to channel calc from half the adjacent area width and flow velocity
 
             if (SwitchKinematic2D == K2D_METHOD_KINDYN &&
-                    WHrunoff->Drc <= std::max(0.0 , ChannelWH->Drc - ChannelDepth->Drc))
+                    WHrunoff->Drc <= qMax(0.0 , ChannelWH->Drc - ChannelDepth->Drc))
                 fractiontochannel = 0;
             // cannot flow into channel if water level in channel is higher than runoff depth
 
@@ -182,7 +182,7 @@ void TWorld::ToChannelAlt()
         if (WHrunoff->Drc > 0 && FloodDomain->Drc == 0 && !crch_.at(i_).culvert) {
 
             if (SwitchKinematic2D == K2D_METHOD_KINDYN &&
-                    WHrunoff->Drc <= std::max(0.0 , ChannelWH->Drc - ChannelDepth->Drc))
+                    WHrunoff->Drc <= qMax(0.0 , ChannelWH->Drc - ChannelDepth->Drc))
                 continue;
             // cannot flow into channel if water level in channel is higher than runoff depth
 
@@ -193,11 +193,11 @@ void TWorld::ToChannelAlt()
             double freeflow_tochan = lengthfactor*Cd*SQRT2G*std::pow(WHrunoff->Drc+velocityfactor,1.5);
             //free flow broad crested weir, water flows over edge to deeper water in channel
 
-            double volintochan = std::min(freeflow_tochan, CHAdjDX->Drc * WHrunoff->Drc);
+            double volintochan = qMin(freeflow_tochan, CHAdjDX->Drc * WHrunoff->Drc);
 
             WaterVolall->Drc -= volintochan;
             ChannelWaterVol->Drc += volintochan;
-            WHrunoff->Drc = std::max(0.0,WaterVolall->Drc - MicroStoreVol->Drc)/CHAdjDX->Drc;
+            WHrunoff->Drc = qMax(0.0,WaterVolall->Drc - MicroStoreVol->Drc)/CHAdjDX->Drc;
             WH->Drc = WaterVolall->Drc/CHAdjDX->Drc;
             hmxWH->Drc = WH->Drc + hmx->Drc;
 
@@ -259,9 +259,9 @@ void TWorld::updateWHandHmx(void)
             hmxflood = WHrunoff->Drc+hmxrunoff->Drc;
         }
 
-        FloodWaterVol->Drc = std::max(0.0,hmxflood - minReportFloodHeight)*CHAdjDX->Drc;
+        FloodWaterVol->Drc = qMax(0.0,hmxflood - minReportFloodHeight)*CHAdjDX->Drc;
         // used in mass balance
-        RunoffWaterVol->Drc = std::min(hmxflood, minReportFloodHeight)*CHAdjDX->Drc;
+        RunoffWaterVol->Drc = qMin(hmxflood, minReportFloodHeight)*CHAdjDX->Drc;
         // all water that is not flood and not stored, so below min level
 
         if (SwitchErosion) {

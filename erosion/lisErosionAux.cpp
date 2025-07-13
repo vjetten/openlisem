@@ -41,7 +41,7 @@ double TWorld::MaxConcentration(double watvol, double sedvol)
 {
     double conc = 0;//MAXCONC;//0;
     if (watvol > 1e-12) {
-        conc = std::min(sedvol/watvol, MAXCONC);
+        conc = qMin(sedvol/watvol, MAXCONC);
     }
     return conc;
 }
@@ -131,7 +131,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
     {
         double om =  U*S;
         double omcr = 0.004;
-        tc =  d50m/SettlingVelocitySS->Drc* 0.013/GRAV * 1.650 * std::max(0.0, om - omcr)/h ;
+        tc =  d50m/SettlingVelocitySS->Drc* 0.013/GRAV * 1.650 * qMax(0.0, om - omcr)/h ;
         //    m/ (m/s)* kg* m/s /m  dimensionless?
 
     } else
@@ -142,7 +142,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
             double ucr = 0.4;   // critical unit streampower in cm/s
             double cg = cgovers->Drc;//pow((d50m+5)/0.32, -0.6);
             double dg = dgovers->Drc;//pow((d50m+5)/300, 0.25);
-            tc = ps * cg * pow(std::max(0.0, uc-ucr), dg); // kg/m3
+            tc = ps * cg * pow(qMax(0.0, uc-ucr), dg); // kg/m3
 
         } else
             if(method == FSRIJN)
@@ -171,7 +171,7 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
 
                //page 5
 
-                double me = std::max(0.0,U - ucr)/sqrt(GRAV * d50m * 1.65);
+                double me = qMax(0.0,U - ucr)/sqrt(GRAV * d50m * 1.65);
                 //p15 mobility parameter
 
                 double qs = 0.03 * ps*U*d50m * me*me * pow(Ds, -0.6); // kg/s/m
@@ -212,13 +212,13 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
                         uscr = 0.24*pow(ds,-1);
                     uscr = UcrCHCalibration*sqrt(uscr * 1.65*GRAV * d50m);
 
-                    double T = std::max(((uc*uc)/(uscr*uscr) - 1),0.0);  //transport stage parameter
+                    double T = qMax(((uc*uc)/(uscr*uscr) - 1),0.0);  //transport stage parameter
                     double bsv = sqrt(GRAV * h * S); // bed shear velocity
                     double a = 0.1;  // half of the bedform height in m
                     double ca = 0.015 * (d50m/a) * pow(T,1.5)/pow(ds,0.3); //eq 38 reference concentration
                     double sv = SettlingVelocitySS->Drc;//GetSV(D50->Drc);
 
-                    double beta = std::min(1.0 + 2.0*(sv/bsv)*(sv/bsv),5.0);
+                    double beta = qMin(1.0 + 2.0*(sv/bsv)*(sv/bsv),5.0);
                     double powcb = 0.75; // not clear, between 0.4 and 1
                     double phi = 2.5 * pow(sv/bsv,0.8) * powcb;
                     double Z = sv/(beta*bsv*0.41); //suspension parameter, to do with upward turbulent versus gravity
@@ -279,13 +279,13 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
 
                     double css = 0.03* (ps - pw) * (gd) * ppk;
 
-                    double qs = 0.0000262 *pow(std::max(( pw * 0.01 * h * GRAV * S /css) - 1.0, 0.0)* U/(sqrt(sv)),2.2);
+                    double qs = 0.0000262 *pow(qMax(( pw * 0.01 * h * GRAV * S /css) - 1.0, 0.0)* U/(sqrt(sv)),2.2);
                     qs = qs * 1 * sqrt((ps/pw - 1)*GRAV*pow(gd,3.0));
 
                     tc = ps * qs/ (U * h);
 */
                 }
-    return std::max(std::min(tc,MAXCONC ),0.0);
+    return qMax(qMin(tc,MAXCONC ),0.0);
 }
 //--------------------------------------------------------------------------
 /**
@@ -306,7 +306,7 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double w
     if (type == 0) {
         //    h = ChannelWH->Drc;
         hb = ChannelBLDepth->Drc;
-        n = std::max(0.001, ChannelN->Drc);
+        n = qMax(0.001, ChannelN->Drc);
         S = ChannelGrad->Drc;
         //w = ChannelWidth->Drc;
         R = (w*h)/(2*h+w);
@@ -314,7 +314,7 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double w
         if (type == 1) {
             //   h = hmx->Drc;
             hb = BLDepthFlood->Drc;
-            n = std::max(0.001, N->Drc);
+            n = qMax(0.001, N->Drc);
             S = Grad->Drc;
            // w = ChannelAdj->Drc*rillfactor;
             R = (w*h)/(2*h+w);
@@ -348,7 +348,7 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double w
         else
             ucr  = 8.5 * pow(d50m, 0.6) * log10(4.0*R/d90m);
 
-        double me = std::max((U - ucr)/(sqrt(GRAV * d50m * ((ps/pw) - 1.0))),0.0);
+        double me = qMax((U - ucr)/(sqrt(GRAV * d50m * ((ps/pw) - 1.0))),0.0);
         //        double qs = 0.005 * ps * U * h * pow(d50m/h,1.2) * pow(me, 2.4);
         double qs = 0.015 * ps*U*h * pow(d50m/h,1.2) * pow(me, 1.5); //eq 6.2
         // in kg/m/s /(m2/s) = kg/m3
@@ -377,7 +377,7 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double w
             uscr = 0.24*pow(ds,-1);
         uscr = sqrt(uscr * (ps/pw - 1)*GRAV * _dm);  // effective bed shear velocity
 
-        double T = std::max((us*us)/(uscr*uscr) - 1,0.0); // transport stage parameter
+        double T = qMax((us*us)/(uscr*uscr) - 1,0.0); // transport stage parameter
         double qs = 0.053 * (pow(T,2.1)/pow(ds,0.3)) * sqrt((ps/pw -1)*GRAV)*_dm*sqrt(_dm); // eq 22
         tc = ps * qs/ (U * hb);
 
@@ -411,14 +411,14 @@ double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double w
         double R = w*h/(2*h+w);
         double css = 0.03* (ps - pw) * (graindiameters.at(_d)/1000000.0) * ppk;
 
-        double qs = 0.0053 *pow(std::max(pow(na,1.5)*((pw * R * GRAV * 0.1 * S/css)) - 1.0, 0.0),2.2);
+        double qs = 0.0053 *pow(qMax(pow(na,1.5)*((pw * R * GRAV * 0.1 * S/css)) - 1.0, 0.0),2.2);
         qs = qs * 1 * sqrt((ps/pw - 1)*GRAV*pow(graindiameters.at(_d)/1000000.0,3.0));
 
         tc = ps * qs/ (U * hb);
 */
     }
 
-    return std::max(std::min(tc,MAXCONCBL),0.0);
+    return qMax(qMin(tc,MAXCONCBL),0.0);
 }
 
 //---------------------------------------------------------------------------
@@ -467,13 +467,13 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
     if(channel)
     {
         //calculate depth of deposited layer
-        double depdepth = std::max((RStorageDep->Drc / (BulkDens))/(ChannelWidth->Drc * DX->Drc),0.0);
+        double depdepth = qMax((RStorageDep->Drc / (BulkDens))/(ChannelWidth->Drc * DX->Drc),0.0);
 
         //linear decrease in influence from lower soil layer
         //from 0 to MixingDepth, with fac1 for bottom layer, fac2 for top layer
         double fac1 = 1.0;
         if(RSedimentMixingDepth->Drc > MIN_HEIGHT)
-            fac1 = std::max(0.0,1.0 - depdepth/RSedimentMixingDepth->Drc);
+            fac1 = qMax(0.0,1.0 - depdepth/RSedimentMixingDepth->Drc);
         double fac2 = 1-fac1;
 
         //new erosion coefficient bases on soil layer mixinfactors
@@ -483,7 +483,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
         detachment = detachment *newY;
 
         //to remove small rounding errors that lead to negative values
-        detachment = std::max(detachment,0.0);
+        detachment = qMax(detachment,0.0);
 
         //check wat we can detache from the top and bottom layer of present material
         double dleft = detachment;
@@ -492,7 +492,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
         detachment = 0;
 
         //take from the total storage
-        deptake = std::min(dleft,RStorageDep->Drc);
+        deptake = qMin(dleft,RStorageDep->Drc);
         RStorageDep->Drc -= deptake;
 
         //add to the detachment what we have taken from the first soil layer
@@ -509,7 +509,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
         if(!((RStorage->Drc) < -1))
         {
             //take from the total storage
-            mattake = std::min(dleft,RStorage->Drc);
+            mattake = qMin(dleft,RStorage->Drc);
             RStorage->Drc -= mattake;
             //add to the detachment what we have taken from the second soil layer
             detachment += mattake;
@@ -519,17 +519,17 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
         }
 
         //finally, return the total detachment
-        return std::max(0.0,detachment);
+        return qMax(0.0,detachment);
 
     } else
         if(flood) {
-            double depdepth = std::max((StorageDep->Drc / (BulkDens))/(_dx * DX->Drc),0.0);
+            double depdepth = qMax((StorageDep->Drc / (BulkDens))/(_dx * DX->Drc),0.0);
 
             //linear decrease in influence from lower soil layer
             //from 0 to MixingDepth, with fac1 for bottom layer, fac2 for top layer
             double fac1 = 1.0;
            // if(SedimentMixingDepth->Drc > MIN_HEIGHT)
-                fac1 = std::max(0.0,1.0 - depdepth/SedimentMixingDepth->Drc);
+                fac1 = qMax(0.0,1.0 - depdepth/SedimentMixingDepth->Drc);
             double fac2 = 1-fac1;
             //new erosion coefficient bases on soil layer mixinfactors
             double newY = Y->Drc * fac1 + fac2 * 1.0;
@@ -538,7 +538,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             detachment = detachment *newY;
 
             //to remove small rounding errors that lead to negative values
-            detachment = std::max(detachment,0.0);
+            detachment = qMax(detachment,0.0);
 
             //check wat we can detach from the top and bottom layer of present material
             double dleft = detachment;
@@ -547,7 +547,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             detachment = 0;
 
             //take from the total storage
-            deptake = std::min(dleft,StorageDep->Drc);
+            deptake = qMin(dleft,StorageDep->Drc);
             StorageDep->Drc -= deptake;
 
             //add to the detachment what we have taken from the first soil layer
@@ -563,7 +563,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             if(!((Storage->Drc) < -1))
             {
                 //take from the total storage
-                mattake = std::min(dleft,Storage->Drc);
+                mattake = qMin(dleft,Storage->Drc);
                 Storage->Drc -= mattake;
                 //add to the detachment what we have taken from the second soil layer
                 detachment += mattake;
@@ -573,16 +573,16 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             }
 
             //finally, return the total detachment
-            return std::max(0.0,detachment);
+            return qMax(0.0,detachment);
 
             //if it is neither flood nor channel detachment, overland flow is assumed
         } else {
             //calculate depth of deposited layer
-            double depdepth = std::max((StorageDep->Drc / (BulkDens))/(_dx * DX->Drc),0.0);
+            double depdepth = qMax((StorageDep->Drc / (BulkDens))/(_dx * DX->Drc),0.0);
 
             //linear decrease in influence from lower soil layer
             //from 0 to MixingDepth, with fac1 for bottom layer, fac2 for top layer
-            double fac1 = std::max(0.0,1.0 - depdepth/SedimentMixingDepth->Drc);
+            double fac1 = qMax(0.0,1.0 - depdepth/SedimentMixingDepth->Drc);
             double fac2 = 1 - fac1;
             if(SedimentMixingDepth->Drc < MIN_HEIGHT)
             {
@@ -596,7 +596,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             detachment = detachment *newY;
 
             //to remove small rounding errors that lead to negative values
-            detachment = std::max(detachment,0.0);
+            detachment = qMax(detachment,0.0);
             //check wat we can detache from the top and bottom layer of present material
             double dleft = detachment;
             double deptake = 0;
@@ -604,7 +604,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             detachment = 0;
 
             //take from the total storage
-            deptake = std::min(dleft,StorageDep->Drc);
+            deptake = qMin(dleft,StorageDep->Drc);
             StorageDep->Drc -= deptake;
 
             //add to the detachment what we have taken from the first soil layer
@@ -620,7 +620,7 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             if(!((Storage->Drc) < -1))
             {
                 //take from the total storage
-                mattake = std::min(dleft,Storage->Drc);
+                mattake = qMin(dleft,Storage->Drc);
                 Storage->Drc -= mattake;
                 //add to the detachment what we have taken from the second soil layer
                 detachment += mattake;
@@ -630,6 +630,6 @@ double TWorld::DetachMaterial(int r,int c, int d,bool channel, bool flood,bool b
             }
 
             //finally, return the total detachment
-            return std::max(0.0,detachment);
+            return qMax(0.0,detachment);
         }
 }

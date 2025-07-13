@@ -60,7 +60,7 @@ void TWorld::cell_SplashDetachment()
             // Added litter also to directrain, assume it covers the entire cell, not only under the plant
             // rainfall between plants in mm
 
-            double KE_LD = std::max(15.3*sqrt(PlantHeight->Drc)-5.87, 0.0);
+            double KE_LD = qMax(15.3*sqrt(PlantHeight->Drc)-5.87, 0.0);
             // kin energy in J/m2/mm
             double throughfall = (1-Lc) * Cv * LeafDrain->Drc * 1000;
             // leaf drip in mm, is calculated as plant leaf drip in interception function so mult cover

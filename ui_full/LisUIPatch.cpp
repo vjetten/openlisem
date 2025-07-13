@@ -169,7 +169,7 @@ bool lisemqt::isNewVersionAvailable(QString &GitHubVersion)
     // do not update a beta version, do nothing with revision numbers for now
 
     // case current 7.4.8 and online 7.4.9 or 7.4.9 and online 7.5
-    for (int i = 0; i < std::min(size, sizeGIT); ++i) {
+    for (int i = 0; i < qMin(size, sizeGIT); ++i) {
         int currentPart = currentParts.at(i).toInt();
         int githubPart = githubParts.at(i).toInt();
         if (currentPart < githubPart)

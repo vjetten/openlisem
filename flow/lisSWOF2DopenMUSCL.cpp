@@ -34,14 +34,14 @@
 #include "operation.h"
 #include "global.h"
 
-//#define LIMIT(V,L) (V < 0.0 ? -1.0 : 1.0)*std::min(L,fabs(V))
+//#define LIMIT(V,L) (V < 0.0 ? -1.0 : 1.0)*qMin(L,fabs(V))
 //#define SIGN(V)(V < 0 ? -1.0 : 1.0)
 
 //----------------------------------------------------------------------------------------
 double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     double timesum = 0;
-    double dt_max = std::min(_dt, _dx*0.5);
+    double dt_max = qMin(_dt, _dx*0.5);
     int count = 0;
     double sumh = 0;
     bool stop;
@@ -134,7 +134,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         Boundary2Ddyn(_dt, h, u, v);
     }
 floodCount(h);
-    iter_n = std::max(1,count);
+    iter_n = qMax(1,count);
     return(count > 0 ? _dt/count : _dt);
 
 }
@@ -289,10 +289,10 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             dz_y2 = (z_y2 - Z);
 
             if (SwitchFlowBarriers) {
-                fb_x1 = bc1 ? std::max(FlowBarrierW->Drc, FlowBarrierE->data[r][c-1]) : FlowBarrierW->Drc;
-                fb_x2 = bc2 ? std::max(FlowBarrierE->Drc, FlowBarrierE->data[r][c+1]) : FlowBarrierE->Drc;
-                fb_y1 = br1 ? std::max(FlowBarrierN->Drc, FlowBarrierS->data[r-1][c]) : FlowBarrierN->Drc;
-                fb_y2 = br2 ? std::max(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]) : FlowBarrierS->Drc;
+                fb_x1 = bc1 ? qMax(FlowBarrierW->Drc, FlowBarrierE->data[r][c-1]) : FlowBarrierW->Drc;
+                fb_x2 = bc2 ? qMax(FlowBarrierE->Drc, FlowBarrierE->data[r][c+1]) : FlowBarrierE->Drc;
+                fb_y1 = br1 ? qMax(FlowBarrierN->Drc, FlowBarrierS->data[r-1][c]) : FlowBarrierN->Drc;
+                fb_y2 = br2 ? qMax(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]) : FlowBarrierS->Drc;
             }
 
             // non-muscl solution, cell centres for boundaries in x and y directions
@@ -479,8 +479,8 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
 
             //left and right hand side of c and c-1 (x and x1)
             if (bc1) {
-                h_x1r = std::max(0.0, hx1r - std::max(0.0,  dz_x1 + fb_x1)); //rechts van c-1
-                h_xl  = std::max(0.0, hxl  - std::max(0.0, -dz_x1 + fb_x1)); //links van het midden
+                h_x1r = qMax(0.0, hx1r - qMax(0.0,  dz_x1 + fb_x1)); //rechts van c-1
+                h_xl  = qMax(0.0, hxl  - qMax(0.0, -dz_x1 + fb_x1)); //links van het midden
             } else {
                 h_x1r=ux1r=vx1r=0.0;
                 // FOR REFERNCE, ALL ATTEMPTS GIVE NAN,
@@ -495,8 +495,8 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
 
             //right and left hand side of c and c+1 (x and x2)
             if (bc2) {
-                h_xr  = std::max(0.0, hxr  - std::max(0.0,  dz_x2 + fb_x2));
-                h_x2l = std::max(0.0, hx2l - std::max(0.0, -dz_x2 + fb_x2));
+                h_xr  = qMax(0.0, hxr  - qMax(0.0,  dz_x2 + fb_x2));
+                h_x2l = qMax(0.0, hx2l - qMax(0.0, -dz_x2 + fb_x2));
             } else {
                 h_x2l=ux2l=vx2l=0.0;
                 // h_x2l=H;
@@ -509,8 +509,8 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             hll_x2 = F_Riemann(h_xr,uxr,vxr, h_x2l,ux2l,vx2l); // c and c+1
 
             if (br1) {
-                h_y1d = std::max(0.0, hy1d - std::max(0.0,  dz_y1 + fb_y1));
-                h_yu  = std::max(0.0, hyu  - std::max(0.0, -dz_y1 + fb_y1));
+                h_y1d = qMax(0.0, hy1d - qMax(0.0,  dz_y1 + fb_y1));
+                h_yu  = qMax(0.0, hyu  - qMax(0.0, -dz_y1 + fb_y1));
             } else {
                 h_y1d=vy1d=uy1d=0.0;
                 // h_y1d=H;
@@ -524,8 +524,8 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             // v and u chnaged places for y comnpared to x ? why? is also in swof code
 
             if (br2) {
-                h_yd  = std::max(0.0, hyd  - std::max(0.0,  dz_y2 + fb_y2));// lower side of upper cell
-                h_y2u = std::max(0.0, hy2u - std::max(0.0, -dz_y2 + fb_y2));// upper side of lower cell
+                h_yd  = qMax(0.0, hyd  - qMax(0.0,  dz_y2 + fb_y2));// lower side of upper cell
+                h_y2u = qMax(0.0, hy2u - qMax(0.0, -dz_y2 + fb_y2));// upper side of lower cell
             } else {
                 h_y2u=vy2u=uy2u=0.0;
                 // h_y2u=H;
@@ -538,9 +538,9 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             hll_y2 = F_Riemann(h_yd,vyd,uyd, h_y2u,vy2u,uy2u); // r and r+1
 
             // determine smallest dt in x and y for each cell
-            double dtx = courant_factor*dx/std::max(hll_x1.v[3],hll_x2.v[3]);
-            double dty = courant_factor*dy/std::max(hll_y1.v[3],hll_y2.v[3]);
-            FloodDT->Drc = std::min(dtx, dty);
+            double dtx = courant_factor*dx/qMax(hll_x1.v[3],hll_x2.v[3]);
+            double dty = courant_factor*dy/qMax(hll_y1.v[3],hll_y2.v[3]);
+            FloodDT->Drc = qMin(dtx, dty);
 
             // save the Riemann results in maps, needed for Saint-Venant
             gflowx->Drc = GRAV*0.5*( (h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr) + delzcx*(hxl+hxr) ); // delzcx = 0 if not muscl
@@ -558,9 +558,9 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
     double dt_req_min = dt;
     #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-            dt_req_min = std::min(dt_req_min, FloodDT->Drc);
+            dt_req_min = qMin(dt_req_min, FloodDT->Drc);
     }}
-    dt_req_min = std::max(TimestepfloodMin, std::min(dt, std::min(dt_req_min, _dt-timesum)));
+    dt_req_min = qMax(TimestepfloodMin, qMin(dt, qMin(dt_req_min, _dt-timesum)));
 
     return dt_req_min;
 }
@@ -575,7 +575,7 @@ void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v)
         double tx = dt/dx;
         double ty = dt/dy;
 
-        double hn = std::max(0.0, h->Drc + tx*(hllx12_0->Drc) + ty*(hlly12_0->Drc));
+        double hn = qMax(0.0, h->Drc + tx*(hllx12_0->Drc) + ty*(hlly12_0->Drc));
         // mass balance, hll_....v[0] is the height
 
         // momentum balance for cells with water
@@ -585,14 +585,14 @@ void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v)
             double qyn = h->Drc*v->Drc - tx*hllx21_2->Drc - ty*(hlly21_1->Drc + gflowy->Drc);
 
             if (SwitchTimeavgV) {
-                double nsq1 = (N->Drc)*(N->Drc)*GRAV/std::max(0.0001,std::pow(hn,4.0/3.0));
+                double nsq1 = (N->Drc)*(N->Drc)*GRAV/qMax(0.0001,std::pow(hn,4.0/3.0));
                 double nsq = nsq1 * sqrt(u->Drc*u->Drc + v->Drc*v->Drc) * dt;
 
-                Un = (qxn/(1.0+nsq))/std::max(0.0001,hn);
-                Vn = (qyn/(1.0+nsq))/std::max(0.0001,hn);
+                Un = (qxn/(1.0+nsq))/qMax(0.0001,hn);
+                Vn = (qyn/(1.0+nsq))/qMax(0.0001,hn);
 
-                double fac = 0.5 + 0.5*std::min(1.0,4*hn)*std::min(1.0,4*hn); // if hn > 1 fac = 1
-                fac = fac * exp(- std::max(1.0,dt) / nsq1);
+                double fac = 0.5 + 0.5*qMin(1.0,4*hn)*qMin(1.0,4*hn); // if hn > 1 fac = 1
+                fac = fac * exp(- qMax(1.0,dt) / nsq1);
                 Un = fac * u->Drc + (1.0-fac) *Un;
                 Vn = fac * v->Drc + (1.0-fac) *Vn;
             } else {

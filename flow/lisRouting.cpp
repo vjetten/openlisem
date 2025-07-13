@@ -238,7 +238,7 @@ void TWorld::upstreamMax(QVector <LDD_COORIN>_crlinked_, cTMap *_MaxQ, cTMap *_Q
                 Qin += _Q->Drcr;
             }
         }
-        _Qn->Drc = std::min(_MaxQ->Drc, Qin);
+        _Qn->Drc = qMin(_MaxQ->Drc, Qin);
     }
 }
 //---------------------------------------------------------------------------

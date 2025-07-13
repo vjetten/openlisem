@@ -78,7 +78,7 @@
 #define Aavg(a,b)  (0.5*(a+b))
 #define Savg(a,b)  sqrt(a*b)
 #define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
-#define Mavg(a,b)  std::min(a,b)
+#define Mavg(a,b)  qMin(a,b)
 #define SQR(a) ((a)*(a))
 
 #define DEBUG(s) emit debug(QString(s))

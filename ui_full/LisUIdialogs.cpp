@@ -564,7 +564,7 @@ void lisemqt::showTextfileOld(QString name)
 // {
 //     int daye = E_EndTimeDay->text().split(":")[0].toInt();
 //     int mine = E_EndTimeDay->text().split(":")[1].toInt();
-//     daye = std::max(1,std::min(daye, 366));
+//     daye = qMax(1,qMin(daye, 366));
 //     if (mine > 1440) {
 //         daye = mine/1440 + 1;
 //         mine = mine % 1440;
@@ -576,7 +576,7 @@ void lisemqt::showTextfileOld(QString name)
 // {
 //        int daye = E_BeginTimeDay->text().split(":")[0].toInt();
 //        int mine = E_BeginTimeDay->text().split(":")[1].toInt();
-//        daye = std::max(1,std::min(daye, 366));
+//        daye = qMax(1,qMin(daye, 366));
 //        if (mine > 1440) {
 //            daye = mine/1440 + 1;
 //            mine = mine % 1440;

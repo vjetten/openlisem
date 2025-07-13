@@ -119,8 +119,8 @@ void TWorld::ChannelFlowDetachmentNew()
 
             //### do suspended first
 
-            maxTC = std::max(ChannelSSTC->Drc - ChannelSSConc->Drc, 0.0);  // TC in kg/m3
-            minTC = std::min(ChannelSSTC->Drc - ChannelSSConc->Drc, 0.0);
+            maxTC = qMax(ChannelSSTC->Drc - ChannelSSConc->Drc, 0.0);  // TC in kg/m3
+            minTC = qMin(ChannelSSTC->Drc - ChannelSSConc->Drc, 0.0);
 
             if (minTC < 0) {
                 //deposition
@@ -128,7 +128,7 @@ void TWorld::ChannelFlowDetachmentNew()
                // TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/ChannelWH->Drc)) * sswatervol;
                 TransportFactor =  _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
 
-                deposition = std::max(TransportFactor * minTC,-SS); // in kg
+                deposition = qMax(TransportFactor * minTC,-SS); // in kg
                 // not more than SS present
 
             } else {
@@ -136,7 +136,7 @@ void TWorld::ChannelFlowDetachmentNew()
                 if(maxTC > 0 && ChannelCohesion->Drc >= 0) {
                     TransportFactor = _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
 
-                    detachment = ChannelY->Drc * maxTC * TransportFactor; //std::min(TransportFactor, sswatervol);
+                    detachment = ChannelY->Drc * maxTC * TransportFactor; //qMin(TransportFactor, sswatervol);
 
                     if (SwitchCulverts && ChannelCulvert->Drc > 0)
                         detachment = 0;
@@ -146,7 +146,7 @@ void TWorld::ChannelFlowDetachmentNew()
                     // multiply by Y
 
                     if(SS + detachment > MAXCONC * sswatervol)
-                       detachment = std::max(0.0,MAXCONC * sswatervol - SS);
+                       detachment = qMax(0.0,MAXCONC * sswatervol - SS);
 
                 } else {
                     detachment = 0;
@@ -179,14 +179,14 @@ void TWorld::ChannelFlowDetachmentNew()
                   if (ChannelCohesion->Drc > 0){
                     //there is BL
 
-                    maxTC = std::max(ChannelBLTC->Drc - ChannelBLConc->Drc,0.0);
-                    minTC = std::min(ChannelBLTC->Drc - ChannelBLConc->Drc,0.0);
+                    maxTC = qMax(ChannelBLTC->Drc - ChannelBLConc->Drc,0.0);
+                    minTC = qMin(ChannelBLTC->Drc - ChannelBLConc->Drc,0.0);
 
                     if (maxTC > 0 && ChannelY->Drc > 0) {
                         //### detachment
                         TransportFactor = _dt*SettlingVelocityBL->Drc * ChannelDX->Drc * ChannelWidth->Drc;
                            // units s * m/s * m * m = m3
-                        detachment = maxTC * std::min(TransportFactor, maxTC*sswatervol);
+                        detachment = maxTC * qMin(TransportFactor, maxTC*sswatervol);
                         // unit = kg/m3 * m3 = kg
 
                         detachment *= ChannelY->Drc;//DetachMaterial(r,c,1,true,false,true, detachment);
@@ -202,7 +202,7 @@ void TWorld::ChannelFlowDetachmentNew()
                         TransportFactor = (1-exp(-_dt*SettlingVelocityBL->Drc/ChannelBLDepth->Drc)) * blwatervol;
 
                         // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
-                        deposition = std::max(minTC * TransportFactor, -BL);
+                        deposition = qMax(minTC * TransportFactor, -BL);
                         // cannot have more depo than sediment present
                         BL += detachment;
                         BL += deposition;
@@ -343,7 +343,7 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
         dux2 = std::abs(ChannelV->data[r][c] - ChannelV->data[rn][cn]);
     }
 
-    double dux = std::max(dux1,dux2);
+    double dux = qMax(dux1,dux2);
 
     //diffusion coefficient according to J.Smagorinski (1964)
     double eddyvs = cdx * dux;
@@ -353,8 +353,8 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
     //add diffusive fluxes to previous cell in channel.
     if(foundp)
     {
-        double coeff = ChannelSSDepth->data[r][c] > 0 ? dt*eta *std::min(1.0,ChannelSSDepth->data[rp][cp]/ChannelSSDepth->data[r][c]) : 0.0;
-        coeff = std::min(coeff, courant_factor);
+        Real coeff = ChannelSSDepth->data[r][c] > 0 ? dt*eta *qMin(1.0,ChannelSSDepth->data[rp][cp]/ChannelSSDepth->data[r][c]) : 0.0;
+        coeff = qMin(coeff, courant_factor);
 
         _SS->data[rp][cp] += coeff * _SS->Drc;
         _SS->data[r][c] -= coeff * _SS->Drc;
@@ -363,8 +363,8 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
     //add diffusive fluxes to next cell in channel.
     if(foundn)
     {
-        double coeff = ChannelSSDepth->data[r][c] > 0 ? dt*eta *std::min(1.0,ChannelSSDepth->data[rn][cn]/ChannelSSDepth->data[r][c]) : 0.0;
-        coeff = std::min(coeff, courant_factor);
+        Real coeff = ChannelSSDepth->data[r][c] > 0 ? dt*eta *qMin(1.0,ChannelSSDepth->data[rn][cn]/ChannelSSDepth->data[r][c]) : 0.0;
+        coeff = qMin(coeff, courant_factor);
 
         _SS->data[rn][cn] += coeff  * _SS->Drc;
         _SS->data[r][c] -= coeff  * _SS->Drc;
@@ -375,7 +375,7 @@ void TWorld::RiverSedimentDiffusion(double dt, cTMap *_SS, cTMap *_SSC)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         //set concentration from present sediment
-        _SS->Drc = std::max(0.0,_SS->Drc);
+        _SS->Drc = qMax(0.0,_SS->Drc);
         _SSC->Drc = MaxConcentration(ChannelWaterVol->Drc, _SS->Drc);
     }}
 }
@@ -414,8 +414,8 @@ void TWorld::RiverSedimentLayerDepth(int r , int c)
         //critical shear stress for bed level motion by van rijn
         double critsheart = (critshearvel*critshearvel)/ (((ps-pw)/pw) * GRAV*d50m);
         //rough bed bed load layer depth by Hu en Hui
-        ChannelBLDepth->Drc = std::min(std::min(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), factor*ChannelWH->Drc), 0.1);
-        ChannelSSDepth->Drc = std::max(ChannelWH->Drc - ChannelBLDepth->Drc,0.0);
+        ChannelBLDepth->Drc = qMin(qMin(d50m * 1.78 * (pow(ps/pw,0.86)*pow(critsheart,0.69)), factor*ChannelWH->Drc), 0.1);
+        ChannelSSDepth->Drc = qMax(ChannelWH->Drc - ChannelBLDepth->Drc,0.0);
 
   //  }
 }

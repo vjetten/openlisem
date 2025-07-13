@@ -313,10 +313,10 @@ double lisemqt::fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_R
         {
             if(!pcr::isMV(_M->Drc))
             {
-                double v =_M->Drc*scale;
+                double v =(double)_M->Drc*scale;
                 mapData << v;
-                maxV = std::max(maxV, v);
-                minV = std::min(minV, v);
+                maxV = qMax(maxV, v);
+                minV = qMin(minV, v);
                 sum += v;
             }
             else
@@ -366,7 +366,7 @@ double lisemqt::fillDrawMapDataRGB(cTRGBMap *_M, QwtMatrixRasterData *_RD)//, do
             }
 
             RGBData << value;
-            maxV = std::max(maxV, 1.0);
+            maxV = qMax(maxV, 1.0);
         }
 
     // set intervals for rasterdata, x,y,z min and max
@@ -820,7 +820,7 @@ void lisemqt::showChannelVectorNew()
         // dot size
         int dxi = 6;//MPlot->invTransform(QwtAxis::XBottom,dx*1.2);
         // dxi = dxi - MPlot->invTransform(QwtAxis::XBottom,dx);
-        // dxi = std::min(9,dxi);
+        // dxi = qMin(9,dxi);
         spinCulvertSize->setValue(dxi);
 
         // points in outlet.map

@@ -111,7 +111,7 @@ double TWorld::calcSinkterm(long i_, double WH, double *S)
                S[0] += (s.theta[0]-s.thetar[0])/(s.pore[0]-s.thetar[0])*etanet;
         } else {
             WH = WH - ETpshade;
-            WH = std::max(0.0, WH);
+            WH = qMax(0.0, WH);
         }
 
         for (int j = 0; j < nNodes; j++) {
@@ -140,7 +140,7 @@ void TWorld:: VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], 
     for(int j = 0; j < nNodes; j++) {
         double Se, Kr;
         double m = 1-1/s.vg_n[j];
-        double Hx = std::min(Hnew[j], 0.0);
+        double Hx = qMin(Hnew[j], 0.0);
 
         Se = std::pow(1+std::pow(s.vg_alpha[j]*fabs(Hx), s.vg_n[j]), -m);
 
@@ -172,13 +172,13 @@ void TWorld::BrooksCorey(SOIL_LIST s, double Hnew[], double K[], double C1[], bo
     for(int j = 0; j < nNodes; j++) {
         double Hx = Hnew[j];
         if (Hx < s.hb[j])
-            K[j] = s.Ks[j]*pow(std::min(1.0,s.hb[j]/Hx), 2.0+3.0*s.lambda[j]);
+            K[j] = s.Ks[j]*pow(qMin(1.0,s.hb[j]/Hx), 2.0+3.0*s.lambda[j]);
         else
             K[j] = s.Ks[j];
 
         // differential moisture capacity dtheta/dh (tangent of pF curve)
         if (!analytical) {
-            double Hx = std::min(Hx, s.hb[j]);
+            double Hx = qMin(Hx, s.hb[j]);
             double Wnew = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/Hx, s.lambda[j]);
             double W = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/(Hx-0.01), s.lambda[j]);
             C1[j] = (Wnew-W)/0.01;
@@ -224,7 +224,7 @@ void TWorld::cell_Soilwater(long i_)
     SOIL_LIST s = crSoil[i_];
 
     double dtmin = 0.01*_dt;
-    double dtmax = std::min(_dt, SoilWBdtfactor);
+    double dtmax = qMin(_dt, SoilWBdtfactor);
     s.dts = dtmax;
     int NITMAX = 12;
     bool stopit = false;
@@ -257,7 +257,7 @@ void TWorld::cell_Soilwater(long i_)
 
 /*
     if (SwitchGWflow) {
-        double dif = std::max(0.0, SoilDepth2init->Drc - GWWH->Drc);
+        double dif = qMax(0.0, SoilDepth2init->Drc - GWWH->Drc);
         //distance GW to surface
         if (dif < s.z[1]) {
             double store = dif*(s.pore[1]-s.theta[1]);
@@ -493,7 +493,7 @@ void TWorld::cell_Soilwater(long i_)
 
 
 //            for(int j = 1; j < nNodes; j++)
-//                Hnew[j] = std::min(0.0, Hnew[j]);
+//                Hnew[j] = qMin(0.0, Hnew[j]);
             // not necessary? and surface can be + so not for the top node anyway!
 
             //======== calc boundary fluxes
@@ -531,7 +531,7 @@ void TWorld::cell_Soilwater(long i_)
             if (!stopit && NIT > NITMAX) {
                 // try again with smaller dts
                 s.dts /= 2.0;
-                s.dts = std::max(s.dts,dtmin);
+                s.dts = qMax(s.dts,dtmin);
                 for(int j = 1; j < nNodes; j++)
                 //    Hnew[j] = Hold[j];
                   Hnew[j] = 0.5*(H[j]+Hnew[j]);
@@ -559,14 +559,14 @@ void TWorld::cell_Soilwater(long i_)
             if (dih > 0.10)
                 dt = dt*mdih/dih;
         }
-        s.dts = std::min(dt,dtmax);
-        s.dts = std::max(dt,dtmin);
-        s.dts = std::min(s.dts,_dt-s.dtsum);
+        s.dts = qMin(dt,dtmax);
+        s.dts = qMax(dt,dtmin);
+        s.dts = qMin(s.dts,_dt-s.dtsum);
         s.dtsum += s.dts;
 
         if (WH1 > 0) {
             WH1 = WH1 - s.Infact*s.dts;
-            WH1 = std::max(0.0, WH1);
+            WH1 = qMax(0.0, WH1);
         }
 
        // if (r == _nrRows/2 && c == _nrCols/2) qDebug() << "iteration" <<  NIT << s.dts << s.dtsum << _dt;
@@ -808,7 +808,7 @@ void TWorld::cell_SWATRECalc(long i_)
             double Wnew = s.theta[j];
             double Wold = s.theta[j];
             if (SwitchVanGenuchten) {
-                double Hx = std::min(Hnew[j], 0.0);
+                double Hx = qMin(Hnew[j], 0.0);
                 double m = 1-1/s.vg_n[j];
                 double Se = std::pow(1+std::pow(s.vg_alpha[j]*fabs(Hx), s.vg_n[j]), -m);
                 Wnew = s.thetar[j]+(s.pore[j]-s.thetar[j])*Se;
@@ -818,11 +818,11 @@ void TWorld::cell_SWATRECalc(long i_)
                 Wold = s.thetar[j]+(s.pore[j]-s.thetar[j])*std::pow(1+std::pow(s.vg_alpha[j]*fabs(Hold[j]), s.vg_n[j]), -m);
 
             } else {
-                double Hx = std::min(Hnew[j], s.hb[j]);
+                double Hx = qMin(Hnew[j], s.hb[j]);
                 Wnew = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/Hx, s.lambda[j]);
                 double Wnew1 = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(s.hb[j]/(Hx-0.01), s.lambda[j]);
                 Cnew = (Wnew-Wnew1)/0.01;
-                Wold = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(std::min(1.0,s.hb[j]/Hold[j]), s.lambda[j]);
+                Wold = s.thetar[j] + (s.pore[j]-s.thetar[j])*pow(qMin(1.0,s.hb[j]/Hold[j]), s.lambda[j]);
             }
 
             thomb[j] = thomb[j] - C1[j] + Cnew;
@@ -864,7 +864,7 @@ void TWorld::cell_SWATRECalc(long i_)
         // okay: qtop is incoming water (-WH1/s.dts) unless ponded, then Darcy flux
 
         WH1 -= fabs(qtop)*s.dts;
-        WH1 = std::max(0.0,WH1);
+        WH1 = qMax(0.0,WH1);
         // decrease pond with top flux
 
         double dt = s.dts;
@@ -874,13 +874,13 @@ void TWorld::cell_SWATRECalc(long i_)
 
         for(int j = 0; j < nNodes; j++)
         {
-            double mdih = accur1 + accur2 * std::max(1.0, fabs(Hnew[j]));
+            double mdih = accur1 + accur2 * qMax(1.0, fabs(Hnew[j]));
             double dih  = fabs(Hnew[j] - Hold[j]);
             if (dih > 0.10)
-                dt = std::min(dt, s.dts*mdih/dih);
+                dt = qMin(dt, s.dts*mdih/dih);
         }
-        s.dts = std::max(dt,dtmin);
-        s.dts = std::min(s.dts,_dt-s.dtsum);
+        s.dts = qMax(dt,dtmin);
+        s.dts = qMin(s.dts,_dt-s.dtsum);
         s.dtsum += s.dts;
 
     } while(s.dtsum < _dt);
@@ -1033,7 +1033,7 @@ void TWorld::cell_SoilwaterExpl(long i_)
     // therefore in this case it should be Q=-K[h]*((h2-h1)/dz+1), where h <= 0 or on the surface can be positive
     if (WH1 > 0) {
         Q[0] = -s.Ks[0]*((s.h[0]-WH1)/s.dz[0] + 1);
-        Q[0] = std::max(Q[0], -s.InfPot);
+        Q[0] = qMax(Q[0], -s.InfPot);
     } else {
         Q[0] = -Ka[0]*((s.h[0]-0)/s.dz[0] + 1); //??? is there something better
     }
@@ -1054,14 +1054,14 @@ void TWorld::cell_SoilwaterExpl(long i_)
         }
         moist = moist + (Q[j]-Q[j+1])*s.dts;
         s.theta[j] = moist/s.dz[j];
-        s.theta[j] = std::min(s.theta[j],s.pore[j]);
+        s.theta[j] = qMin(s.theta[j],s.pore[j]);
 
         getHfromTheta(j,s);
     }
 
     s.drain = Q[nNodes-1];
     if (WH1 > 0)
-        WH1 = std::max(0.0, WH1 + Q[0]*s.dts);
+        WH1 = qMax(0.0, WH1 + Q[0]*s.dts);
 
     // outer loop timestep lisem
 

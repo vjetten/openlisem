@@ -144,8 +144,8 @@ void TWorld::ReportMaps(void)
         // all detachment combined
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            tm->Drc =std::max(0.0,TotalSoillossMap->Drc)*factor;
-            tma->Drc =std::min(0.0,TotalSoillossMap->Drc)*factor;
+            tm->Drc =qMax(0.0,TotalSoillossMap->Drc)*factor;
+            tma->Drc =qMin(0.0,TotalSoillossMap->Drc)*factor;
         }}
         report(*tm, totalErosionFileName);
         // all deposition combined
@@ -157,8 +157,8 @@ void TWorld::ReportMaps(void)
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 if (ChannelWidth->Drc > 0) {
-                    tm->Drc =std::max(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc)*factor;
-                    tma->Drc =std::min(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc)*factor;
+                    tm->Drc =qMax(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc)*factor;
+                    tma->Drc =qMin(0.0,TotalChanDetMap->Drc + TotalChanDepMap->Drc)*factor;
                 } else {
                     tm->Drc = 0;
                     tma->Drc = 0;
@@ -252,7 +252,7 @@ void TWorld::ReportMapSeries(void)
         if (SwitchOutDet) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                tm->Drc =std::max(0.0,TotalSoillossMap->Drc)*factor;
+                tm->Drc =qMax(0.0,TotalSoillossMap->Drc)*factor;
             }}
             report(*tm, Outeros); // in units
         }
@@ -262,7 +262,7 @@ void TWorld::ReportMapSeries(void)
         if (SwitchOutDep) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                tm->Drc =std::min(0.0,TotalSoillossMap->Drc)*factor;
+                tm->Drc =qMin(0.0,TotalSoillossMap->Drc)*factor;
             }}
             report(*tm, Outdepo); // in units
         }

@@ -118,20 +118,20 @@ double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int
     // higher gives better results!
    // precParam = 5;
     double dt = _dt;
-    double accur1 = std::max(0.0, 0.3 - 0.02 * precParam);
+    double accur1 = qMax(0.0, 0.3 - 0.02 * precParam);
     double accur2 = 0.1*accur1;//0.03 - 0.002 * precParam; //SwatrePrecision;//
 
     for(int i=0; i < nrNodes; i++) {
-        double mdih = accur1 + accur2 * std::max(1.0, fabs(h[i]));
+        double mdih = accur1 + accur2 * qMax(1.0, fabs(h[i]));
         double dih  = fabs(h[i] - hLast[i]);
         // if difference is small
         // dih = e.g. 10 and h = -200 then mdih = 200*0.01 + 0.1 = 2.1
         // mdih/dih = 2.1/10 =0.21
 
         if (dih > 0.10)
-            dt = std::min(dt, prevDt*mdih/dih);
+            dt = qMin(dt, prevDt*mdih/dih);
     }
-    return (std::max(dt, dtMin));
+    return (qMax(dt, dtMin));
 }
 //--------------------------------------------------------------------------------
 // Units are:
@@ -423,7 +423,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
         // else qtop is WH/dt !
 
         WH += qtop*dt;       // decrease pond with top flux
-        WH = std::max(WH, 0.0);
+        WH = qMax(WH, 0.0);
 
         //influx += qmax*dt;
         // add max infil to influx (negative), to get potential infil
@@ -438,7 +438,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
                 double water = theta[tnode] * vollayer; // m3
                 // total amonut of water available to drain in this node (m3)
                 // note: distnode has a negative value (in cm so 0.01)
-                qdrain = std::min(qdrain, water);
+                qdrain = qMin(qdrain, water);
                 // cannot have more drainage than water available
                 water -= qdrain;
                 theta[tnode] = water/vollayer; //m3/m3

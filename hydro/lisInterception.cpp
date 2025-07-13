@@ -58,7 +58,7 @@ void TWorld::cell_Interception(int r, int c)
         CS = Smax*(1-exp(-canopen*RainCumInt->Drc/Smax));
         // new store of a canopy, not cell
 
-        LeafDrain->Drc = std::max(0.0, (Rainc_ - (CS - CStor->Drc)));
+        LeafDrain->Drc = qMax(0.0, (Rainc_ - (CS - CStor->Drc)));
         // canopy leaf drain, overflow of rain - dS, not cell
 
         CStor->Drc = CS;
@@ -82,10 +82,10 @@ void TWorld::cell_Interception(int r, int c)
             double LCS = LCStor->Drc;
             //actual canopy storage in m
 
-            LCS = std::min(LCS + RainNet_, Smax);
+            LCS = qMin(LCS + RainNet_, Smax);
             // add water to the storage, not more than max
 
-            double drain = std::max(0.0, (RainNet_ - (LCS - LCStor->Drc)));
+            double drain = qMax(0.0, (RainNet_ - (LCS - LCStor->Drc)));
             // diff between new and old storage is subtracted from leafdrip
 
             LCStor->Drc = LCS;
@@ -112,10 +112,10 @@ void TWorld::cell_Interception(int r, int c)
             double Hmax = RoofStore->Drc;
             //max roof storage in m
 
-            HS = std::min(HS + RainNet_, Hmax);
+            HS = qMin(HS + RainNet_, Hmax);
             // new roof storage
 
-            double housedrain = std::max(0.0, (RainNet_ - (HS - HStor->Drc)));
+            double housedrain = qMax(0.0, (RainNet_ - (HS - HStor->Drc)));
             // overflow in m3/m2 of house
 
             HStor->Drc = HS;
@@ -141,9 +141,9 @@ void TWorld::cell_Interception(int r, int c)
                 DS = DStor->Drc;
                 //actual drum storage in m
 
-                DS = std::min(DS + RainNet_, Dmax);
+                DS = qMin(DS + RainNet_, Dmax);
                 // fill tank to max
-                double drumdrain = std::max(0.0, RainNet_ - (DS - DStor->Drc));
+                double drumdrain = qMax(0.0, RainNet_ - (DS - DStor->Drc));
 
                 DStor->Drc = DS;
                 // put new drum storage back in maps in m3

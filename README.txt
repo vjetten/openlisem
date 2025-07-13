@@ -4,7 +4,7 @@ The model can be downloaded from:
 https://github.com/vjetten/openlisem/releases/tag/lisem_bin
 
 ============
-Date: 250620
+Date: 250713
 ============
 
 This software is under the copyright model GPLv3 (distributed with the model) and subject to additional disclaimers.
@@ -15,12 +15,13 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
 
-250620 - v7.4.7.beta.R1-R6
-- Added: Different channel shapes: rectangular, circular, trapezium and triangular. The last two are controlled with the sachhel side angle.
+250713 - v7.4.7.beta.R1-R7
+- CHHANGED: read all maps as float (4 byte) instead of double (8 byte), save 40-50% RAM use
+- Added: Different channel shapes: rectangular, circular, trapezium and triangular. The last two are controlled with the channel side angle.
 - Added: A channel culvert map that has confined flow in these pizels, with shape values: 1=rect,2=circ,3=trap,4=tri.
 - Added: Option to stop SWATRE when there is no rainfall or runoff in a cell (faster)
 - Added: Inflow into stormdrains according to water pressure above inlet
-- Added: D erosion calculations inside (slow) or outside (fast) 2D flow loop (Advanced options)
+- Added: Do erosion calculations inside (slow) or outside (fast) 2D flow loop (Advanced options)
 - Added: connection to channel based on hydraulic flow for broad crested weir (Advanced options)
 - UPDATE: Thread behaviour was obselete. Renewed and cleaned use of the model in a thread separate form the GUI
 - BUG-FIX: Fixed confined flow with a Kionematic Wave in culverts and pipes
