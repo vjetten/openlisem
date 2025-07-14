@@ -300,7 +300,7 @@ void TWorld::TotalsFlow(void)
     if (SwitchIncludeChannel)
     {
         FOR_ROW_COL_LDDCH5 {
-            Qtot_dt += ChannelQn->Drc*_dt; //m3
+            Qtot_dt += Qnout[i_];//ChannelQn->Drc*_dt; //m3
         }}
 
         #pragma omp parallel for num_threads(userCores)

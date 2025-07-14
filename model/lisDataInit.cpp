@@ -1923,7 +1923,6 @@ void TWorld::IntializeOptions(void)
     SwitchLitter = false;
 
     SwitchLinkedList = false;
-    SwitchChannelKinWave = true;
     SwitchTimeavgV = true;
     SwitchChannelKinwaveDt = false;
     SwitchChannelMaxV = true;

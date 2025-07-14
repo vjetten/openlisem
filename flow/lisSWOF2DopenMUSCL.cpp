@@ -571,7 +571,8 @@ void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v)
     FOR_ROW_COL_MV_L {
         double dx = _dx;
         double dy = _dx;
-        double Un = 0, Vn = 0;
+        double Un = 0;
+        double Vn = 0;
         double tx = dt/dx;
         double ty = dt/dy;
 

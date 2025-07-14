@@ -42,28 +42,55 @@ void TWorld::ChannelFlowandErosion()
     if (!SwitchIncludeChannel)
         return;
 
-    SwitchChannelKinWave = true;    // set to false for experimental swof in channel
-
+    // moved to before overland flow
    // ChannelRainandInfil();          // subtract infil, add rainfall
 
     //ChannelBaseflow();              // add stationary and GW baseflow if selected
 
-    // _dt_user = _dt;
-    // _dt = _dx/2.0;
-    // for (double t = 0; t < _dt_user; t+=_dt)
-    // {
+    // sum the outflow during the loop for the mass balance
+    // QList <double> is used in lisTotalMB
+    // TODO: same for sediment
+    Qnout.clear();
+    FOR_ROW_COL_LDDCH5 {
+        Qnout << 0.0;
+    }}
 
-    ChannelVelocityandDischarge();  // maaings V Q Aplha
+    _dt_user = _dt;
+    // save user dt
 
-    ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
+    // calculate how many times we do the loop based on dt = dx
+    int count = 1;
+    if (_dt > _dx) {
+        int count = qMax(1, qCeil(_dt_user/_dx));
+        _dt = _dt_user/count;
+    }
 
-    ChannelFlow();                  // channel kin wave for water
+    // do the kin wave multiple times, because ChannelVolume is adjusted each time,
+    // the velocity and channelQ is also adjusted each time
+    for(int i = 0; i < count; i++) {
 
-    //}
+        ChannelVelocityandDischarge();  // mannings V Q Aplha
 
-    //_dt = _dt_user;
+        ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
 
-    ChannelSedimentFlow();          // kin wave for sediment and substances
+        ChannelFlow();                  // channel kin wave for water
+
+        ChannelSedimentFlow();          // kin wave for sediment and substances
+
+        // sum the water flowing out
+        FOR_ROW_COL_LDDCH5 {
+            double valq = Qnout[i_];
+            valq += ChannelQn->Drc*_dt;
+            Qnout.replace(i_, valq);
+
+            //TODO
+            if (SwitchErosion) {
+            }
+        }}
+    }
+
+    // restore _dt
+    _dt = _dt_user;
 
 }
 //---------------------------------------------------------------------------
@@ -83,10 +110,10 @@ void TWorld::ChannelVelocityandDischarge()
         }
         double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
         double Radius = (ChannelPerimeter->Drc > 1e-6 ? Area/ChannelPerimeter->Drc : 0);
-        ChannelV->Drc = qMin(_CHMaxV,std::pow(Radius, 2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc);
+        ChannelV->Drc = qMin(_CHMaxV,std::pow(Radius, 2.0/3.0)*qSqrt(ChannelGrad->Drc)/ChannelN->Drc);
         ChannelQ->Drc = ChannelV->Drc * Area;
         //ChannelAlpha->Drc = ChannelQ->Drc/std::pow(Area, 0.6);
-        ChannelAlpha->Drc = pow(ChannelN->Drc/sqrt(ChannelGrad->Drc) * pow(ChannelPerimeter->Drc, 2.0/3.0),0.6);  // no difference
+        ChannelAlpha->Drc = pow(ChannelN->Drc/qSqrt(ChannelGrad->Drc) * pow(ChannelPerimeter->Drc, 2.0/3.0),0.6);  // no difference
     }}
 }
 

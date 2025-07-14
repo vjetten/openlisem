@@ -271,9 +271,8 @@ typedef struct UNIT_LIST {
 } UNIT_LIST;
 //---------------------------------------------------------------------------
 /// vec4 used for HLL
-typedef struct vec4 { double v[4]; } vec4;
-/// vec6 used for muscl
-typedef struct vec6 { double v[6]; } vec6;
+typedef struct vec4 { Real v[4]; } vec4;
+
 //---------------------------------------------------------------------------
 /// Structure to store rain station values of rainfile mapnames
 typedef struct RAIN_LIST {
@@ -539,7 +538,6 @@ public:
         SwitchChannelKinwaveAvg,
         SwitchLinkedList,
         SwitchPerimeterKW,
-        SwitchChannelKinWave,
         SwitchChannelMaxV;
 
     // // TODO multi class sed
@@ -571,6 +569,8 @@ public:
     QList<double> FBTimeS;
     QList<double> FBTimeE;
     QList<double> FBTimeW;
+
+    QList <double> Qnout;
 
     // extended channel not used
     // QVector <ExtCH> ExtChannel;
@@ -1034,7 +1034,7 @@ public:
     vec4 F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-   // void dynOutflowPoints(cTMap *h);
+
     void OverlandFlow2Ddyn(void);
     void updateWHandHmx(void);
     void Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v);
