@@ -50,24 +50,22 @@ void TWorld::ChannelFlowandErosion()
     // sum the outflow during the loop for the mass balance
     // QList <double> is used in lisTotalMB
     // TODO: same for sediment
-    Qnout.clear();
-    FOR_ROW_COL_LDDCH5 {
-        Qnout << 0.0;
-    }}
+    Qnout.fill(0.0);
+    Qsnout.fill(0.0);
 
     _dt_user = _dt;
     // save user dt
 
     // calculate how many times we do the loop based on dt = dx
-    int count = 1;
     if (_dt > _dx) {
-        int count = qMax(1, qCeil(_dt_user/_dx));
-        _dt = _dt_user/count;
+        _dt = _dx;
     }
+
+    int count = 0;
 
     // do the kin wave multiple times, because ChannelVolume is adjusted each time,
     // the velocity and channelQ is also adjusted each time
-    for(int i = 0; i < count; i++) {
+    for (double sumt = 0; sumt < _dt_user; sumt+=_dt) {
 
         ChannelVelocityandDischarge();  // mannings V Q Aplha
 
@@ -85,10 +83,15 @@ void TWorld::ChannelFlowandErosion()
 
             //TODO
             if (SwitchErosion) {
+                double valqs = Qsnout[i_];
+                valqs += ChannelQsn->Drc*_dt;
+                Qsnout.replace(i_, valqs);
             }
         }}
-    }
 
+        count++;
+    }
+qDebug() << count << _dt << Qnout.size() << Qnout.at(0);
     // restore _dt
     _dt = _dt_user;
 

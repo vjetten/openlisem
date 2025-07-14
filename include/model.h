@@ -571,6 +571,7 @@ public:
     QList<double> FBTimeW;
 
     QList <double> Qnout;
+    QList <double> Qsnout;
 
     // extended channel not used
     // QVector <ExtCH> ExtChannel;

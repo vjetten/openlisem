@@ -989,6 +989,11 @@ void TWorld::InitChannel(void)
     }
     nrValidCellsLDDCH5 = crlddch5_.size();
 
+    Qnout.clear();
+    Qnout.resize(nrValidCellsLDDCH5);
+    Qnout.fill(0.0);
+    qDebug() <<"Qnout" << Qnout.size();
+
     ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth")); // bottom width in m
     checkMap(*LDDChannel, *ChannelWidth, SMALLEREQUAL, 0, "Channel width must be larger than 0.");
 
@@ -1119,6 +1124,11 @@ Fill(*tma,0);
     }
 
     if(SwitchErosion) {
+
+        Qsnout.clear();
+        Qsnout.resize(nrValidCellsLDDCH5);
+        Qsnout.fill(0.0);
+
         TotalChanDetMap = NewMap(0);
         TotalChanDepMap = NewMap(0);
         ChannelDetFlow = NewMap(0);
