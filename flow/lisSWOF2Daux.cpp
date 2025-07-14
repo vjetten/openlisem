@@ -604,6 +604,6 @@ void TWorld::floodCount(cTMap *h)
         if (h->Drc == 0 and tmb->Drc == 0)
             floodFill(h,tmb, r,c,currentlabel++);
     }}
-report(*h,"h");
-report(*tmb,"ff");
+// report(*h,"h");
+// report(*tmb,"ff");
 }

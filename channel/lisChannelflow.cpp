@@ -37,7 +37,7 @@ functions: \n
 
 
 //---------------------------------------------------------------------------
-void TWorld::ChannelFlowandErosion()
+void TWorld:: ChannelFlowandErosion()
 {
     if (!SwitchIncludeChannel)
         return;
@@ -56,22 +56,20 @@ void TWorld::ChannelFlowandErosion()
     _dt_user = _dt;
     // save user dt
 
-    // calculate how many times we do the loop based on dt = dx
-    if (_dt > _dx) {
-        _dt = _dx;
-    }
-
-    int count = 0;
-
+    // do the loop based on dt = dx
+    // if (_dt > _dx) {
+    //     _dt = _dx;
+    // }
+int count = 0;
     // do the kin wave multiple times, because ChannelVolume is adjusted each time,
-    // the velocity and channelQ is also adjusted each time
+    // the velocity and channelQ is also adjusted each time, we only need to sum the outflow
     for (double sumt = 0; sumt < _dt_user; sumt+=_dt) {
 
         ChannelVelocityandDischarge();  // mannings V Q Aplha
 
         ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
 
-        ChannelFlow();                  // channel kin wave for water
+        ChannelFlow();                  // kin wave for water
 
         ChannelSedimentFlow();          // kin wave for sediment and substances
 
@@ -81,17 +79,17 @@ void TWorld::ChannelFlowandErosion()
             valq += ChannelQn->Drc*_dt;
             Qnout.replace(i_, valq);
 
-            //TODO
+            //TODO check detachment, deposition, are these summed?
             if (SwitchErosion) {
                 double valqs = Qsnout[i_];
                 valqs += ChannelQsn->Drc*_dt;
                 Qsnout.replace(i_, valqs);
             }
         }}
-
-        count++;
+count++;
     }
 qDebug() << count << _dt << Qnout.size() << Qnout.at(0);
+
     // restore _dt
     _dt = _dt_user;
 

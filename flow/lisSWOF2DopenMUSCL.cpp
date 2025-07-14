@@ -133,7 +133,9 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     if (FlowBoundaryType > 0) {
         Boundary2Ddyn(_dt, h, u, v);
     }
-floodCount(h);
+
+    //floodCount(h);
+
     iter_n = qMax(1,count);
     return(count > 0 ? _dt/count : _dt);
 
