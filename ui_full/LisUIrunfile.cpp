@@ -208,8 +208,8 @@ void lisemqt::ParseInputData()
             case INFIL_SOAP : E_InfiltrationMethod->setCurrentIndex(3); break;
             }
         }
-        if (p1.compare("Use OM correction")==0)             checkInfilOMcorrection->setChecked(check);
-        if (p1.compare("Use Density correction")==0)        checkInfilDensfactor->setChecked(check);
+        // if (p1.compare("Use OM correction")==0)             checkInfilOMcorrection->setChecked(check);
+        // if (p1.compare("Use Density correction")==0)        checkInfilDensfactor->setChecked(check);
         if (p1.compare("Include compacted")==0)             checkInfilCompact->setChecked(check);
         if (p1.compare("Include crusts")==0)                checkInfilCrust->setChecked(check);
         if (p1.compare("Dynamic crusting")==0)              checkDynamicCrusting->setChecked(check);

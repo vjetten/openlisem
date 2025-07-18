@@ -638,19 +638,19 @@ void TWorld::InitSoilInput(void)
     ThetaI1a = NewMap(0); // used for screen output
     ThetaI2a = NewMap(0); // for output, average soil layer 2
 
-    if(SwitchOMCorrection)
-        OMcorr = ReadMap(LDD,getvaluename("OMmap"));
-    else
-        OMcorr = NewMap(0);
+    // if(SwitchOMCorrection)
+    //     OMcorr = ReadMap(LDD,getvaluename("OMmap"));
+    // else
+    //     OMcorr = NewMap(0);
 
-    if(SwitchDensCorrection)
-        DensFact = ReadMap(LDD,getvaluename("Densmap"));
-    else
-        DensFact  = NewMap(1.0);
-    FOR_ROW_COL_MV_L {
-        DensFact->Drc = qMin(1.2, qMax(0.9, DensFact->Drc));
-        OMcorr->Drc = qMin(2.0, qMax(-2.0, OMcorr->Drc));
-    }}
+    // if(SwitchDensCorrection)
+    //     DensFact = ReadMap(LDD,getvaluename("Densmap"));
+    // else
+    //     DensFact  = NewMap(1.0);
+    // FOR_ROW_COL_MV_L {
+    //     DensFact->Drc = qMin(1.2, qMax(0.9, DensFact->Drc));
+    //     OMcorr->Drc = qMin(2.0, qMax(-2.0, OMcorr->Drc));
+    // }}
 
     if (SwitchInfilCrust) {
         CrustFraction0 = NewMap(0);

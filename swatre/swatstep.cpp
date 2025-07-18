@@ -149,8 +149,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
     int c = pixel->c;
     int nN = p->zone->nrNodes;
 
-    double dt = swatreDT;//_dt/2;//SwatrePrecision; // start dt, precision set to 6 like in old code.
-                                     // A higher precision gives less infiltration
+    double dt = _dt/5;//swatreDT;//
     double WH = pixel->wh*100; // m to cm
     int tnode = pixel->tilenode;
     double impfrac = fractionImperm->Drc;
@@ -232,20 +231,20 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
 
         // per pixel correction of Ks and Pore for org mat and density
         // near saturated so for h > -1 cm, and only for topsoil, assumed to be 30 cm
-        if (SwitchOMCorrection) {
-            for (int j = 0; j < nN && p->zone->endComp[j] <= 30 && h[j] > -10; j++) {
-                k[j] = pixel->corrKsOA*k[j] + pixel->corrKsOB;
-                theta[j] = pixel->corrPOA*theta[j] + pixel->corrPOB;
-               // theta gives mass balance error because this decouples Theta from H?
-            }
-        }
+        // if (SwitchOMCorrection) {
+        //     for (int j = 0; j < nN && p->zone->endComp[j] <= 30 && h[j] > -10; j++) {
+        //         k[j] = pixel->corrKsOA*k[j] + pixel->corrKsOB;
+        //         theta[j] = pixel->corrPOA*theta[j] + pixel->corrPOB;
+        //        // theta gives mass balance error because this decouples Theta from H?
+        //     }
+        // }
 
-        if (SwitchDensCorrection) {
-            for (int j = 0; j < nN  && p->zone->endComp[j] <= 30 && h[j] > -10.0; j++) {
-                k[j] = pixel->corrKsDA*k[j] + pixel->corrKsDB;
-                theta[j] = pixel->corrPDA*theta[j] + pixel->corrPDB;
-            }
-        }
+        // if (SwitchDensCorrection) {
+        //     for (int j = 0; j < nN  && p->zone->endComp[j] <= 30 && h[j] > -10.0; j++) {
+        //         k[j] = pixel->corrKsDA*k[j] + pixel->corrKsDB;
+        //         theta[j] = pixel->corrPDA*theta[j] + pixel->corrPDB;
+        //     }
+        // }
 
         // do calibration after dens and OM calculations
         for (int j = 0; j < nN; j++) {
@@ -272,10 +271,10 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
 
         // max possible flux with Ksat
         double Ksat = FindValue(0, p->horizon[0], H_COL, K_COL)*p->KsatCal[0]*(1.0-impfrac);
-        if (SwitchOMCorrection)
-            Ksat = pixel->corrKsOA*Ksat + pixel->corrKsOB;
-        if (SwitchDensCorrection)
-            Ksat = pixel->corrKsDA*Ksat + pixel->corrKsDB;
+        // if (SwitchOMCorrection)
+        //     Ksat = pixel->corrKsOA*Ksat + pixel->corrKsOB;
+        // if (SwitchDensCorrection)
+        //     Ksat = pixel->corrKsDA*Ksat + pixel->corrKsDB;
 
         kavg[0] = sqrt(Ksat * k[0]);
         kavg[0] *= (1.0-impfrac);

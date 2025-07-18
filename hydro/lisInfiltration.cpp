@@ -88,24 +88,24 @@ void TWorld::InfilEffectiveKsat()
         // because SWATRE also needs this
         // these correction come from calculations based on Saxton and Rawls
         // note ksat is in m/timestep, affects B of the regression eq for Ks, 0.001/3600.0*_dt
-        if (SwitchOMCorrection) {
-            double OM2 = OMcorr->Drc*OMcorr->Drc;
-            double corrKsOA = 0.0026*OM2 + 0.0359*OMcorr->Drc + 1;
-            double corrKsOB = 0.001/3600*_dt*(0.253*OM2 + 2.9368*OMcorr->Drc + 0.0007);
-            double corrPOA  = -0.001*OM2 + 0.1014*OMcorr->Drc + 1.0;
-            double corrPOB  = 0.0006*OM2 - 0.0282*OMcorr->Drc;
-            Ksateff->Drc = corrKsOA*Ksateff->Drc + corrKsOB;
-            Poreeff->Drc = corrPOA*Poreeff->Drc + corrPOB;
-        }
-        if (SwitchDensCorrection) {
-            double D2 = DensFact->Drc*DensFact->Drc;
-            double corrKsDA = 3.1429*D2 - 9.5657*DensFact->Drc + 7.4229;
-            double corrKsDB = 0.001/3600.0*_dt*(135.4*D2 - 311.07*DensFact->Drc + 175.67);
-            double corrPDA  = DensFact->Drc;
-            double corrPDB   = -1.0 * DensFact->Drc + 1.0;
-            Ksateff->Drc = corrKsDA*Ksateff->Drc + corrKsDB;
-            Poreeff->Drc = corrPDA*Poreeff->Drc + corrPDB;
-        }
+        // if (SwitchOMCorrection) {
+        //     double OM2 = OMcorr->Drc*OMcorr->Drc;
+        //     double corrKsOA = 0.0026*OM2 + 0.0359*OMcorr->Drc + 1;
+        //     double corrKsOB = 0.001/3600*_dt*(0.253*OM2 + 2.9368*OMcorr->Drc + 0.0007);
+        //     double corrPOA  = -0.001*OM2 + 0.1014*OMcorr->Drc + 1.0;
+        //     double corrPOB  = 0.0006*OM2 - 0.0282*OMcorr->Drc;
+        //     Ksateff->Drc = corrKsOA*Ksateff->Drc + corrKsOB;
+        //     Poreeff->Drc = corrPOA*Poreeff->Drc + corrPOB;
+        // }
+        // if (SwitchDensCorrection) {
+        //     double D2 = DensFact->Drc*DensFact->Drc;
+        //     double corrKsDA = 3.1429*D2 - 9.5657*DensFact->Drc + 7.4229;
+        //     double corrKsDB = 0.001/3600.0*_dt*(135.4*D2 - 311.07*DensFact->Drc + 175.67);
+        //     double corrPDA  = DensFact->Drc;
+        //     double corrPDB   = -1.0 * DensFact->Drc + 1.0;
+        //     Ksateff->Drc = corrKsDA*Ksateff->Drc + corrKsDB;
+        //     Poreeff->Drc = corrPDA*Poreeff->Drc + corrPDB;
+        // }
         Ksateff->Drc = qMax(0.0, Ksateff->Drc); // ???? waarom
 
         Ksateff->Drc *= 1.0-fractionImperm->Drc;

@@ -4,7 +4,7 @@ The model can be downloaded from:
 https://github.com/vjetten/openlisem/releases/tag/lisem_bin
 
 ============
-Date: 250713
+Date: 250718
 ============
 
 This software is under the copyright model GPLv3 (distributed with the model) and subject to additional disclaimers.
@@ -15,8 +15,9 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
 
-250713 - v7.4.7.beta.R1-R7
+250718 - v7.4.7.beta.R1-R7
 - CHHANGED: read all maps as float (4 byte) instead of double (8 byte), save 40-50% RAM use
+- Removed: possibility to do Org Mat. and bulkdensity corrections on Ksat and Porosity in the code. Too complex, user should do this in the input.
 - Added: Different channel shapes: rectangular, circular, trapezium and triangular. The last two are controlled with the channel side angle.
 - Added: A channel culvert map that has confined flow in these pizels, with shape values: 1=rect,2=circ,3=trap,4=tri.
 - Added: Option to stop SWATRE when there is no rainfall or runoff in a cell (faster)

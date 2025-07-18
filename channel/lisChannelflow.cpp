@@ -57,9 +57,9 @@ void TWorld:: ChannelFlowandErosion()
     // save user dt
 
     // do the loop based on dt = dx
-    // if (_dt > _dx) {
-    //     _dt = _dx;
-    // }
+    if (_dt > _dx) {
+//        _dt = _dx;
+    }
 int count = 0;
     // do the kin wave multiple times, because ChannelVolume is adjusted each time,
     // the velocity and channelQ is also adjusted each time, we only need to sum the outflow

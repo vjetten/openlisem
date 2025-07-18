@@ -354,10 +354,10 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("2");  //GA =2
     namelist[i++].name = QString("Infil Method");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use OM correction");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use Density correction");
-    namelist[i].value = QString("0");
+    // namelist[i++].name = QString("Use OM correction");
+    // namelist[i].value = QString("0");
+    // namelist[i++].name = QString("Use Density correction");
+    // namelist[i].value = QString("0");
     namelist[i++].name = QString("Include compacted");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include crusts");
