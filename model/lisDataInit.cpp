@@ -1118,6 +1118,13 @@ Fill(*tma,0);
         }
     }
 
+    // baseflow map
+    if (SwitchChannelBaseflowMap)
+        {
+        BaseFlowInflow = ReadMap(LDD, getvaluename("baseflow_inflow"));
+        BaseFlowDischarges = ReadMap(LDD, getvaluename("baseflow")); // in this case we don't need this map, but without loading LISEM doesn't run.
+    }
+
     if(SwitchErosion) {
         TotalChanDetMap = NewMap(0);
         TotalChanDepMap = NewMap(0);
@@ -1832,7 +1839,8 @@ void TWorld::IntializeData(void)
     // SwitchUseMaterialDepth not active!
     SwitchUseMaterialDepth = false;
 
-    if (SwitchChannelBaseflowStationary)
+    // add switch if baseflow map added, don't calculate new.
+    if (SwitchChannelBaseflowStationary && !SwitchChannelBaseflowMap)
         FindStationaryBaseFlow();
 
 }
@@ -1949,6 +1957,7 @@ void TWorld::IntializeOptions(void)
     SwitchLDDGWflow = false;
     SwitchSWATGWflow = false;
     SwitchChannelBaseflowStationary = false;
+    SwitchChannelBaseflowMap = false;
     SwitchChannelInfil = false;
     SwitchCulverts = false;
     SwitchDischargeUser = false;

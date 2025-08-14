@@ -96,6 +96,11 @@ void TWorld::ChannelBaseflow(void)
     // add a stationary part
     if(SwitchChannelBaseflowStationary)
     {
+        // add switch for baseflow as map
+        // if added as map then addedbaseflow = true;
+        if (SwitchChannelBaseflowMap)
+            addedbaseflow = true;
+
         // first time
         if(!addedbaseflow) {
            #pragma omp parallel for num_threads(userCores)
