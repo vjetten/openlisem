@@ -446,6 +446,7 @@ public:
         // channel and Overland flow
         SwitchIncludeChannel,
         SwitchChannelBaseflowStationary,
+        SwitchChannelBaseflowMap,
         SwitchChannelInfil,
         SwitchGWflow,
         SwitchGW2Dflow,

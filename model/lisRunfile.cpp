@@ -263,6 +263,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include main channels")==0)             SwitchIncludeChannel = iii == 1;
         if (p1.compare("Include channel infil")==0)             SwitchChannelInfil   = iii == 1;
         if (p1.compare("Include stationary baseflow")==0)       SwitchChannelBaseflowStationary  = iii == 1;
+        if (p1.compare("Stationary baseflow as map")==0)        SwitchChannelBaseflowMap  = iii == 1;
       //  if (p1.compare("Adjust channel crosssection")==0)       SwitchChannelAdjustCHW  = iii == 1;
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
         if (p1.compare("Include channel inflow")==0)            SwitchDischargeUser  = iii == 1;
@@ -398,11 +399,13 @@ void TWorld::ParseRunfileData(void)
     {
       //  SwitchChannelBaseflow = false;
         SwitchChannelBaseflowStationary = false;
+        SwitchChannelBaseflowMap = false;
         SwitchChannelInfil = false;
     } else {
         if (SwitchChannelInfil) {
          //   SwitchChannelBaseflow = false;
             SwitchChannelBaseflowStationary = false;
+            SwitchChannelBaseflowMap = false;
         }
     }
 
