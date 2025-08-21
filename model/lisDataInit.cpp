@@ -1121,7 +1121,7 @@ Fill(*tma,0);
     // baseflow map
     if (SwitchChannelBaseflowMap)
         {
-        BaseFlowInflow = ReadMap(LDD, getvaluename("baseflow_inflow"));
+        BaseFlowInflow = ReadMap(LDD, getvaluename("baseflow"));
         BaseFlowDischarges = ReadMap(LDD, getvaluename("baseflow")); // in this case we don't need this map, but without loading LISEM doesn't run.
     }
 
