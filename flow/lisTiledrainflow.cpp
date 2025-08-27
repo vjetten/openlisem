@@ -192,6 +192,7 @@ void TWorld::TileFlow(void)
         tmc->Drc = Qin;
 
         TileQn->Drc = IterateToQnew(Qin, TileQ->Drc, TileAlpha->Drc, _dt, DX->Drc, TileMaxQ->Drc, TileMaxAlpha->Drc);
+        // if LDDTile->Drc == 5 then block flow - done in LisDataInit.cpp
         TileQn->Drc = qMin(Qin+TileWaterVol->Drc/_dt, TileQn->Drc);
         TileQn->Drc = qMin(TileQn->Drc, TileMaxQ->Drc);
     }
@@ -204,13 +205,13 @@ void TWorld::TileFlow(void)
             full+=1;
         //TileWaterVol->Drc = qMin(TileWaterVol->Drc, TileArea->Drc*DX->Drc);
         // gives always MB errors!
-        //if (LDDTile->Drc == 5)
-          //  totq = TileQn->Drc*_dt;
+       // if (LDDTile->Drc == 5)
+       //     totq = TileQn->Drc*_dt;
     }}
 
     // check if no MB loss in this function
-    //double tot1 = MapTotal(*TileWaterVol);
-    //qDebug() << tot << tot1 << totq << tot-tot1-totq << full << MB;
+  //  double tot1 = MapTotal(*TileWaterVol);
+  //  qDebug() << tot << tot1 << totq << tot-tot1-totq << full << MB;
 
 }
 

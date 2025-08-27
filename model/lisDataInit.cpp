@@ -2330,6 +2330,11 @@ void TWorld::InitTiledrains(void)
                 TileMaxAlpha->Drc  = TileArea->Drc/std::pow(TileMaxQ->Drc, BETArect);
             }}
         }
+
+        FOR_ROW_COL_MV_TILEL {
+            if (LDDTile->Drc == 5)
+                TileMaxQ->Drc = 1e-6; //No outflow from tiledrains
+        }}
     }
 }
 //---------------------------------------------------------------------------
