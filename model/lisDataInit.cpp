@@ -1123,6 +1123,7 @@ Fill(*tma,0);
         {
         BaseFlowInflow = ReadMap(LDD, getvaluename("baseflow"));
         BaseFlowDischarges = ReadMap(LDD, getvaluename("baseflow")); // in this case we don't need this map, but without loading LISEM doesn't run.
+        BaseFlowInitialVolume = ReadMap(LDD, getvaluename("baseflowinitvol")); // in m3
     }
 
     if(SwitchErosion) {

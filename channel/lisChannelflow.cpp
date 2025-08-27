@@ -98,8 +98,8 @@ void TWorld::ChannelBaseflow(void)
     {
         // add switch for baseflow as map
         // if added as map then addedbaseflow = true;
-        if (SwitchChannelBaseflowMap)
-            addedbaseflow = true;
+        //if (SwitchChannelBaseflowMap)
+       //     addedbaseflow = true;
 
         // first time
         if(!addedbaseflow) {
