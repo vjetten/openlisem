@@ -4,7 +4,7 @@ The model can be downloaded from:
 https://github.com/vjetten/openlisem/releases/tag/lisem_bin
 
 ============
-Date: 250713
+Date: 250901
 ============
 
 This software is under the copyright model GPLv3 (distributed with the model) and subject to additional disclaimers.
@@ -14,6 +14,10 @@ For questions contact v.g.jetten AD utwente.nl
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
+
+250901 - v7.4.7.beta.R8
+- Added: option to load stationary baseflow as precalculated map
+- Added: water flowing into urban storm drains does not dissapear but fills up the storm drains, when full the stormdrains will overflow.
 
 250713 - v7.4.7.beta.R1-R7
 - CHHANGED: read all maps as float (4 byte) instead of double (8 byte), save 40-50% RAM use

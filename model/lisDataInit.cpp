@@ -1840,9 +1840,14 @@ void TWorld::IntializeData(void)
     // SwitchUseMaterialDepth not active!
     SwitchUseMaterialDepth = false;
 
-    // add switch if baseflow map added, don't calculate new.
+    // add switch if baseflow map added, don't calculate new. 
     if (SwitchChannelBaseflowStationary && !SwitchChannelBaseflowMap)
         FindStationaryBaseFlow();
+
+    // in case of baseflow map, add initial volume from precalculated map
+    if (SwitchChannelBaseflowMap)
+        BaseFlowInit = MapTotal(*BaseFlowInitialVolume);
+        // correct mass balance
 
 }
 //---------------------------------------------------------------------------
