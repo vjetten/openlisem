@@ -684,7 +684,7 @@ void TWorld::ReportTimeseriesCSV(void)
             out << "\n";
 
             // second row, units
-            out << "min"; //time
+            out << "days"; //time
             if (SwitchRainfall) out << ",mm/h"; //rain
             if (SwitchSnowmelt) out << ",mm/h"; // snow
             out << "," << unitS; // qall
@@ -719,7 +719,7 @@ void TWorld::ReportTimeseriesCSV(void)
         QTextStream out(&fout);
         out.setFieldWidth(width);
         out.setRealNumberNotation(QTextStream::FixedNotation);
-        out.setRealNumberPrecision(5);
+        out.setRealNumberPrecision(7);
 
         out << (time/60)/1440.0;
 
