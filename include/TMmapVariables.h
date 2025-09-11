@@ -271,7 +271,7 @@ cTMap
 *ChannelDepth,               //!<
 *ChannelSide,                //!<
 *ChannelQSide,                //!<
-*ChannelQb,                   //!<
+//*ChannelQb,                   //!<
 *ChannelQ,                   //!<
 *ChannelQn,                  //!<
 *ChannelQntot,

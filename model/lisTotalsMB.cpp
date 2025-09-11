@@ -249,7 +249,8 @@ void TWorld::TotalsFlow(void)
         }
 
         if (SwitchChannelBaseflowStationary)
-            BaseFlowTot += MapTotal(*BaseFlowInflow)*_dt; // stationary base inflow
+            BaseFlowTot += MapTotal(*BaseFlowInflow)*_dt;
+            // stationary base inflow every timestep, counts as input in mass balance
 
         // recalc in mm for screen output
         // NOT USED

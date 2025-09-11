@@ -930,7 +930,7 @@ void TWorld::InitChannel(void)
 
     ChannelWaterVol = NewMap(0);
     ChannelQ = NewMap(0);
-    ChannelQb = NewMap(0); //baseflow
+    //ChannelQb = NewMap(0); //baseflow not used
     ChannelQn = NewMap(0);
     ChannelQntot = NewMap(0);
 
@@ -944,7 +944,7 @@ void TWorld::InitChannel(void)
     ChannelCos = NewMap(0);
 
     ChannelAlpha = NewMap(0);//
-    ChannelDX = NewMap(0); //!!!!!!!!!!!!!!!! dit moet DX zijn
+    ChannelDX = NewMap(0); //!!!!!!!!!!!!!!!! dit moet DX zijn anders massabalans fout? of nu niet meer?
     ChannelInfilVol = NewMap(0);
 
     maxChannelflow = NewMap(0);//
@@ -1013,7 +1013,7 @@ void TWorld::InitChannel(void)
 
     // channel unsat side inflow, not used!
     //ChannelQSide = NewMap(0);
-Fill(*tma,0);
+//Fill(*tma,0);
     FOR_ROW_COL_MV_CHL {
         ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
        // ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc)); // same as DX else mass balance problems
@@ -1042,21 +1042,10 @@ Fill(*tma,0);
                 crch_[i_].shape = SHAPETRIA;
             }
         }
-        tma->Drc = crch_[i_].shape;
+       // tma->Drc = crch_[i_].shape;
     }}
 
-    if (SwitchChannelInfil) {
-        ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
-        cover(*ChannelKsat, *LDD, 0);
-        calcValue(*ChannelKsat, ChKsatCalibration, MUL);
-        // ksat in m3 is does not change during the run
-        ChannelInfM3 = NewMap(0);
-        // FOR_ROW_COL_MV_CHL {
-        //     ChannelInfM3->Drc =  ChannelKsat->Drc * _dt/3600000.0 * ChannelDX->Drc * ChannelWidthO->Drc;
-        // }}
-        // depends on perimeter! recalc during run
-    }
-
+    // Culverts and channel shapes
     ChannelMaxQ = NewMap(0);
     ChannelMaxAlpha = NewMap(0);
     ChannelMaxArea = NewMap(0);
@@ -1101,6 +1090,20 @@ Fill(*tma,0);
         ChannelMaxAlpha->Drc = ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, 0.6);
     }}
 
+    // infiltration
+    if (SwitchChannelInfil) {
+        ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
+        cover(*ChannelKsat, *LDD, 0);
+        calcValue(*ChannelKsat, ChKsatCalibration, MUL);
+        // ksat in m3 is does not change during the run
+        ChannelInfM3 = NewMap(0);
+        // FOR_ROW_COL_MV_CHL {
+        //     ChannelInfM3->Drc =  ChannelKsat->Drc * _dt/3600000.0 * ChannelDX->Drc * ChannelWidthO->Drc;
+        // }}
+        // depends on perimeter! recalc during run
+    }
+
+    // gridcell retention
     ChanRetentionVolTotPot = 0;
     if (SwitchGridRetention) {
         ChanRetention = ReadMap(LDD, getvaluename("chanretention"));
@@ -1108,24 +1111,39 @@ Fill(*tma,0);
         ChanRetentionVolTotPot = MapTotal(*ChanRetention);
     }
 
+    // make ldd of culverts negative for drawing
     for(long i_ =  0; i_ < crlinkedlddch_.size(); i_++) {
         int r = crlinkedlddch_.at(i_).r;
         int c = crlinkedlddch_.at(i_).c;
-        if (ChannelDiameter->Drc > 0) {
+        if (ChannelCulvert->Drc > 0) {
             LDD_COORIN in = crlinkedlddch_.at(i_);
             in.ldd *= -1;
-            crlinkedlddch_.replace(i_, in); // make ldd of culverts negative for drawing
+            crlinkedlddch_.replace(i_, in);
         }
     }
 
-    // baseflow map
-    if (SwitchChannelBaseflowMap)
-        {
-        BaseFlowInflow = ReadMap(LDD, getvaluename("baseflow"));
-        BaseFlowDischarges = ReadMap(LDD, getvaluename("baseflow")); // in this case we don't need this map, but without loading LISEM doesn't run.
-        BaseFlowInitialVolume = ReadMap(LDD, getvaluename("baseflowinitvol")); // in m3
+    // stationay baseflow
+
+    if (SwitchChannelBaseflowStationary) {
+        if (!SwitchChannelBaseflowMap) {
+
+            FindStationaryBaseFlow();
+            report(*BaseFlowInitialVolume,"baseflowinitm3s.map");
+            report(*BaseFlowInflow,"baseinflow.map");
+
+            //BaseFlowInit = MapTotal(*BaseFlowInitialVolume);
+            // moved
+
+        } else {
+            BaseFlowInflow = ReadMap(LDD, getvaluename("baseflow"));
+            BaseFlowInitialVolume = ReadMap(LDD, getvaluename("baseflowinitvol")); // in m3
+            // use rdefined
+        }
+        // this results in 2 maps: BaseFlowInflow (added every timestep in m3/s),
+        // BaseFlowInitialVolume (added once at the start in m3)
     }
 
+    // erosion
     if(SwitchErosion) {
         TotalChanDetMap = NewMap(0);
         TotalChanDepMap = NewMap(0);
@@ -1840,12 +1858,12 @@ void TWorld::IntializeData(void)
     // SwitchUseMaterialDepth not active!
     SwitchUseMaterialDepth = false;
 
-    // add switch if baseflow map added, don't calculate new. 
-    if (SwitchChannelBaseflowStationary && !SwitchChannelBaseflowMap)
-        FindStationaryBaseFlow();
+    // // add switch if baseflow map added, don't calculate new.
+    // if (SwitchChannelBaseflowStationary && !SwitchChannelBaseflowMap)
+    //     FindStationaryBaseFlow();
 
     // in case of baseflow map, add initial volume from precalculated map
-    if (SwitchChannelBaseflowMap)
+    if (SwitchChannelBaseflowStationary)
         BaseFlowInit = MapTotal(*BaseFlowInitialVolume);
         // correct mass balance
 
@@ -2216,7 +2234,7 @@ void TWorld::FindStationaryBaseFlow()
                                 h = ChannelDepth->data[list->rowNr][list->colNr];
                                 A = ChannelWidth->Drc*h;
                             }
-                            BaseFlowInitialVolume->data[list->rowNr][list->colNr] = A*DX->Drc;
+                            BaseFlowInitialVolume->data[list->rowNr][list->colNr] = A*ChannelDX->Drc;
 
                             temp=list;
                             list=list->prev;
@@ -2235,11 +2253,6 @@ void TWorld::FindStationaryBaseFlow()
         tmc->Drc = 0;
         tmd->Drc = 0;
     }}
-    report(*BaseFlowInitialVolume,"baseflowinitm3s.map");
-    report(*BaseFlowInflow,"baseinflow.map");
-
-    BaseFlowInit = MapTotal(*BaseFlowInitialVolume);
-
 }
 //---------------------------------------------------------------------------
 void TWorld::InitImages()

@@ -70,7 +70,7 @@
        <enum>QTabWidget::TabPosition::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -694,7 +694,7 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>0</y>
+                <y>-33</y>
                 <width>835</width>
                 <height>547</height>
                </rect>
@@ -2391,7 +2391,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>10</number>
+                  <number>5</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -5926,7 +5926,7 @@
                       <property name="verticalSpacing">
                        <number>4</number>
                       </property>
-                      <item row="6" column="6">
+                      <item row="7" column="6">
                        <widget class="QToolButton" name="toolButton_DischargeShow">
                         <property name="enabled">
                          <bool>false</bool>
@@ -5937,27 +5937,6 @@
                         <property name="icon">
                          <iconset resource="../resources/openlisem.qrc">
                           <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="6" column="2" colspan="3">
-                       <widget class="QLineEdit" name="E_DischargeInName">
-                        <property name="enabled">
-                         <bool>false</bool>
-                        </property>
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
                         </property>
                        </widget>
                       </item>
@@ -5984,88 +5963,14 @@
                          <string>map needed: chanmaxq.map</string>
                         </property>
                         <property name="text">
-                         <string>Use Culverts in Channels (chandiameter.map)</string>
+                         <string>Use Culverts in Channels (chanculvert.map)</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="6" column="5">
-                       <widget class="QToolButton" name="toolButton_DischargeName">
+                      <item row="7" column="2" colspan="3">
+                       <widget class="QLineEdit" name="E_DischargeInName">
                         <property name="enabled">
                          <bool>false</bool>
-                        </property>
-                        <property name="text">
-                         <string>...</string>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="../resources/openlisem.qrc">
-                          <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="6" column="0" colspan="2">
-                       <widget class="QCheckBox" name="checkDischargeUser">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>false</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>User defined channel inflow (e.g. dam spill):</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0" colspan="7">
-                       <widget class="QCheckBox" name="checkStationaryBaseflow">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Add stationary baseflow (baseflow.map)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="5" column="0">
-                       <widget class="QLabel" name="label_87">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Channel perimeter totuosity (1=rectangular)</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="0" colspan="7">
-                       <widget class="QCheckBox" name="checkChannelInfil">
-                        <property name="enabled">
-                         <bool>true</bool>
                         </property>
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -6081,12 +5986,9 @@
                           <kerning>true</kerning>
                          </font>
                         </property>
-                        <property name="text">
-                         <string>Channel infiltration (chanksat.map)</string>
-                        </property>
                        </widget>
                       </item>
-                      <item row="5" column="1" colspan="3">
+                      <item row="6" column="1" colspan="3">
                        <widget class="QDoubleSpinBox" name="E_CalibrateChTor">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -6114,6 +6016,103 @@
                         <property name="value">
                          <double>1.000000000000000</double>
                         </property>
+                       </widget>
+                      </item>
+                      <item row="7" column="0" colspan="2">
+                       <widget class="QCheckBox" name="checkDischargeUser">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>false</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>User defined channel inflow (e.g. dam spill):</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="7" column="5">
+                       <widget class="QToolButton" name="toolButton_DischargeName">
+                        <property name="enabled">
+                         <bool>false</bool>
+                        </property>
+                        <property name="text">
+                         <string>...</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../resources/openlisem.qrc">
+                          <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="6" column="0">
+                       <widget class="QLabel" name="label_87">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Channel perimeter totuosity (1=rectangular)</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0" colspan="7">
+                       <widget class="QComboBox" name="E_BaseflowMethod">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <item>
+                         <property name="text">
+                          <string>No stationary baseflow or channel infiltration</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>Channel infiltration (chanksat.map)</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>Stationary baseflow in all channel cells calculated from outlet points (baseflow.map)</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>Stationary baseflow user-defined from map (baseflowinitvol.map)</string>
+                         </property>
+                        </item>
                        </widget>
                       </item>
                      </layout>
@@ -10972,8 +10971,8 @@
                    </property>
                    <property name="geometry">
                     <rect>
-                     <x>174</x>
-                     <y>118</y>
+                     <x>60</x>
+                     <y>120</y>
                      <width>352</width>
                      <height>17</height>
                     </rect>
@@ -11642,6 +11641,57 @@
                    </property>
                    <property name="checked">
                     <bool>false</bool>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkStationaryBaseflow">
+                   <property name="geometry">
+                    <rect>
+                     <x>10</x>
+                     <y>50</y>
+                     <width>1792</width>
+                     <height>22</height>
+                    </rect>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <bold>false</bold>
+                     <underline>false</underline>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Add stationary baseflow everywhere calculated from outlets (baseflow.map)</string>
+                   </property>
+                  </widget>
+                  <widget class="QCheckBox" name="checkChannelInfil">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="geometry">
+                    <rect>
+                     <x>120</x>
+                     <y>100</y>
+                     <width>1792</width>
+                     <height>22</height>
+                    </rect>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                     <bold>false</bold>
+                     <underline>false</underline>
+                     <kerning>true</kerning>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>Channel infiltration (chanksat.map)</string>
                    </property>
                   </widget>
                  </widget>

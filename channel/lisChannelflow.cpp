@@ -44,10 +44,11 @@ void TWorld::ChannelFlowandErosion()
 
     SwitchChannelKinWave = true;    // set to false for experimental swof in channel
 
-   // ChannelRainandInfil();          // subtract infil, add rainfall
-
+    // moved to main before OF
+    //ChannelRainandInfil();          // subtract infil, add rainfall
     //ChannelBaseflow();              // add stationary and GW baseflow if selected
 
+    // looping a smaller dt doesn't work or doesn't make difference
     // _dt_user = _dt;
     // _dt = _dx/2.0;
     // for (double t = 0; t < _dt_user; t+=_dt)
@@ -94,12 +95,13 @@ void TWorld::ChannelVelocityandDischarge()
 void TWorld::ChannelBaseflow(void)
 {
     // add a stationary part
-    if(SwitchChannelBaseflowStationary)
-    {
+    if(SwitchChannelBaseflowStationary) {
         // add switch for baseflow as map
         // if added as map then addedbaseflow = true;
         //if (SwitchChannelBaseflowMap)
        //     addedbaseflow = true;
+
+        //CHECK?
 
         // first time
         if(!addedbaseflow) {

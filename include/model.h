@@ -160,6 +160,11 @@
 #define INFIL_SMITH 22
 #define INFIL_SMITH2 23
 
+#define CHBASEFLOW_NONE 0
+#define CHBASEFLOW_INFIL 1
+#define CHBASEFLOW_CALC 2
+#define CHBASEFLOW_USER 3
+
 #define KE_EXPFUNCTION 0
 #define KE_LOGFUNCTION 1
 #define KE_POWERFUNCTION 2
@@ -582,6 +587,9 @@ public:
 
     /// infiltration method
     int InfilMethod;
+
+    /// stationary baselfow method
+    int BaseflowMethod;
 
     /// erosion units in output: to/ha; kg/cell; kg/m2
     int ErosionUnits;

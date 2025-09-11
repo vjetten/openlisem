@@ -79,12 +79,15 @@ void TWorld::OverlandFlow2Ddyn(void)
 {
     double dtOF = 0;
 
+    // NOTE: only broad crested weir works with different channel shapes!
     // if (SwitchChannel2DflowConnect)
         ChannelOverflowAlt(WHrunoff, V);
+
     // else
+        // obsolete this is only for a rectangular channel
     //     ChannelOverflow(WHrunoff, V);
-    // // Mixing of 2D runoff with channel water, V is used to determine how much flows into the channel
-    // // after this new ChannelHW and WHrunoff, and Susp sediment values ChannelSSSed and SSFlood->Drc
+
+    // after this new ChannelHW and WHrunoff, and Susp sediment values ChannelSSSed and SSFlood->Drc
 
     startFlood = false;
     #pragma omp parallel for num_threads(userCores)
@@ -189,11 +192,12 @@ void TWorld::ToChannelAlt()
             // potentially all surface water flows into channel
             double Cd = 0.56;
             double lengthfactor = 2.0*_dt*ChannelDX->Drc;
-            double velocityfactor = V->Drc*V->Drc/(2*GRAV);
+            double velocityfactor = (V->Drc*V->Drc)/(2*GRAV);
             double freeflow_tochan = lengthfactor*Cd*SQRT2G*std::pow(WHrunoff->Drc+velocityfactor,1.5);
             //free flow broad crested weir, water flows over edge to deeper water in channel
 
             double volintochan = qMin(freeflow_tochan, CHAdjDX->Drc * WHrunoff->Drc);
+            // in m3, minimum off what is therre and broad crested flow
 
             WaterVolall->Drc -= volintochan;
             ChannelWaterVol->Drc += volintochan;
