@@ -118,7 +118,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;QinPoints;QinPoints.map;Locations in channel network where discharge is added from a text record. Unique nr > 0;qinpoints");
     DEFmaps.append("2;Cohesion;chancoh.map;Cohesion of channel bed (kPa);chancoh");
     DEFmaps.append("2;Stationary baseflow;baseflow.map;Stationary baseflow maintained in the run (m3/s at the outlet);baseflow");
-    //DEFmaps.append("2;Calculated baseflow;baseflow_inflow.map;Stationary baseflow maintained in the run (m3/s for each cell with baseflow;baseflow_inflow");
+    DEFmaps.append("2;Initial volume baseflow;baseflowinitvol.map;Initial volume of water in channels when baseflow is provided as map (m3/S);baseflowinitvol");
     DEFmaps.append("2;Baseflow network;lddgroundwater.map;LDD perpendicular to the river;lddbase");
     DEFmaps.append("2;Baseflow contrib. area;gwdistance.map;Distance to river (m);basereach");
     DEFmaps.append("2;WHInit;WHinit.map;Initial floodlevel (m);whinit");
@@ -436,11 +436,12 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include main channels");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include channel infil");
+  //  namelist[i++].name = QString("Include channel infil");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include stationary baseflow");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Stationary baseflow as map");
+    namelist[i++].name = QString("Channel baseflow method");
+    // namelist[i++].name = QString("Include stationary baseflow");
+    // namelist[i].value = QString("0");
+    // namelist[i++].name = QString("Stationary baseflow as map");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel culverts");
     namelist[i].value = QString("0");

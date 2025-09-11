@@ -261,10 +261,10 @@ void TWorld::ParseRunfileData(void)
 
         //channels and GW
         if (p1.compare("Include main channels")==0)             SwitchIncludeChannel = iii == 1;
-        if (p1.compare("Include channel infil")==0)             SwitchChannelInfil   = iii == 1;
-        if (p1.compare("Include stationary baseflow")==0)       SwitchChannelBaseflowStationary  = iii == 1;
-        if (p1.compare("Stationary baseflow as map")==0)        SwitchChannelBaseflowMap  = iii == 1;
-      //  if (p1.compare("Adjust channel crosssection")==0)       SwitchChannelAdjustCHW  = iii == 1;
+      //  if (p1.compare("Include channel infil")==0)             SwitchChannelInfil   = iii == 1;
+      //  if (p1.compare("Include stationary baseflow")==0)       SwitchChannelBaseflowStationary  = iii == 1;
+      //  if (p1.compare("Stationary baseflow as map")==0)        SwitchChannelBaseflowMap  = iii == 1;
+
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
         if (p1.compare("Include channel inflow")==0)            SwitchDischargeUser  = iii == 1;
         if (p1.compare("Include water height inflow")==0)       SwitchWaveUser  = iii == 1;
@@ -373,7 +373,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OutSedBL")==0)          SwitchOutSedBL = iii == 1;
 
     }// first loop of runnamelist
-//qDebug() <<"SwitchOutTileVol"<<SwitchOutTileVol;
+
     //##########################
 
     // get a number of options that detemrine how to read runfile parameters
@@ -395,26 +395,31 @@ void TWorld::ParseRunfileData(void)
     if (!SwitchInfiltration)
         InfilMethod = INFIL_NONE;
 
-    if (!SwitchIncludeChannel)
-    {
-      //  SwitchChannelBaseflow = false;
-        SwitchChannelBaseflowStationary = false;
-        SwitchChannelBaseflowMap = false;
-        SwitchChannelInfil = false;
-    } else {
-        if (SwitchChannelInfil) {
-         //   SwitchChannelBaseflow = false;
-            SwitchChannelBaseflowStationary = false;
-            SwitchChannelBaseflowMap = false;
+
+    // stationary baseflow
+    SwitchChannelBaseflowStationary = false;
+    SwitchChannelBaseflowMap = false;
+    SwitchChannelInfil = false;
+    if (SwitchIncludeChannel) {
+        BaseflowMethod = getvalueint("Channel baseflow method");
+
+        if (BaseflowMethod == CHBASEFLOW_INFIL)
+            SwitchChannelInfil = true;
+        else {
+            if (BaseflowMethod == CHBASEFLOW_CALC)
+                SwitchChannelBaseflowStationary = true;
+            if (BaseflowMethod == CHBASEFLOW_USER) {
+                SwitchChannelBaseflowStationary = true;
+                SwitchChannelBaseflowMap = true;
+            }
         }
+
+        qDebug() <<SwitchChannelInfil<<SwitchChannelBaseflowStationary<<SwitchChannelBaseflowMap;
     }
 
-    if (SwitchGWflow) {     /*SwitchChannelBaseflow && */
+    if (SwitchGWflow) {
         SwitchImpermeable = false;  //???okay
     }
-
-    // if (SwitchWaveUser)
-    //     SwitchMUSCL = false;
 
     if (!SwitchInfrastructure) {
         SwitchRoadsystem = false;
@@ -422,7 +427,6 @@ void TWorld::ParseRunfileData(void)
         SwitchHouses = false;
     }
     // stationary baseflow and impermeable soil allowed (ignoring where the stationary flow comes form !
-
 
     if (!SwitchConservation) {
         SwitchFlowBarriers = false;

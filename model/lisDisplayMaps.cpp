@@ -338,9 +338,6 @@ void TWorld::GetComboMaps()
             AddComboMap(0,"Channel Discharge","m3/s",ChannelQn,LegendMap[cl],Legend[cl],true,false,1.0, 0.001);
         cl = 2;
         AddComboMap(0,"Channel Water Height","m",ChannelWH,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
-//        if (SwitchChannelBaseflow)
-//            AddComboMap(0,"Baseflow inflow","m3/s",Qbase,LegendMap[cl],Legend[cl],false,false,1.0,0.01);
-
         cl = 1;
         AddComboMap(0,"Channel Velocity","m/s",ChannelV,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
     }

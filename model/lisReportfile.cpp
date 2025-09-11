@@ -314,10 +314,11 @@ void TWorld::ReportTotalSeries(void)
         out << sep << "Theta1 (-)";
         if (SwitchTwoLayer)
             out << sep << "Theta2 (-)";
-        if (SwitchChannelBaseflowStationary || SwitchGWflow) {
-            out << sep << "GWlevel (m)";
+        if (SwitchChannelBaseflowStationary)
             out << sep << "Baseflow in (mm)";
-        }
+         if (SwitchGWflow)
+            out << sep << "GWlevel (m)";
+
         if (SwitchIncludeStormDrains)
             out << sep << "StormDrain(mm)";
         out << sep << "Runoff(mm)";
@@ -366,10 +367,11 @@ void TWorld::ReportTotalSeries(void)
     out << sep << op.Theta1;
     if (SwitchTwoLayer)
         out << sep << op.Theta2;
-    if (SwitchChannelBaseflowStationary || SwitchGWflow) {
-        out << sep << op.GWlevel;
+    if (SwitchChannelBaseflowStationary)
         out << sep << op.BaseFlowTotmm;
-    }
+    if (SwitchGWflow)
+        out << sep << op.GWlevel;
+
     if (SwitchIncludeStormDrains)
         out << sep << op.StormDrainTotmm;
     out << sep << op.WaterVolTotmm;

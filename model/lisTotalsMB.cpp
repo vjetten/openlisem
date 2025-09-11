@@ -249,7 +249,8 @@ void TWorld::TotalsFlow(void)
         }
 
         if (SwitchChannelBaseflowStationary)
-            BaseFlowTot += MapTotal(*BaseFlowInflow)*_dt; // stationary base inflow
+            BaseFlowTot += MapTotal(*BaseFlowInflow)*_dt;
+            // stationary base inflow every timestep, counts as input in mass balance
 
         // recalc in mm for screen output
         // NOT USED
@@ -300,7 +301,7 @@ void TWorld::TotalsFlow(void)
     if (SwitchIncludeChannel)
     {
         FOR_ROW_COL_LDDCH5 {
-            Qtot_dt += Qnout[i_];//ChannelQn->Drc*_dt; //m3
+            Qtot_dt += ChannelQn->Drc*_dt; //m3
         }}
 
         #pragma omp parallel for num_threads(userCores)
@@ -542,7 +543,7 @@ void TWorld::MassBalance()
     // floodBoundaryTot is already in Qtot
     MB = waterin > 0 ? (waterin - waterout - waterstore)/waterin*100  : 0;
 
-   // qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot  << WaterVolTot << ChannelVolTot <<  Qtot ;
+    // qDebug() << RainTot << IntercTot << IntercHouseTot << InfilTot  << WaterVolTot << ChannelVolTot <<  Qtot ;
 
     Fill(*MBm, 0);
 

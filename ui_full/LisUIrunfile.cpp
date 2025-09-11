@@ -199,13 +199,11 @@ void lisemqt::ParseInputData()
         // INFILTRATION
         if (p1.compare("Include Infiltration")==0)     checkInfiltration->setChecked(check);
         if (p1.compare("Infil Method")==0) {
-            switch(iii)
-            {
-            //case INFIL_NONE : E_InfiltrationMethod->setCurrentIndex(0);break;
-            case INFIL_SWATRE : E_InfiltrationMethod->setCurrentIndex(0);break;
-            case INFIL_GREENAMPT : E_InfiltrationMethod->setCurrentIndex(1);break;
-            case INFIL_SMITH : E_InfiltrationMethod->setCurrentIndex(2); break;
-            case INFIL_SOAP : E_InfiltrationMethod->setCurrentIndex(3); break;
+            switch(iii) {
+                case INFIL_SWATRE : E_InfiltrationMethod->setCurrentIndex(0);break;
+                case INFIL_GREENAMPT : E_InfiltrationMethod->setCurrentIndex(1);break;
+                case INFIL_SMITH : E_InfiltrationMethod->setCurrentIndex(2); break;
+                case INFIL_SOAP : E_InfiltrationMethod->setCurrentIndex(3); break;  // NOYT USED
             }
         }
         // if (p1.compare("Use OM correction")==0)             checkInfilOMcorrection->setChecked(check);
@@ -244,8 +242,16 @@ void lisemqt::ParseInputData()
 
         // CHANNELS AND GW
         if (p1.compare("Include main channels")==0)          checkIncludeChannel->setChecked(check);
-        if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
-        if (p1.compare("Include stationary baseflow")==0)    checkStationaryBaseflow->setChecked(check);
+        if (p1.compare("Channel baseflow method")==0) {
+            switch(iii) {
+                case CHBASEFLOW_NONE : E_BaseflowMethod->setCurrentIndex(0);break;
+                case CHBASEFLOW_INFIL : E_BaseflowMethod->setCurrentIndex(1);break;
+                case CHBASEFLOW_CALC : E_BaseflowMethod->setCurrentIndex(2); break;
+                case CHBASEFLOW_USER : E_BaseflowMethod->setCurrentIndex(3); break;  // NOYT USED
+            }
+        }
+      //  if (p1.compare("Include channel infil")==0)          checkChannelInfil->setChecked(check);
+      //  if (p1.compare("Include stationary baseflow")==0)    checkStationaryBaseflow->setChecked(check);
         //if (p1.compare("Stationary baseflow as map")==0)     checkStationaryBaseflowMap->setChecked(check);
         if (p1.compare("Include channel culverts")==0)       checkChannelCulverts->setChecked(check);
         if (p1.compare("Include channel inflow")==0)         checkDischargeUser->setChecked(check);
@@ -866,8 +872,16 @@ void lisemqt::updateModelData()
 
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
-        if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
-        if (p1.compare("Include stationary baseflow")==0)    namelist[j].value.setNum((int)checkStationaryBaseflow->isChecked());
+        if (p1.compare("Channel baseflow method")==0) {
+            switch(E_BaseflowMethod->currentIndex()) {
+                case 0 : namelist[j].value.setNum(CHBASEFLOW_NONE );break;
+                case 1 : namelist[j].value.setNum(CHBASEFLOW_INFIL);break;
+                case 2 : namelist[j].value.setNum(CHBASEFLOW_CALC ); break;
+                case 3 : namelist[j].value.setNum(CHBASEFLOW_USER ); break;
+            }
+        }
+     //  if (p1.compare("Include channel infil")==0)          namelist[j].value.setNum((int)checkChannelInfil->isChecked());
+     //   if (p1.compare("Include stationary baseflow")==0)    namelist[j].value.setNum((int)checkStationaryBaseflow->isChecked());
       //  if (p1.compare("Stationary baseflow as map")==0)     namelist[j].value.setNum((int)checkStationaryBaseflowMap->isChecked());
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkDischargeUser->isChecked());
