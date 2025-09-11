@@ -2354,11 +2354,13 @@ void TWorld::InitTiledrains(void)
             }}
         }
 
-        FOR_ROW_COL_MV_TILEL {
-            if (LDDTile->Drc == 5)
-                TileMaxQ->Drc = 1e-6; //No outflow from tiledrains
-        }}
-    }
+        if (SwitchDrainNoOutflow) {
+            FOR_ROW_COL_MV_TILEL {
+                if (LDDTile->Drc == 5)
+                    TileMaxQ->Drc = 1e-6; //No outflow from tiledrains
+            }}
+        }
+   }
 }
 //---------------------------------------------------------------------------
 // Make a shaded relief map from the DEM for map display

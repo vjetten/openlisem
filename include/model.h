@@ -516,6 +516,7 @@ public:
         SwitchIncludeTile,
         SwitchIncludeStormDrains,
         SwitchDrainCircular,
+        SwitchDrainNoOutflow,
         SwitchUseSWMMflow,
         SwitchHouses,
         SwitchInfrastructure,

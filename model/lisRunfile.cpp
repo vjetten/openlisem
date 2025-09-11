@@ -329,7 +329,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Hard Surfaces")==0)                     SwitchHardsurface      = iii == 1;
         if (p1.compare("Include road system")==0)               SwitchRoadsystem     = iii == 1;
         if (p1.compare("Include storm drains")==0)              SwitchIncludeStormDrains      = iii == 1;
-        if (p1.compare("Storm drain shape")==0)                 SwitchDrainCircular      = iii == 1;
+        if (p1.compare("Storm drain shape")==0)                 SwitchDrainCircular   = iii == 1;
+        if (p1.compare("Storm drain no outflow")==0)            SwitchDrainNoOutflow  = iii == 1;
         //if (p1.compare("Use SWMM drain flow")==0)                SwitchUseSWMMflow      = iii == 1;
 
         // conservation
