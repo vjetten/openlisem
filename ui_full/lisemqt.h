@@ -152,6 +152,7 @@ public:
     void updateModelData();
     void defaultRunFile();
     QString CheckDir(QString p, bool makeit);
+    QString findDir(QString p, bool makeit);
     void RunAllChecks();
     void savefile(QString name);
     void SetConnections();

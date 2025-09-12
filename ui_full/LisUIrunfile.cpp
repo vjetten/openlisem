@@ -101,8 +101,8 @@ void lisemqt::ParseInputData()
     // get all the options/checks
 
     resetAll();
-    bool ETmaps = false;
-    bool Rainmaps = false;
+    bool setETmaps = false;
+    bool setRainmaps = false;
 
     QLocale loc = QLocale::system(); // current locale
     QString pnt = loc.decimalPoint();
@@ -161,13 +161,13 @@ void lisemqt::ParseInputData()
         // METEO
         if (p1.compare("Include Rainfall")==0)              checkRainfall->setChecked(check);
         if (p1.compare("Event based")==0)                   checkEventBased->setChecked(check);
-        if (p1.compare("Use Rainfall maps")==0)             Rainmaps = check;
+        if (p1.compare("Use Rainfall maps")==0)             setRainmaps = check;
         if (p1.compare("Rainfall ID interpolation")==0)     checkIDinterpolation->setChecked(check);
         if (p1.compare("IDI factor")==0)                    E_IDIfactor->setValue(valc);
         if (p1.compare("Rainfall Bias Correction")==0)      E_biasCorrectionP->setValue(valc);
 
         if (p1.compare("Include ET")==0)                    checkET->setChecked(check);
-        if (p1.compare("Use ET maps")==0)                   ETmaps = check;
+        if (p1.compare("Use ET maps")==0)                   setETmaps = check;
         if (p1.compare("Daily ET")==0)                      checkDailyET->setChecked(check);
         //if (p1.compare("Daily ET distribution")==0)         checkDailyETDistribution->setChecked(check);
         if (p1.compare("Daily ET latitude")==0)             E_latitude->setText(p);
@@ -452,10 +452,10 @@ void lisemqt::ParseInputData()
     on_checkInfrastructure_toggled(checkInfrastructure->isChecked());
     groupAdvanced->setVisible(checkAdvancedOptions->isChecked());
 
-    radioETfile->setChecked(!ETmaps);
-    radioETSatfile->setChecked(ETmaps);
-    radioRainFile->setChecked(!Rainmaps);
-    radioRainSatFile->setChecked(Rainmaps);
+    radioETfile->setChecked(!setETmaps);
+    radioETSatfile->setChecked(setETmaps);
+    radioRainFile->setChecked(!setRainmaps);
+    radioRainSatFile->setChecked(setRainmaps);
 
     flowboundary = false;
     if (E_FlowBoundary->value() > 0 && E_OFWaveType->currentIndex() > 0)
@@ -467,22 +467,16 @@ void lisemqt::ParseInputData()
 
     doChannelBaseflow = (checkGWflow->isChecked() || checkStationaryBaseflow->isChecked()) && checkIncludeChannel->isChecked();
 
-    // obsolete
-    // if (checkSedtrap->isChecked())
-    //     on_checkSedtrap_clicked();
-    // if (checkInfilGrass->isChecked())
-    //     on_checkInfilGrass_clicked();
     E_SigmaDiffusion->setEnabled(checkDiffusion->isChecked());
 
-    setFloodTab(true);  //TODO
+    setFloodTab(true);  //TODO: check
 
-    // first guess
+    // set vthe workdir to th e parent of the runfile dir
     E_WorkDir = QFileInfo(E_runFileList->currentText()).dir().absolutePath();
     QDir dir(E_WorkDir);
     if (dir.cdUp())
-        E_WorkDir = dir.absolutePath()+"/";
-    // workdir is now parent of runfile directory
-   // qDebug() << E_WorkDir;
+        E_WorkDir = dir.absolutePath();
+    // workdir is now parent of runfile directory, no "/" at the end
 
     //QString daystart, minstart, dayend, minend;
     for (j = 0; j < nrnamelist; j++)
@@ -506,32 +500,11 @@ void lisemqt::ParseInputData()
         }
 
         // input output dirs and file names
-        if (p1.compare("Map Directory")==0)
-        {
-            E_MapDir->setText(CheckDir(p, false));
-
-            if (QFileInfo(E_MapDir->text()).exists())
-            {
-                E_WorkDir = E_MapDir->text();
-                QDir dir(E_WorkDir);
-                if (dir.cdUp())
-                    E_WorkDir = dir.absolutePath()+"/";
-                // workdir is now parent of maps directory
-            }
-
-            if (E_MapDir->text().isEmpty() && QFileInfo(E_WorkDir).exists())
-            {
-                E_MapDir->setText(E_WorkDir);
-                if (!QFileInfo(E_MapDir->text()).exists())
-                    E_MapDir->setText(E_WorkDir);
-            }
+        if (p1.compare("Map Directory")==0) {
+            E_MapDir->setText(findDir(p, false));
         }
-        if (p1.compare("Result Directory")==0)
-        {
-            E_ResultDir->setText(CheckDir(p, op.forceResDir));
-
-            if (!QFileInfo(E_ResultDir->text()).exists() && QFileInfo(E_WorkDir).exists())
-                E_ResultDir->setText(E_WorkDir + "res/");
+        if (p1.compare("Result Directory")==0) {
+            E_ResultDir->setText(findDir(p, true));
         }
 
         if (p1.compare("Main results file")==0) E_MainTotals->setText(p);
@@ -541,7 +514,21 @@ void lisemqt::ParseInputData()
         // resultDir is added in report operation
 
         if (radioRainFile->isChecked()) {
-            if (p1.compare("Rainfall Directory")==0) RainFileDir = CheckDir(p, false);
+            if (p1.compare("Rainfall Directory")==0) {
+
+                // QStringList dirs1 = p.replace('\\','/').split('/', Qt::SkipEmptyParts);
+                // QStringList dirs2 = E_WorkDir.split('/', Qt::SkipEmptyParts);
+                // QStringList common;
+                // int count = qMin(dirs1.size(), dirs2.size());
+                // for (int i = 0; i < count; ++i) {
+                //     if (dirs1[i] == dirs2[i])
+                //         common << dirs1[i];
+                //     else
+                //         break;
+                // }
+
+                RainFileDir = CheckDir(p, false);
+            }
             if (p1.compare("Rainfall file")==0) RainFileName = p;
         }
 
@@ -740,6 +727,50 @@ void lisemqt::ParseInputData()
 
 }
 //---------------------------------------------------------------------------
+QString lisemqt::findDir(QString p,bool makeit)
+{
+    QString path = QDir(p).fromNativeSeparators(p);
+            //p.replace('\\','/');
+    // replace windows separators if there are any
+
+    QString rootName = QDir(E_WorkDir).dirName();
+    // E_WorkDir is the parent of the dir with the runfile
+    // it does not end with '/'
+    //the rootName is the last dir in that path, so the parent off the runfile dir
+    // qDebug() << rootName;
+
+    //if the path name is relative path: ../maps/ or ./maps/ or maps/ or maps
+    // but not "/maps"
+    if (QDir::isRelativePath(path)) {
+        QDir::setCurrent(E_WorkDir);
+        // lisem now runs in workdir
+        path = QDir(path).absolutePath() + '/';
+    }
+
+    // if it still does not exist or a linux path starting with '/'
+    // assume the specified path under the parent of the run file
+    // find the root in path
+    if (!QDir(path).exists() || path.startsWith('/')) {
+        int idx = p.indexOf(rootName);
+        if (idx != -1)
+            path = QFileInfo(E_WorkDir).absolutePath() + '/'+ p.mid(idx);
+        if (!path.endsWith('/'))
+            path = path + '/';
+    }
+
+    // if it still does not exist then tough luck
+    if (!QDir(path).exists()) {
+        if (makeit)
+            QDir(path).mkpath(path);
+        else {
+            QMessageBox::warning(this,"openLISEM",QString("The following directory does not exist:\n%1\nUsing the work directory, check your pathnames").arg(path));
+            path.clear();
+        }
+    }
+
+    return path;
+}
+//---------------------------------------------------------------------------
 QString lisemqt::CheckDir(QString p, bool makeit)
 {
     /* TODO mulitplatform: fromNativeSeparators etc*/
@@ -761,7 +792,7 @@ QString lisemqt::CheckDir(QString p, bool makeit)
             path.clear();
         }
     }
-
+//qDebug() << "checkdir2" << p << path;
     return path;
 }
 //---------------------------------------------------------------------------

@@ -139,6 +139,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
         pauseAct->setChecked(false);
         runmodel();
     }
+   // qDebug() << "start" << QDir::currentPath() << QDir("../map/").absolutePath();
 }
 //--------------------------------------------------------------------
 lisemqt::~lisemqt()
@@ -394,7 +395,7 @@ void lisemqt::on_DisplayComboBox2_currentIndexChanged(int j)
 void lisemqt::setFloodTab(bool yes)
 {
     yes = true;
-    if (/*checkOverlandFlow2Dkindyn->isChecked()*/ E_OFWaveType->currentIndex() == 1 && !checkIncludeChannel->isChecked()) {
+    if (E_OFWaveType->currentIndex() == 1 && !checkIncludeChannel->isChecked()) {
         yes = false;
         QMessageBox::warning(this,"openLISEM",QString("The combination of 1D overland flow and 2D flood can only be used with a channel activated."));
         //checkOverlandFlow1D->setChecked(true);
