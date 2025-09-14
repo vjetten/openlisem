@@ -1011,8 +1011,10 @@ void lisemqt::resetTabInfiltration()
 void lisemqt::resetTabChannel()
 {
     checkChannelCulverts->setChecked(false);
-    checkChannelInfil->setChecked(false);
-    checkStationaryBaseflow->setChecked(false);
+    //checkChannelInfil->setChecked(false);
+    //checkStationaryBaseflow->setChecked(false);
+    E_BaseflowMethod->setCurrentIndex(0);
+
     E_CalibrateChTor->setValue(1.0);
     checkDischargeUser->setChecked(false);
     E_DischargeInName->setText("");
@@ -1088,6 +1090,7 @@ void lisemqt::resetTabInfra()
     checkStormDrains->setChecked(false);
     checkStormDrainRect->setChecked(false);
     checkStormDrainCirc->setChecked(true);
+    checkDrainNoOutflow->setChecked(false);
 
     checkFlowBarriers->setChecked(false);
     line_FlowBarriers->setText("flowbarriers.txt");
@@ -1217,6 +1220,8 @@ void lisemqt::resetAll()
     resetTabInfiltration();
 
     resetTabFlow();
+
+    resetTabChannel();
 
     resetTabErosion();
 

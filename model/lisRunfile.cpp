@@ -608,7 +608,6 @@ void TWorld::ParseRunfileData(void)
         totalLandunitFileName = name;
    }
 
-    // empty filenames need to be kept because of the order of names: TODO fix this
     Outrunoff = "ro";
     Outwh     = "wh";
     OutInt    = "int";

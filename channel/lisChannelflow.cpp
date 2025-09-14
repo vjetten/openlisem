@@ -171,7 +171,7 @@ void TWorld::ChannelRainandInfil(void)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         if (!crch_[i_].culvert)
-            ChannelWaterVol->Drc += Rainc->Drc*ChannelWidth->Drc*DX->Drc;
+            ChannelWaterVol->Drc += Rainc->Drc*ChannelWidth->Drc*ChannelDX->Drc;
         // goes for all channel shapes
 
        // ChannelWaterVol->Drc += ChannelQSide->Drc;
@@ -285,8 +285,15 @@ void TWorld::ChannelFlow(void)
         int ldd = fabs(crlinkedlddch_.at(i_).ldd);
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
-        if (!pcr::isMV(LDDChannel->Drcr) && ChannelCulvert->Drcr > 0)
+        if (!pcr::isMV(LDDChannel->Drcr) && ChannelCulvert->Drcr > 0) {
             ChannelQn->Drc = qMin(ChannelQn->Drc, ChannelMaxQ->Drcr);
+
+            // if (ChannelWH->Drc > ChannelDiameter->Drcr) {
+            //     double dh = ChannelWH->Drc-ChannelDiameter->Drcr;
+            //     ChannelV->Drc = qMax(ChannelV->Drc, 0.95*qSqrt((2*GRAV*dh)/(1+0.5)));
+            //     ChannelQn->Drc = ChannelDiameter->Drcr*ChannelDiameter->Drcr/4.0*M_PI;
+            // }
+        }
 
     }
     // int full = 0;

@@ -1016,9 +1016,17 @@ void TWorld::InitChannel(void)
     cover(*ChannelN, *LDD, 0);
     calcValue(*ChannelN, ChnCalibration, MUL);
 
-    // channel unsat side inflow, not used!
-    //ChannelQSide = NewMap(0);
-//Fill(*tma,0);
+    // correct input channel maps when there is no channel
+    FOR_ROW_COL_MV_L {
+        if (pcr::isMV(LDDChannel->Drc)) {
+            ChannelWidth->Drc = 0;
+            ChannelDepth->Drc = 0;
+            ChannelN->Drc = 0;
+            ChannelGrad->Drc = 0;
+            ChannelSide->Drc = 0;
+        }
+    }}
+
     FOR_ROW_COL_MV_CHL {
         ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
        // ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc)); // same as DX else mass balance problems
