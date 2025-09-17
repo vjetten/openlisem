@@ -283,7 +283,7 @@ void lisemqt::ParseInputData()
             if (iii == 0) checkStormDrainRect->setChecked(check);
             if (iii == 1) checkStormDrainCirc->setChecked(check);
         }
-        if (p1.compare("Storm drain no outflow ")==0)       checkDrainNoOutflow->setChecked(check);
+        if (p1.compare("Storm drain no outflow")==0)       checkDrainNoOutflow->setChecked(check);
         if (p1.compare("Drain inlet distance")==0)          E_TileInletDistance->setValue(valc);
         if (p1.compare("Drain inlet size")==0)              E_TileInletSize->setValue(valc);
         //if (p1.compare("Use SWMM drain flow")==0)           checkTileSWMM->setChecked(check);
@@ -611,6 +611,12 @@ void lisemqt::ParseInputData()
         if (p1.compare("Storm Drain Vol map")==0) E_stormDrainVolMap->setText(p);
 
         if (uiInfilMethod == 0) {
+
+            label_calKsat2->setEnabled(true);
+            E_CalibrateKsat2->setEnabled(true);
+            label_calKsat3->setEnabled(true);
+            E_CalibrateKsat3->setEnabled(true);
+
             if (p1.compare("Swatre table directory")==0) {
                 SwatreTableDir = CheckDir(p, false);
                 if (SwatreTableDir.isEmpty())
@@ -1074,7 +1080,7 @@ void lisemqt::updateModelData()
             if (checkStormDrainRect->isChecked())           namelist[j].value.setNum(0);
             if (checkStormDrainCirc->isChecked())           namelist[j].value.setNum(1);
         }
-        if (p1.compare("Storm drain no outflow ")==0)       namelist[j].value.setNum((int)checkDrainNoOutflow->isChecked());
+        if (p1.compare("Storm drain no outflow")==0)       namelist[j].value.setNum((int)checkDrainNoOutflow->isChecked());
         if (p1.compare("Drain inlet distance")==0)          namelist[j].value = E_TileInletDistance->text();
         if (p1.compare("Drain inlet size")==0)              namelist[j].value = E_TileInletSize->text();
         //if (p1.compare("Use SWMM drain flow")==0)           namelist[j].value.setNum((int)checkTileSWMM->isChecked());

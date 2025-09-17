@@ -1087,8 +1087,7 @@ void TWorld::InitChannel(void)
                 break;
             case SHAPECIRC : ChannelMaxArea->Drc = M_PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;
                 perim = M_PI*ChannelDiameter->Drc;
-                //crch_[i_].culvert = SwitchCulverts;
-                //circ is always confined flow
+           //     qDebug() << r << c << perim;
                 break;
             case SHAPETRAP : ChannelMaxArea->Drc = 0.5*(ChannelWidthB->Drc + ChannelWidth->Drc)*ChannelDepth->Drc;
                 perim = ChannelWidthB->Drc+2*ChannelDepth->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);

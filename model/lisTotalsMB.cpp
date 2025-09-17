@@ -350,11 +350,11 @@ void TWorld::TotalsFlow(void)
 
         FHI->Drc = Qn->Drc*(V->Drc + 0.5);
 
-        // if(SwitchIncludeChannel) {
-        //     Qoutput->Drc += ChannelQn->Drc * factor;
-        //     Qm3total->Drc += ChannelQn->Drc * _dt;
-        //     Qm3max->Drc = qMax(Qm3max->Drc, ChannelQn->Drc);
-        // }
+        if(SwitchIncludeChannel) {
+            Qoutput->Drc += ChannelQn->Drc * factor;
+//            Qm3total->Drc += ChannelQn->Drc * _dt;
+//            Qm3max->Drc = qMax(Qm3max->Drc, ChannelQn->Drc);
+        }
         // if(FlowBoundaryType > 0) {
         //     Qoutput->Drc += QBoundFlow->Drc * factor;
         //     Qm3total->Drc += QBoundFlow->Drc * _dt;

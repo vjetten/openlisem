@@ -221,9 +221,9 @@ void TWorld::ReportMapSeries(void)
                 }}
                 report(*tm, OutTiledrain); //in l/s
             }
-        }
-        if (SwitchOutTileVol) {
-            report(*TileWaterVol, OutTileVol); //in m3
+            if (SwitchOutTileVol) {
+                report(*TileWaterVol, OutTileVol); //in m3
+            }
         }
     }
 

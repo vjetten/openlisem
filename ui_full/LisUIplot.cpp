@@ -415,13 +415,13 @@ void lisemqt::showOutputData()
         label_area->setText(format.arg(QString::number(op.CatchmentArea/1000000,'f',dig)));
         int days = op.EndTime/1440;
         int mins = long(op.EndTime) % 1440;
-        QString ts = QString("%1:%2").arg(days,3,10,QLatin1Char('0')).arg(mins,4,10,QLatin1Char('0'));
+        QString ts = QString("%1:%2").arg(days+1,3,10,QLatin1Char('0')).arg(mins,4,10,QLatin1Char('0'));
         label_endtime->setText(ts);//format.arg(QString::number(op.EndTime,'f',dig)));
     }
 
     int days = op.time/1440;
     int mins = long(op.time) % 1440;
-    QString ts = QString("%1:%2").arg(days,3,10,QLatin1Char('0')).arg(mins,4,10,QLatin1Char('0'));
+    QString ts = QString("%1:%2").arg(days+1,3,10,QLatin1Char('0')).arg(mins,4,10,QLatin1Char('0'));
     label_time->setText(ts);//format.arg(QString::number(op.time,'f',dig)));
 
     label_runtime->setText(format.arg(QString::number(op.t,'f',dig)));

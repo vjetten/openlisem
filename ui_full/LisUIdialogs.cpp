@@ -793,7 +793,12 @@ void lisemqt::on_spinSoilLayers_valueChanged(int arg1)
         label_calKsat3->setEnabled(true);
         E_CalibrateKsat3->setEnabled(true);
     }
-
+    if (arg1 == 0) { // SWATRE
+        label_calKsat2->setEnabled(true);
+        E_CalibrateKsat2->setEnabled(true);
+        label_calKsat3->setEnabled(true);
+        E_CalibrateKsat3->setEnabled(true);
+    }
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int index)

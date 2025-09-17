@@ -58,6 +58,9 @@ int main(int argc, char *argv[])
     bool forceRes = false;
     bool doBatch = false;
     bool syntax = true;
+    double ksat1cal = -999;
+    double mancal = -999;
+
 
     if (argc == 1)
         syntax = false; // run with GUI
@@ -76,6 +79,15 @@ int main(int argc, char *argv[])
             syntax = false;
             doBatch = true;
         }
+        if (arg == "-ksc") {
+            QString S = argv[++i];
+            ksat1cal = S.toDouble();
+        }
+        if (arg == "-nc") {
+            QString S = argv[++i];
+            mancal = S.toDouble();
+        }
+
     }
 
     // this path is needed for openlisemtemp.run and openlisem.ini
@@ -126,6 +138,8 @@ int main(int argc, char *argv[])
             op.runfilename = runFileName;
             op.doBatchmode = true;
             op.forceResDir = forceRes;
+            op.ksat1cal = ksat1cal;
+            op.mancal = mancal;
 
             //TWorld *W = new TWorld(); // pointer is not deleted so mem leak, declare directly
             TWorld W;

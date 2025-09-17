@@ -43,9 +43,8 @@ void TWorld:: ChannelFlowandErosion()
         return;
 
     // moved to before overland flow
-   // ChannelRainandInfil();          // subtract infil, add rainfall
-
-    //ChannelBaseflow();              // add stationary and GW baseflow if selected
+    ChannelRainandInfil();          // subtract infil, add rainfall
+    ChannelBaseflow();              // add stationary and GW baseflow if selected
 
     // looping a smaller dt doesn't work or doesn't make difference
     // _dt_user = _dt;
@@ -67,6 +66,8 @@ void TWorld:: ChannelFlowandErosion()
 //---------------------------------------------------------------------------
 void TWorld::ChannelVelocityandDischarge()
 {
+  //  int dy[10] = {0,1,1,1,0,0,0,-1,-1,-1};
+  //  int dx[10] = {0,-1,0,1,-1,0,1,-1,0,1};
     // velocity, alpha, Q
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
@@ -85,6 +86,7 @@ void TWorld::ChannelVelocityandDischarge()
         ChannelQ->Drc = ChannelV->Drc * Area;
         //ChannelAlpha->Drc = ChannelQ->Drc/std::pow(Area, 0.6);
         ChannelAlpha->Drc = pow(ChannelN->Drc/qSqrt(ChannelGrad->Drc) * pow(ChannelPerimeter->Drc, 2.0/3.0),0.6);  // no difference
+
     }}
 }
 
@@ -257,7 +259,7 @@ void TWorld::ChannelFlow(void)
                 Qin += ChannelQn->Drcr;
             }
 
-            // if total inflow causes vol > max volume, adjust inflow incoming TileQn
+            // if total inflow causes vol > max volume, adjust inflow incoming Qn
             // if !switchculverts then ChannelCulvert has only 0
             if (ChannelCulvert->Drc > 0 &&
                 ChannelWaterVol->Drc+_dt*(Qin-ChannelQ->Drc) >= volMax) {
@@ -267,7 +269,7 @@ void TWorld::ChannelFlow(void)
                     int rr = crlinkedlddch_.at(i_).inn[j].r;
                     int cr = crlinkedlddch_.at(i_).inn[j].c;
                     ChannelQn->Drcr = maxq * ChannelQn->Drcr/Qin;
-                    // incoming TileQn is a fraction of maxq
+                    // incoming Qn is a fraction of maxq
                 }
                 Qin = maxq;
             }
@@ -287,11 +289,15 @@ void TWorld::ChannelFlow(void)
         int rr = r+dy[ldd];
         if (!pcr::isMV(LDDChannel->Drcr) && ChannelCulvert->Drcr > 0) {
             ChannelQn->Drc = qMin(ChannelQn->Drc, ChannelMaxQ->Drcr);
-
+            //qDebug() << "wh" << ChannelWH->Drc << ChannelDiameter->Drcr;
             // if (ChannelWH->Drc > ChannelDiameter->Drcr) {
             //     double dh = ChannelWH->Drc-ChannelDiameter->Drcr;
-            //     ChannelV->Drc = qMax(ChannelV->Drc, 0.95*qSqrt((2*GRAV*dh)/(1+0.5)));
-            //     ChannelQn->Drc = ChannelDiameter->Drcr*ChannelDiameter->Drcr/4.0*M_PI;
+            //     double f = 8*GRAV*ChannelN->Drcr*ChannelN->Drcr/pow(ChannelDiameter->Drcr/2.0,1.0/3.0);
+            //     //double Qp = 0.6*ChannelMaxArea->Drcr*qSqrt(2*GRAV*dh/(1+f*_dx/ChannelDiameter->Drcr));
+            //     double Qp = 0.68*ChannelMaxArea->Drcr*qSqrt(2*GRAV*dh);
+            //   //  qDebug() << Qp << ChannelQn->Drc;
+            //     ChannelQn->Drc += Qp;
+
             // }
         }
 

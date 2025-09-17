@@ -48,6 +48,8 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     double dt_req_min = dt_max;
     sumh = getMass(h);
 
+    //F_MaxIter = 10000;
+
     do {
 
         //if (SwitchErosion)

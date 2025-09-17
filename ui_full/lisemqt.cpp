@@ -130,6 +130,13 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
         GetRunfile();     // get the nrunfile and fill namelist
         ParseInputData(); // fill interface with namelist data and fill mapList
                           // also update DEFmaps for map tree view in interface
+        if (op.ksat1cal > -999) {
+            E_CalibrateKsat->setValue(op.ksat1cal);
+        }
+        if (op.mancal > -999) {
+            E_CalibrateN->setValue(op.mancal);
+        }
+
         initMapTree();    // fill the tree strcuture on page 2 with DEFmaps
 
         E_runFileList->insertItem(0, runname);

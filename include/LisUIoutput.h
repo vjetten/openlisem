@@ -123,6 +123,8 @@ struct output{
 
     bool doBatchmode;
     bool forceResDir;
+    double ksat1cal;
+    double mancal;
   //  bool hasrunonce;
   //  int nrMapsCreated;
 };
