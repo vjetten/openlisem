@@ -373,6 +373,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("OutSedSS")==0)          SwitchOutSedSS = iii == 1;
         if (p1.compare("OutSedBL")==0)          SwitchOutSedBL = iii == 1;
 
+
     }// first loop of runnamelist
 
     //##########################

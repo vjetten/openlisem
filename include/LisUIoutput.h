@@ -123,10 +123,12 @@ struct output{
 
     bool doBatchmode;
     bool forceResDir;
+    // cmd line params
     double ksat1cal;
     double mancal;
-  //  bool hasrunonce;
-  //  int nrMapsCreated;
+    double chmancal;
+    double hcal;
+    QString explanation;
 };
 
 

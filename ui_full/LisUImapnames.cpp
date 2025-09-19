@@ -156,6 +156,7 @@ void lisemqt::checkMapNameModel(int parentrow, int selrow, bool setit)
 also after each call of a runfile so that the runfile mapnames are loaded */
 void lisemqt::initMapTree()
 {
+    qDebug() << "init map tree";
     if (MapNameModel)
     {
         delete MapNameModel;

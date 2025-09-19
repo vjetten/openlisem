@@ -116,9 +116,26 @@ void TWorld::DoModel()
         ParseRunfileData();
         // get and parse runfile
 
+        // impose cmdline params
+        for (int j = 0; j < nrrunnamelist; j++) {
+            QString p1 = runnamelist[j].name;
+            if (p1.compare("Psi calibration")==0 && op.hcal > -999)
+                runnamelist[j].value = QString("%1").arg(op.hcal);
+            if (p1.compare("Channel N calibration")==0 && op.chmancal > -999)
+                runnamelist[j].value = QString("%1").arg(op.chmancal);
+            if (p1.compare("N calibration")==0 && op.mancal > -999)
+                runnamelist[j].value = QString("%1").arg(op.mancal);
+            if (p1.compare("Ksat calibration")==0 && op.ksat1cal > -999)
+                runnamelist[j].value = QString("%1").arg(op.ksat1cal);
+        }
+
         QString S = resultDir + QFileInfo(op.runfilename).fileName();
         QFile::copy(op.runfilename, S);
 
+        // QSaveFile file(resultDir + op.explanation + ".txt");
+        // if (!file.open(QIODevice::WriteOnly))
+        //     return false;
+        // return file.commit();
 
         //time vraiables in sec
         double btd, etd, btm, etm;

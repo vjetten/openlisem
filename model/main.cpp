@@ -60,6 +60,9 @@ int main(int argc, char *argv[])
     bool syntax = true;
     double ksat1cal = -999;
     double mancal = -999;
+    double manchcal = -999;
+    double hcal = -999;
+    QString explanation;
 
 
     if (argc == 1)
@@ -79,13 +82,24 @@ int main(int argc, char *argv[])
             syntax = false;
             doBatch = true;
         }
-        if (arg == "-ksc") {
+        if (arg == "-cks") {
             QString S = argv[++i];
             ksat1cal = S.toDouble();
         }
-        if (arg == "-nc") {
+        if (arg == "-cn") {
             QString S = argv[++i];
             mancal = S.toDouble();
+        }
+        if (arg == "-cchn") {
+            QString S = argv[++i];
+            manchcal = S.toDouble();
+        }
+        if (arg == "-ch") {
+            QString S = argv[++i];
+            hcal = S.toDouble();
+        }
+        if (arg == "-S") {
+            explanation = argv[++i];
         }
 
     }
@@ -98,6 +112,12 @@ int main(int argc, char *argv[])
     if (!dir.exists(localPath))
         dir.mkpath(localPath);
     op.userAppDir = localPath + "/";
+
+    op.ksat1cal = ksat1cal;
+    op.mancal = mancal;
+    op.chmancal = manchcal;
+    op.hcal = hcal;
+    op.explanation = explanation;
 
     if (noInterface || syntax) {
     #ifdef Q_OS_WIN
@@ -138,8 +158,6 @@ int main(int argc, char *argv[])
             op.runfilename = runFileName;
             op.doBatchmode = true;
             op.forceResDir = forceRes;
-            op.ksat1cal = ksat1cal;
-            op.mancal = mancal;
 
             //TWorld *W = new TWorld(); // pointer is not deleted so mem leak, declare directly
             TWorld W;

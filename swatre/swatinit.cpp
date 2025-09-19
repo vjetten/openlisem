@@ -117,10 +117,11 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
             inith->append(map);
         } else {
             cTMap* map = NewMap(HinitValue);
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                map->Drc *= psiCalibration;
-            }}
+            // silly and confusing to have a user defined value and a calibration on it
+            // #pragma omp parallel for num_threads(userCores)
+            // FOR_ROW_COL_MV_L {
+            //     map->Drc *= psiCalibration;
+            // }}
             inith->append(map);
         }
 

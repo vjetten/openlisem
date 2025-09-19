@@ -183,6 +183,7 @@ void TWorld::ReportMaps(void)
 //---------------------------------------------------------------------------
 void TWorld::ReportMapSeries(void)
 {
+  //  qDebug << Outrunoff << Outwh << OutInt << Outvelo << Outinf << Outss;
     //discharge l/s or m3/s
     if (SwitchOutrunoff)
         report(*Qoutput, Outrunoff);

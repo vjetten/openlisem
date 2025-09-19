@@ -55,7 +55,7 @@ void TWorld::chanHandPCirc(int r, int c)//, double Area)
     double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
     double a = Area/ChannelMaxArea->Drc;
     double theta = pipeThetafroma(r,c,a);
-    ChannelPerimeter->Drc = ChannelDiameter->Drc/2.0*theta;
+    ChannelPerimeter->Drc = 0.5*ChannelDiameter->Drc*theta;
     ChannelWH->Drc = 0.5*ChannelDiameter->Drc*(1-cos(theta/2.0));
 }
 //---------------------------------------------------------------------------

@@ -238,11 +238,13 @@ void TWorld::ChannelFlow(void)
 
   //  double sumvol = MapTotal(*ChannelWaterVol);
   //  double totq = 0;
+    bool extrapressure = false;
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         ChannelQn->Drc = 0;
         QinKW->Drc = 0; // needed for sediment
+        tma->Drc = ChannelMaxQ->Drc;
     }}
 
     for(long i_ =  0; i_ < crlinkedlddch_.size(); i_++)
@@ -263,7 +265,9 @@ void TWorld::ChannelFlow(void)
             // if !switchculverts then ChannelCulvert has only 0
             if (ChannelCulvert->Drc > 0 &&
                 ChannelWaterVol->Drc+_dt*(Qin-ChannelQ->Drc) >= volMax) {
-                double maxq = qMin(ChannelMaxQ->Drc, (volMax - ChannelWaterVol->Drc)/_dt + ChannelQ->Drc);
+                // if volume +in-out is more than maxvol, recalc maxq = inflow
+                double maxq = qMin(tma->Drc, (volMax - ChannelWaterVol->Drc)/_dt + ChannelQ->Drc);
+                //double maxq = qMin(ChannelMaxQ->Drc, (volMax - ChannelWaterVol->Drc)/_dt + ChannelQ->Drc);
 
                 for(int j = 0; j < crlinkedlddch_.at(i_).nr; j++) {
                     int rr = crlinkedlddch_.at(i_).inn[j].r;
@@ -288,17 +292,18 @@ void TWorld::ChannelFlow(void)
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
         if (!pcr::isMV(LDDChannel->Drcr) && ChannelCulvert->Drcr > 0) {
-            ChannelQn->Drc = qMin(ChannelQn->Drc, ChannelMaxQ->Drcr);
+            ChannelQn->Drc = qMin(ChannelQn->Drc, tma->Drcr);
+            //ChannelQn->Drc = qMin(ChannelQn->Drc, ChannelMaxQ->Drcr);
             //qDebug() << "wh" << ChannelWH->Drc << ChannelDiameter->Drcr;
-            // if (ChannelWH->Drc > ChannelDiameter->Drcr) {
-            //     double dh = ChannelWH->Drc-ChannelDiameter->Drcr;
-            //     double f = 8*GRAV*ChannelN->Drcr*ChannelN->Drcr/pow(ChannelDiameter->Drcr/2.0,1.0/3.0);
-            //     //double Qp = 0.6*ChannelMaxArea->Drcr*qSqrt(2*GRAV*dh/(1+f*_dx/ChannelDiameter->Drcr));
-            //     double Qp = 0.68*ChannelMaxArea->Drcr*qSqrt(2*GRAV*dh);
-            //   //  qDebug() << Qp << ChannelQn->Drc;
-            //     ChannelQn->Drc += Qp;
-
-            // }
+            if (extrapressure && ChannelWH->Drc > ChannelDiameter->Drcr) {
+                double dh = ChannelWH->Drc-ChannelDiameter->Drcr;
+                //double f = 8*GRAV*ChannelN->Drcr*ChannelN->Drcr/pow(ChannelDiameter->Drcr/2.0,1.0/3.0);
+                //double Qp = 0.6*ChannelMaxArea->Drcr*qSqrt(2*GRAV*dh/(1+f*_dx/ChannelDiameter->Drcr));
+                double Qp = 0.68*ChannelMaxArea->Drcr*qSqrt(2*GRAV*dh);
+                qDebug() << Qp << ChannelQn->Drc;
+                ChannelQn->Drc += Qp;
+                tma->Drcr += Qp;
+            }
         }
 
     }

@@ -941,7 +941,7 @@ void TWorld::InitChannel(void)
     ChannelWH = NewMap(0);
     ChannelWidthB = NewMap(0);
     ChannelPerimeter = NewMap(0);
-    ChannelCos = NewMap(0);
+    //ChannelCos = NewMap(0);
 
     ChannelAlpha = NewMap(0);//
     ChannelDX = NewMap(0); //!!!!!!!!!!!!!!!! dit moet DX zijn anders massabalans fout? of nu niet meer?
@@ -1038,7 +1038,7 @@ void TWorld::InitChannel(void)
              }
          }
 
-        ChannelCos->Drc = cos(atan(ChannelSide->Drc));
+        //ChannelCos->Drc = cos(atan(ChannelSide->Drc));
 
         ChannelWidthO->Drc = ChannelWidth->Drc;
 
@@ -1085,7 +1085,7 @@ void TWorld::InitChannel(void)
             case SHAPERECT : ChannelMaxArea->Drc = ChannelWidth->Drc*ChannelDepth->Drc; // or ChannelWidth ?
                 perim = ChannelWidth->Drc*2*ChannelDepth->Drc;
                 break;
-            case SHAPECIRC : ChannelMaxArea->Drc = M_PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;
+            case SHAPECIRC : ChannelMaxArea->Drc = M_PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;//pi r^2
                 perim = M_PI*ChannelDiameter->Drc;
            //     qDebug() << r << c << perim;
                 break;
@@ -1100,6 +1100,7 @@ void TWorld::InitChannel(void)
         // used for confined flow
         ChannelMaxQ->Drc = std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
         ChannelMaxAlpha->Drc = ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, 0.6);
+        if (crch_[i_].culvert) qDebug() << ChannelMaxQ->Drc<< ChannelMaxAlpha->Drc <<ChannelMaxArea->Drc << ChannelDiameter->Drc;
     }}
 
     // infiltration

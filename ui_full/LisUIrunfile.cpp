@@ -43,6 +43,7 @@
 //! This function reads the runfile and checks against default names and descriptions
 void lisemqt::GetRunfile()
 {
+    qDebug() << "get run file";
     QFile fin(op.runfilename);
     if (!fin.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, "openLISEM",
@@ -97,6 +98,7 @@ void lisemqt::GetRunfile()
 //! ParseInputData : interpret runfile text and fill interface variables
 void lisemqt::ParseInputData()
 {
+    qDebug() << "parse";
     int j=0;
     // reset all the options/checks
     resetAll();
@@ -1196,7 +1198,6 @@ void lisemqt::updateModelData()
         if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();
 //        if (p1.compare("SoilDepth1 calibration")==0) namelist[j].value = E_CalibrateSD1->text();
 //        if (p1.compare("SoilDepth2 calibration")==0) namelist[j].value = E_CalibrateSD2->text();
-        if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();
         if (p1.compare("Channel Ksat calibration")==0) namelist[j].value = E_CalibrateChKsat->text();
         if (p1.compare("Channel N calibration")==0) namelist[j].value = E_CalibrateChN->text();
         if (p1.compare("Boundary water level calibration")==0) namelist[j].value = E_CalibrateWave->text();

@@ -127,19 +127,28 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
         // runfilelist << runname;
 
         op.runfilename = runname;
-        GetRunfile();     // get the nrunfile and fill namelist
-        ParseInputData(); // fill interface with namelist data and fill mapList
-                          // also update DEFmaps for map tree view in interface
+\
+        E_runFileList->insertItem(0, runname);
+        // INSERTING THE RUN FILE DOES THE FOLLOWING:
+        // GetRunfile();     // get the nrunfile and fill namelist
+        // ParseInputData(); // fill interface with namelist data and fill mapList
+        //                   // also update DEFmaps for map tree view in interface
+        // initMapTree();    // fill the tree strcuture on page 2 with DEFmaps
+
+        // superimpose the cmdline calbration params
         if (op.ksat1cal > -999) {
             E_CalibrateKsat->setValue(op.ksat1cal);
         }
         if (op.mancal > -999) {
             E_CalibrateN->setValue(op.mancal);
         }
-
-        initMapTree();    // fill the tree strcuture on page 2 with DEFmaps
-
-        E_runFileList->insertItem(0, runname);
+        if (op.chmancal > -999) {
+            E_CalibrateChN->setValue(op.chmancal);
+        }
+        if (op.hcal > -999) {
+            E_CalibratePsi->setValue(op.hcal);
+            qDebug() << "hcal" << op.hcal;
+        }
 
         stopAct->setChecked(false);
         runAct->setChecked(true);
