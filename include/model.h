@@ -74,6 +74,7 @@
 #define SHAPECIRC 2
 #define SHAPETRAP 3
 #define SHAPETRIA 4
+#define SHAPEFREE 5
 
 #define Aavg(a,b)  (0.5*(a+b))
 #define Savg(a,b)  sqrt(a*b)
