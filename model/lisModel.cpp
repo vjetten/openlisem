@@ -117,7 +117,7 @@ void TWorld::DoModel()
         // get and parse runfile
 
         // impose cmdline params
-        if (op.calibration.size() > 0) {
+        if (op.calhydro.size() > 0 || op.calflow.size() > 0 || op.caleros.size() > 0) {
             QStringList calstrings;
             calstrings << "Smax calibration"
                        << "RR calibration"
@@ -140,23 +140,24 @@ void TWorld::DoModel()
             for (int j = 0; j < nrrunnamelist; j++) {
                 QString p1 = runnamelist[j].name;
 
-                for (int i = 0; i < op.calibration.size(); i++) {
-                    if (p1.compare(calstrings[i])==0)
-                        runnamelist[j].value = op.calibration[i];
+                if (op.calhydro.size() > 0) {
+                    for (int i = 0; i < 7; i++) {
+                        if (p1.compare(calstrings[i])==0)
+                            runnamelist[j].value = op.calhydro[i];
+                    }
                 }
-
-
-
-            //     if (p1.compare("Psi calibration")==0 && op.hcal > -999)
-            //         runnamelist[j].value = QString("%1").arg(op.hcal);
-            //     if (p1.compare("Channel N calibration")==0 && op.chmancal > -999)
-            //         runnamelist[j].value = QString("%1").arg(op.chmancal);
-            //     if (p1.compare("N calibration")==0 && op.mancal > -999)
-            //         runnamelist[j].value = QString("%1").arg(op.mancal);
-            //     if (p1.compare("Ksat calibration")==0 && op.ksat1cal > -999)
-            //         runnamelist[j].value = QString("%1").arg(op.ksat1cal);
-            //     if (p1.compare("Culvert size calibration")==0 && op.culcal > -999)
-            //         runnamelist[j].value = QString("%1").arg(op.culcal);
+                if (op.calflow.size() > 0) {
+                    for (int i = 0; i < 5; i++) {
+                        if (p1.compare(calstrings[i+7])==0)
+                            runnamelist[j].value = op.calflow[i];
+                    }
+                }
+                if (op.caleros.size() > 0) {
+                    for (int i = 0; i < 5; i++) {
+                        if (p1.compare(calstrings[i+12])==0)
+                            runnamelist[j].value = op.caleros[i];
+                    }
+                }
             }
         }
 

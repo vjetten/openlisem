@@ -135,60 +135,31 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
         //                   // also update DEFmaps for map tree view in interface
         // initMapTree();    // fill the tree strcuture on page 2 with DEFmaps
 
-        // superimpose the cmdline calbration params
-        // if (op.ksat1cal > -999) {
-        //     E_CalibrateKsat->setValue(op.ksat1cal);
-        // }
-        // if (op.mancal > -999) {
-        //     E_CalibrateN->setValue(op.mancal);
-        // }
-        // if (op.chmancal > -999) {
-        //     E_CalibrateChN->setValue(op.chmancal);
-        // }
-        // if (op.hcal > -999) {
-        //     E_CalibratePsi->setValue(op.hcal);
-        // }
-        // if (op.culcal > -999) {
-        //     E_CalibrateCulvert->setValue(op.culcal);
-        // }
-        // impose cmdline params
-        if (op.calibration.size() > 0) {
-            // QStringList calstrings;
-            // calstrings << "Smax calibration"
-            //            << "RR calibration"
-            //            << "Ksat calibration"
-            //            << "Ksat2 calibration"
-            //            << "Ksat3 calibration"
-            //            << "Theta calibration"
-            //            << "Psi calibration"
-            //            << "N calibration"
-            //            << "Channel N calibration"
-            //            << "Channel Ksat calibration"
-            //            << "Boundary water level calibration"
-            //            << "Culvert size calibration"
-            //            << "Aggregate stability calibration"
-            //            << "Cohesion calibration"
-            //            << "Grain Size calibration D50"
-            //            << "Grain Size calibration D90"
-            //            << "Cohesion Channel calibration";
-            int i = 0;
-            E_CalibrateSmax->setValue(op.calibration[i].toDouble()); i++;
-            E_CalibrateRR->setValue(op.calibration[i].toDouble()); i++;
-            E_CalibrateKsat->setValue(op.calibration[i].toDouble()); i++;
-            E_CalibrateKsat2->setValue(op.calibration[i].toDouble()); i++;
-            E_CalibrateKsat3->setValue(op.calibration[i].toDouble()); i++;
-            E_CalibrateTheta->setValue(op.calibration[i].toDouble()); i++;
-            E_CalibratePsi->setValue(op.calibration[i].toDouble()); i++;
-            E_CalibrateN->setValue(op.calibration[i].toDouble()); i++;
-            E_CalibrateChN->setValue(op.calibration[i].toDouble()); i++;
-            E_CalibrateChKsat->setValue(op.calibration[i].toDouble()); i++;
-            E_CalibrateWave->setValue(op.calibration[i].toDouble()); i++;
-            E_CalibrateCulvert->setValue(op.calibration[i].toDouble()); i++;
-            E_CalibrateAS->setValue(op.calibration[i].toDouble()); i++;
-            E_CalibrateCOH->setValue(op.calibration[i].toDouble()); i++;
-            E_CalibrateD50->setValue(op.calibration[i].toDouble()); i++;
-            E_CalibrateD90->setValue(op.calibration[i].toDouble()); i++;
-            E_CalibrateCHCOH->setValue(op.calibration[i].toDouble()); i++;
+        int i = 0;
+        if (op.calhydro.size() > 0) {
+            E_CalibrateSmax->setValue(op.calhydro[i].toDouble()); i++;
+            E_CalibrateRR->setValue(op.calhydro[i].toDouble()); i++;
+            E_CalibrateKsat->setValue(op.calhydro[i].toDouble()); i++;
+            E_CalibrateKsat2->setValue(op.calhydro[i].toDouble()); i++;
+            E_CalibrateKsat3->setValue(op.calhydro[i].toDouble()); i++;
+            E_CalibrateTheta->setValue(op.calhydro[i].toDouble()); i++;
+            E_CalibratePsi->setValue(op.calhydro[i].toDouble()); i++;
+        }
+        if (op.calflow.size() > 0) {
+            i = 0;
+            E_CalibrateN->setValue(op.calflow[i].toDouble()); i++;
+            E_CalibrateChN->setValue(op.calflow[i].toDouble()); i++;
+            E_CalibrateChKsat->setValue(op.calflow[i].toDouble()); i++;
+            E_CalibrateWave->setValue(op.calflow[i].toDouble()); i++;
+            E_CalibrateCulvert->setValue(op.calflow[i].toDouble()); i++;
+        }
+        if (op.caleros.size() > 0) {
+            i = 0;
+            E_CalibrateAS->setValue(op.caleros[i].toDouble()); i++;
+            E_CalibrateCOH->setValue(op.caleros[i].toDouble()); i++;
+            E_CalibrateD50->setValue(op.caleros[i].toDouble()); i++;
+            E_CalibrateD90->setValue(op.caleros[i].toDouble()); i++;
+            E_CalibrateCHCOH->setValue(op.caleros[i].toDouble()); i++;
         }
         stopAct->setChecked(false);
         runAct->setChecked(true);

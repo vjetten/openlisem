@@ -1120,8 +1120,13 @@ void TWorld::InitChannel(void)
         }
 
         // used for confined flow
-        ChannelMaxQ->Drc = std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
-        ChannelMaxAlpha->Drc = ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, 0.6);
+        if (ChannelCulvert->Drc > 0 && ChannelCulvert->Drc < 5) {
+            ChannelMaxQ->Drc = std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
+            ChannelMaxAlpha->Drc = ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, 0.6);
+        } else {
+            ChannelMaxQ->Drc = 0;
+            ChannelMaxAlpha->Drc= 0;
+        }
     }}
 
     // infiltration

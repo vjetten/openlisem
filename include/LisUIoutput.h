@@ -123,14 +123,11 @@ struct output{
 
     bool doBatchmode;
     bool forceResDir;
-    // cmd line params
-    double ksat1cal;
-    double mancal;
-    double chmancal;
-    double hcal;
-    double culcal;
+
     QString explanation;
-    QStringList calibration;
+    QStringList calhydro;
+    QStringList calflow;
+    QStringList caleros;
 };
 
 

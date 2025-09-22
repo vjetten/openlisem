@@ -238,7 +238,7 @@ void TWorld::ChannelFlow(void)
 
   //  double sumvol = MapTotal(*ChannelWaterVol);
   //  double totq = 0;
-    bool extrapressure = true;
+    bool extrapressure = false;
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -256,6 +256,7 @@ void TWorld::ChannelFlow(void)
         double volMax = ChannelMaxArea->Drc*DX->Drc;
 
         if (crlinkedlddch_.at(i_).nr > 0) {
+            //get all inflow
             for(int j = 0; j < crlinkedlddch_.at(i_).nr; j++) {
                 int rr = crlinkedlddch_.at(i_).inn[j].r;
                 int cr = crlinkedlddch_.at(i_).inn[j].c;

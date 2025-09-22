@@ -58,13 +58,10 @@ int main(int argc, char *argv[])
     bool forceRes = false;
     bool doBatch = false;
     bool syntax = true;
-    double ksat1cal = -999;
-    double mancal = -999;
-    double manchcal = -999;
-    double hcal = -999;
-    double culcal = -999;
     QString explanation = "empty";
-    QString calibration;
+    QString calhydro;
+    QString calflow;
+    QString caleros;
 
 
     if (argc == 1)
@@ -84,31 +81,18 @@ int main(int argc, char *argv[])
             syntax = false;
             doBatch = true;
         }
-        if (arg == "-cks") {
-            QString S = argv[++i];
-            ksat1cal = S.toDouble();
-        }
-        if (arg == "-cn") {
-            QString S = argv[++i];
-            mancal = S.toDouble();
-        }
-        if (arg == "-cchn") {
-            QString S = argv[++i];
-            manchcal = S.toDouble();
-        }
-        if (arg == "-ch") {
-            QString S = argv[++i];
-            hcal = S.toDouble();
-        }
-        if (arg == "-ccul") {
-            QString S = argv[++i];
-            culcal = S.toDouble();
-        }
+
         if (arg == "-S") {
             explanation = argv[++i];
         }
-        if (arg == "-cal") {
-            calibration = argv[++i];
+        if (arg == "-calH") {
+            calhydro = argv[++i];
+        }
+        if (arg == "-calF") {
+            calflow = argv[++i];
+        }
+        if (arg == "-calE") {
+            caleros = argv[++i];
         }
 
     }
@@ -122,23 +106,27 @@ int main(int argc, char *argv[])
         dir.mkpath(localPath);
     op.userAppDir = localPath + "/";
 
-    op.ksat1cal = ksat1cal;
-    op.mancal = mancal;
-    op.chmancal = manchcal;
-    op.hcal = hcal;
-    op.culcal = culcal;
     op.explanation = explanation;
-    op.calibration = calibration.split(";");
+    op.calhydro.clear();
+    op.calflow.clear();
+    op.caleros.clear();
+    if (!calhydro.isEmpty())
+        op.calhydro = calhydro.split(";");
+    if (!calflow.isEmpty())
+        op.calflow = calflow.split(";");
+    if (!caleros.isEmpty())
+        op.caleros = caleros.split(";");
 
     if (noInterface || syntax) {
-    #ifdef Q_OS_WIN
-      // open a console in windows for the headless output, this works for running from a batch file and from cmd.exe
-        AllocConsole();
-        FILE* fp;
-        freopen_s(&fp, "CONOUT$", "w", stdout);
-        freopen_s(&fp, "CONOUT$", "w", stderr);
-        freopen_s(&fp, "CONIN$", "r", stdin);
-    #endif
+        #ifdef Q_OS_WIN
+          // open a console in windows for the headless output, this works for running from a batch file and from cmd.exe
+            AllocConsole();
+            FILE* fp;
+            freopen_s(&fp, "CONOUT$", "w", stdout);
+            freopen_s(&fp, "CONOUT$", "w", stderr);
+            freopen_s(&fp, "CONIN$", "r", stdin);
+        #endif
+
         QTextStream consoleout(stdout); // text to console
 
         if (syntax) {
