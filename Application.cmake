@@ -180,6 +180,7 @@ SET(APP_SOURCES
     erosion/lisErosion.cpp
     erosion/lisErosionSplash.cpp
     erosion/lisErosionAux.cpp
+    pest/lisPesticide.cpp
     PCR/create2.c
     PCR/mclose.c
     PCR/ruseas.c
