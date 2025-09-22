@@ -242,6 +242,11 @@ void lisemqt::runmodel()
     // run without Qt interface on original runfile only
 
     op.timeStartRun = QDateTime().currentDateTime().toString("yyMMdd-hhmm");
+    if (op.explanation != "empty" ) {
+        op.timeStartRun = op.explanation;
+        checkAddDatetime->setChecked(true);
+    }
+
 
     if (checkAddDatetime->isChecked()) {
         screenShotDir = E_ResultDir->text() + QString("res"+op.timeStartRun+"/");
@@ -252,7 +257,7 @@ void lisemqt::runmodel()
         QDir(screenShotDir).mkpath(QString("screens"+op.timeStartRun+"/"));
         screenShotDir = screenShotDir + QString("screens"+op.timeStartRun+"/");
     }
-    //qDebug() << screenShotDir;
+    qDebug() << "res" << screenShotDir << E_ResultDir->text();
 
     // take a screenshot of all option widgets
     tabWidget->setCurrentIndex(0);

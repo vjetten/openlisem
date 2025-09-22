@@ -81,6 +81,25 @@ void TWorld::GetInputData(void)
 
 }
 //---------------------------------------------------------------------------
+//     SmaxCalibration = getvaluedouble("Smax calibration");
+//     RRCalibration = getvaluedouble("RR calibration");
+//     ksatCalibration = getvaluedouble("Ksat calibration");
+//     ksat2Calibration = getvaluedouble("Ksat2 calibration");
+//     ksat3Calibration = getvaluedouble("Ksat3 calibration");
+//     thetaCalibration = getvaluedouble("Theta calibration");
+//     psiCalibration = getvaluedouble("Psi calibration");
+
+//     nCalibration = getvaluedouble("N calibration");
+//     ChnCalibration = getvaluedouble("Culvert size calibration");
+//     ChKsatCalibration = getvaluedouble("Channel Ksat calibration");
+//     WaveCalibration = getvaluedouble("Boundary water level calibration");
+//     CulvertCalibration = getvaluedouble("Culvert size calibration");
+
+//     ASCalibration = getvaluedouble("Aggregate stability calibration");
+//     COHCalibration = getvaluedouble("Cohesion calibration");
+//     gsizeCalibrationD50 = getvaluedouble("Grain Size calibration D50");
+//     gsizeCalibrationD90 = getvaluedouble("Grain Size calibration D90");
+//     COHCHCalibration = getvaluedouble("Cohesion Channel calibration");
 void TWorld::InitParameters(void)
 {
     PBiasCorrection = getvaluedouble("Rainfall Bias Correction");
@@ -126,6 +145,7 @@ void TWorld::InitParameters(void)
   //  SD2Calibration = getvaluedouble("SoilDepth2 calibration");
 
     ChnCalibration = getvaluedouble("Channel N calibration");
+    CulvertCalibration = getvaluedouble("Culvert size calibration");
 
     WaveCalibration = getvaluedouble("Boundary water level calibration");
 
@@ -1072,6 +1092,7 @@ void TWorld::InitChannel(void)
             if (ChannelCulvert->Drc > 0) {
                 crch_[i_].culvert = true;
                 crch_[i_].shape = (int) ChannelCulvert->Drc;
+                ChannelDiameter->Drc = CulvertCalibration*ChannelDiameter->Drc;
             }
         }}
     } else {
@@ -1095,12 +1116,12 @@ void TWorld::InitChannel(void)
             case SHAPETRIA : ChannelMaxArea->Drc = 0.5*ChannelWidth->Drc*ChannelDepth->Drc;
                 perim = 2*ChannelDepth->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
                 break;
+            //SHAPEFREE is simply covered free flow, so it is a culvert but not confined
         }
 
         // used for confined flow
         ChannelMaxQ->Drc = std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
         ChannelMaxAlpha->Drc = ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, 0.6);
-        if (crch_[i_].culvert) qDebug() << ChannelMaxQ->Drc<< ChannelMaxAlpha->Drc <<ChannelMaxArea->Drc << ChannelDiameter->Drc;
     }}
 
     // infiltration

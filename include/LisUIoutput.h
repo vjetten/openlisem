@@ -128,7 +128,9 @@ struct output{
     double mancal;
     double chmancal;
     double hcal;
+    double culcal;
     QString explanation;
+    QStringList calibration;
 };
 
 

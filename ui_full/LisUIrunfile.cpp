@@ -43,7 +43,6 @@
 //! This function reads the runfile and checks against default names and descriptions
 void lisemqt::GetRunfile()
 {
-    qDebug() << "get run file";
     QFile fin(op.runfilename);
     if (!fin.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, "openLISEM",
@@ -98,7 +97,6 @@ void lisemqt::GetRunfile()
 //! ParseInputData : interpret runfile text and fill interface variables
 void lisemqt::ParseInputData()
 {
-    qDebug() << "parse";
     int j=0;
     // reset all the options/checks
     resetAll();
@@ -400,24 +398,27 @@ void lisemqt::ParseInputData()
         if (p1.compare("RR calibration")==0)                    E_CalibrateRR->setValue(valc);
         if (p1.compare("Ksat calibration")==0)                  E_CalibrateKsat->setValue(valc);
         if (p1.compare("Ksat2 calibration")==0)                 E_CalibrateKsat2->setValue(valc);
-        if (p1.compare("Grain Size calibration D50")==0)        E_CalibrateD50->setValue(valc);
-        if (p1.compare("Grain Size calibration D90")==0)        E_CalibrateD90->setValue(valc);
+        if (p1.compare("Ksat3 calibration")==0)                 E_CalibrateKsat3->setValue(valc);
         if (p1.compare("N calibration")==0)                     E_CalibrateN->setValue(valc);
         if (p1.compare("Theta calibration")==0)                 E_CalibrateTheta->setValue(valc);
         if (p1.compare("Psi calibration")==0)                   E_CalibratePsi->setValue(valc);
-//        if (p1.compare("SoilDepth1 calibration")==0)            E_CalibrateSD1->setValue(valc);
-//        if (p1.compare("SoilDepth2 calibration")==0)            E_CalibrateSD2->setValue(valc);
-        if (p1.compare("Channel Ksat calibration")==0)          E_CalibrateChKsat->setValue(valc);
         if (p1.compare("Channel N calibration")==0)             E_CalibrateChN->setValue(valc);
+        if (p1.compare("Channel Ksat calibration")==0)          E_CalibrateChKsat->setValue(valc);
         if (p1.compare("Boundary water level calibration")==0)  E_CalibrateWave->setValue(valc);
+        if (p1.compare("Culvert size calibration")==0)             E_CalibrateCulvert->setValue(valc);
         if (p1.compare("Channel tortuosity")==0)                E_CalibrateChTor->setValue(valc);
+        if (p1.compare("Aggregate stability calibration")==0)   E_CalibrateAS->setValue(valc);
         if (p1.compare("Cohesion calibration")==0)              E_CalibrateCOH->setValue(valc);
+        if (p1.compare("Grain Size calibration D50")==0)        E_CalibrateD50->setValue(valc);
+        if (p1.compare("Grain Size calibration D90")==0)        E_CalibrateD90->setValue(valc);
         if (p1.compare("Cohesion Channel calibration")==0)      E_CalibrateCHCOH->setValue(valc);
+        if (p1.compare("Sediment bulk density")==0)             E_BulkDens->setValue(valc);
+
+        //        if (p1.compare("SoilDepth1 calibration")==0)            E_CalibrateSD1->setValue(valc);
+        //        if (p1.compare("SoilDepth2 calibration")==0)            E_CalibrateSD2->setValue(valc);
         //if (p1.compare("Ucr Channel calibration")==0)    E_CalibrateCHUcr->setValue(valc);
        // if (p1.compare("SV calibration")==0)                    E_CalibrateCHSV->setValue(valc);
-        if (p1.compare("Aggregate stability calibration")==0)   E_CalibrateAS->setValue(valc);
        // if (p1.compare("Particle Cohesion of Deposited Layer")==0) E_DepositedCohesion->setValue(valc);
-        if (p1.compare("Sediment bulk density")==0)             E_BulkDens->setValue(valc);
 
 
         // STANDARD OUTPUT FILES
@@ -772,7 +773,7 @@ QString lisemqt::findCommonRoot(QString p,QString pR)
     if (pathR.startsWith('/'))
         root = '/';
     root = root + common.join('/');
-    qDebug() << "common" << root;
+    //qDebug() << "common" << root;
 
     /*
     QString rootName = QDir(E_WorkDir).dirName();
@@ -1198,8 +1199,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Psi calibration")==0) namelist[j].value = E_CalibratePsi->text();
 //        if (p1.compare("SoilDepth1 calibration")==0) namelist[j].value = E_CalibrateSD1->text();
 //        if (p1.compare("SoilDepth2 calibration")==0) namelist[j].value = E_CalibrateSD2->text();
-        if (p1.compare("Channel Ksat calibration")==0) namelist[j].value = E_CalibrateChKsat->text();
         if (p1.compare("Channel N calibration")==0) namelist[j].value = E_CalibrateChN->text();
+        if (p1.compare("Culvert size calibration")==0) namelist[j].value = E_CalibrateCulvert->text();
         if (p1.compare("Boundary water level calibration")==0) namelist[j].value = E_CalibrateWave->text();
         if (p1.compare("Channel tortuosity")==0) namelist[j].value = E_CalibrateChTor->text();
         if (p1.compare("Cohesion calibration")==0) namelist[j].value = E_CalibrateCOH->text();

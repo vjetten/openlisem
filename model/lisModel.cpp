@@ -117,16 +117,47 @@ void TWorld::DoModel()
         // get and parse runfile
 
         // impose cmdline params
-        for (int j = 0; j < nrrunnamelist; j++) {
-            QString p1 = runnamelist[j].name;
-            if (p1.compare("Psi calibration")==0 && op.hcal > -999)
-                runnamelist[j].value = QString("%1").arg(op.hcal);
-            if (p1.compare("Channel N calibration")==0 && op.chmancal > -999)
-                runnamelist[j].value = QString("%1").arg(op.chmancal);
-            if (p1.compare("N calibration")==0 && op.mancal > -999)
-                runnamelist[j].value = QString("%1").arg(op.mancal);
-            if (p1.compare("Ksat calibration")==0 && op.ksat1cal > -999)
-                runnamelist[j].value = QString("%1").arg(op.ksat1cal);
+        if (op.calibration.size() > 0) {
+            QStringList calstrings;
+            calstrings << "Smax calibration"
+                       << "RR calibration"
+                       << "Ksat calibration"
+                       << "Ksat2 calibration"
+                       << "Ksat3 calibration"
+                       << "Theta calibration"
+                       << "Psi calibration"
+                       << "N calibration"
+                       << "Channel N calibration"
+                       << "Channel Ksat calibration"
+                       << "Boundary water level calibration"
+                       << "Culvert size calibration"
+                       << "Aggregate stability calibration"
+                       << "Cohesion calibration"
+                       << "Grain Size calibration D50"
+                       << "Grain Size calibration D90"
+                       << "Cohesion Channel calibration";
+
+            for (int j = 0; j < nrrunnamelist; j++) {
+                QString p1 = runnamelist[j].name;
+
+                for (int i = 0; i < op.calibration.size(); i++) {
+                    if (p1.compare(calstrings[i])==0)
+                        runnamelist[j].value = op.calibration[i];
+                }
+
+
+
+            //     if (p1.compare("Psi calibration")==0 && op.hcal > -999)
+            //         runnamelist[j].value = QString("%1").arg(op.hcal);
+            //     if (p1.compare("Channel N calibration")==0 && op.chmancal > -999)
+            //         runnamelist[j].value = QString("%1").arg(op.chmancal);
+            //     if (p1.compare("N calibration")==0 && op.mancal > -999)
+            //         runnamelist[j].value = QString("%1").arg(op.mancal);
+            //     if (p1.compare("Ksat calibration")==0 && op.ksat1cal > -999)
+            //         runnamelist[j].value = QString("%1").arg(op.ksat1cal);
+            //     if (p1.compare("Culvert size calibration")==0 && op.culcal > -999)
+            //         runnamelist[j].value = QString("%1").arg(op.culcal);
+            }
         }
 
         QString S = resultDir + QFileInfo(op.runfilename).fileName();
@@ -287,6 +318,16 @@ void TWorld::DoModel()
             // check if user wants to quit or pause
 
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
+
+            // bool dotime=false;
+            // FOR_ROW_COL_MV_L {
+            //     if (WH->Drc > 0 || ChannelWH->Drc > 0)
+            //         dotime = true;
+            // }}
+            // if (dotime)
+            //     _dt = 600;
+            // else
+            //     _dt =_dt_user;
 
             InfilDynamicCrusting(); // if crusting recalc Ksateff and Poreff becuase of crusting effect
 

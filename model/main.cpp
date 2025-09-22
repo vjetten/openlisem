@@ -62,7 +62,9 @@ int main(int argc, char *argv[])
     double mancal = -999;
     double manchcal = -999;
     double hcal = -999;
-    QString explanation;
+    double culcal = -999;
+    QString explanation = "empty";
+    QString calibration;
 
 
     if (argc == 1)
@@ -98,8 +100,15 @@ int main(int argc, char *argv[])
             QString S = argv[++i];
             hcal = S.toDouble();
         }
+        if (arg == "-ccul") {
+            QString S = argv[++i];
+            culcal = S.toDouble();
+        }
         if (arg == "-S") {
             explanation = argv[++i];
+        }
+        if (arg == "-cal") {
+            calibration = argv[++i];
         }
 
     }
@@ -117,7 +126,9 @@ int main(int argc, char *argv[])
     op.mancal = mancal;
     op.chmancal = manchcal;
     op.hcal = hcal;
+    op.culcal = culcal;
     op.explanation = explanation;
+    op.calibration = calibration.split(";");
 
     if (noInterface || syntax) {
     #ifdef Q_OS_WIN

@@ -179,7 +179,8 @@ void lisemqt::onOutletChanged(int point)
         if(oldindex == -1)
         {
             outletpoint = 0;
-            spinBoxPointtoShow->setValue(1);
+            outletpoint = OutletIndices.at(0);
+            spinBoxPointtoShow->setValue(outletpoint);
 
             //SetTextHydrographs();
             outletgroup->setTitle(QString("Catchment outlet(s)"));

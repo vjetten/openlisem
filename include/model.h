@@ -634,6 +634,7 @@ public:
 //    double SD1Calibration;
 //    double SD2Calibration;
     double ChnCalibration;
+    double CulvertCalibration;
     double WaveCalibration;
     double ChnTortuosity;
     double ChKsatCalibration;
