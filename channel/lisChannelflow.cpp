@@ -238,7 +238,7 @@ void TWorld::ChannelFlow(void)
 
   //  double sumvol = MapTotal(*ChannelWaterVol);
   //  double totq = 0;
-    bool extrapressure = false;
+    bool extrapressure = true;
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {

@@ -143,7 +143,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
             E_CalibrateKsat2->setValue(op.calhydro[i].toDouble()); i++;
             E_CalibrateKsat3->setValue(op.calhydro[i].toDouble()); i++;
             E_CalibrateTheta->setValue(op.calhydro[i].toDouble()); i++;
-            E_CalibratePsi->setValue(op.calhydro[i].toDouble()); i++;
+            E_CalibratePsi->setValue(op.calhydro[i].toDouble());
         }
         if (op.calflow.size() > 0) {
             i = 0;

@@ -133,7 +133,11 @@ int main(int argc, char *argv[])
             consoleout << "syntax:\nlisem [-ni] [-f] -r runfile \n"
                        <<   "-f = create the result directory it does not exist. \n"
                        <<   "-ni = no graphical user interface, uses runfile directly.\n"
-                       <<   "-r runfile = Give the full path tot he runfile.\n\n" ;
+                       <<   "-r runfile = Give the full path tot he runfile.\n\n"
+                       <<   "-calH 1;1;1;1;1;1;1 = 7 calibration factors for hydrology, seperated by ;. Look in the interface to see the factors"
+                       <<   "-calF 1;1;1;1;1 = 5 calibration factors for flow, seperated by ;. Look in the interface to see the factors"
+                       <<   "-calE 1;1;1;1;1 = 5 calibration factors for erosion, seperated by ;. Look in the interface to see the factors";
+
             consoleout.flush();
             #ifdef Q_OS_WIN
             system("pause"); // waits for a key press

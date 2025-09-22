@@ -141,6 +141,7 @@ double TWorld::MassPestInitial(void)
     // }}
     // pmtot_i = mapTotal(*PMmw) + mapTotal(*PMms) + mapTotal(*PMsoil);
     // return(pmtot_i);
+    return 0;
 }
 
 
