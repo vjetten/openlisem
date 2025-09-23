@@ -257,7 +257,6 @@ void lisemqt::runmodel()
         QDir(screenShotDir).mkpath(QString("screens"+op.timeStartRun+"/"));
         screenShotDir = screenShotDir + QString("screens"+op.timeStartRun+"/");
     }
-    qDebug() << "res" << screenShotDir << E_ResultDir->text();
 
     // take a screenshot of all option widgets
     tabWidget->setCurrentIndex(0);

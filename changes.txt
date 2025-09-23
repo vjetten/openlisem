@@ -3,7 +3,17 @@ Latest fixes and changes:
 
 see Readme.txt for a complete list
 
-250718 - v7.4.7.beta.R1-R7
+250923 - v7.4.7.beta.R9
+- BUG-FIX: bug in culverts, maximum channel discharge was calculated in places where no ciulverts exist
+- Added: options for adding calibration parameters as command-line options rrunning in batch mode
+- Added: Culvert type nr 5 is unconfined flow but in a circular culvert, for large 
+- Changed: channel flow is shown in total discharge on screen and output map (was: only overland flow)
+
+250901 - v7.4.7.beta.R8
+- Added: option to load stationary baseflow as precalculated map
+- Added: water flowing into urban storm drains does not dissapear but fills up the storm drains, when full the stormdrains will overflow.
+
+250713 - v7.4.7.beta.R1-R7
 - CHHANGED: read all maps as float (4 byte) instead of double (8 byte), save 40-50% RAM use
 - Removed: possibility to do Org Mat. and bulkdensity corrections on Ksat and Porosity in the code. Too complex, user should do this in the input.
 - Added: Different channel shapes: rectangular, circular, trapezium and triangular. The last two are controlled with the channel side angle.
@@ -19,27 +29,4 @@ see Readme.txt for a complete list
 - BUG FIX: correct calculation and reporting of boundary flow and channel flow
 - BUG FIX: some wrong checks for Missing Value in 2D flow, unknown behaviour
 - BUG-FIX: output tilemaps repaired
-
-250424 - v7.4.6
-- BUG FIX: culverts in channel work now without masss balance error. The user has to provide the diameter of the culvert part of the
-  channel, in chandiameter.map (in m). All culverts are assumed to bge circular pipes. Channel N and gradient remain so adjust these to
-  reflect the culvert. The maximum channel discharge map (chanmaxq.map) is obsolete.
-- BUG FIX: fixed error in kinematic wave sediment transport causing extreme fluctuation in concentration of channel
-- BUG FIX: Field capacity and residual moisture were not properly calculated, causing errors in percolation, sometimes causing a stop in
-        inifltration
-- BUG FIX: 2D flow with MUSCL redone and optimized, results are now similar to 1st order 2D flow (without MUSCL)
-- BUG FIX: background image was not loaded properly
-- BUG FIX: reading pathnames sometimes result in "//"
-- BUG FIX: 2D flow gives MB error because of when domain boundary touches map edge, make sure there is a MV cell on all sides
-- BUG FIX: dynamic crusting SWATRE added
-- BUG FIX: Boundary flow for Dynamic Wave fixed and correct in output, make sure there is always 1 Missing Value cell between the area
-  and the map boundary!
-- BUG FIX: output to points now homoginized for water and sediment
-- BUG FIX: Riemann HLLc and HLLc2 (option 4 and 5) behave strangely, removed from interface choiche for now, defaults to 3
-Processes added:
-- storm drain from streets
-- cell sized retention for overland flow and channelflow (also for kinematic wave) gridretention.map (in m3)
-- evapotranspiration added to Swatre as sinkterm
-- rewrote evapotranspiration for all hydrology
-- Compiled with QT 6.9.0 and latest dlls includedsd
 

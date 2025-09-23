@@ -2353,7 +2353,7 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>-211</y>
+                <y>0</y>
                 <width>1013</width>
                 <height>819</height>
                </rect>
@@ -8583,96 +8583,6 @@
                       <property name="verticalSpacing">
                        <number>2</number>
                       </property>
-                      <item row="5" column="4">
-                       <widget class="QDoubleSpinBox" name="E_CalibrateChKsat">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="decimals">
-                         <number>2</number>
-                        </property>
-                        <property name="minimum">
-                         <double>0.010000000000000</double>
-                        </property>
-                        <property name="maximum">
-                         <double>99.989999999999995</double>
-                        </property>
-                        <property name="singleStep">
-                         <double>0.010000000000000</double>
-                        </property>
-                        <property name="value">
-                         <double>1.000000000000000</double>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="5" column="1">
-                       <widget class="QLabel" name="label_calchks">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="toolTip">
-                         <string notr="true"/>
-                        </property>
-                        <property name="text">
-                         <string>Ksat Channel (channel bed infil: chanksat.map)</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="4">
-                       <widget class="QDoubleSpinBox" name="E_CalibrateN">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="minimum">
-                         <double>0.010000000000000</double>
-                        </property>
-                        <property name="maximum">
-                         <double>99.989999999999995</double>
-                        </property>
-                        <property name="singleStep">
-                         <double>0.010000000000000</double>
-                        </property>
-                        <property name="value">
-                         <double>1.000000000000000</double>
-                        </property>
-                       </widget>
-                      </item>
                       <item row="4" column="4">
                        <widget class="QDoubleSpinBox" name="E_CalibrateChN">
                         <property name="sizePolicy">
@@ -8700,75 +8610,6 @@
                         </property>
                         <property name="value">
                          <double>1.000000000000000</double>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="1">
-                       <widget class="QLabel" name="label_calN">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="toolTip">
-                         <string notr="true"/>
-                        </property>
-                        <property name="text">
-                         <string>Manning N slopes (flow resistance: N.map)</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="1">
-                       <widget class="QLabel" name="label_calchn">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="toolTip">
-                         <string notr="true"/>
-                        </property>
-                        <property name="text">
-                         <string>Manning N Channel (Channel flow resistance: chanman.map)        </string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="6" column="3">
-                       <widget class="QLabel" name="label_134">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string/>
                         </property>
                        </widget>
                       </item>
@@ -8811,7 +8652,52 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="7" column="4">
+                      <item row="3" column="4">
+                       <widget class="QDoubleSpinBox" name="E_CalibrateN">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="minimum">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="maximum">
+                         <double>99.989999999999995</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>1.000000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="6" column="3">
+                       <widget class="QLabel" name="label_134">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string/>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="8" column="4">
                        <widget class="QDoubleSpinBox" name="E_CalibrateCulvert">
                         <property name="font">
                          <font>
@@ -8829,6 +8715,135 @@
                         </property>
                         <property name="value">
                          <double>1.000000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="5" column="4">
+                       <widget class="QDoubleSpinBox" name="E_CalibrateChKsat">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="decimals">
+                         <number>2</number>
+                        </property>
+                        <property name="minimum">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="maximum">
+                         <double>99.989999999999995</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>1.000000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="4" column="1">
+                       <widget class="QLabel" name="label_calchn">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="toolTip">
+                         <string notr="true"/>
+                        </property>
+                        <property name="text">
+                         <string>Manning N Channel (Channel flow resistance: chanman.map)        </string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="5" column="1">
+                       <widget class="QLabel" name="label_calchks">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="toolTip">
+                         <string notr="true"/>
+                        </property>
+                        <property name="text">
+                         <string>Ksat Channel (channel bed infil: chanksat.map)</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="1">
+                       <widget class="QLabel" name="label_calN">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="toolTip">
+                         <string notr="true"/>
+                        </property>
+                        <property name="text">
+                         <string>Manning N slopes (flow resistance: N.map)</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="8" column="1">
+                       <widget class="QLabel" name="label_62">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Culvert diameter </string>
                         </property>
                        </widget>
                       </item>
@@ -9383,7 +9398,7 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string>Ksat soil layer 2  (Ksat2.map or 2nd Swatre horizon)               </string>
+                         <string>Ksat soil layer 2  (Ksat2.map or 2nd SWATRE horizon)               </string>
                         </property>
                        </widget>
                       </item>
@@ -9422,7 +9437,7 @@
                          <string notr="true"/>
                         </property>
                         <property name="text">
-                         <string>Ksat soil layer 1 (Ksat1.map or 1st Swatre horizon)</string>
+                         <string>Ksat soil layer 1 (Ksat1.map or 1st SWATRE horizon)</string>
                         </property>
                         <property name="alignment">
                          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -9449,7 +9464,7 @@
                          <string notr="true"/>
                         </property>
                         <property name="text">
-                         <string>Theta (initial moisture: thetai1.map &amp; thetai2.map)</string>
+                         <string>Theta (initial moisture: thetai1.map &amp; thetai2.map, not used in SWATRE)</string>
                         </property>
                         <property name="alignment">
                          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -9542,7 +9557,7 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string>Ksat soil layer 3 (Ksat3.map or 3rd Swatre horizon)</string>
+                         <string>Ksat soil layer 3 (Ksat3.map or 3rd SWATRE horizon)</string>
                         </property>
                        </widget>
                       </item>

@@ -236,8 +236,6 @@ void TWorld::ChannelFlow(void)
     int dy[10] = {0,1,1,1,0,0,0,-1,-1,-1};
     int dx[10] = {0,-1,0,1,-1,0,1,-1,0,1};
 
-  //  double sumvol = MapTotal(*ChannelWaterVol);
-  //  double totq = 0;
     bool extrapressure = true;
 
     #pragma omp parallel for num_threads(userCores)
@@ -297,20 +295,23 @@ void TWorld::ChannelFlow(void)
             ChannelQn->Drc = qMin(ChannelQn->Drc, tma->Drcr);
             //ChannelQn->Drc = qMin(ChannelQn->Drc, ChannelMaxQ->Drcr);
 
+            // adjust discharge and max discharge when pressure of water is more than diameter
             if (extrapressure && ChannelWH->Drc > ChannelDiameter->Drcr) {
                 double dh = ChannelWH->Drc-ChannelDiameter->Drcr;
                 double f = 8*GRAV*ChannelN->Drcr*ChannelN->Drcr/pow(ChannelDiameter->Drcr/2.0,0.3333);
                 double Qp = 0.6*ChannelMaxArea->Drcr*qSqrt(2*GRAV*dh/(1+f*_dx/ChannelDiameter->Drcr));
-              //  double Qp = 0.68*ChannelMaxArea->Drcr*qSqrt(2*GRAV*dh);
+                // additional discharge becvause of pressure
+                // we use one cell _dx but as the culvert gets longer this value should increase
                 ChannelQn->Drc += Qp;
-               // qDebug() << r << c << ChannelWH->Drc << ChannelDiameter->Drcr << ChannelQn->Drc << ChannelMaxQ->Drcr;
+                // simply add it
                 tma->Drcr += Qp;
+                // adjust max Q for downstream cells
                 tmb->Drcr = ChannelMaxArea->Drcr/std::pow(tma->Drcr, 0.6);
+                // adjust maxalpha for downstream cells
             }
         }
 
     }
-    // int full = 0;
 
     // calc V and WH back from Qn (original width and depth)
     #pragma omp parallel for num_threads(userCores)
@@ -318,9 +319,6 @@ void TWorld::ChannelFlow(void)
         ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(QinKW->Drc - ChannelQn->Drc);
         ChannelWaterVol->Drc = qMax(0.0, ChannelWaterVol->Drc);
 
-     //   if (ChannelCulvert->Drc > 0 && ChannelWaterVol->Drc >= ChannelMaxArea->Drc*DX->Drc) {
-     //       full+=1;
-     //   }
         switch (crch_[i_].shape) {
             case SHAPERECT : chanHandPRect(r,c); break;
             case SHAPECIRC : chanHandPCirc(r,c); break; // this is always a culvert!
@@ -329,19 +327,16 @@ void TWorld::ChannelFlow(void)
         }
         double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
         ChannelV->Drc = qMin(_CHMaxV, (Area > 1e-12 ? ChannelQn->Drc/Area : 0.0));
+        // erosion is calculated with new V
+
         // ChannelAlpha->Drc = Area > 1e-6 ? ChannelQn->Drc/std::pow(Area, 0.6) : 0.0;
-        // DO NOT recalculate alpha becuase of erosion
+        // DO NOT recalculate alpha after the kin wave because we need it in erosion kin wave
 
         // get the maximum for output
         maxChannelflow->Drc = qMax(maxChannelflow->Drc, ChannelQn->Drc);
         maxChannelWH->Drc = qMax(maxChannelWH->Drc, ChannelWH->Drc);
 
-        //   if (LDDChannel->Drc == 5)
-     //        totq += ChannelQn->Drc*_dt;
     }}
-//    double sumvol1 = MapTotal(*ChannelWaterVol);
- //   qDebug() << "MB chan (aft-bef)" << sumvol << sumvol1 << totq << sumvol - sumvol1 - totq << MB << full;
-
 }
 
 void TWorld::ChannelSedimentFlow()

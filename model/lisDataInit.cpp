@@ -1870,7 +1870,6 @@ void TWorld::IntializeData(void)
     // needs to be done here because profile uses data like impermable fration, tiledrain etc
     if (InfilMethod == INFIL_SWATRE) {
 
-        qDebug() << "swatre" << swatreDT << SwatrePrecision;
         // VJ 110420 added tiledrain depth for all profiles, is all used in infiltration
         SwatreSoilModel = InitSwatre(ProfileID);
         if (SwatreSoilModel == nullptr)

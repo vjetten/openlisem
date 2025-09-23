@@ -4,30 +4,29 @@ The model can be downloaded from:
 https://github.com/vjetten/openlisem/releases/tag/lisem_bin
 
 ============
-Date: 250901
+Date: 250923
 ============
 
 This software is under the copyright model GPLv3 (distributed with the model) and subject to additional disclaimers.
 
 For questions contact v.g.jetten AD utwente.nl
 
+NOTE: since verrsion 7.4.7.R7 a 4Byte floating point version is maintained that takes up less RAM memory, for very large databases. 
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
 
-<<<<<<< .mine
-250718 - v7.4.7.beta.R1-R7
+250923 - v7.4.7.beta.R9
+- BUG-FIX: bug in culverts, maximum channel discharge was calculated in places where no ciulverts exist
+- Added: options for adding calibration parameters as command-line options rrunning in batch mode
+- Added: Culvert type nr 5 is unconfined flow but in a circular culvert, for large 
+- Changed: channel flow is shown in total discharge on screen and output map (was: only overland flow)
 
-
-
-
-=======
 250901 - v7.4.7.beta.R8
 - Added: option to load stationary baseflow as precalculated map
 - Added: water flowing into urban storm drains does not dissapear but fills up the storm drains, when full the stormdrains will overflow.
 
 250713 - v7.4.7.beta.R1-R7
->>>>>>> .theirs
 - CHHANGED: read all maps as float (4 byte) instead of double (8 byte), save 40-50% RAM use
 - Removed: possibility to do Org Mat. and bulkdensity corrections on Ksat and Porosity in the code. Too complex, user should do this in the input.
 - Added: Different channel shapes: rectangular, circular, trapezium and triangular. The last two are controlled with the channel side angle.
