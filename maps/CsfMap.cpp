@@ -25,6 +25,9 @@
 #include "CsfMap.h"
 #include "lerror.h"
 #include <gdal.h>
+
+#include "PrecisionConfig.h"
+
 /*!
     @brief      Constructor.
     @param      data Properties of the raster and the cell values.
@@ -32,11 +35,11 @@
     @param      mapName Map name.
 */
 cTMap::cTMap(
-    MaskedRaster<double>&& data,
+    MaskedRaster<Real>&& data,
     QString const& projection,
     QString const& mapName)
 
-    : data(std::forward<MaskedRaster<double>>(data)),
+    : data(std::forward<MaskedRaster<Real>>(data)),
       _projection(projection),
       _mapName(mapName)
 
@@ -94,15 +97,12 @@ void cTMap::setAllMV()
 
 // make a new map according to dup as a mask and filled with value
 // dup is the duplicate map (LDD is mostly used as refrence)
-void cTMap::MakeMap(
-    cTMap *dup,
-    REAL8 value)
+void cTMap::MakeMap(cTMap *dup,Real value)
 {
   if (dup == nullptr)
     return;
 
-  data = MaskedRaster<REAL8>(dup->nrRows(), dup->nrCols(), dup->north(),
-      dup->west(), dup->cellSize());
+  data = MaskedRaster<Real>(dup->nrRows(), dup->nrCols(), dup->north(),dup->west(), dup->cellSize());
 
   data.set_all_mv();
 
@@ -110,6 +110,6 @@ void cTMap::MakeMap(
     for(int c=0; c < nrCols(); c++)
       if (!pcr::isMV(dup->data[r][c]))
         {
-          data[r][c] = value;
+          data[r][c] = (Real)value;
         }
 }

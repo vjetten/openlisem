@@ -26,7 +26,6 @@
 #include "pcrtypes.h"
 #include "raster.h"
 
-
 template<
     typename T>
 class MaskedRaster:

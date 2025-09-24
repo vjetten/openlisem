@@ -2,25 +2,24 @@
                            Version 1.0, January 18, 2011
 
 The opernLISEM mdoel and included programs are provided under the terms
-of the GNU LESSER GENERAL PUBLIC LICENSE (LGPL) with the addition of the 
-following:
+of the GNU LESSER GENERAL PUBLIC LICENSE (LGPL). A copy of this licence is distributed with the model and code. The following 
 
+Disclaimer of Warranty
+THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM “AS IS” WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU. SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+
+Limitation of Liability
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+In addditon: 
 ================================================================================
-openLISEM is provided by the copyright holders and contributors "as is" and 
-any express or implied warranties, including, but not limited to, the implied 
-warranties of merchantability and fitness for a particular purpose are 
-disclaimed. In no event shall the copyright owner or contributors be liable for 
-any direct, indirect, incidental, special, exemplary, or consequential damages 
-(including, but not limited to, procurement of substitute goods or services; 
-loss of use, data, or profits; or business interruption) however caused and on 
-any theory of liability, whether in contract, strict liability, or tort 
-(including negligence or otherwise) arising in any way out of the use of this 
-software, even if advised of the possibility of such damage.
+openLISEM is a research-based flood modeling tool provided without any warranty
+of accuracy, reliability, or suitability for any specific use. The software and
+its outputs are intended for academic and exploratory purposes only.
 
-This is a research model and under development. Its use is subject to specialist 
-scientific background knowledge for such tools, and you should be careful in 
-interpreting its results. Detailed knowledge about the area to which the model 
-is applied is necessary to use the modelling results.
+Under no circumstances shall the developers, contributors, or affiliated
+institutions be held liable for decisions made, actions taken, or consequences
+arising from the use of this software, including but not limited to its use in policy development, planning, mitigation design, legal disputes, or emergency
+response.
 ================================================================================
 
 

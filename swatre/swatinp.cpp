@@ -54,6 +54,7 @@ profile node setup:
 
 #define LIST_INC	10
 
+#define ROOTMAX 60  // rootzone depth
 
 //----------------------------------------------------------------------------------------------
 /// read and parse profile.inp
@@ -100,8 +101,8 @@ void TWorld::ReadSwatreInputNew(void)
    while(swatreProfileDef.last() == "###")
         swatreProfileDef.removeLast();
 
-  //  for(int i; i < swatreProfileDef.count(); i++)
-    //    qDebug() << swatreProfileDef[i];
+   // for(int i; i < swatreProfileDef.count(); i++)
+   //     qDebug() << swatreProfileDef[i];
 
     // read and make nodes
     zone = new ZONE;
@@ -120,11 +121,11 @@ void TWorld::ReadSwatreInputNew(void)
         zone->z.append(0.0);
         zone->endComp.append(0.0);
         zone->disnod.append(0.0);
+        zone->rootz.append(0.0);
     }
 
     int pos = 2;
-    for (int i = 0; i < zone->nrNodes; i++)
-    {
+    for (int i = 0; i < zone->nrNodes; i++) {
         zone->endComp[i] = swatreProfileDef[i+pos].toDouble(&ok);
         if (!ok)
             Error(QString("SWATRE: Can't read compartment end of node %1").arg(i+pos));
@@ -134,16 +135,29 @@ void TWorld::ReadSwatreInputNew(void)
     zone->dz[0]= -zone->endComp[0];
     zone->z[0]= zone->dz[0]*0.5;
     zone->disnod[0] = zone->z[0];
-    for (int i = 1; i < zone->nrNodes; i++)
-    {
+    zone->rootz[0] = 0;
+    double rootmax = -ROOTMAX;
+    double sum = 0;
+    for (int i = 1; i < zone->nrNodes; i++) {
         zone->dz[i]= (zone->endComp[i-1]-zone->endComp[i]);
         zone->z[i]= zone->z[i-1] + 0.5*(zone->dz[i-1]+zone->dz[i]);
         zone->disnod[i] = zone->z[i] - zone->z[i-1];
+        if (zone->z[i] > rootmax) {
+            zone->rootz[i] = (rootmax - zone->z[i])/rootmax;
+            sum = sum + zone->rootz[i];
+        }
     }
+    // tapering distribution of from layer 1 to < rootmax, sum is 1
+    for (int i = 1; i < zone->nrNodes; i++) {
+        if (zone->z[i] > rootmax) {
+            zone->rootz[i] /= sum;
+        }
+    }
+
     zone->disnod[zone->nrNodes] = 0.5 * zone->dz[zone->nrNodes-1];
 
  // for (int i = 0; i <= zone->nrNodes; i++)
-   //    qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i];
+   //    qDebug() << i << "dz" << zone->dz[i] << "z" << zone->z[i] << "dist" << zone->disnod[i] << "root" << zone->rootz[i];
 
     //  count and check valid profiles
     QStringList checkList; // temp list to check for double profile nrs
@@ -155,7 +169,7 @@ void TWorld::ReadSwatreInputNew(void)
     }
     sizeProfileList = nrProfileList;
 
-   // qDebug() << "nr profiles" << nrProfileList << checkList.count();
+    //qDebug() << "nr profiles" << nrProfileList << checkList.count();
 
     if (nrProfileList == 0)
         Error(QString("SWATRE: no profiles read from %1").arg(SwatreTableName));
@@ -172,9 +186,10 @@ void TWorld::ReadSwatreInputNew(void)
             DEBUG(QString("Warning SWATRE: profile id %1 defined more than once").arg(swatreProfileNr[i+1]));
     }
 
-    profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1)); // why realloc instead of malloc?
- //   profileList = (PROFILE **)malloc(sizeof(PROFILE *)*(nrProfileList+1));
+  //   profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1)); // why realloc instead of malloc?
+    //profileList = (PROFILE **)malloc(sizeof(PROFILE *)*(nrProfileList+1));
     // profile list is a list of pointers to PROFILE
+    profileList = new PROFILE*[nrProfileList + 1];
 
     nrProfileList = 0;
     for (int i = zone->nrNodes+1; i < swatreProfileDef.count(); i++) {
@@ -186,6 +201,15 @@ void TWorld::ReadSwatreInputNew(void)
             nrProfileList++;
         }
     }
+
+    for (int i = 0; i < ProfileIDList.count(); i++) {
+        if (ProfileIDList[i]> 0 && !swatreProfileNr.contains(ProfileIDList[i])) {
+            Error(QString("SWATRE: map profile nr %1 does not exist in profile table: %2").arg(ProfileIDList[i]).arg(SwatreTableName));
+        }
+    }
+
+
+
 }
 //----------------------------------------------------------------------------------------------
 // for reference:
@@ -209,6 +233,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
     p = new PROFILE;
 
     p->profileId = swatreProfileDef[pos].toInt(&ok, 10);
+    //qDebug() <<  pos << p->profileId;
     if (!ok)
         Error(QString("SWATRE: read error: error in profile id %1 definition").arg(p->profileId));
 
@@ -243,7 +268,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
         h = ReadHorizonNew(SwatreTableDir, tableName);
 
         // copy horizon info to all nodes of this horizon
-        // add the proper calibration factor (ksat1 cal for hor 1, ksat2cal for hor 2 adn the rest hor 3)       
+        // add the proper calibration factor (ksat1 cal for hor 1, ksat2cal for hor 2 adn the rest hor 3)
         while (i < z->nrNodes && z->endComp[i] <= endHor ) {
             p->horizon[i] = h;
 

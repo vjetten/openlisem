@@ -42,20 +42,12 @@
 
 
 //---------------------------------------------------------------------------
-TWorld::TWorld(QObject *parent) :
-    QThread(parent)
+TWorld::TWorld(QObject *parent) : QObject(parent)
 {
-   moveToThread(this);
 }
 //---------------------------------------------------------------------------
 TWorld::~TWorld()
 {
-}
-//---------------------------------------------------------------------------
-void TWorld::run()
-{
-    QTimer::singleShot(0, this, SLOT(DoModel()));
-    exec();
 }
 //---------------------------------------------------------------------------
 void TWorld::stop()
@@ -121,8 +113,11 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
 // the actual model with the main loop
 void TWorld::DoModel()
 {
-
-    //DestroyData(); // clear all structures in case this is not the first run.
+    QTextStream consoleout(stdout); // for info with -ni batch mode
+    if (noInterface) {
+        consoleout << "\nrunning OpenLISEM with:" << op.runfilename << "\n\n";
+        consoleout.flush();
+    }
 
     if (!op.doBatchmode)
         temprunname = QString(op.userAppDir+"openlisemtmp.run");
@@ -138,6 +133,8 @@ void TWorld::DoModel()
     // get time to calc run length
     startTime=omp_get_wtime()/60.0;
 
+    ETafactorTot = 0;
+
     try
     {
         DestroyData();
@@ -152,15 +149,75 @@ void TWorld::DoModel()
         ParseRunfileData();
         // get and parse runfile
 
+        // impose cmdline params
+        if (op.calhydro.size() > 0 || op.calflow.size() > 0 || op.caleros.size() > 0) {
+            QStringList calstrings;
+            calstrings << "Smax calibration"
+                       << "RR calibration"
+                       << "Ksat calibration"
+                       << "Ksat2 calibration"
+                       << "Ksat3 calibration"
+                       << "Theta calibration"
+                       << "Psi calibration"
+                       << "N calibration"
+                       << "Channel N calibration"
+                       << "Channel Ksat calibration"
+                       << "Boundary water level calibration"
+                       << "Culvert size calibration"
+                       << "Aggregate stability calibration"
+                       << "Cohesion calibration"
+                       << "Grain Size calibration D50"
+                       << "Grain Size calibration D90"
+                       << "Cohesion Channel calibration";
+
+            for (int j = 0; j < nrrunnamelist; j++) {
+                QString p1 = runnamelist[j].name;
+
+                if (op.calhydro.size() > 0) {
+                    for (int i = 0; i < 7; i++) {
+                        if (p1.compare(calstrings[i])==0)
+                            runnamelist[j].value = op.calhydro[i];
+                    }
+                }
+                if (op.calflow.size() > 0) {
+                    for (int i = 0; i < 5; i++) {
+                        if (p1.compare(calstrings[i+7])==0)
+                            runnamelist[j].value = op.calflow[i];
+                    }
+                }
+                if (op.caleros.size() > 0) {
+                    for (int i = 0; i < 5; i++) {
+                        if (p1.compare(calstrings[i+12])==0)
+                            runnamelist[j].value = op.caleros[i];
+                    }
+                }
+            }
+        }
+
         QString S = resultDir + QFileInfo(op.runfilename).fileName();
         QFile::copy(op.runfilename, S);
 
+        // QSaveFile file(resultDir + op.explanation + ".txt");
+        // if (!file.open(QIODevice::WriteOnly))
+        //     return false;
+        // return file.commit();
 
         //time vraiables in sec
-        double btd = getvaluedouble("Begin time day");
-        double btm = getvaluedouble("Begin time");
-        double etd = getvaluedouble("End time day");
-        double etm = getvaluedouble("End time");
+        double btd, etd, btm, etm;
+        QString beginTimeString = getvaluestring("Begin Time");
+        QString endTimeString = getvaluestring("End Time");
+        bool dayOk, minuteOk;
+        QStringList parts = beginTimeString.split(":");
+        if (parts.size() == 2) {
+            btd = parts[0].toInt(&dayOk);
+            btm = parts[1].toInt(&minuteOk);
+        }
+
+        parts = endTimeString.split(":");
+        if (parts.size() == 2) {
+            etd = parts[0].toInt(&dayOk);
+            etm = parts[1].toInt(&minuteOk);
+        }
 
         btd -= 1.0; // because day 1, minute 10 is in fact minute 10 in the first day
         etd -= 1.0;
@@ -199,7 +256,6 @@ void TWorld::DoModel()
             RainfallSeries.clear();
             RainfallSeriesMaps.clear();
             raintime.clear();
-
             DEBUG("Get Rainfall Data");
             if (SwitchRainfallSatellite) {
                 GetSpatialMeteoData(rainSatFileName, 0);
@@ -222,19 +278,9 @@ void TWorld::DoModel()
             }
         }
 
-        // SwitchSnowmelt = false;
+        SwitchSnowmelt = false;
         // if (SwitchSnowmelt)
-        // {
-        //     SnowmeltSeries.clear();
-        //     SnowmeltSeriesMaps.clear();
-        //     snowmelttime.clear();
-        //
-        //     DEBUG("Get Snowmelt Data Information");
-        //     if (SwitchSnowmeltSatellite) {
-        //         GetSpatialMeteoData(snowmeltSatFileName, 2);
-        //     } else {
-        //         GetSnowmeltData(snowmeltFileName);
-        //     }
+
         // }
 
         if (SwitchDischargeUser)
@@ -258,18 +304,17 @@ void TWorld::DoModel()
         // get all input data and create and initialize all maps and variables
 
         CountLandunits();
-        //VJ 110110 for output totals per landunit
+        //for output totals per landunit
 
         runstep = 0; //  runstep is used to initialize graph!
-        printstep = 1; // printstep determines report frequency
+        printstep = 1; // printstep determines report frequency in report()
 
-      //  DEBUG("setupHydrographData()");
+        DEBUG("setupHydrographData()");
         setupHydrographData(); // reset hydrograph display
 
         //bool saveMBerror = true;
         //saveMBerror2file(true); //saveMBerror,
 
-      //  InfilEffectiveKsat();  // calc effective ksat from all surfaces once, moved inside loop!
         SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
 
@@ -282,45 +327,62 @@ void TWorld::DoModel()
 
         GetComboMaps(); // moved to outside timeloop!
 
-        if (SwitchInfiltration && InfilMethod != INFIL_SWATRE )
-            InfilEffectiveKsat();
+        InfilEffectiveKsat();
 
+        // ---- THE TIME LOOP ----
         for (time = BeginTime; time < EndTime; time += _dt)
-        {            
+        {
+            // printstep determines report frequency in #define report(...)
             if (runstep > 0 && runstep % printinterval == 0)
                 printstep++;
-            /** @todo this does nothing? */
+
             runstep++;
 
             if(stopRequested) {
                 mutex.lock();
                 DEBUG("User interrupt... finishing time step");
+                time = EndTime;
                 mutex.unlock();
             }
 
             if (waitRequested) {
                 mutex.lock();
                 DEBUG("User pause...");
-                condition.wait(&mutex);
+                mu_condition.wait(&mutex);
                 mutex.unlock();
             }
             // check if user wants to quit or pause
 
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
 
-            if (SwitchInfilCrust)
-                InfilEffectiveKsat(); // if crusting recalc Ksateff and Poreff becuase of crusting effect
+            // bool dotime=false;
+            // FOR_ROW_COL_MV_L {
+            //     if (WH->Drc > 0 || ChannelWH->Drc > 0)
+            //         dotime = true;
+            // }}
+            // if (dotime)
+            //     _dt = 600;
+            // else
+            //     _dt =_dt_user;
 
-            HydrologyProcesses();  // hydrological processes in one loop, incl splash and pesticides
+            InfilDynamicCrusting(); // if crusting recalc Ksateff and Poreff becuase of crusting effect
+
+            HydrologyProcesses();  // hydrological processes in one loop, incl splash
+
+            ToTiledrain();  // fraction going into tiledrain directly from surface
 
             OverlandFlow(); // overland flow 1D (non threaded), 2Ddyn (threaded), if 2Ddyn then also SWOFsediment!
+
+            // if (SwitchIncludeChannel) {
+            //     ChannelRainandInfil();  // subtract infil, retention,  add rainfall
+            //     ChannelBaseflow();              // add stationary and GW baseflow if selected
+            // }
+
 //MC - checked for todo pesticide untill here
             // these are all non-threaded
             ChannelFlowandErosion();    // do ordered LDD solutions channel, tiles, drains, non threaded
 
             TileFlow();          // tile drain flow kin wave
-                                 // storm drain flow kin wave
-            //StormDrainFlow();
 
             TotalsHydro();       // calculate all totals and cumulative values
             TotalsFlow();
@@ -328,30 +390,43 @@ void TWorld::DoModel()
 
             MassBalance();       // check water and sed mass balance
 
-            OutputUI();          // fill the "op" structure for screen output and calc some output maps
+            reportToUI();        // fill the "op" structure for screen and file output and calc some COMBO output maps
 
-            reportAll();         // report maps and files to screen and disk
+            reportToFile();      // report hydrograhs, totals, maps etc to files
+            // reporting to file is done in nthe same thread, mdoes not need a mutex lock
 
-            emit show(noInterface); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
+            // because showing is done outside the Thread in the GUI, a mutex.lock() is needed
+            // mu_condition gives a wakeAll() signal at the end of the display in showWorld()
+            if (!noInterface) {
+                emit show(); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
+                mutex.lock();
+                //qDebug() << "Model thread waiting at" << QTime::currentTime();
+                mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
+                //qDebug() << "Model thread resumed at" << QTime::currentTime();
+                mutex.unlock();
+
+            }
 
             //saveMBerror2file(false); //saveMBerror
 
-            if(stopRequested)
-                time = EndTime;
-
             // show progress in console without GUI
-            if (op.doBatchmode) {
-                int x;
-                x = std::round((op.t / op.maxtime) * 100);
-                x = std::max(std::min(100, x), 0);
-                printProgressBar(x);
+            if (op.doBatchmode && noInterface) {
+                int x = 0;
+                x = std::round(op.t/op.maxtime * 100) ;
+                consoleout << "\rprogress: " << QString("step %1        %2 %   end time %3").arg(runstep).arg(x, -3).arg(op.maxtime) << "        ";
+                consoleout.flush();
+
+                // THIS SHOULD ALSO WORK IN LINUX ???
             }
+        } // TIME LOOP
+
+        // if (SwitchEndRun)
+        //     ReportMaps();
+
+        if (!noInterface) {
+            // wrap up and close the thread
+            emit done("Finished");
         }
-
-        if (SwitchEndRun)
-            ReportMaps();
-
-        emit done("finished");
 
         if (op.doBatchmode)
         {
@@ -359,26 +434,38 @@ void TWorld::DoModel()
             qDeleteAll(maplistCTMap.begin(),maplistCTMap.end());
             maplistCTMap.clear();
 
-            //delete swatre 3D soil layer structure if exists
+            // //delete swatre 3D soil layer structure if exists
             if (initSwatreStructure)
                 FreeSwatreInfo();
 
-            qDebug() << "\nfinished after "<< op.maxtime << "minutes\n";
-            if (noInterface)
-                QCoreApplication::quit();
-            else
+            if (noInterface) {
+                consoleout << "\n\n Finished after "<< op.maxtime << "minutes";
+                consoleout.flush();
+                //QCoreApplication::quit();
+                // no longer used because app.exec() is not called, just let it exit
+            } else {
                 QApplication::quit();
+            }
             // close the world model
         }
     }
     catch(...)  // if an error occurred
     {
-        emit done("ERROR STOP: "+ErrorString);
-        if (op.doBatchmode) {qDebug() << "ERROR STOP "<< ErrorString;
-            if (noInterface)
-                QCoreApplication::quit();
-            else
+        if (!noInterface) {
+            emit done("ERROR STOP: "+ErrorString);
+        }
+        if (op.doBatchmode) {
+            if (noInterface) {
+                consoleout << "ERROR STOP "<< ErrorString;
+                consoleout.flush();
+                #ifdef Q_OS_WIN
+                system("pause"); // waits for a key press
+                #endif
+               // QCoreApplication::quit();
+                // no longer used because app.exec() is not called, just let it exit
+            } else {
                 QApplication::quit();
+            }
         }
     }
 }
@@ -386,10 +473,12 @@ void TWorld::DoModel()
 void TWorld::GetInputTimeseries()
 {
     // get meteo data
-    if (SwitchRainfallSatellite)
-        GetRainfallMapfromSat(time);         // get rainfall from maps
-    else
-        GetRainfallMapfromStations(time);  // get rainfall from stations
+    if(SwitchRainfall) {
+        if (SwitchRainfallSatellite)
+            GetRainfallMapfromSat(time);         // get rainfall from maps
+        else
+            GetRainfallMapfromStations(time);  // get rainfall from stations
+    }
 
     if (SwitchIncludeET) {
         if (SwitchETSatellite)
@@ -422,36 +511,41 @@ void TWorld::HydrologyProcesses()
 
     if (SwitchIncludeET) {
         if (SwitchDailyET)
-            ETafactor = getETaFactor();
+            ETafactor = getETaFactor(); // based on daylength if daily values, converts from m/day to m/timestep directly
         else
-            ETafactor = 1.0;
+            ETafactor = 1.0;   // if not ETfactor can be 1,.0 because ET is already in m/timestep
     }
 
-    // Do all hydrology in one big loop. Not sure if this is faster then a loop per process!
+    // above ground
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        cell_Interception(r,c);
+        if (SwitchInterception)
+            cell_Interception(r,c);
         // all interception on plants, houses, litter
         // result is rainnet (and leafdrip for erosion)
 
-//        if (SwitchFloodInitial  && hmxInit->Drc > 0)
-//            hmxInit->Drc += RainNet->Drc;
+        if (SwitchIncludeET)
+            cell_ETa(r,c);
+        // interception and soil surface evap, also ET from Green and Ampt, not SWATRE
 
+        // floododmain is used if kinwave + overflow to separate WH runoiff from 2D hmx flood
         if (FloodDomain->Drc > 0) {
             hmx->Drc += RainNet->Drc;// + Snowmeltc->Drc; // only used in kin wave plus flood from channel, hmx is flood water
         } else {
             WH->Drc += RainNet->Drc;// + Snowmeltc->Drc;  // used in 2D flow and kin wave
         }
+        hmxWH->Drc = hmx->Drc+WH->Drc;
 
+        // incoming wave at boundary
         if (SwitchWaveUser) {
             WHboundRain->Drc += RainNet->Drc;
             if (WHboundarea->Drc > 0) {
                 // WHbound is the forced water level in area with value '1', plus cum rainfall
                 WH->Drc = WHbound->Drc + WHboundRain->Drc;
+                // assume there is no hmx in WHboundarea
             }
         }
-        // if(std::isnan(Thetaeff->Drc))
-        //     qDebug() << QString("A nan 1 %1 %2").arg(r).arg(c);
+    }}
 
         if (SwitchPest) {
             // update concentration of pesticides after rainfall (mg/L)
@@ -459,60 +553,45 @@ void TWorld::HydrologyProcesses()
                 PCrw->Drc = PMrw->Drc / (WH->Drc * FlowWidth->Drc * DX->Drc * 1000);
             }
         }
-        if (SwitchInfiltration  && InfilMethod != INFIL_SWATRE) {
-            switch (InfilMethod) {
-                case INFIL_SOAP : cell_Soilwater(i_); break;
-                case INFIL_GREENAMPT:
-                case INFIL_SMITH:
-                    // Green and Ampt + redistribution
-                    cell_InfilMethods(r, c);
+    if (SwitchInfiltration) {
+        // non SWATRE infiltration, redistribution and percolation
+        if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_SOAP) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                cell_InfilMethods(r, c);
 
-                    if (SwitchIncludeET)
-                        cell_ETa(r,c);
+                if (SwitchTwoLayer) {
+                    cell_Tiledrain2(r,c);
+                    cell_Redistribution2(r, c);
+                    //cell_Channelinfow2(r, c);
+                } else {
+                    cell_Tiledrain1(r,c);
+                    cell_Redistribution1(r, c);
+                    //cell_Channelinfow1(r, c);
+                }
 
-                    if (SwitchTwoLayer) {
-                        cell_Redistribution2(r, c);
-                        //cell_Channelinfow2(r, c);
-                    } else {
-                        cell_Redistribution1(r, c);
-                        //cell_Channelinfow1(r, c);
-                    }
-
-                    if (!SwitchImpermeable)
-                        Perc->Drc = cell_Percolation(r, c, 1.0);
-
-                    break;
-            }
+                if (!SwitchImpermeable)
+                    Perc->Drc = cell_Percolation(r, c, 1.0);
+           }}
         }
-    }}
 
-
-    if (SwitchInfiltration && InfilMethod == INFIL_SWATRE) {
-        // #pragma omp parallel for num_threads(userCores)
-        // FOR_ROW_COL_MV_L {
-        //     cell_InfilSwatre(i_, r,c);
-        // }}
-        InfilSwatre(); // does the same
+        // SWATRE infiltration
+        if (InfilMethod == INFIL_SWATRE) {
+            InfilSwatre();
+        }
     }
-
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        // do not do this!
-        //  cell_depositInfil(r,c);
-        // deposit all sediment still in flow when infiltration causes WH to become minimum
-        // gives huge MBs errors!
-
         cell_SurfaceStorage(r, c);
         //calc surf storage and total watervol and WHrunoff
-
-        if (SwitchErosion)
-            cell_SplashDetachment(r, c);
-
-        if (SwitchSlopeStability)
-            cell_SlopeStability(r, c);
     }}
 
+    if (SwitchErosion) {
+        cell_SplashDetachment();
+            // if (SwitchSlopeStability)
+            //     cell_SlopeStability(r, c);
+    }
     //MoistureContent();
     // double soiltot2 = SoilWaterMass();
     // if (InfilMethod != INFIL_SOAP)

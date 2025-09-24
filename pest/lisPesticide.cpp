@@ -72,6 +72,14 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMser
        }
     }}
 
+   //  PestOutW += PQrw_dt;
+   //  Pestinf += mapTotal(*PMinf);
+   //  //PestPerc += mapTotal(*PMperc);
+   //  double PMerosion {0.0};
+   //  if (SwitchErosion) {
+   //      PestOutS += PQrs_dt;
+   //      PMerosion = mapTotal(*PMrs) + PestOutS;
+   //  }
 
     //add channel outflow
     if (SwitchIncludeChannel) {
@@ -116,6 +124,7 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMser
     PMwdet = mapTotal(*pmwdet);
     PMwerr = PMwdet > 0 ? (PMwdet + PMwdep - PMwactive) / PMwdet * 100 : 0;
 }
+
 
 //---------------------------------------------------------------------------
 /**

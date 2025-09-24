@@ -1,37 +1,32 @@
-241223 - v7.4.5
-- BUG FIX: Delete all map and swatre data after no GUI run
-- BUG FIX: Update Lisem, wrong check
-- BUG FIX: Swatre compacted profiles incorrectly named
-- BUG FIX: Swatre impermeable surfaces no longer ignored
-- BUG FIX: check if compacted or crusted porosity is smaller than ninitial moisture
-- BUG FIX: wrong help file shown in certain pages, help text updated
-- Included gridretention (Fanyaa Yuu, trenches etc) in water mitigation measures
-- Swatre input matrix potential as one value or user maps, output as maps of h and theta for each node
-- Added options of dealing with Org.Mat. differences (-2% to 2%) and Density Factor (0.9 to 1.1) in SWATRE and GA infiltration
-- Interface: make LISEM update optional and reacitivate in advanced options
-- Updated help files
-- Save fontsize and dark lisem in openlisem.ini
+Latest fixes and changes:
+=========================
 
-241203 - v7.4.4
-- Update system: lisem will check online in github if a newer version exists
+see Readme.txt for a complete list
 
-241125 - v7.4.3
-- BUG FIX: Swatre did not account for impermeable surfaces
-- BUG FIX: sign error in Swatre causing invcerse effect of initial h
-- culvert kin wave code extended to subsurface drains, to be tested
-- Interface advanced option: perimeter for overland flow is not just the width but w+2h (compatibility old versions)
+250923 - v7.4.7.beta.R9
+- BUG-FIX: bug in culverts, maximum channel discharge was calculated in places where no ciulverts exist
+- Added: options for adding calibration parameters as command-line options rrunning in batch mode
+- Added: Culvert type nr 5 is unconfined flow but in a circular culvert, for large 
+- Changed: channel flow is shown in total discharge on screen and output map (was: only overland flow)
 
-241125 - v7.4.2
-- Adjusted the noInterface option. Now works well on headless systems.
-- BUG FIX: Swatre interface small bug fixes
-- BUG FIX: 2nd page interface map list greyed out
+250901 - v7.4.7.beta.R8
+- Added: option to load stationary baseflow as precalculated map
+- Added: water flowing into urban storm drains does not dissapear but fills up the storm drains, when full the stormdrains will overflow.
 
-241118 - v7.4
-- major rewrite of MUSCL 2D flow with 2nd order and Heun averaging (see FullSWOF documentation of Delestre et al.)
-- BUG FIX: small bug fixes in 2D flow
-- BUG FIX: culverts work again, still small MB error but not very much
+250713 - v7.4.7.beta.R1-R7
+- CHHANGED: read all maps as float (4 byte) instead of double (8 byte), save 40-50% RAM use
+- Removed: possibility to do Org Mat. and bulkdensity corrections on Ksat and Porosity in the code. Too complex, user should do this in the input.
+- Added: Different channel shapes: rectangular, circular, trapezium and triangular. The last two are controlled with the channel side angle.
+- Added: A channel culvert map that has confined flow in these pizels, with shape values: 1=rect,2=circ,3=trap,4=tri.
+- Added: Option to stop SWATRE when there is no rainfall or runoff in a cell (faster)
+- Added: Inflow into stormdrains according to water pressure above inlet
+- Added: Do erosion calculations inside (slow) or outside (fast) 2D flow loop (Advanced options)
+- Added: connection to channel based on hydraulic flow for broad crested weir (Advanced options)
+- UPDATE: Thread behaviour was obselete. Renewed and cleaned use of the model in a thread separate form the GUI
+- BUG-FIX: Fixed confined flow with a Kionematic Wave in culverts and pipes
+- BUG-FIX: Shared memory structured caused wrong results in SWATRE parallel computing, showed as striping on screen
+- BUG-FIX: corrected running from a batch file, and from a cmd window, with and without GUI
+- BUG FIX: correct calculation and reporting of boundary flow and channel flow
+- BUG FIX: some wrong checks for Missing Value in 2D flow, unknown behaviour
+- BUG-FIX: output tilemaps repaired
 
-241114 - v7.3
-- BUG fix: reading of [rainfall/ET/boundary waterheight/user discharge] time string, was always rounded to whole minutes
-- BUG fix: finding the right timeseries interval with the current time at the end of the series
-- Code made compatble for Linux compile, instructions for compilation updated

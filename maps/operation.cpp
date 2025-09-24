@@ -62,7 +62,7 @@ QList <int> countUnits(cTMap const& raster)
     return(list);
 }
 
-
+/*
 void fill(
     cTMap& raster,
     double value)
@@ -78,7 +78,7 @@ void fill(
 }
 
 
-/*
+
 // replaces value inside the areas with the average and retains the original values outside
 void CTMap::areaAverage(CTMap *area)
 {
@@ -217,9 +217,15 @@ double getWindowAverage(
 {
   double i = 0;
   double sum = 0, avg = 0;
-  if (r > 0 && c > 0 && !pcr::isMV(raster.data[r-1][c-1]) && raster.data[r-1][c-1]> 0) { sum += raster.data[r-1][c-1]; i+=1.0;}
-  if (r > 0 && !pcr::isMV(raster.data[r-1][c  ]) && raster.data[r-1][c  ]> 0) { sum += raster.data[r-1][c  ]; i+=1.0;}
-  if (r > 0 && c < raster.nrCols()-1 && !pcr::isMV(raster.data[r-1][c+1]) && raster.data[r-1][c+1]> 0) { sum += raster.data[r-1][c+1]; i+=1.0;}
+  if (r > 0 && c > 0 && !pcr::isMV(raster.data[r-1][c-1]) && raster.data[r-1][c-1]> 0) {
+      sum += raster.data[r-1][c-1]; i+=1.0;
+  }
+  if (r > 0 && !pcr::isMV(raster.data[r-1][c  ]) && raster.data[r-1][c  ]> 0) {
+      sum += raster.data[r-1][c  ]; i+=1.0;
+  }
+  if ((r > 0 && c < raster.nrCols()-1) && (!pcr::isMV(raster.data[r-1][c+1]) && raster.data[r-1][c+1] > 0)) {
+      sum += raster.data[r-1][c+1]; i+=1.0;
+  }
   if (c < raster.nrCols()-1 && !pcr::isMV(raster.data[r  ][c-1]) && raster.data[r  ][c-1]> 0) { sum += raster.data[r  ][c-1]; i+=1.0;}
   if (center && !pcr::isMV(raster.data[r][c]) && raster.data[r][c]> 0) { sum += raster.data[r  ][c]; i+=1.0;}
   if (c < raster.nrCols()-1 && !pcr::isMV(raster.data[r  ][c+1]) && raster.data[r  ][c+1]> 0) { sum += raster.data[r  ][c+1]; i+=1.0;}
@@ -268,8 +274,8 @@ void calcValue(
                 case DIV: if (value > 0) raster.data[r][c] /= value;
                     else pcr::setMV(raster.data[r][c]); break;
                 case POW: raster.data[r][c] = std::pow(raster.data[r][c],value); break;
-                case MIN: raster.data[r][c] = std::min(raster.data[r][c],value); break;//VJ 110420 new
-                case MAX: raster.data[r][c] = std::max(raster.data[r][c],value); break;
+                case MIN: raster.data[r][c] = qMin(raster.data[r][c],value); break;//VJ 110420 new
+                case MAX: raster.data[r][c] = qMax(raster.data[r][c],value); break;
                 }
             }
 }
@@ -293,9 +299,9 @@ void calcMap(
                     case MUL: raster.data[r][c] *= value.data[r][c]; break;
                     case DIV: if (value.data[r][c] > 0) raster.data[r][c] /= value.data[r][c];
                         else pcr::setMV(raster.data[r][c]); break;
-                    case POW: raster.data[r][c] = powl(raster.data[r][c],value.data[r][c]); break;
-                    case MIN: raster.data[r][c] = std::min(value.data[r][c], raster.data[r][c]); break; //VJ 110420 new
-                    case MAX: raster.data[r][c] = std::max(value.data[r][c], raster.data[r][c]); break;
+                    case POW: raster.data[r][c] = pow(raster.data[r][c],value.data[r][c]); break;
+                    case MIN: raster.data[r][c] = qMin(value.data[r][c], raster.data[r][c]); break; //VJ 110420 new
+                    case MAX: raster.data[r][c] = qMax(value.data[r][c], raster.data[r][c]); break;
                     }
                 }
                 else
@@ -324,8 +330,8 @@ void calc2Maps(
                     case DIV: if (value2.data[r][c] > 0) raster.data[r][c] = value1.data[r][c] / value2.data[r][c];
                         else pcr::setMV(raster.data[r][c]); break;
                     case POW: raster.data[r][c] = pow(value1.data[r][c], value2.data[r][c]); break;
-                    case MIN: raster.data[r][c] = std::min(value1.data[r][c], value2.data[r][c]); break; //VJ 110420 new
-                    case MAX: raster.data[r][c] = std::max(value1.data[r][c], value2.data[r][c]); break;
+                    case MIN: raster.data[r][c] = qMin(value1.data[r][c], value2.data[r][c]); break; //VJ 110420 new
+                    case MAX: raster.data[r][c] = qMax(value1.data[r][c], value2.data[r][c]); break;
                     }
                 }
                 else
@@ -354,8 +360,8 @@ void calcMapValue(
                     case DIV: if (value2 > 0) raster.data[r][c] = value1.data[r][c] / value2;
                         else pcr::setMV(raster.data[r][c]); break;
                     case POW: raster.data[r][c] = pow(value1.data[r][c],value2); break;
-                    case MIN: raster.data[r][c] = std::min(value1.data[r][c],value2); break;//VJ 110420 new
-                    case MAX: raster.data[r][c] = std::max(value1.data[r][c],value2); break;
+                    case MIN: raster.data[r][c] = qMin(value1.data[r][c],value2); break;//VJ 110420 new
+                    case MAX: raster.data[r][c] = qMax(value1.data[r][c],value2); break;
                     }
                 }
                 else
@@ -365,14 +371,15 @@ void calcMapValue(
 
 
 void checkMap(
+    cTMap const& mask,
     cTMap const& raster,
     int oper,
     double value,
     QString SS)
 {
-    for (int r = 0; r < raster.nrRows(); r++)
-        for (int c = 0; c < raster.nrCols(); c++)
-            if (!pcr::isMV(raster.data[r][c]))
+    for (int r = 0; r < mask.nrRows(); r++)
+        for (int c = 0; c < mask.nrCols(); c++)
+            if (!pcr::isMV(mask.data[r][c]))
             {
                 if (oper == LARGER && raster.data[r][c] > value)
                 {

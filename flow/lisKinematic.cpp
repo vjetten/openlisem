@@ -45,7 +45,7 @@ functions: \n
 //    ( ldd != 0 && ldd != 5 && rFrom >= 0 && cFrom >= 0 && rFrom+dy[ldd]==rTo && cFrom+dx[ldd]==cTo )
 
 
-#define MAX_ITERS 12
+#define MAX_ITERS 24
 /*
   local drain direction maps have values for directions as follows:
     7  8  9
@@ -76,7 +76,7 @@ double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol,
     double totwater = vol + Qj1i*_dt;   // add upstream water to volume water in cell
     if (totwater <= 1e-10)
         return (Qsn);
-    Qsn = std::min(totsed/_dt, Qj1i1 * totsed/totwater);
+    Qsn = qMin(totsed/_dt, Qj1i1 * totsed/totwater);
     return (Qsn); // outflow is new concentration * new out flux
 
 }
@@ -123,7 +123,8 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
         Sj1i1 = (dx*_dt*s+A+C+B)/(_dt+dx*aQb/Qj1i1);
     else
         Sj1i1 = 0;
-    return std::max(0.0 ,Sj1i1);
+
+    return qMax(0.0 ,Sj1i1);
 }
 //---------------------------------------------------------------------------
 /**
@@ -150,47 +151,34 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     double dfQkx;  //derivative
     const double _epsilon = 1e-12;
     const double beta = 0.6;
-    double q = 0; //sink term, not used
+    //double q = 0; //sink term, not used
 
     //NOTE Qm is maximum Q in pipes/culverts, Am is max Alpha with max Q, values are -1 if not used
 
-    if ((Qin+Qold+q) == 0)  /* +q CW NEW! */
+    if (Qin+Qold == 0)
         return(0);
+    // no flow
 
     //common terms
-    ab_pQ = alpha*beta*pow(((Qold+Qin)/2),beta-1);
+    ab_pQ = alpha*beta*pow(((Qold+Qin)/2.0),beta-1);
     // derivative of diagonal average (space-time)
     deltaTX = deltaT/deltaX;
-    C = deltaTX*Qin + alpha*pow(Qold,beta) + deltaT*q;
-    //C is unit volume of water
-    //dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
+    C = deltaTX*Qin + alpha*pow(Qold,beta);// + deltaT*q;
+    //C is unit volume of water, dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
     Qkx = (deltaTX*Qin + Qold*ab_pQ) / (deltaTX + ab_pQ);
     // explicit first guess Qkx
-
-    // do a first ietartion step for a better guess of Qkx
-    Qkx   = std::max(Qkx, 1e-30);
-    fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;
-    dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);
-    Qkx   -= fQkx / dfQkx;
-    Qkx   = std::max(Qkx, 1e-30);
-
-    // limit flux and alpha to pipe max Q
-    if (Qm > 0) {
-        Qkx = std::min(Qkx, Qm);
-        if (Qkx == Qm)
-            alpha = Am;
-    }
+    Qkx = qMax(Qkx, 1e-30);
 
     count = 0;
     do {
-        fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   // Current k
-        dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  // Current k
-        Qkx   -= fQkx / dfQkx;                                // Next k
-        Qkx   = std::max(Qkx, 1e-30);
+        fQkx  = deltaTX * Qkx + alpha * pow(Qkx, beta) - C;   // Current k function f(Qkx)  where in+out=0 or needs to iterste to 0, i.e. > epsilon
+        dfQkx = deltaTX + alpha * beta * pow(Qkx, beta - 1);  // Current k derivative of function df(Qkx)/dt
+        Qkx   -= fQkx / dfQkx;                                // next estimate Newton-Rapson
+        Qkx   = qMax(Qkx, 1e-30);
 
-        // limit flux and alpha to pipe max Q
+        // limit flux and alpha to culvert/pipe max
         if (Qm > 0) {
-            Qkx = std::min(Qkx, Qm);
+            Qkx = qMin(Qkx, Qm);
             if (Qkx == Qm) {
                 alpha = Am;
                 count = MAX_ITERS;
@@ -199,14 +187,18 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
 
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
-    itercount = count;
-    return Qkx;
+    // stop when mass balance function ~0
+   // itercount = count; // not used
+
+    return qMax(0.0, Qkx);
 }
 
 //---------------------------------------------------------------------------
-/*LDD_COOR *_crlinked_*/
-void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha,cTMap *_DX, cTMap *_Qmax, cTMap *_Amax)
-{   
+void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_Alpha, cTMap *_DX, cTMap *_Qmax, cTMap *_Amax)
+{
+    int dy[10] = {0,1,1,1,0,0,0,-1,-1,-1};
+    int dx[10] = {0,-1,0,1,-1,0,1,-1,0,1};
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         _Qn->Drc = 0;
@@ -215,8 +207,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
 
  //  #pragma omp parallel for ordered num_threads(userCores)
  // parallel doesn't work here because you have to calculate accoring to the order of cells from top to bottom, to determine the inflow
-    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
-    {
+    for(long i_ =  0; i_ < _crlinked_.size(); i_++) {
         int r = _crlinked_.at(i_).r;
         int c = _crlinked_.at(i_).c;
         double Qin = 0;
@@ -225,22 +216,27 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
             for(int j = 0; j < _crlinked_.at(i_).nr; j++) {
                 int rr = _crlinked_.at(i_).inn[j].r;
                 int cr = _crlinked_.at(i_).inn[j].c;
-                //Qin += _Q->Drcr;
                 Qin += _Qn->Drcr;
             }
         }
         QinKW->Drc = Qin;
 
-        if (Qin > 0 || _Q->Drc > 0) {
-            itercount = 0;
-               _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
-           // tmb->Drc = itercount;
-        }
+        _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
+        int ldd = fabs(_crlinked_.at(i_).ldd); // negative is a culvert
+        int cr = c+dx[ldd];
+        int rr = r+dy[ldd];
+        if (_Qmax->Drcr > 0)
+            _Qn->Drc = qMin(_Qmax->Drcr, _Qn->Drc);
+
+        //the following causes major problmes: water level rises to extreme levels because there is no flow out!
+        // if (FloodDomain->Drcr > 0)
+        //     _Qn->Drc = 0;
+
     }
 }
 //---------------------------------------------------------------------------
-/*LDD_COOR *_crlinked_*/
-void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed)
+void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
+                                cTMap *_Alpha, cTMap *_DX, cTMap *_Sed, cTMap *_Qmax)
 {
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
@@ -251,7 +247,7 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
         SinKW->Drc = 0;
     }}
 
-//#pragma omp parallel for reduction(+:Qin) num_threads(userCores)
+
     for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
     {
         int r = _crlinked_[i_].r;
@@ -260,153 +256,34 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
         double Qin = 0;
         double Sin = 0;   
 
-        for (int i = 1; i <= 9; i++)
-        {
-            if (i != 5) {
-                int ldd = 0;
-                int rr = r+dy[i];
-                int cr = c+dx[i];
-
-                if (INSIDE(rr, cr) && !pcr::isMV(_LDD->Drcr)) {
-                    ldd = (int) _LDD->Drcr;
-                    // if the cells flow into
-                    if (FLOWS_TO(ldd, rr,cr,r,c)) {
-                        Qin += _Qn->Drcr;
-                        Sin += _Qsn->Drcr;
-                    }
-                }
+        if (_crlinked_.at(i_).nr > 0) {
+            for(int j = 0; j < _crlinked_.at(i_).nr; j++) {
+                int rr = _crlinked_.at(i_).inn[j].r;
+                int cr = _crlinked_.at(i_).inn[j].c;
+                //Qin += _Q->Drcr;
+                Qin += _Qn->Drcr;
+                Sin += _Qsn->Drcr;
             }
         }
 
-        SinKW->Drc = Sin;
-
         _Qsn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Sin, _Qs->Drc, _Alpha->Drc, _DX->Drc);
-        _Qsn->Drc = std::min(_Qsn->Drc, SinKW->Drc+_Sed->Drc/_dt);
-        // no more sediment outflow than total sed in cell
-        _Sed->Drc = std::max(0.0, SinKW->Drc*_dt + _Sed->Drc - _Qsn->Drc*_dt);
-        // new sed volume based on all fluxes and org sed present
-
-    }
-}
-//---------------------------------------------------------------------------
-QVector <LDD_COORIN> TWorld::MakeLinkedList(cTMap *_LDD)
-{
-    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
-    int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
-
-    QVector <LDD_COORIN> _crlinked_;
-    _crlinked_.clear();
-
-    Fill(*tma, -1); // flag
-
-    FOR_ROW_COL_MV {
-        if (_LDD->Drc == 5) {
-
-            /// Linked list of cells in order of LDD flow network, ordered from pit upwards
-            LDD_LINKEDLIST *list = nullptr, *temp = nullptr;
-            list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-
-            list->prev = nullptr;
-            /// start gridcell: outflow point of area
-            list->rowNr = r;
-            list->colNr = c;
-
-            while (list != nullptr)
-            {
-                int i = 0;
-                bool  subCachDone = true;
-                int rowNr = list->rowNr;
-                int colNr = list->colNr;
-
-                for (i=1; i<=9; i++)
-                {
-
-                    // this is the current cell
-                    if (i==5)
-                        continue;
-
-                    int ldd = 0;
-                    int rr = rowNr+dy[i];
-                    int cr = colNr+dx[i];                    
-
-                    if (INSIDE(rr, cr) && !pcr::isMV(_LDD->Drcr))
-                        ldd = (int) _LDD->Drcr;
-                    else
-                        continue;
-
-                    // check if there are more cells upstream, if not subCatchDone remains true
-                    if (tma->Drcr == -1 && FLOWS_TO(ldd, rr, cr, rowNr, colNr))
-                    {
-                        temp = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-                        temp->prev = list;
-                        list = temp;
-                        list->rowNr = rr;
-                        list->colNr = cr;
-                        subCachDone = false;
-                    }
-                }
-
-                if (subCachDone)
-                {
-                    LDD_COORIN newcr;
-                    newcr.r = rowNr;
-                    newcr.c = colNr;
-                    // LDD_COORIN *newcr = new LDD_COORIN;
-                    // newcr->r = rowNr;
-                    // newcr->c = colNr;
-                    newcr.ldd = (int) _LDD->data[rowNr][colNr];
-
-                   // newcr.inn.clear(); // to be sure
-                    //newcr.inn = (LDD_COOR*) malloc(sizeof(LDD_COOR)*9);
-                    newcr.nr = 0;
-
-                    int j = 0;
-                    for (i=1;i<=9;i++)
-                    {
-                        if (i != 5) {
-
-                            int rr = rowNr+dy[i];
-                            int cr = colNr+dx[i];
-                            int ldd = 0;
-                            if (INSIDE(rr, cr)) {
-                                if (!pcr::isMV(_LDD->Drcr)) {
-                                    ldd = (int) _LDD->Drcr;
-                                    if (FLOWS_TO(ldd, rr,cr,rowNr,colNr))
-                                    {
-                                       LDD_COOR incr;
-                                       incr.r = rr;
-                                       incr.c = cr;
-                                       newcr.inn << incr; // add the point that flows into the cell to inn
-//                                        newcr.inn[j].r = rr;
-//                                        newcr.inn[j].c = cr;
-                                       j++;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    newcr.nr = j;
-
-                    _crlinked_ << newcr;
-                    tma->data[rowNr][colNr] = 0;
-
-                    temp=list;
-                    list=list->prev;
-                    free(temp);
-                    // go to the previous cell in the list
-
-                }
-
-            } /* eowhile list != nullptr */
-
+        _Qsn->Drc = qMin(_Qsn->Drc, Sin+_Sed->Drc/_dt);
+        int ldd = fabs(_crlinked_.at(i_).ldd);
+        int cr = c+dx[ldd];
+        int rr = r+dy[ldd];
+        if (_Qmax->Drcr > 0) {
+            double qold = _Qn->Drcr;
+            _Qn->Drc = _Qmax->Drcr;
+            _Qsn->Drc = qold > 1e-12 ? _Qsn->Drc * _Qn->Drcr/qold : 0.0;
         }
+
+            // no more sediment outflow than total sed in cell
+        _Sed->Drc = qMax(0.0, Sin*_dt + _Sed->Drc - _Qsn->Drc*_dt);
+            // new sed volume based on all fluxes and org sed present
     }
 
-    return(_crlinked_);
+    }
 }
-
-
-/* OBSOLETE */
 //---------------------------------------------------------------------------
 /**
  * @fn void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap *_Qn, cTMap *_q, cTMap *_Alpha, cTMap *_DX,cTMap *_Qmax)
@@ -464,7 +341,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
             c = colNr+dx[i];
 
             if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
-                ldd = (int) _LDD->Drc;
+                ldd = static_cast <int>(_LDD->Drc);
             else
                 continue;
 
@@ -501,7 +378,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
                 int c = colNr+dx[i];
 
                 if (INSIDE(r,c) && !pcr::isMV(_LDD->Drc))
-                    ldd = (int) _LDD->Drc;
+                    ldd = static_cast <int>(_LDD->Drc);
                 else
                     continue;
 
@@ -516,9 +393,14 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
             itercount = 0;
             //double f = ((int) _LDD->data[rowNr][colNr] % 2 == 1) ? 1.414214 : 1.0;
             _Qn->data[rowNr][colNr] =
-                    IterateToQnew(QinKW->data[rowNr][colNr], _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr],
+                    IterateToQnew(Qin, _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr],
                                   _Qmax->data[rowNr][colNr], _Amax->data[rowNr][colNr] );
-              /* cell rowN, colNr is now done */
+
+            int ldd = static_cast <int>(_LDD->data[rowNr][colNr]);
+            int cr = colNr+dx[ldd];
+            int rr = rowNr+dy[ldd];
+            if (_Qmax->Drcr > 0)
+                _Qn->data[rowNr][colNr] = qMin(_Qmax->Drcr, _Qn->data[rowNr][colNr]);
 
             temp=list;
             list=list->prev;
@@ -593,7 +475,7 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
             c = colNr+dx[i];
 
             if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
-                ldd = (int) _LDD->Drc;
+                ldd = static_cast <int>( _LDD->Drc);
             else
                 continue;
 
@@ -628,7 +510,7 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                 c = colNr+dx[i];
 
                 if (INSIDE(r, c) && !pcr::isMV(_LDD->Drc))
-                    ldd = (int) _LDD->Drc;
+                    ldd = static_cast <int>(_LDD->Drc);
                 else
                     continue;
 
@@ -643,10 +525,10 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
             _Qsn->data[rowNr][colNr] = complexSedCalc(_Qn->data[rowNr][colNr], Qin, _Q->data[rowNr][colNr],
                                             Sin, _Qs->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _DX->data[rowNr][colNr]);
 
-            _Qsn->data[rowNr][colNr] = std::min(_Qsn->data[rowNr][colNr], Sin+_Sed->data[rowNr][colNr]/_dt);
+            _Qsn->data[rowNr][colNr] = qMin(_Qsn->data[rowNr][colNr], Sin+_Sed->data[rowNr][colNr]/_dt);
             // no more sediment outflow than total sed in cell
 
-            _Sed->data[rowNr][colNr] = std::max(0.0, Sin*_dt + _Sed->data[rowNr][colNr] - _Qsn->data[rowNr][colNr]*_dt);
+            _Sed->data[rowNr][colNr] = qMax(0.0, Sin*_dt + _Sed->data[rowNr][colNr] - _Qsn->data[rowNr][colNr]*_dt);
             // new sed volume based on all fluxes and org sed present
 
             /* cell rowN, colNr is now done */
@@ -658,135 +540,4 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
 
         }/* eof subcatchment done */
     } /* eowhile list != nullptr */
-}
-//---------------------------------------------------------------------------
-/**
- * @fn void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
- * @brief Returns the sum of all values upstream
- *
- * Returns the sum of all values upstream using
- * the local drainage direction map (LDD)
- *
- * @param _LDD : Local Drainage Direction map
- * @param _M : Material map, can be any substance
- * @param out : Output map, sum of all upstream material
- *
- * @see LDD
- */
-void TWorld::upstream(cTMap *_LDD, cTMap *_M, cTMap *out)
-{
-    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-
-    FOR_ROW_COL_MV
-    {
-        double tot = 0;
-        for (int i=1; i<=9; i++)
-        {
-            // this is the current cell
-            if (i==5)
-                continue;
-
-            // look around in 8 directions
-            int row = r+dy[i];
-            int col = c+dx[i];
-            int ldd = 0;
-
-            if (INSIDE(row, col) && !pcr::isMV(_LDD->data[row][col]))
-                ldd = (int) _LDD->data[row][col];
-            else
-                continue;
-
-            if (FLOWS_TO(ldd, row,col,r,c)) {
-                tot += _M->data[row][col];
-            }
-        }
-        out->Drc = tot;
-    }
-
-}
-//---------------------------------------------------------------------------
-void TWorld::upstreamDrain(cTMap *_LDD, cTMap *MaxQ, cTMap *in, cTMap *out)
-{
-    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-
-    FOR_ROW_COL_MV
-    {
-        double tot = 0;
-        for (int i=1; i<=9; i++)
-        {
-            // this is the current cell
-            if (i==5)
-                continue;
-
-            // look around in 8 directions
-            int row = r+dy[i];
-            int col = c+dx[i];
-            int ldd = 0;
-
-            if (INSIDE(row, col) && !pcr::isMV(_LDD->data[row][col]))
-                ldd = (int) _LDD->data[row][col];
-            else
-                continue;
-
-            if (FLOWS_TO(ldd, row,col,r,c)) {
-                tot += in->data[row][col];
-            }
-        }
-        tot = std::min(MaxQ->Drc, tot);
-        out->Drc = tot;
-    }
-
-}
-//---------------------------------------------------------------------------
-void TWorld::UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn)
-{
-    #pragma omp parallel num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        _Qn->Drc = 0;
-    }}
-
-    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
-    {
-        int r = _crlinked_[i_].r;
-        int c = _crlinked_[i_].c;
-        double Qin = 0;
-
-        // get inflow
-        if (_crlinked_[i_].nr > 0) {
-            for(int j = 0; j < _crlinked_[i_].nr; j++) {
-                int rr = _crlinked_[i_].inn[j].r;
-                int cr = _crlinked_[i_].inn[j].c;
-                Qin += _Q->Drcr;
-            }
-            Qin /= _crlinked_[i_].nr;
-        }
-        _Qn->Drc = Qin;
-    }
-}
-//---------------------------------------------------------------------------
-void TWorld::AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW)
-{
-    #pragma omp parallel num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        _Qn->Drc = 0;
-    }}
-
-    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
-    {
-        int r = _crlinked_[i_].r;
-        int c = _crlinked_[i_].c;
-        double Qin = 0;
-
-        // get inflow
-        if (_crlinked_[i_].nr >0) {
-            for(int j = 0; j < _crlinked_[i_].nr; j++) {
-                int rr = _crlinked_[i_].inn[j].r;
-                int cr = _crlinked_[i_].inn[j].c;
-                Qin += (_CW->Drcr > 0 ? 0.0 : _Qn->Drcr);
-            }
-        }
-       _Qn->Drc = Qin + _Q->Drc;
-    }
 }

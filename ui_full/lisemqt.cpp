@@ -48,26 +48,23 @@ update of the runfile before running:
 
 #include "lisemqt.h"
 #include <iostream>
+#include <QDoubleValidator>
 
 output op;
 // declaration of variable structure between model and interface.
 // All model results are put in this structure and sent from the model
 // to the interface each timestep, defined in LisUIoutput.h
 
-
 //--------------------------------------------------------------------
-lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
+lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
     : QMainWindow(parent)
 {
     setupUi(this);
     // set up interface
 
-    setMinimumSize(1280,800);
-    showMaximized();
-
-    darkLISEM = false;   
+    darkLISEM = false;
     checkforpatch = true;
-    op.nrRunsDone = 0;    
+    genfontsize = 10;
     op.runfilename.clear();
     E_runFileList->clear();
 
@@ -81,6 +78,9 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     // mapList will be refilled with the runfile and user choices
     // so this contains the final list of maps
 
+    stoprun = false;
+    // to prevent destroying datastructures that are not created yet at the first run
+
     SetToolBar();
     // slots and signals
 
@@ -92,70 +92,90 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, QString runname)
     //use all actual mapnames from the mapList structure
 
     SetConnections();
+    // buttons and actions not in the toolbar
 
     setupPlot();
     // set up the discharge graphs
-
     setupMapPlot();
-    // set up the raster map drawing
-    if (!doBatch) {
-        GetStorePath();
-        // openlisem.ini file, contains runfile list als darkmode and fontsize and checkforpatch
-    }
+    // set up the display maps
 
-    if (checkforpatch)
-        CheckVersion();
+   // loadSettings();
+    // gets fontsize darmokmode and checkpatch from registry
+    // not for linux, so not used
+
+    op.doBatchmode = doBatch;  //copy batchmode for inside run
+
+    op.forceResDir = forceRes; // force creation result dir if not exist
+
+    GetStorePath();
+        // openlisem.ini file, contains runfile list, loads the first in the list
 
     SetStyleUI();
     // do some style things
 
-    lisMpeg = new lismpeg(this);    
+    lisMpeg = new lismpeg(this);
 
-    doBatchmode = doBatch; // save as global var in iface
-    //batchRunname = runname;
-    op.doBatchmode = doBatch;  //copy batchmode for inside run
+    setMinimumSize(1280,800);
+    //showMaximized();
+    QTimer::singleShot(0, this, SLOT(showMaximized()));
 
-    // make the model world once, this structure is always needed regardless of the area
-    W = new TWorld();
-    connect(W, SIGNAL(show(bool)),this, SLOT(worldShow(bool)),Qt::BlockingQueuedConnection);
-    connect(W, SIGNAL(done(QString)),this, SLOT(worldDone(QString)),Qt::QueuedConnection);
-    connect(W, SIGNAL(debug(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
-    connect(W, SIGNAL(timedb(QString)),this, SLOT(worldDebug(QString)),Qt::QueuedConnection);
-    // connect emitted signals from the model thread to the interface routines that handle them
-    //startplot = false; // start plotting
-    stoprun = false;
-    W->waitRequested = false;
-    // run is not started so we don't accidentally do wrong things while W exists
+    if (checkforpatch && !op.doBatchmode)
+        CheckVersion();
 
-    if(doBatch)
-    {
-        runfilelist.clear();
-        runfilelist << runname;
+    if(op.doBatchmode) {
+        // runfilelist.clear();
+        // runfilelist << runname;
 
         op.runfilename = runname;
-        GetRunfile();     // get the nrunfile and fill namelist
-        ParseInputData(); // fill interface with namelist data and fill mapList
-                          // also update DEFmaps for map tree view in interface
-        initMapTree();    // fill the tree strcuture on page 2 with DEFmaps
-        //RunAllChecks();   // activate the maps in the tree parts in response to checks
+\
         E_runFileList->insertItem(0, runname);
+        // INSERTING THE RUN FILE DOES THE FOLLOWING:
+        // GetRunfile();     // get the nrunfile and fill namelist
+        // ParseInputData(); // fill interface with namelist data and fill mapList
+        //                   // also update DEFmaps for map tree view in interface
+        // initMapTree();    // fill the tree strcuture on page 2 with DEFmaps
 
+        int i = 0;
+        if (op.calhydro.size() > 0) {
+            E_CalibrateSmax->setValue(op.calhydro[i].toDouble()); i++;
+            E_CalibrateRR->setValue(op.calhydro[i].toDouble()); i++;
+            E_CalibrateKsat->setValue(op.calhydro[i].toDouble()); i++;
+            E_CalibrateKsat2->setValue(op.calhydro[i].toDouble()); i++;
+            E_CalibrateKsat3->setValue(op.calhydro[i].toDouble()); i++;
+            E_CalibrateTheta->setValue(op.calhydro[i].toDouble()); i++;
+            E_CalibratePsi->setValue(op.calhydro[i].toDouble());
+        }
+        if (op.calflow.size() > 0) {
+            i = 0;
+            E_CalibrateN->setValue(op.calflow[i].toDouble()); i++;
+            E_CalibrateChN->setValue(op.calflow[i].toDouble()); i++;
+            E_CalibrateChKsat->setValue(op.calflow[i].toDouble()); i++;
+            E_CalibrateWave->setValue(op.calflow[i].toDouble()); i++;
+            E_CalibrateCulvert->setValue(op.calflow[i].toDouble()); i++;
+        }
+        if (op.caleros.size() > 0) {
+            i = 0;
+            E_CalibrateAS->setValue(op.caleros[i].toDouble()); i++;
+            E_CalibrateCOH->setValue(op.caleros[i].toDouble()); i++;
+            E_CalibrateD50->setValue(op.caleros[i].toDouble()); i++;
+            E_CalibrateD90->setValue(op.caleros[i].toDouble()); i++;
+            E_CalibrateCHCOH->setValue(op.caleros[i].toDouble()); i++;
+        }
         stopAct->setChecked(false);
         runAct->setChecked(true);
         pauseAct->setChecked(false);
         runmodel();
     }
+   // qDebug() << "start" << QDir::currentPath() << QDir("../map/").absolutePath();
 }
 //--------------------------------------------------------------------
 lisemqt::~lisemqt()
 {
-    if (!doBatchmode)
+   // saveSettings(); regsitry, not used because not in linux
+    if (!op.doBatchmode)
         StorePath();
-    delete W;
 }
 //--------------------------------------------------------------------
-// NAMING convention void on_<widget name="">_<signal name="">(<signal parameters="">)
-// works automatically. if included here may be executed twice!!! not sure...
 void lisemqt::SetConnections()
 {
     //connect(checkPesticides, SIGNAL(toggled(bool)), this, SLOT(doCheckPesticides(bool)));
@@ -168,18 +188,8 @@ void lisemqt::SetConnections()
     connect(MapNameModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), this, SLOT(editMapname(QModelIndex, QModelIndex)));
     connect(toolButton_ResultDir, SIGNAL(clicked()), this, SLOT(setResultDir()));
 
-   // obsolete
-   // connect(checkIncludeChannel, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-   // connect(checkOverlandFlow1D, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-   // connect(checkOverlandFlow2Dkindyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-   // connect(checkOverlandFlow2Ddyn, SIGNAL(toggled(bool)), this, SLOT(setFloodTab(bool)));
-
-   // connect(checkDoErosion, SIGNAL(toggled(bool)), this, SLOT(setErosionTab(bool)));
-
     connect(spinBoxPointtoShow,SIGNAL(valueChanged(int)),this,SLOT(onOutletChanged(int)));
-
     connect(checkFormatGtiff, SIGNAL(toggled(bool)), this, SLOT(setFormatMaps(bool)));
-
 }
 //--------------------------------------------------------------------
 void lisemqt::setFormatMaps(bool check)
@@ -412,7 +422,7 @@ void lisemqt::on_DisplayComboBox2_currentIndexChanged(int j)
 void lisemqt::setFloodTab(bool yes)
 {
     yes = true;
-    if (/*checkOverlandFlow2Dkindyn->isChecked()*/ E_OFWaveType->currentIndex() == 1 && !checkIncludeChannel->isChecked()) {
+    if (E_OFWaveType->currentIndex() == 1 && !checkIncludeChannel->isChecked()) {
         yes = false;
         QMessageBox::warning(this,"openLISEM",QString("The combination of 1D overland flow and 2D flood can only be used with a channel activated."));
         //checkOverlandFlow1D->setChecked(true);
@@ -442,6 +452,7 @@ void lisemqt::setFloodTab(bool yes)
 
 }
 //--------------------------------------------------------------------
+//  OBSOLETE
 void lisemqt::setErosionTab(bool yes)
 {
     //  yes = checkDoErosion->isChecked();
@@ -516,8 +527,8 @@ void lisemqt::setWriteOutputCSV(bool doit)
 void lisemqt::setOutputScreen()
 {
   if (W) {
-    W->noInterface = !W->noInterface;
-    showAllAct->setChecked(!W->noInterface);
+    W->noOutput = !W->noOutput;
+    showAllAct->setChecked(!W->noOutput);
   }
 }
 //--------------------------------------------------------------------
@@ -533,7 +544,6 @@ void lisemqt::setOutputInfo(bool check)
 void lisemqt::SetToolBar()
 {
     toolBar->setIconSize(QSize(32,32));
-
 
     resetAllAct = new QAction(QIcon(":/2X/reset.png"), "&Reset interface and all options...", this);
     connect(resetAllAct, SIGNAL(triggered()), this, SLOT(doResetAll()));
@@ -558,7 +568,7 @@ void lisemqt::SetToolBar()
     toolBar->addAction(saveasAct);
     toolBar->addSeparator();
 
-    shootscreenAct = new QAction(QIcon(":/2X/screenshots2X.png"), "make a screenshow of the current page", this);
+    shootscreenAct = new QAction(QIcon(":/2X/screenshots2X.png"), "make a screenshot of the current page", this);
     connect(shootscreenAct, SIGNAL(triggered()), this, SLOT(shootScreen()));
     toolBar->addAction(shootscreenAct);
 
@@ -567,7 +577,7 @@ void lisemqt::SetToolBar()
     connect(shootMscreenAct, SIGNAL(triggered()), this, SLOT(shootMScreen()));
     toolBar->addAction(shootMscreenAct);
 
-    makeMovieAct = new QAction(QIcon(":/2X/film.png"), "Save the run in multiple screenshots", this);
+    makeMovieAct = new QAction(QIcon(":/2X/film.png"), "Make a video from the saved screenshots AFTER a run", this);
     makeMovieAct->setCheckable(true);
     connect(makeMovieAct, SIGNAL(triggered()), this, SLOT(convertScreenshotsToVideo()));
     toolBar->addAction(makeMovieAct);
@@ -579,7 +589,7 @@ void lisemqt::SetToolBar()
     connect(fontDecreaseAct, SIGNAL(triggered()), this, SLOT(fontDecrease()));
     toolBar->addAction(fontDecreaseAct);
 
-    setBWAct = new QAction(QIcon(":/black-and-white.png"), "Save the run in multiple screenshots", this);
+    setBWAct = new QAction(QIcon(":/black-and-white.png"), "Toggle dark/light interface ", this);
     setBWAct->setCheckable(true);
     connect(setBWAct, SIGNAL(triggered()), this, SLOT(setBWUI()));
     toolBar->addAction(setBWAct);
@@ -703,17 +713,10 @@ void lisemqt::setResultDir()
 //--------------------------------------------------------------------
 void lisemqt::savefileas()
 {
-    if (W && W->isRunning())
-    {
-        QMessageBox::warning(this, "openLISEM","Cannot save a file while model is running.");
+    if (W && !stoprun) {
+        QMessageBox::warning(this, "openLISEM","Cannot save a file while the model is running.");
         return;
     }
-
-    // if (op.runfilename.isEmpty())
-    // {
-    //     QMessageBox::warning(this, "openLISEM","No runfile active.");
-    //     //return;
-    // }
 
     QString selectedFilter;
     QString fileName = QFileDialog::getSaveFileName(this,
@@ -732,12 +735,6 @@ void lisemqt::savefileas()
 //--------------------------------------------------------------------
 void lisemqt::saveRunFile()
 {
-//    if (W)
-//    {
-//        QMessageBox::warning(this, "openLISEM","Cannot save a file while model is running.");
-//        return;
-//    }
-
     updateModelData();
     // change runfile strings with current interface options
     savefile(op.runfilename);
@@ -745,12 +742,6 @@ void lisemqt::saveRunFile()
 //--------------------------------------------------------------------
 void lisemqt::savefile(QString name)
 {
-//    if (W)
-//    {
-//        QMessageBox::warning(this, "openLISEM","Cannot save a file while model is running.");
-//        return;
-//    }
-
     QFile fp(name);
     if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
     {
@@ -810,11 +801,6 @@ void lisemqt::openRunFile()
     if (!exst)
         E_runFileList->insertItem(0,path);
 
-    // renew runfilenames
-//    RunFileNames.clear();
-//    for (int i = 0; i <= E_runFileList->count(); i++)
-//        RunFileNames << E_runFileList->itemText(i);
-
     op.runfilename = E_runFileList->itemText(nr);
     E_runFileList->setCurrentIndex(nr);
     /* !!! this triggers runfile loading in on_E_runFileList_currentIndexChanged:
@@ -826,16 +812,32 @@ void lisemqt::openRunFile()
 
 }
 //---------------------------------------------------------------------------
+void lisemqt::loadSettings()
+{
+    QSettings settings("LISEM","GUI");
+    genfontsize = settings.value("Appearance/FontSize", 10).toInt(); // Default: 10
+    darkLISEM = settings.value("Appearance/DarkMode", false).toBool(); // Default: false
+    checkforpatch = settings.value("Appearance/CheckPatch", false).toBool(); // Default: false
+}
+//---------------------------------------------------------------------------
+void lisemqt::saveSettings()
+{
+    QSettings settings("LISEM","GUI"); // Uses HKCU\Software\MyCompany\MyApp
+    settings.setValue("Appearance/FontSize", genfontsize);
+    settings.setValue("Appearance/DarkMode", darkLISEM);
+    settings.setValue("Appearance/CheckPatch", checkforpatch);
+}
+//---------------------------------------------------------------------------
 void lisemqt::GetStorePath()
 {
-    runfilelist.clear();
+    QStringList runfilelist;
+    //runfilelist.clear();
     QFile fff(op.userAppDir + "openlisem.ini");
 
     if (!fff.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
 
-    while (!fff.atEnd())
-    {
+    while (!fff.atEnd()) {
         QString  line = fff.readLine();
         if (line.contains('\n'))
             line.remove(line.size()-1,1);
@@ -847,23 +849,26 @@ void lisemqt::GetStorePath()
             QStringList s = line.split("=");
             darkLISEM = s[1].toInt() == 1;
         } else {
-            if (line.contains("font=")) {
-                QStringList s = line.split("=");
-                genfontsize = s[1].toInt();
-                if (genfontsize == 0)
-                    genfontsize = 11;
-                setfontSize();
-            } else {
-                if (line.contains("patch=")) {
+            if (!op.doBatchmode) {
+
+                if (line.contains("font=")) {
                     QStringList s = line.split("=");
-                    checkforpatch = s[1].toInt() == 1;
+                    genfontsize = s[1].toInt();
+                    if (genfontsize == 0)
+                        genfontsize = 11;
+                    setfontSize();
                 } else {
-                    QFile file(line);
-                    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                        file.close();
-                        runfilelist << QString(line);
+                    if (line.contains("patch=")) {
+                        QStringList s = line.split("=");
+                        checkforpatch = s[1].toInt() == 1;
+                    } else {
+                        QFile file(line);
+                        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                            file.close();
+                            runfilelist << QString(line);
+                        }
+                        // if the file exists and can be opened add it to the runlist
                     }
-                    // if the file exists and can be opened add it to the runlist
                 }
             }
         }
@@ -873,17 +878,6 @@ void lisemqt::GetStorePath()
     if (runfilelist.count() == 0)
         return;
 
-//    if (!runfilelist[0].isEmpty())
-//    {
-        // QString S = runfilelist[0];
-
-        // QFileInfo fi(S);
-        // QDir dir = fi.absoluteDir();
-        // if (dir.exists()) {
-        //     currentDir = dir.absolutePath();
-        //     dir.setPath(S);
-        // }
-//    }
     E_runFileList->addItems(runfilelist);
     op.runfilename = runfilelist[0];
     E_runFileList->setCurrentIndex(0);
@@ -909,8 +903,10 @@ void lisemqt::StorePath()
     ts << "font=" << genfontsize << "\n";
     ts << "patch=" << (checkforpatch ? 1 : 0) << "\n";
 
-    for (int i = 0; i < E_runFileList->count(); i++)
+    for (int i = 0; i < E_runFileList->count(); i++) {
         ts << E_runFileList->itemText(i) << "\n";
+        //qDebug() << E_runFileList->itemText(i);
+    }
 
     fff.close();
 }
@@ -949,6 +945,7 @@ void lisemqt::resetTabRainfall()
     E_biasCorrectionP->setValue(1.0);
 
     checkDailyET->setChecked(true);
+    //checkDailyETDistribution->setChecked(true);
     E_latitude->setText("");
     E_biasCorrectionET->setValue(1.0);
     E_rainfallETA_threshold->setValue(2.0);
@@ -957,28 +954,26 @@ void lisemqt::resetTabRainfall()
 //--------------------------------------------------------------------
 void lisemqt::resetTabOptions()
 {
+    // main options
     checkRainfall->setChecked(true);
     checkET->setChecked(false);
 
+    checkInterception->setChecked(true);
+
+    checkInfiltration->setChecked(true);
+
     E_OFWaveType->setCurrentIndex(2);
-    checkDoErosion->setChecked(false);
 
     checkIncludeChannel->setChecked(true);
-    checkChannelInfil->setChecked(false);
-    //checkChannelBaseflow->setChecked(false);
-    groupBaseflowParams->setEnabled(true);
 
-    checkDischargeUser->setChecked(false);
-    //checkChannelAdjustCHW->setChecked(true);
+    checkGWflow->setChecked(false);
+
+    checkDoErosion->setChecked(false);
 
     checkInfrastructure->setChecked(false);
-    checkRoadsystem->setChecked(false);
-    checkHouses->setChecked(false);
-    checkAddBuildingDEM->setChecked(false);
-    checkHardsurface->setChecked(false);
-    checkRaindrum->setChecked(false);
-    checkStormDrains->setChecked(false);
-}
+
+    checkConservation->setChecked(false);
+ }
 //--------------------------------------------------------------------
 void lisemqt::resetTabCalibration()
 {
@@ -987,21 +982,22 @@ void lisemqt::resetTabCalibration()
     E_CalibrateRR->setValue(1.0);
     E_CalibrateKsat->setValue(1.0);
     E_CalibrateKsat2->setValue(1.0);
-    E_CalibrateN->setValue(1.0);
+    E_CalibrateKsat3->setValue(1.0);
     E_CalibrateTheta->setValue(1.0);
     E_CalibratePsi->setValue(1.0);
 //    E_CalibrateSD1->setValue(1.0);
 //    E_CalibrateSD2->setValue(1.0);
+    E_CalibrateN->setValue(1.0);
     E_CalibrateChKsat->setValue(1.0);
     E_CalibrateChN->setValue(1.0);
     E_CalibrateWave->setValue(0.0);
-    E_CalibrateChTor->setValue(1.0);
+
     E_CalibrateAS->setValue(1.0);
     E_CalibrateCOH->setValue(1.0);
     E_CalibrateD50->setValue(1.0);
     E_CalibrateD90->setValue(1.0);
     E_CalibrateCHCOH->setValue(1.0);
-    E_CalibrateCHUcr->setValue(1.0);
+    // not visible, experimental
     E_CalibrateCHSV->setValue(1.0);
 }
 //--------------------------------------------------------------------
@@ -1009,8 +1005,6 @@ void lisemqt::resetTabInterception()
 {
     checkInterception->setChecked(true);
     radioButton_1->setChecked(true); //<= crops interception
-    E_CanopyOpeness->setValue(0.45);
-    //    E_StemflowFraction->setValue(0.054);
     checkIncludeLitter->setChecked(false);
     E_LitterSmax->setValue(1.0);
 }
@@ -1024,26 +1018,30 @@ void lisemqt::resetTabInfiltration()
     E_InfiltrationMethod->addItem("SWATRE");
     E_InfiltrationMethod->addItem("Green and Ampt");
     E_InfiltrationMethod->addItem("Smith and Parlange");
-    E_InfiltrationMethod->addItem("Richards equation (experimental)");
+    //E_InfiltrationMethod->addItem("Richards equation (experimental)");
     E_InfiltrationMethod->setCurrentIndex(1);
 
     checkInfilCompact->setChecked(false);
     checkInfilCrust->setChecked(false);
+    checkDynamicCrusting->setChecked(false);
     //checkInfil2layer->setChecked(false);
     checkInfilImpermeable->setChecked(false);
     checkInfilHinit->setChecked(false);
     checkIncludeTiledrains->setChecked(false);
     checkSwatreOutput->setChecked(false);
+    checkSwatreDry->setChecked(false);
     //checkGeometric->setChecked(true);
-    E_SWATREDtsecFraction->setValue(0.2);
+    E_SWATREDtsec->setValue(2.0);
     E_SwatreTableDir->setText("");
 }
 //--------------------------------------------------------------------
 void lisemqt::resetTabChannel()
 {
     checkChannelCulverts->setChecked(false);
-    checkChannelInfil->setChecked(false);
-    checkStationaryBaseflow->setChecked(false);
+    //checkChannelInfil->setChecked(false);
+    //checkStationaryBaseflow->setChecked(false);
+    E_BaseflowMethod->setCurrentIndex(0);
+
     E_CalibrateChTor->setValue(1.0);
     checkDischargeUser->setChecked(false);
     E_DischargeInName->setText("");
@@ -1051,19 +1049,11 @@ void lisemqt::resetTabChannel()
     checkGWflow->setChecked(false);
 }
 //--------------------------------------------------------------------
-void lisemqt::resetTabInfra()
-{
-
-}
-//--------------------------------------------------------------------
 void lisemqt::resetTabFlow()
 {
-    E_FlowBoundary->setValue(1);
+    E_FlowBoundary->setValue(0);
     E_floodMinHeight->setValue(0.05);
     checkFloodInitial->setChecked(false);
-    checkFlowBarriers->setChecked(false);
-    line_FlowBarriers->setText("flowbarriers.txt");
-    checkBuffers->setChecked(false);
     check2DDiagonalFlow->setChecked(true);
     //check2DDiagonalFlowNew->setChecked(false);
     checkCorrectDem->setChecked(false);
@@ -1109,39 +1099,59 @@ void lisemqt::resetTabErosion()
 
     checkSed2Phase->setChecked(false);
 
-    checkSedtrap->setChecked(false);
-
-    checkMaterialDepth->setChecked(false);
     E_DepositedCohesion->setValue(0.5);
-    E_BulkDens->setValue(1500);
     //E_BulkDens2->setText("1500.00");
 
     E_SplashDelibery->setValue(0.1);
+}
+//--------------------------------------------------------------------
+void lisemqt::resetTabInfra()
+{
+
+    checkHouses->setChecked(false);
+    checkAddBuildingDEM->setChecked(false);
+    checkRaindrum->setChecked(false);
+
+    checkRoadsystem->setChecked(false);
+    checkHardsurface->setChecked(false);
+    checkStormDrains->setChecked(false);
+    checkStormDrainRect->setChecked(false);
+    checkStormDrainCirc->setChecked(true);
+    checkDrainNoOutflow->setChecked(false);
+
+    checkFlowBarriers->setChecked(false);
+    line_FlowBarriers->setText("flowbarriers.txt");
+    checkBuffers->setChecked(false);
+    checkSedtrap->setChecked(false);
+    checkGridRentention->setChecked(false);
+
     checkInfilGrass->setChecked(false);
     E_GrassStripN->setValue(0.2);
     E_SedTrapN->setValue(0.8);
+    E_BulkDens->setValue(1500);
 
 }
-
+//--------------------------------------------------------------------
 void lisemqt::resetTabAdvanced()
 {
     E_FloodMaxIter->setValue(200);
-    E_minWHflow->setText("0.0001");
     E_FloodReconstruction->setValue(4);  //HLL2 etc
     //E_Z2Dcorrection->setValue(1.0);  //HLL2 etc
     E_FloodFluxLimiter->setValue(1);     //minmod etc
     E_courantFactorSed->setValue(0.2);
     //checkVariableTimestep->setChecked(false);
     checkTimeavgV->setChecked(true);
+    checkErosionLoop->setChecked(true);
     checkMB_WH->setChecked(false);
     checkLinkedList->setChecked(false);
     //checkErosionInsideLoop->setChecked(true);
     checkKinWaveChannel->setChecked(false);
-    E_ChannelKinWaveDt->setValue(60.0);
+    E_ChannelKinWaveDt->setValue(10.0);
     nrUserCores->setValue(0);
     checkChanMaxVelocity->setChecked(true);
     checkChannel2DflowConnect->setChecked(false);
 }
+//--------------------------------------------------------------------
 
 void lisemqt::resetAll()
 {
@@ -1166,7 +1176,7 @@ void lisemqt::resetAll()
     checksatImage->setChecked(false);
     checkAdvancedOptions->setChecked(false);
 
-    checkSeparateOutput->setChecked(false);
+    //checkSeparateOutput->setChecked(false);
     E_DigitsOut->setValue(3);
    // checkWritePCRnames->setChecked(true);   //map series format
     checkWritePCRaster->setChecked(false); //timeplot format
@@ -1197,25 +1207,30 @@ void lisemqt::resetAll()
 
     E_BeginTimeDay->setText("001:0000");
     E_EndTimeDay->setText("001:0720");
-    E_Timestep->setText("20");
+    E_Timestep->setText("10.0");
 
     checkWritePCRaster->setChecked(true);
 
-    checkBox_OutRunoff->setChecked(false);
-    checkBox_OutConc->setChecked(false);
-    checkBox_OutWH->setChecked(false);
-    checkBox_OutTC->setChecked(false);
-    checkBox_OutDet->setChecked(false);
-    checkBox_OutDep->setChecked(false);
-    checkBox_OutV->setChecked(false);
-    checkBox_OutInf->setChecked(false);
-    checkBox_OutSurfStor->setChecked(false);
-    //checkBox_OutChanVol->setChecked(false);
-    checkBox_OutTiledrain->setChecked(false);
-    // checkBox_OutHmx->setChecked(false);
-    // checkBox_OutQf->setChecked(false);
-    // checkBox_OutVf->setChecked(false);
-    // checkBox_OutHmxWH->setChecked(false);
+    bool check = false;
+    checkBox_OutRunoff->setChecked(check);
+    checkBox_OutWH->setChecked(check);
+    checkBox_OutV->setChecked(check);
+    checkBox_OutInterception->setChecked(check);
+    checkBox_OutSurfStor->setChecked(check);
+    checkBox_OutInf->setChecked(check);
+    checkBox_OutTiledrain->setChecked(check);
+    checkBox_OutTileVol->setChecked(check);
+    checkBox_OutTheta->setChecked(check);
+    checkBox_OutGW->setChecked(check);
+
+    checkBox_OutDet->setChecked(check);
+    checkBox_OutDep->setChecked(check);
+    checkBox_OutTC->setChecked(check);
+    checkBox_OutConc->setChecked(check);
+    checkBox_OutSed->setChecked(check);
+    checkBox_OutSL->setChecked(check);
+    checkBox_OutSedSS->setChecked(check);
+    checkBox_OutSedBL->setChecked(check);
 
     printinterval->setValue(1);
 
@@ -1233,6 +1248,8 @@ void lisemqt::resetAll()
 
     resetTabFlow();
 
+    resetTabChannel();
+
     resetTabErosion();
 
     resetTabInfra();
@@ -1247,7 +1264,7 @@ void lisemqt::resetAll()
     checkBoxComboMaps->setEnabled(true);
     checkBoxComboMaps->setChecked(true);
     checkBoxComboMaps2->setEnabled(true);
-    checkBoxComboMaps2->setChecked(false);
+    checkBoxComboMaps2->setChecked(false); // if not enabled you cannot set checked
     checkBoxComboMaps2->setEnabled(false);
 
     showOutputData();
@@ -1287,5 +1304,6 @@ void lisemqt::resizeMap()
             changeSize();
 }
 //---------------------------------------------------------------
+
 
 

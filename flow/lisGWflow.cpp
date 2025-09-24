@@ -68,7 +68,7 @@ void TWorld::GroundwaterFlow(void)
             GWdeep->Drc = GWVol->Drc + GWrecharge->Drc;
 
         GWVol->Drc += GWrecharge->Drc - GWdeep->Drc;
-        GWVol->Drc = std::min(maxvol, GWVol->Drc);
+        GWVol->Drc = qMin(maxvol, GWVol->Drc);
         GWWH->Drc = GWVol->Drc/(CHAdjDX->Drc*pore->Drc);
         GWout->Drc = 0;
 
@@ -84,6 +84,7 @@ void TWorld::GroundwaterFlow(void)
                 tma->Drc += GWout->Drc;
             }}
         }
+
         Copy(*tma,*GWout);
 
          //GWFlow2D(1.0);
@@ -110,14 +111,14 @@ void TWorld::GroundwaterFlow(void)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         double maxvol = SoilDepthinit->Drc * CHAdjDX->Drc * pore->Drc;
-        GWVol->Drc = std::min(maxvol, GWVol->Drc);
+        GWVol->Drc = qMin(maxvol, GWVol->Drc);
         GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
         // change soildepth2 with GW changes
         if (GWWH->Drc > 0) {
             SoilDepth->Drc = SoilDepthinit->Drc - GWWH->Drc;
         }
 
-        GWWHmax->Drc = std::max(GWWHmax->Drc, GWWH->Drc);
+        GWWHmax->Drc = qMax(GWWHmax->Drc, GWWH->Drc);
     }}
 }
 //---------------------------------------------------------------------------
@@ -140,7 +141,7 @@ void TWorld::GWFlowLDDKsat(void)
     // adjust for threshold
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        h->Drc = std::max(0.0, h->Drc - GW_threshold);
+        h->Drc = qMax(0.0, h->Drc - GW_threshold);
         tma->Drc = 0;
         tmb->Drc = 0;
         tmc->Drc = 0;
@@ -178,7 +179,7 @@ void TWorld::GWFlowLDDKsat(void)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         tmc->Drc = GW_flow * ksat->Drc * (h->Drc*_dx) * tmb->Drc;
-        tmc->Drc = std::min(tmc->Drc, GWVol->Drc*MaxGWDepthfrac);
+        tmc->Drc = qMin(tmc->Drc, GWVol->Drc*MaxGWDepthfrac);
     }}
 
     for(long i_ =  0; i_ < crlinkedlddbase_.size(); i_++)
@@ -244,7 +245,7 @@ void TWorld::GWFlow2D(double factor)
     // adjust for threshold
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        h->Drc = std::max(0.0, h->Drc - GW_threshold);
+        h->Drc = qMax(0.0, h->Drc - GW_threshold);
         //tma->Drc = 0;
     }}
 
@@ -295,10 +296,10 @@ void TWorld::GWFlow2D(double factor)
 
         // limit flow to a frcation of the volume present
         double f = MaxGWDepthfrac;
-        df_x1 = std::min(v_x1*f, fabs(df_x1)) * (df_x1 < 0 ? -1.0 : 1.0);
-        df_x2 = std::min(v_x2*f, fabs(df_x2)) * (df_x2 < 0 ? -1.0 : 1.0);
-        df_y1 = std::min(v_y1*f, fabs(df_y1)) * (df_y1 < 0 ? -1.0 : 1.0);
-        df_y2 = std::min(v_y2*f, fabs(df_y2)) * (df_y2 < 0 ? -1.0 : 1.0);
+        df_x1 = qMin(v_x1*f, fabs(df_x1)) * (df_x1 < 0 ? -1.0 : 1.0);
+        df_x2 = qMin(v_x2*f, fabs(df_x2)) * (df_x2 < 0 ? -1.0 : 1.0);
+        df_y1 = qMin(v_y1*f, fabs(df_y1)) * (df_y1 < 0 ? -1.0 : 1.0);
+        df_y2 = qMin(v_y2*f, fabs(df_y2)) * (df_y2 < 0 ? -1.0 : 1.0);
 
         //avoid single pixels with MV on 3 sides that fill up
         if( df_x1 < 0 && bc1) df_x1 = 0.0;
@@ -314,7 +315,7 @@ void TWorld::GWFlow2D(double factor)
         if (V + dflux < 0)
             dflux = -V;
         //fill with the resulting flux of a cell
-        GWout->Drc = dflux;//std::max(0.0,dflux);
+        GWout->Drc = dflux;//qMax(0.0,dflux);
     }}
 
     // adjust the vol
@@ -347,14 +348,14 @@ void TWorld::GWFlowSWAT(void)
     FOR_ROW_COL_MV_L {
         tmb->Drc = 0;
         tmc->Drc = 0;
-        double GWout_ = GW_flow *  CHAdjDX->Drc * std::max(0.0, GWWH->Drc-GW_threshold) * ksat->Drc * BaseflowL->Drc; // m3 volume out from every cell
+        double GWout_ = GW_flow *  CHAdjDX->Drc * qMax(0.0, GWWH->Drc-GW_threshold) * ksat->Drc * BaseflowL->Drc; // m3 volume out from every cell
         GWout_ *= (1+Grad->Drc);
 
         //  GWout_ *= (1-exp(-GW_threshold*GWWH->Drc));
         //m3:  ksat*dt  * dh*dx * ((dx/L)^b);  ksat * cross section * distance factor
         // stop outflow when some minimum GW level, 2.4.2.10 in SWAT
         // apply a smooth threshold with exponential function
-        GWout_ = std::min(GWVol->Drc*MaxGWDepthfrac, GWout_);
+        GWout_ = qMin(GWVol->Drc*MaxGWDepthfrac, GWout_);
         GWout_ = ChannelWidth->Drc > 0 ? 0.0 : GWout_; // set GWout in channel cell to zero else accumulation to the outlet
         tmb->Drc = GWout_;
 
@@ -377,11 +378,12 @@ void TWorld::GWFlowSWAT(void)
     }}
 
 }
-
+//---------------------------------------------------------------------------
+// NOT USED
 double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     double timesum = 0;
-    double dt_max = std::min(_dt, _dx/2);
+    double dt_max = qMin(_dt, _dx/2);
     int count = 0;
     double sumh = 0;
     bool stop;
@@ -401,7 +403,7 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         SD = SoilDepth1init;
     }
 
-    sumh = getMass(h, 0);
+    sumh = getMass(h);
 
     if (sumh == 0)
         return 0;
@@ -483,52 +485,52 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 double dz_y1 = (Z - z_y1);
                 double dz_y2 = (z_y2 - Z);
 
-                 vx_x1 = std::min(Ks,fabs(vx_x1))*(vx_x1 < 0 ? -1.0 : 1.0);
-                 vx_x2 = std::min(Ks,fabs(vx_x2))*(vx_x2 < 0 ? -1.0 : 1.0);
-                 vx_y1 = std::min(Ks,fabs(vx_y1))*(vx_y1 < 0 ? -1.0 : 1.0);
-                 vx_y2 = std::min(Ks,fabs(vx_y2))*(vx_y2 < 0 ? -1.0 : 1.0);
-                 vy_x1 = std::min(Ks,fabs(vy_x1))*(vy_x1 < 0 ? -1.0 : 1.0);
-                 vy_x2 = std::min(Ks,fabs(vy_x2))*(vy_x2 < 0 ? -1.0 : 1.0);
-                 vy_y1 = std::min(Ks,fabs(vy_y1))*(vy_y1 < 0 ? -1.0 : 1.0);
-                 vy_y2 = std::min(Ks,fabs(vy_y2))*(vy_y2 < 0 ? -1.0 : 1.0);
-                 Vx = std::min(Ks,fabs(Vx))*(Vx < 0 ? -1.0 : 1.0);
-                 Vy = std::min(Ks,fabs(Vy))*(Vy < 0 ? -1.0 : 1.0);
+                 vx_x1 = qMin(Ks,fabs(vx_x1))*(vx_x1 < 0 ? -1.0 : 1.0);
+                 vx_x2 = qMin(Ks,fabs(vx_x2))*(vx_x2 < 0 ? -1.0 : 1.0);
+                 vx_y1 = qMin(Ks,fabs(vx_y1))*(vx_y1 < 0 ? -1.0 : 1.0);
+                 vx_y2 = qMin(Ks,fabs(vx_y2))*(vx_y2 < 0 ? -1.0 : 1.0);
+                 vy_x1 = qMin(Ks,fabs(vy_x1))*(vy_x1 < 0 ? -1.0 : 1.0);
+                 vy_x2 = qMin(Ks,fabs(vy_x2))*(vy_x2 < 0 ? -1.0 : 1.0);
+                 vy_y1 = qMin(Ks,fabs(vy_y1))*(vy_y1 < 0 ? -1.0 : 1.0);
+                 vy_y2 = qMin(Ks,fabs(vy_y2))*(vy_y2 < 0 ? -1.0 : 1.0);
+                 Vx = qMin(Ks,fabs(Vx))*(Vx < 0 ? -1.0 : 1.0);
+                 Vy = qMin(Ks,fabs(Vy))*(Vy < 0 ? -1.0 : 1.0);
 
 
                 // z is blocking to prevent flow when water is flat and Z is not flat, described in article SWOF
-                double h_x1r = std::max(0.0, h_x1 - std::max(0.0,  dz_x1));
-                double H_l   = std::max(0.0, H    - std::max(0.0, -dz_x1));
+                double h_x1r = qMax(0.0, h_x1 - qMax(0.0,  dz_x1));
+                double H_l   = qMax(0.0, H    - qMax(0.0, -dz_x1));
                 if(bc1)  // if inside
                     hll_x1 = F_Rusanov(h_x1r,vx_x1,vy_x1, H_l,Vx,Vy); // c-1 and c  //
                 else
                     hll_x1 = F_Rusanov(0,0,0, H_l,Vx,Vy);
 
-                double H_r   = std::max(0.0, H    - std::max(0.0,  dz_x2));
-                double h_x2l = std::max(0.0, h_x2 - std::max(0.0, -dz_x2));
+                double H_r   = qMax(0.0, H    - qMax(0.0,  dz_x2));
+                double h_x2l = qMax(0.0, h_x2 - qMax(0.0, -dz_x2));
                 if(bc2)
                     hll_x2 = F_Rusanov(H_r,Vx,Vy, h_x2l,vx_x2,vy_x2); // c and c+1
                 else
                     hll_x2 = F_Rusanov(H_r,Vx,Vy, 0,0,0);
 
-                double h_y1d = std::max(0.0, h_y1 - std::max(0.0,  dz_y1));
-                double H_u   = std::max(0.0, H    - std::max(0.0, -dz_y1));
+                double h_y1d = qMax(0.0, h_y1 - qMax(0.0,  dz_y1));
+                double H_u   = qMax(0.0, H    - qMax(0.0, -dz_y1));
                 if (br1)
                     hll_y1 = F_Rusanov(h_y1d,vy_y1,vx_y1, H_u,Vy,Vx); // r-1 and r
                 else
                     hll_y1 = F_Rusanov(0,0,0, H_u,Vy,Vx);
 
-                double H_d   = std::max(0.0, H    - std::max(0.0,  dz_y2));
-                double h_y2u = std::max(0.0, h_y2 - std::max(0.0, -dz_y2));
+                double H_d   = qMax(0.0, H    - qMax(0.0,  dz_y2));
+                double h_y2u = qMax(0.0, h_y2 - qMax(0.0, -dz_y2));
                 if(br2)
                     hll_y2 = F_Rusanov(H_d,Vy,Vx, h_y2u,vy_y2,vx_y2); // r and r+1
                 else
                     hll_y2 = F_Rusanov(H_d,Vy,Vx, 0,0,0);
 
                 // determine smallest dt in x and y for each cell
-                double dtx = dx/std::max(hll_x1.v[3],hll_x2.v[3]);
-                double dty = dy/std::max(hll_y1.v[3],hll_y2.v[3]); // v[3] is max U and V in x and y
+                double dtx = dx/qMax(hll_x1.v[3],hll_x2.v[3]);
+                double dty = dy/qMax(hll_y1.v[3],hll_y2.v[3]); // v[3] is max U and V in x and y
 
-                double dt_req = std::max(TimestepfloodMin, std::min(dt_max, courant_factor*std::min(dtx, dty)));
+                double dt_req = qMax(TimestepfloodMin, qMin(dt_max, courant_factor*qMin(dtx, dty)));
                 tmc->Drc = dt_req; // dt does not need to be a map, left over from earlier code
                 // if step = 0 do not calculate new fluxes and states yet because the first dt is always dt_max
                 // find a smallest dt of the flow domain first
@@ -539,7 +541,7 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     double tx = dt/dx;
                     double ty = dt/dy;
 
-                    double hn = std::max(0.0, H + dt/_dx*(hll_x1.v[0]-hll_x2.v[0] + hll_y1.v[0]-hll_y2.v[0]));
+                    double hn = qMax(0.0, H + dt/_dx*(hll_x1.v[0]-hll_x2.v[0] + hll_y1.v[0]-hll_y2.v[0]));
                     // mass balance, hll_....v[0] is the height
 
                     // momentum balance for cells with water
@@ -571,27 +573,12 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                         vxn = 0;
                         vyn = 0;
                     }
-                    if (FlowBoundaryType == 0 || (FlowBoundaryType == 2 && FlowBoundary->Drc == 0)) {
 
-                        if (DomainEdge->Drc == 4 && vxn < 0) {
-                            vxn = 0;
-                        }
-                        if (DomainEdge->Drc == 6 && vxn > 0) {
-                            vxn = 0;
-                        }
-                        if (DomainEdge->Drc == 2 && vyn > 0) {
-                            vyn = 0;
-                        }
-                        if (DomainEdge->Drc == 8 && vyn < 0) {
-                            vyn = 0;
-                        }
-
-                    }
                     if (vyn == 0 && vxn == 0)
                         hn = H;
 
-                    vxn = std::min(Ks,fabs(vxn))*(vxn < 0 ? -1.0 : 1.0);
-                    vyn = std::min(Ks,fabs(vyn))*(vyn < 0 ? -1.0 : 1.0);
+                    vxn = qMin(Ks,fabs(vxn))*(vxn < 0 ? -1.0 : 1.0);
+                    vyn = qMin(Ks,fabs(vyn))*(vyn < 0 ? -1.0 : 1.0);
 
                     h->Drc = hn;
                     u->Drc = vxn;
@@ -604,10 +591,10 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         // find smallest domain dt
         #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            dt_req_min = std::min(dt_req_min, tmc->Drc);
+            dt_req_min = qMin(dt_req_min, tmc->Drc);
         }}
 
-        dt_req_min = std::min(dt_req_min, _dt-timesum);
+        dt_req_min = qMin(dt_req_min, _dt-timesum);
 
         if (step > 0) {
             timesum += dt_req_min;
@@ -622,9 +609,8 @@ double TWorld::fullSWOF2GW(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
     } while (!stop);
 
-    correctMassBalance(sumh, h, 0);
+    correctMassBalance(sumh, h);
 
-    //qDebug() << _dt/count << count << dt_req_min;
-    iter_n = std::max(1,count);
+    iter_n = qMax(1,count);
     return(count > 0 ? _dt/count : _dt);
 }

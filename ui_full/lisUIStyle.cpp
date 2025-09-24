@@ -29,24 +29,30 @@ void lisemqt::SetStyleUISize()
 {
     // trying to deal with very high res monitors
     QScreen *screen = QGuiApplication::primaryScreen();
+    if (screen) {
+         // Get the logical DPI
+         qreal logicalDpi = screen->logicalDotsPerInch();
+         // Get the physical DPI
+         qreal physicalDpi = screen->physicalDotsPerInch();
+         qreal scaleFactor = screen->devicePixelRatio();
+         //  qDebug() << "Scale Factor:" << scaleFactor;
+
+         // qDebug() << "Logical DPI:" << logicalDpi;
+         // qDebug() << "Physical DPI:" << physicalDpi;
+     }
+
+
+
     QRect screenGeometry = screen->geometry();
+    // this includes scalefactor, if that is e.g. 2.0 that geometry divides the screen pixel by 2
     int _H = screenGeometry.height();
     int disp = 3;
-    // for (int i = 0; i < screens.size(); ++i) {
-    //     QScreen *screen = screens.at(i);
-    //     qreal logicalDpi = screen->logicalDotsPerInch();
-    //     qreal physicalDpi = screen->physicalDotsPerInch();
-    //     qreal devicePixelRatio = screen->devicePixelRatio();
-    //     qDebug() << "Screen" << i << ":";
-    //     qDebug() << "  Logical DPI:" << logicalDpi;
-    //     qDebug() << "  Physical DPI:" << physicalDpi;
-    //     qDebug() << "  Device Pixel Ratio:" << devicePixelRatio;
-    // }
+
     if(_H < 1440) disp = 2;
     if(_H < 1280) disp = 1;
     if(_H < 1080) disp = 0;
     if(_H < 800) disp = -1;
-    //qDebug() << _H << disp;
+   // qDebug() <<"SetStyleUISize"<< _H << disp;
 
     // do a bit of size tweaking for large displays
     QSize iSize = QSize(16,16);
@@ -64,7 +70,7 @@ void lisemqt::SetStyleUISize()
         tabWidgetOptions->setIconSize(QSize(20, 20));
         tabWidgetOptions->setStyleSheet("QTabBar::tab { height: 48px; width: 32px}");
         this->setStyleSheet(QString("QToolButton * {icon-size: 16px 16px}"));
-        iSize = QSize(16,16);
+        iSize = QSize(24,24);
     }
     if (disp == 1) {
         tabWidget_out->setIconSize(QSize(24, 24));
@@ -106,7 +112,7 @@ void lisemqt::SetStyleUISize()
 
     //genfontsize = screen->devicePixelRatio()*(disp+8);
     //qDebug() << genfontsize << screen->devicePixelRatio();
-    //setfontSize();
+    setfontSize();
 }
 
 // labels in output tab
@@ -198,7 +204,7 @@ void lisemqt::lightStyleUI()
                         "QGroupBox#groupBoxInput::title{color: #2266aa;}"
                         //"QGroupBox#groupRainfall::title{color: #2266aa;}"
                         "QGroupBox#groupInfiltration::title{color: #2266aa;}"
-                        "QGroupBox#groupInterception::title{color: #2266aa;}"                        
+                        "QGroupBox#groupInterception::title{color: #2266aa;}"
                         );
 
     HPlot->setStyleSheet("*{background-color: #fcfcfc; color: #000000;}");
@@ -236,8 +242,8 @@ void lisemqt::darkStyleUI()
     tabWidgetOptions->setTabIcon(3,QIcon(":/d_soil5.png"));
     tabWidgetOptions->setTabIcon(4,QIcon(":/d_water2.png"));
     tabWidgetOptions->setTabIcon(5,QIcon(":/d_river3.png"));
-    tabWidgetOptions->setTabIcon(6,QIcon(":/d_eros1bw.png"));
-    tabWidgetOptions->setTabIcon(7,QIcon(":/house.png"));
+    tabWidgetOptions->setTabIcon(6,QIcon(":/house.png"));
+    tabWidgetOptions->setTabIcon(7,QIcon(":/d_eros1bw.png"));
     tabWidgetOptions->setTabIcon(8,QIcon(":/d_advanced.png"));
     tabWidgetOptions->setTabIcon(9,QIcon(":/d_settings1.png"));
 
@@ -306,6 +312,7 @@ void lisemqt::SetStyleUI()
 {
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setIcon(QIcon(":/openLisemN.ico"));
+    trayIcon->setVisible(true);
     trayIcon->show();
 
     helpbox = new QDialog();
@@ -426,14 +433,14 @@ void lisemqt::fontSelect()
 void lisemqt::fontDecrease()
 {
     genfontsize--;
-    genfontsize = std::max(6, genfontsize);
+    genfontsize = qMax(6, genfontsize);
     setfontSize();
 }
 //---------------------------------------------------------------
 void lisemqt::fontIncrease()
 {
     genfontsize++;
-    genfontsize = std::min(32, genfontsize);
+    genfontsize = qMin(32, genfontsize);
     setfontSize();
 }
 //---------------------------------------------------------------

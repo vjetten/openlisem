@@ -27,91 +27,41 @@
   \brief calculate tile drain system flow as a kinematic wave, no sediment functions
 
 functions: \n
-- void TWorld::ToTiledrain(void) \n
-- void TWorld::CalcVelDischTile() \n
-- void TWorld::TileFlow(void)\n
+
  */
 
-#include <algorithm>
+
 #include "model.h"
-#include "operation.h"
 
-/** @todo convert flow to linked list */
 
 //---------------------------------------------------------------------------
-// flow in all road cells to tiledrain
-//fraction of water and sediment flowing from the surface to the tiledrain system
-void TWorld::ToTiledrainAll()
-{
-
-    if (SwitchIncludeStormDrains)  //SwitchIncludeTile ||
-    {
-        Fill(*RunoffVolinToTile,0);
-
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_TILEL {
-            //double fractiontotile = std::max(1.0, 2*0.09/CHAdjDX->Drc) * RoadWidthDX->Drc/_dx;
-            //or:
-            double fractiontotile  = std::min(1.0, _dt*V->Drc/(0.09/CHAdjDX->Drc)) * RoadWidthDX->Drc/_dx;;
-            // 30x30cm = 0.09 m2, 2 is both sides of the street
-            //Street inlet is assumed to be a hole in the street
-            // fraction based on surface, simpel! or as velocity
-
-            double MaxVol;
-            if (SwitchStormDrainCircular)
-                MaxVol = DX->Drc*PI*TileDiameter->Drc*TileDiameter->Drc*0.25; //(pi r^2)
-            else
-                MaxVol = DX->Drc*TileWidth->Drc*TileHeight->Drc;
-
-            if (TileWaterVol->Drc >= MaxVol)
-                fractiontotile = 0;
-            else {
-                double vol = fractiontotile*WaterVolall->Drc;
-                double dh = vol/CHAdjDX->Drc;
-                RunoffVolinToTile->Drc = vol;
-                // adjust water height
-                WHrunoff->Drc -= dh;
-                WH->Drc -= dh;
-                WaterVolall->Drc -= vol;
-            }
-        }}
-    }
-}
-//---------------------------------------------------------------------------
-//fraction of water and sediment flowing from the surface to the tiledrain system
+// flow in all road cells to tiledrain, according to fraction road and fraction openings in surface
+// pressure flow through the inlet hole
+// no sediment
 void TWorld::ToTiledrain()
 {
-    if (SwitchIncludeStormDrains)  //SwitchIncludeTile ||
-    {
-        Fill(*RunoffVolinToTile,0);
-
+    if (SwitchIncludeStormDrains)  {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_TILEL {
-            if(TileInlet->Drc > 0) {// && WHrunoff->Drc > 1e-6) {
-                double fractiontotile = 2 * std::max(1.0, std::min(0.0,TileInlet->Drc/CHAdjDX->Drc)) * RoadWidthDX->Drc/_dx;
-                // 2 is both sides of the street
-                // fraction based on surface, simpel!
-                //Street inlet is assumed to be a hole in the street
+            RunoffVolinToTile->Drc = 0;
+            double MaxVol = DX->Drc*TileArea->Drc;
 
-                double MaxVol;
-                if (SwitchStormDrainCircular)
-                    MaxVol = DX->Drc*PI*TileDiameter->Drc*TileDiameter->Drc*0.25; //(pi r^2)
-                else
-                    MaxVol = DX->Drc*TileWidth->Drc*TileHeight->Drc;
+            if (TileWaterVol->Drc < MaxVol && WHrunoff->Drc > 1e-3) {
 
-                if (TileWaterVol->Drc >= MaxVol)
-                    fractiontotile = 0;
-                else {
-                    double vol = fractiontotile*WaterVolall->Drc;//std::max(0.0,(WaterVolall->Drc-MicroStoreVol->Drc));
-                    //  vol = std::min(vol, MaxVol - TileWaterVol->Drc);
-                    double dh = vol/CHAdjDX->Drc;
-                    RunoffVolinToTile->Drc = vol;
-                    // adjust water height
-                    WHrunoff->Drc -= dh;
-                    //WHroad->Drc -= dh;
-                    WH->Drc -= dh;
-                    WaterVolall->Drc -= vol;
-                }
+                //double volin = WaterVolall->Drc * TileDrainSize/CHAdjDX->Drc * (DX->Drc/TileDrainDistance);//* RoadWidthHSDX->Drc/_dx
+                // fraction of volume, not used
+
+                double volin = _dt*qSqrt(2*GRAV*WHrunoff->Drc)*TileDrainSize * (DX->Drc/TileDrainDistance) * RoadWidthHSDX->Drc/_dx;
+                // Bernouilly flow s*m/s*m2=m3 through a hole * fraction of distance compared to cellsize
+
+                // qDebug() << volin <<  WaterVolall->Drc << RunoffVolinToTile->Drc;
+                RunoffVolinToTile->Drc = qMin(volin, WaterVolall->Drc-MicroStoreVol->Drc);//RunoffVolinToTile->Drc);
+                RunoffVolinToTile->Drc = qMin(MaxVol - TileWaterVol->Drc, RunoffVolinToTile->Drc);
+                WaterVolall->Drc -= RunoffVolinToTile->Drc;
+
+                WH->Drc = WaterVolall->Drc/CHAdjDX->Drc;
+                WHrunoff->Drc = qMax(0.0, WH->Drc-WHstore->Drc);
+                hmxWH->Drc = WH->Drc + hmx->Drc;
             }
         }}
     }
@@ -120,33 +70,22 @@ void TWorld::ToTiledrain()
 // V, alpha and Q in the Tile
 void TWorld::CalcVelDischRectangular()
 {
-    double Perim, Area, TileV_;
-    const double _23 = 2.0/3.0;
+    double Perim, Area;
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_TILEL {
-        double gradN = sqrt(TileGrad->Drc)/TileN->Drc;
+
         Area = TileWaterVol->Drc/DX->Drc;
-        Perim = TileWidth->Drc + Area/TileWidth->Drc; //(=w+2*h)
+        if (Area >= TileArea->Drc) {
+            TileQ->Drc = TileMaxQ->Drc;
+            TileAlpha->Drc = TileMaxAlpha->Drc;
+        } else {
+            Perim = TileWidth->Drc + 2.0*Area/TileWidth->Drc; //(=w+2*h)
+            TileQ->Drc = Area*pow(Area/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;;
+//            TileAlpha->Drc  = Area/std::pow(TileQ->Drc, BETArect); // gives nan when tileq = 0
+            TileAlpha->Drc = std::pow(std::pow(Perim, 2.0/3.0)*TileN->Drc/sqrt(TileGrad->Drc), 0.6);
+        }
 
-        TileV_ = powl(Area/Perim,_23) * gradN;
-        TileQ->Drc = Area*TileV_;
-        TileAlpha->Drc  = Area/std::pow(TileQ->Drc, 0.6);
-    }}
-}
-//---------------------------------------------------------------------------
-// called from dataini, needed in kin wave
-void TWorld::CalcMAXDischRectangular()
-{    
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_TILEL {
-        double Area = TileArea->Drc;
-        double width = Area/TileHeight->Drc;
-        double Perim = width+ 2*TileHeight->Drc; // factor 2 width for two drains in a strteet
-
-        double TileV_ = powl(Area/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
-        TileMaxQ->Drc = Area*TileV_;
-        TileMaxAlpha->Drc  = Area/std::pow(TileMaxQ->Drc, 0.6);
     }}
 }
 //---------------------------------------------------------------------------
@@ -156,111 +95,125 @@ void TWorld::CalcMAXDischRectangular()
 // Neweton iteration to derive drain water height
 void TWorld::CalcVelDischCircular()
 {
-   #pragma omp parallel for num_threads(userCores)
-   FOR_ROW_COL_MV_TILEL {
-
-      double gradN = sqrt(TileGrad->Drc)/TileN->Drc;
-      double rr = TileDiameter->Drc/2;
-      double Perim, K, theta;
-
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_TILEL {
+      //  TileN->Drc = 0.1;
       double Area = TileWaterVol->Drc / DX->Drc;
+      // if (Area >= 0.999*TileArea->Drc) {
+      //     TileQ->Drc = TileMaxQ->Drc;
+      //     TileAlpha->Drc = TileMaxAlpha->Drc;
+      // } else {
+          double a = Area/TileArea->Drc;
+          double theta = pipeThetafroma(r,c,a);
+          double Perim = 0.5*TileDiameter->Drc*theta;
 
-      theta = PI;
-      double fx, Fx;
-      double Ar = 2*Area/(rr*rr);
-      for (int k = 0 ; k < 20; k++) {
-            fx = 1-cos(theta);
-            Fx = -sin(theta) + theta - Ar;
-            theta = fx > 0 ? theta - Fx/fx : 0.0;
-            if( Fx < 1e-6)
-                break;
-      }
-      // newton rapson iteration to get the water height in a circular pipe for the wet perimeter
+          if (Perim < 1e-12)
+              TileQ->Drc = 0;
+          else
+              TileQ->Drc = std::pow(Area/Perim, 5.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+          TileQ->Drc = qMin(TileQ->Drc, TileMaxQ->Drc);
+          TileAlpha->Drc = std::pow(std::pow(Perim, 2.0/3.0)*TileN->Drc/sqrt(TileGrad->Drc), 0.6);
+          TileAlpha->Drc = qMin(TileAlpha->Drc, TileMaxAlpha->Drc);
 
-      K = rr*rr*(theta-sin(theta))*0.5;
-      double TWH = rr - cos(theta/2.0)*rr;
-      Perim = Area < 0.5*rr*rr*PI ? rr*theta : PI*TileDiameter->Drc-rr*theta;
-
-      double minV = std::pow(TWH,2.0/3.0) * gradN;
-      double TileV_ = Perim > 1e-10 ? std::min(minV, std::pow(Area/Perim,2.0/3.0) * gradN) : 0.0;
-      //TileV_ = std::min(TileV_, 2.0);
-      //limit velocity to 2 m/s?
-      TileQ->Drc = Area*TileV_;
-      TileAlpha->Drc  = Area/std::pow(TileQ->Drc, 0.6);
-      //TileAlpha->Drc = std::pow(std::pow(Perim, 2.0/3.0)/gradN , 0.6);
-   }}
-}//---------------------------------------------------------------------------
-// called from dataini, needed in kin wave
-void TWorld::CalcMAXDischCircular()
-{
-   #pragma omp parallel for num_threads(userCores)
-   FOR_ROW_COL_MV_TILEL {
-
-      double Area = TileArea->Drc;
-      double Perim = PI*TileDiameter->Drc;
-      double TileV_ = std::pow(0.95*Area/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
-
-      TileMaxQ->Drc = Area*TileV_;
-      TileMaxAlpha->Drc  = Area/std::pow(TileMaxQ->Drc, 0.6);
-
+          //TileAlpha->Drc  = Area/std::pow(TileQ->Drc, BETAcirc);
+   //  }
    }}
 }
 //---------------------------------------------------------------------------
-//- calc Tileflow, Tileheight, kin wave
 void TWorld::TileFlow(void)
 {
-   if (!SwitchIncludeTile && !SwitchIncludeStormDrains)
-      return;
+    if (!SwitchIncludeTile && !SwitchIncludeStormDrains)
+        return;
 
-   // get water from surface
-   if (SwitchIncludeStormDrains) {
+    // get water from surface
+    if (SwitchIncludeStormDrains) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_TILEL {
             TileWaterVol->Drc += RunoffVolinToTile->Drc;
-                // add water from the surface
+            // add water from the surface
         }}
-   }
+    }
 
     // get water from soil
-   if (SwitchIncludeTile) {
-       #pragma omp parallel for num_threads(userCores)
-       FOR_ROW_COL_MV_TILEL {
-          TileWaterVol->Drc += TileDrainSoil->Drc * TileDiameter->Drc * DX->Drc;
-          // asume water can come from all sides!
-          // add inflow to Tile in m3, tiledrainsoil is in m per timestep
+    if (SwitchIncludeTile) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_TILEL {
+            TileWaterVol->Drc += TileWaterVolSoil->Drc;
+        }}
+    }
 
-          TileWaterVolSoil->Drc += TileDrainSoil->Drc * TileDiameter->Drc  * DX->Drc;
-          // soil only used for MB correction
+    if (SwitchDrainCircular)
+    CalcVelDischCircular();
+    else
+    CalcVelDischRectangular();
 
-       }}
-   }
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_TILEL {
+        TileQn->Drc =0;
+    }}
 
-   if (SwitchStormDrainCircular)
-      CalcVelDischCircular();
-   else
-      CalcVelDischRectangular();
+    int full = 0;
 
-   TileQn->setAllMV();
+    //  return;
+    // wothout fluxes no MB errror anyway!
 
-   Fill(*QinKW, 0.0);
-   // flag all new flux as missing value, needed in kin wave and replaced by new flux
-   FOR_ROW_COL_MV_TILE {
-      if (LDDTile->Drc == 5)
-            Kinematic(r,c, LDDTile, TileQ, TileQn, TileAlpha, DX, TileMaxQ, TileMaxAlpha);
-   }
-//   KinematicExplicit(crlinkedlddtile_, TileQ, TileQn, TileAlpha, DX, TileMaxQ, TileMaxAlpha);
+  //  double tot = MapTotal(*TileWaterVol);
+  //  double totq = 0;
 
-   cover(*TileQn, *LDD, 0); // avoid missing values around Tile for adding to Qn for output
+    Fill(*tmc, 0);
+    for(long i_ =  0; i_ < crlinkedlddtile_.size(); i_++) {
+        int r = crlinkedlddtile_.at(i_).r;
+        int c = crlinkedlddtile_.at(i_).c;
+        double Qin = 0;
+        double volMax = TileArea->Drc*DX->Drc;
 
-   #pragma omp parallel for num_threads(userCores)
-   FOR_ROW_COL_MV_TILEL {
-        TileQn->Drc = std::min(QinKW->Drc+TileWaterVol->Drc/_dt, TileQn->Drc);
-        TileWaterVol->Drc = TileWaterVol->Drc + _dt*(QinKW->Drc - TileQn->Drc);
-        TileWaterVol->Drc = std::max(0.0, TileWaterVol->Drc);
+        int NR = crlinkedlddtile_.at(i_).nr;
+        if (NR > 0) {
+            for(int j = 0; j < NR; j++) {
+                int rr = crlinkedlddtile_.at(i_).inn[j].r;
+                int cr = crlinkedlddtile_.at(i_).inn[j].c;
+                Qin += TileQn->Drcr;
+                // total inflow from incoming brranches
+            }
 
-// prob gives mass balance problems
-        TileWaterVol->Drc = std::min(TileWaterVol->Drc, TileArea->Drc * DX->Drc);
-        TileQ->Drc = TileQn->Drc;
-   }}
+            // if total inflow causes vol > max volume, adjust inflow incoming TileQn
+            if (TileWaterVol->Drc+_dt*(Qin-TileQ->Drc) >= volMax) {
+                double maxq = qMin(TileMaxQ->Drc, (volMax - TileWaterVol->Drc)/_dt + TileQ->Drc);
+
+                for(int j = 0; j < NR; j++) {
+                    int rr = crlinkedlddtile_.at(i_).inn[j].r;
+                    int cr = crlinkedlddtile_.at(i_).inn[j].c;
+                    TileQn->Drcr = maxq * TileQn->Drcr/Qin;
+                    // incoming TileQn is a fraction of maxq
+                }
+                Qin = maxq;
+            }
+        }
+        tmc->Drc = Qin;
+
+        TileQn->Drc = IterateToQnew(Qin, TileQ->Drc, TileAlpha->Drc, _dt, DX->Drc, TileMaxQ->Drc, TileMaxAlpha->Drc);
+        // if LDDTile->Drc == 5 then block flow - done in LisDataInit.cpp
+        TileQn->Drc = qMin(Qin+TileWaterVol->Drc/_dt, TileQn->Drc);
+        TileQn->Drc = qMin(TileQn->Drc, TileMaxQ->Drc);
+    }
+
+    #pragma omp parallel for ordered num_threads(userCores)
+    FOR_ROW_COL_MV_TILEL {
+        TileWaterVol->Drc = TileWaterVol->Drc + _dt*(tmc->Drc - TileQn->Drc);
+        TileWaterVol->Drc = qMax(0.0, TileWaterVol->Drc);
+        if (TileWaterVol->Drc >= TileArea->Drc*DX->Drc)
+            full+=1;
+        //TileWaterVol->Drc = qMin(TileWaterVol->Drc, TileArea->Drc*DX->Drc);
+        // gives always MB errors!
+       // if (LDDTile->Drc == 5)
+       //     totq = TileQn->Drc*_dt;
+    }}
+
+    // check if no MB loss in this function
+  //  double tot1 = MapTotal(*TileWaterVol);
+  //  qDebug() << tot << tot1 << totq << tot-tot1-totq << full << MB;
 
 }
+
+//---------------------------------------------------------------------------
+

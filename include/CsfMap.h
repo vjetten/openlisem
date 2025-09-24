@@ -26,7 +26,7 @@
 #define CsfMapH
 #include <QString>
 #include "masked_raster.h"
-
+#include "PrecisionConfig.h"
 
 /*!
     @brief      A cTMap contains all relevant information about a raster.
@@ -35,17 +35,20 @@
     cTMap instances contain raster data, projection information and a map name.
     I/O of cTMap instances is handles by functions defined in the io module.
 */
+
+
+
 class cTMap
 {
 
 public:
 
     //! The actual raster.
-    MaskedRaster<double> data;
+    MaskedRaster<Real> data;
 
                    cTMap               ()=default;
 
-                   cTMap               (MaskedRaster<double>&& data,
+                   cTMap               (MaskedRaster<Real>&& data,
                                         QString const& projection,
                                         QString const& mapName);
 
@@ -75,8 +78,7 @@ public:
 
     void           setAllMV            ();
 
-    void           MakeMap             (cTMap *dup,
-                                        REAL8 value);
+    void           MakeMap             (cTMap *dup,Real value);
 
 private:
 
@@ -86,5 +88,6 @@ private:
     QString        _mapName;
 
 };
+
 
 #endif

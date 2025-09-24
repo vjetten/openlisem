@@ -40,61 +40,66 @@ functions:
 // read optional Hinit maps
 SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
 {
-    //SOIL_MODEL *s = (SOIL_MODEL *)malloc(sizeof(SOIL_MODEL));
+   //  int numThreads = omp_get_max_threads();
+   // // QVector<NODES> threadBuffers;
+   //  threadBuffers.reserve(numThreads);
+
+   //  for (int i = 0; i < numThreads; ++i) {
+   //      threadBuffers.append(NODES(MAX_NODES+3));
+   //  }
+
     SOIL_MODEL *s = new SOIL_MODEL;
 
-    s->minDt = swatreDT;
-    s->pixel = new PIXEL_INFO[(long)nrCells];
+    s->pixel = new PIXEL_INFO[nrValidCells];
 
     // set initial values
-    for (long i = 0; i < (long)nrCells; i++) {
-        s->pixel[i].profile = nullptr;
-        //s->pixel[i].dumpHid = 0;  //set to 1 for output of a pixel
-        s->pixel[i].tiledrain = 0;
-        s->pixel[i].wh = 0;
-        s->pixel[i].percolation = 0;
-        s->pixel[i].tilenode = -1;      // set tiledrain to 0, and tiledepth to -1 (above surface)        
-        s->pixel[i].impfrac = 0;        // fraction roads, houses etc, for first node
-
-        s->pixel[i].corrKsOA = 1.0;
-        s->pixel[i].corrKsOB = 0.0;
-        s->pixel[i].corrKsDA = 1.0;
-        s->pixel[i].corrKsDB = 0.0;
-        s->pixel[i].corrPOA = 1.0;
-        s->pixel[i].corrPOB = 0.0;
-        s->pixel[i].corrPDA = 1.0;
-        s->pixel[i].corrPDB = 0.0;
-    }
-
-    // give each pixel a profile
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        int profnr = swatreProfileNr.indexOf((int)profileMap->Drc);
+        s->pixel[i_].r = r;
+        s->pixel[i_].c = c;
+        s->pixel[i_].profile = nullptr;
+        s->pixel[i_].tiledrain = 0;
+        s->pixel[i_].wh = 0;
+        s->pixel[i_].percolation = 0;
+        s->pixel[i_].tilenode = -1;      // set tiledrain to 0, and tiledepth to -1 (above surface)
+        // s->pixel[i_].corrKsOA = 1.0;
+        // s->pixel[i_].corrKsOB = 0.0;
+        // s->pixel[i_].corrKsDA = 1.0;
+        // s->pixel[i_].corrKsDB = 0.0;
+        // s->pixel[i_].corrPOA = 1.0;
+        // s->pixel[i_].corrPOB = 0.0;
+        // s->pixel[i_].corrPDA = 1.0;
+        // s->pixel[i_].corrPDB = 0.0;
+    }}
 
-        if (profnr > 0)
-            s->pixel[i_].profile = profileList[profnr];  // pointer to profile
-        // profile = <= 0 now set to impermeable
-        s->pixel[i_].impfrac = fractionImperm->Drc;
+    // give each pixel a profile
+   // #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        int profilenr = static_cast <int>(profileMap->Drc);
+        int profindex = swatreProfileNr.indexOf(profilenr);
 
-        if (SwitchOMCorrection) {
-            // these correction come from calculations based on Saxton and rawls
-            // Ks in mm/h convert to cm/s, affects factor B of the regression
-            double OM2 = OMcorr->Drc*OMcorr->Drc;
-            s->pixel[i_].corrKsOA = 0.0026*OM2 + 0.0359*OMcorr->Drc + 1;
-            s->pixel[i_].corrKsOB = 0.1/3600.0*(0.253*OM2 + 2.9368*OMcorr->Drc + 0.0007);
-            s->pixel[i_].corrPOA  = -0.001*OM2 + 0.1014*OMcorr->Drc + 1.0;
-            s->pixel[i_].corrPOB  = 0.0006*OM2 - 0.0282*OMcorr->Drc;
-            // pore A -0.001x2 + 0.1014x + 1
-            // pore B 0.0006x2 - 0.0282x
-        }
-        if (SwitchDensCorrection) {
-            double D2 = DensFact->Drc*DensFact->Drc;
-            // the regression is made with ks in cm/s, this affects B, not A: mm/h cm/s = *0.1/3600.0
-            s->pixel[i_].corrKsDA = 3.1429*D2 - 9.5657*DensFact->Drc + 7.4229;
-            s->pixel[i_].corrKsDB = 0.1/3600.0*(135.4*D2 - 311.07*DensFact->Drc + 175.67);
-            s->pixel[i_].corrPDA  = DensFact->Drc;
-            s->pixel[i_].corrPDB   = -1.0 * DensFact->Drc + 1.0;
-        }
+        if (profilenr > 0)
+            s->pixel[i_].profile = profileList[profindex];  // pointer to profile
+
+        // if (SwitchOMCorrection) {
+        //     // these correction come from calculations based on Saxton and rawls
+        //     // Ks in mm/h convert to cm/s, affects factor B of the regression
+        //     double OM2 = OMcorr->Drc*OMcorr->Drc;
+        //     s->pixel[i_].corrKsOA = 0.0026*OM2 + 0.0359*OMcorr->Drc + 1;
+        //     s->pixel[i_].corrKsOB = 0.1/3600.0*(0.253*OM2 + 2.9368*OMcorr->Drc + 0.0007);
+        //     s->pixel[i_].corrPOA  = -0.001*OM2 + 0.1014*OMcorr->Drc + 1.0;
+        //     s->pixel[i_].corrPOB  = 0.0006*OM2 - 0.0282*OMcorr->Drc;
+        //     // pore A -0.001x2 + 0.1014x + 1
+        //     // pore B 0.0006x2 - 0.0282x
+        // }
+        // if (SwitchDensCorrection) {
+        //     double D2 = DensFact->Drc*DensFact->Drc;
+        //     // the regression is made with ks in cm/s, this affects B, not A: mm/h cm/s = *0.1/3600.0
+        //     s->pixel[i_].corrKsDA = 3.1429*D2 - 9.5657*DensFact->Drc + 7.4229;
+        //     s->pixel[i_].corrKsDB = 0.1/3600.0*(135.4*D2 - 311.07*DensFact->Drc + 175.67);
+        //     s->pixel[i_].corrPDA  = DensFact->Drc;
+        //     s->pixel[i_].corrPDB   = -1.0 * DensFact->Drc + 1.0;
+        // }
     }}
 
 
@@ -112,10 +117,11 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
             inith->append(map);
         } else {
             cTMap* map = NewMap(HinitValue);
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                map->Drc *= psiCalibration;
-            }}
+            // silly and confusing to have a user defined value and a calibration on it
+            // #pragma omp parallel for num_threads(userCores)
+            // FOR_ROW_COL_MV_L {
+            //     map->Drc *= psiCalibration;
+            // }}
             inith->append(map);
         }
 
@@ -168,6 +174,7 @@ void  TWorld::FreeSwatreInfo(void)
         zone->z.clear();
         zone->endComp.clear();
         zone->disnod.clear();
+        zone->rootz.clear();
         delete zone;
         zone = nullptr;
     }
@@ -178,7 +185,8 @@ void  TWorld::FreeSwatreInfo(void)
                 if (profileList[i] != nullptr)
                     free(profileList[i]);
         }
-        free(profileList);
+        //free(profileList);
+        delete profileList;
         profileList = nullptr;
     }
 

@@ -50,8 +50,8 @@ void lisemqt::shootMultipleScreens()
     QFileInfo fi(op.runfilename);
 
     QString fileName = screenShotDir + fi.baseName();
-    QString number = QString("-%1").arg(op.runstep,5,'d',0,'0');
-
+  //  QString number = QString("-%1").arg(op.runstep,5,'d',0,'0');
+    QString number = QString("-%1").arg(op.runstep, 5, 10, QLatin1Char('0'));
 
     if (op.runstep % printinterval->value() > 0)
         return;
@@ -72,7 +72,7 @@ void lisemqt::shootMultipleScreens()
         int index = DisplayComboBox->currentIndex();
         if( index > -1 && index < NameList.length())
             name = NameList.at(index);
-        qDebug() <<"shot index" << index << name;
+        //qDebug() <<"shot index" << index << name;
     } else if (checkBoxComboMaps2->isChecked()) {
         int index = DisplayComboBox2->currentIndex()+DisplayComboBox->count();
         //   qDebug() << index;
@@ -115,7 +115,8 @@ void lisemqt::shootSingleScreen(int options)
         }
         if (tabWidget->currentIndex() == 2) // output
         {
-            number = QString("-%1").arg(op.runstep,5,'d',0,'0');
+            //number = QString("-%1").arg(op.runstep,5,'d',0,'0');
+            number = QString("-%1").arg(op.runstep, 5, 10, QLatin1Char('0'));
             if (tabWidget_out->currentIndex() == 0) {
                 name = "_Q";
             }
@@ -148,5 +149,5 @@ void lisemqt::convertScreenshotsToVideo()
     lisMpeg->exec();
 
     mencoderDir = lisMpeg->mencoderDir;
-    qDebug() << "new" << mencoderDir;
+    //qDebug() << "new" << mencoderDir;
 }

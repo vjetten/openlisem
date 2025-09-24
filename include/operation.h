@@ -49,8 +49,7 @@ void               copy                (cTMap& raster,
 
 QList <int>        countUnits          (cTMap const& raster);
 
-void               fill                (cTMap& raster,
-                                        double value);
+//void               fill                (cTMap& raster, double value);
 
 double             mapTotal            (cTMap const& raster);
 
@@ -87,7 +86,8 @@ void               calcMapValue        (cTMap& raster,
                                         double value2,
                                         int oper);
 
-void               checkMap            (cTMap const& raster,
+void               checkMap            (cTMap const& mask,
+                                        cTMap const& raster,
                                         int oper,
                                         double value,
                                         QString SS);

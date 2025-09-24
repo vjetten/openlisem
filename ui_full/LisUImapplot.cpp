@@ -123,7 +123,7 @@ void lisemqt::ssetAlphaHardSurface(int v)
 //---------------------------------------------------------------------------
 // called when a model run is started
 void lisemqt::initMapPlot()
-{  
+{
 
     maxAxis1 = -1e20;
     maxAxis2 = -1e20;
@@ -313,10 +313,10 @@ double lisemqt::fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_R
         {
             if(!pcr::isMV(_M->Drc))
             {
-                double v =_M->Drc*scale;
+                double v =(double)_M->Drc*scale;
                 mapData << v;
-                maxV = std::max(maxV, v);
-                minV = std::min(minV, v);
+                maxV = qMax(maxV, v);
+                minV = qMin(minV, v);
                 sum += v;
             }
             else
@@ -339,7 +339,7 @@ double lisemqt::fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_R
 }
 //---------------------------------------------------------------------------
 // fill the current raster data structure with new data, called each run step
-double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterData *_RD)//, double type)
+double lisemqt::fillDrawMapDataRGB(cTRGBMap *_M, QwtMatrixRasterData *_RD)//, double type)
 {
     double maxV = -1e20;
     RGBData.clear();  //QVector double
@@ -349,33 +349,24 @@ double lisemqt::fillDrawMapDataRGB(cTMap * base, cTRGBMap *_M, QwtMatrixRasterDa
 
     // copy map data into vector for the display structure
     for(int r = _M->nrRows()-1; r >= 0; r--)
-        for(int c=0; c < _M->nrCols(); c++)
-        {
-
-            if(true)// !pcr::isMV(_M->dataR[r][c]))
+        for(int c=0; c < _M->nrCols(); c++) {
+            double value = 0;
+            char * valuechar = ((char*)(&value));
+            valuechar[0] = _M->dataR[r][c];
+            if(_M->bands > 1)
             {
-                double value = 0;
-                char * valuechar = ((char*)(&value));
-                valuechar[0] = _M->dataR[r][c];//*rc;//(*base->data[r][c]);
-                if(_M->bands > 1)
-                {
-                    valuechar[1] = _M->dataG[r][c];//*rg;
-                    valuechar[2] = _M->dataB[r][c];//*rb;
-                 //   valuechar[3] = base->data[r][c]*255;
-                }else
-                {
-                    valuechar[1] = _M->dataR[r][c];
-                    valuechar[2] = _M->dataR[r][c];
-                  //  valuechar[3] = base->data[r][c]*255;
-                }
-
-                RGBData << value;
-                maxV = std::max(maxV, 1.0);
-            }
-            else
+                valuechar[1] = _M->dataG[r][c];//*rg;
+                valuechar[2] = _M->dataB[r][c];//*rb;
+                //   valuechar[3] = base->data[r][c]*255;
+            }else
             {
-                RGBData << (double)-1e20;
+                valuechar[1] = _M->dataR[r][c];
+                valuechar[2] = _M->dataR[r][c];
+                //  valuechar[3] = base->data[r][c]*255;
             }
+
+            RGBData << value;
+            maxV = qMax(maxV, 1.0);
         }
 
     // set intervals for rasterdata, x,y,z min and max
@@ -581,8 +572,6 @@ void lisemqt::showComboMap(int i)
     QwtComboColorMap *cmL = new QwtComboColorMap(QColor(op.ComboColors.at(i).at(0)),
                                                  QColor(op.ComboColors.at(i).at(op.ComboColors.at(i).length()-1)),
                                                  op.ComboColorMap.at(i),op.ComboColors.at(i));
-//    cm->setMode(cm->FixedColors);
-//    cmL->setMode(cm->FixedColors);
     cm->thresholduse = domin;
     cmL->thresholduse = true;
     cm->thresholdmin = mi;
@@ -591,14 +580,6 @@ void lisemqt::showComboMap(int i)
         cm->thresholdmin = MinV;
         cmL->thresholdmin = mi;
     }
-//    cmMap.at(i)->thresholduse = domin;
-//    cmLeg.at(i)->thresholduse = true;
-//    cmMap.at(i)->thresholdmin = mi;
-//    cmLeg.at(i)->thresholdmin = mi;
-//    if (op.ComboSymColor.at(i)) {
-//        cmMap.at(i)->thresholdmin = MinV;
-//        cmLeg.at(i)->thresholdmin = mi;
-//    }
 
     drawMap->setData(RD);
     drawMap->setColorMap(cm);//Map.at(i));
@@ -617,7 +598,6 @@ void lisemqt::showComboMap(int i)
     }
     else
     {
-
         MPlot->setAxisScale( QwtAxis::YRight, mi, ma);
         MPlot->setAxisScaleEngine( QwtAxis::YRight, new QwtLinearScaleEngine() );
     }
@@ -840,7 +820,7 @@ void lisemqt::showChannelVectorNew()
         // dot size
         int dxi = 6;//MPlot->invTransform(QwtAxis::XBottom,dx*1.2);
         // dxi = dxi - MPlot->invTransform(QwtAxis::XBottom,dx);
-        // dxi = std::min(9,dxi);
+        // dxi = qMin(9,dxi);
         spinCulvertSize->setValue(dxi);
 
         // points in outlet.map
@@ -958,9 +938,8 @@ void lisemqt::showImageMap()
 {
     if (startplot && checksatImage->isChecked())
     {
-        // set intervals for rasterdata, x,y,z min and max
-//        double res = fillDrawMapDataRGB(op.baseMapDEM,op.Image, RImage);
-        double res = fillDrawMapDataRGB(op.baseMap,op.Image, RImage);
+        //qDebug() << op.Image;
+        double res = fillDrawMapDataRGB(op.Image, RImage);
         RImage->setInterval( Qt::ZAxis, QwtInterval( 0.0, 1.0));
         baseMapImage->setData(RImage);
     }

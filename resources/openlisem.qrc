@@ -69,7 +69,6 @@
         <file>d_river2.png</file>
         <file>2X/d_fontsmaller2X.png</file>
         <file>river4.png</file>
-        <file>../openLisemN.ico</file>
         <file>d_soil6.png</file>
         <file>water1.png</file>
         <file>soil6.png</file>
@@ -79,5 +78,7 @@
         <file>d_water2.png</file>
         <file>water2.png</file>
         <file>help10.html</file>
+        <file>../openLisemN.ico</file>
+        <file>openLisemN.ico</file>
     </qresource>
 </RCC>

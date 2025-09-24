@@ -37,13 +37,7 @@
 /// structure to pass variables form the model to the interface.
 /// This tsructure is the link, visible by both
 
-//typedef struct LDD_COOR {
-//    int r;
-//    int c;
-//}  LDD_COOR;
-
 struct output{
-    int nrRunsDone; // nr runs without closing interface, needed to destroyd old data before start of a new run
     int runstep;
     int printstep;
     int maxstep;
@@ -57,13 +51,14 @@ struct output{
     QList<QVector<double>*> OutletQs;  //current kg/s
     QList<QVector<double>*> OutletC;   // avg concetration
     QList<QVector<double>*> OutletChannelWH;
+    QVector<double> Qbound;
+    QVector<double> Qtile;
     QVector<double> OutletQpeak;
     QVector<double> OutletQpeaktime;
     QVector<double> OutletQtot;
     QVector<double> OutletQstot;  // sum in kg
     QVector<double> Pmm;
     QVector<double> Time;
-    QVector <double> Qtile;
 
  //   QVector <double> CulvertX;
  //   QVector <double> CulvertY;
@@ -82,11 +77,11 @@ struct output{
     MB, Qtot,  Qtiletot, RunoffFraction, RainpeakTime, Rainpeak,
     Qtotmm,  IntercTotmm, IntercHouseTotmm, WaterVolTotmm,InfilTotmm,StormDrainTotmm, Qboundtotmm,
     RainTotmm, ETaTotmm, SurfStormm, InfilKWTotmm,  IntercLitterTotmm, //WaterVolTotchannelmm,
-    floodBoundaryTot, floodBoundarySedTot, Theta1, Theta2, GWlevel, BaseFlowTotmm, PeakFlowTotmm,
+    QBoundaryTot, floodBoundarySedTot, Theta1, Theta2, GWlevel, BaseFlowTotmm, PeakFlowTotmm,
     // channel
-    ChannelVolTotmm, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH,
+    ChannelVolTotmm, ChannelSedTot, ChannelDepTot, ChannelDetTot, ChannelWH, RetentionVolTot,RetentionVolTotmm,
     // flood
-    FloodTotMax, FloodAreaMax, FloodArea, WHflood, Qflood, volFloodmm,
+    FloodTotMax, FloodAreaMax, FloodArea, WHflood, FloodVolmm,
     FloodDetTot, FloodDepTot, FloodSedTot,
     // sediment
     MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot, maxRainaxis,
@@ -123,7 +118,6 @@ struct output{
     QList<double> comboStep;
 
     bool comboboxset;
-    bool has_image;
     bool SwitchCorrectMB_WH;
 
     QString runfilename;
@@ -133,8 +127,12 @@ struct output{
     QString datestamp;
 
     bool doBatchmode;
-  //  bool hasrunonce;
-  //  int nrMapsCreated;
+    bool forceResDir;
+
+    QString explanation;
+    QStringList calhydro;
+    QStringList calflow;
+    QStringList caleros;
 };
 
 
