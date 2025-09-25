@@ -722,6 +722,11 @@ void TWorld::ReportTimeseriesCSV(void)
                     out << QString(",Qsrunoff");
                 out << ",Conc";
             }
+            if (SwitchPest) {
+                out << ",PQw";
+                if (SwitchErosion)
+                    out << ",PQs";
+            }
             out << "\n";
 
             // second row, units
@@ -742,6 +747,11 @@ void TWorld::ReportTimeseriesCSV(void)
                 if (FlowBoundaryType > 0)
                     out << ",kg/s";
                 out<< ",kg/s" << ",g/l";
+            }
+            if (SwitchPest) {
+                out << ",mg/s"; // dissolved pesticide load
+                if (SwitchErosion)
+                    out << ",mg/s"; // particulate pesticide load
             }
             out << "\n";
             fout.close();
@@ -794,6 +804,12 @@ void TWorld::ReportTimeseriesCSV(void)
                 out << sep << Qsn->Drc;
                 out << sep << TotalConc->Drc ;
             }
+        }
+        //pesticide
+        if (SwitchPest) {
+            out << sep << (PQrw_dt / _dt);
+            if (SwitchErosion)
+                out << sep << (PQrs_dt / _dt);
         }
         out << "\n";
         fout.close();

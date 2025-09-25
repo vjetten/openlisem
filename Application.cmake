@@ -182,29 +182,6 @@ SET(APP_SOURCES
     erosion/lisErosionAux.cpp
     pest/lisPesticide.cpp
     pest/lisSWOF2DPesticide.cpp
-    include/array.h
-    include/CsfMap.h
-    include/CsfRGBMap.h
-    include/pcrtypes.h
-    include/csf.h
-    include/csfattr.h
-    include/csftypes.h
-    include/csfimpl.h
-    include/lerror.h
-    include/fixture.h
-    include/global.h
-    include/io.h
-    include/LisUIoutput.h
-    include/masked_raster.h
-    include/mmath.h
-    include/model.h
-    include/operation.h
-    include/option.h
-    include/raster.h
-    include/swatre_p.h
-    include/TMmapVariables.h
-    include/VectormapVariables.h
-    include/version.h
     PCR/create2.c
     PCR/mclose.c
     PCR/ruseas.c
