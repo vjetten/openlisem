@@ -81,9 +81,6 @@ void TWorld::chanHandPTrap(int r, int c)//, double Area)
         ChannelWH->Drc = ChannelDepth->Drc + dh;//(Area-ChannelMaxArea->Drc)/ChannelWidth->Drc;
     }
     ChannelPerimeter->Drc = ChannelWidthB->Drc+2*ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
-
-    //if (ChannelWH->Drc > 0)
-      //  qDebug() << r<<c<<ChannelWH->Drc << Area << ChannelMaxArea->Drc;
 }
 //---------------------------------------------------------------------------
 void TWorld::chanHandPTria(int r, int c)//, double Area)

@@ -11,13 +11,14 @@ This software is under the copyright model GPLv3 (distributed with the model) an
 
 For questions contact v.g.jetten AD utwente.nl
 
-NOTE: since verrsion 7.4.7.R7 a 4Byte floating point version is maintained that takes up less RAM memory, for very large databases. 
+NOTE: since version 7.4.7.R7 a 4Byte floating point version is maintained that takes up less RAM memory, for very large databases. 
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
 
 250923 - v7.4.7.beta.R9
 - BUG-FIX: bug in culverts, maximum channel discharge was calculated in places where no ciulverts exist
+- BUG-FIX: when event based is not checked, time output on screen now adds a day so that the first timestep is 001:0000 and not 000:0000
 - Added: options for adding calibration parameters as command-line options rrunning in batch mode
 - Added: Culvert type nr 5 is unconfined flow but in a circular culvert, for large 
 - Changed: channel flow is shown in total discharge on screen and output map (was: only overland flow)
