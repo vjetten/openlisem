@@ -175,7 +175,7 @@ void TWorld::GetETMapfromStations(double currenttime)
       //  qDebug() << currentrow << ETSeries[currentrow].intensity[0];
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            ETp->Drc = ETSeries[currentrow].intensity[(int) ETZone->Drc-1]*tt;
+            ETp->Drc = ETSeries[currentrow].intensity[(int) ETZone->Drc-1]*tt;  // now in m/day
         }}
     } //sameET
 
@@ -232,15 +232,44 @@ void TWorld::GetETSatMap(double currenttime)
 
     currentETrow = currentrow;
 }
+
+//---------------------------------------------------------------------------
+double TWorld::getDayLength(double time)
+{
+    const double degreesToRadians = M_PI / 180.0;
+
+    int dayNumber = floor(time)/86400.0 + ETstartday;
+
+    // Convert latitude from degrees to radians
+    double latitude = ETlatitude * degreesToRadians;
+
+    // Earth's axial tilt in degrees
+
+    const double axialTiltRadians = 23.44 * degreesToRadians;
+
+    // Day angle in radians
+    double dayAngle = 2 * M_PI * (dayNumber - 1) / 365;
+
+    // Calculate the declination angle in radians
+    double declination = asin(sin(axialTiltRadians) * sin(dayAngle));
+
+    // Calculate the hour angle at sunrise and sunset in radians
+    double hourAngle = acos(-tan(latitude) * tan(declination));
+
+    // Calculate day length in hours
+    double dayLength = (2.0 * hourAngle) * (180.0 / M_PI) / 15.0;
+
+    return dayLength;
+}
+
 //---------------------------------------------------------------------------
 double TWorld::getETaFactor()
 {
     double day = floor(time/86400.0);
     double hour = qMin(24.0,qMax(0.0, time/3600.0-day*24.0));
-    double Ld = (2.0*acos(-tan(latitude*0.01745329) * tan(asin(0.397789 * sin(0.017214*(day-1)))))) * 3.8197186;
-    double ETafactor = qMax(0.0,sin((-0.5-hour/Ld)*M_PI)) / Ld*_dt/3600.0*M_PI*0.5;
-//qDebug() << "Ld" << day << hour << Ld << ETafactor;
-    return ETafactor;
+    //double Ld = (2.0*acos(-tan(ETlatitude*0.01745329) * tan(asin(0.397789 * sin(0.017214*(day-1)))))) * 3.8197186;
+    double ETaf = qMax(0.0,sin((-0.5-hour/ETdaylength)*M_PI)) / ETdaylength*_dt/3600.0*M_PI*0.5;
+    return ETaf;
 }
 //---------------------------------------------------------------------------
 void TWorld::cell_ETa(int r, int c)
@@ -253,7 +282,7 @@ void TWorld::cell_ETa(int r, int c)
     if (ETp->Drc*ETafactor > 0) {
         double Area = CHAdjDX->Drc;
         double Cover_ = Cover->Drc;
-        double ETp_ = ETp->Drc * ETafactor; // potential ETp
+        double ETp_ = ETp->Drc * ETafactor; // potential ETp in m/timestep, summed is m/day
         ETpCum->Drc += ETp_;
 
         if (SwitchInterception) {

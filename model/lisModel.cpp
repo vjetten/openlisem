@@ -320,15 +320,19 @@ void TWorld::DoModel()
 
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
 
-            // bool dotime=false;
-            // FOR_ROW_COL_MV_L {
-            //     if (WH->Drc > 0 || ChannelWH->Drc > 0)
-            //         dotime = true;
-            // }}
-            // if (dotime)
-            //     _dt = 600;
-            // else
-            //     _dt =_dt_user;
+            if (SwitchDailyET) {
+                bool dolargedt = true;
+                FOR_ROW_COL_MV_L {
+                    if (WH->Drc > 1e-3 && V->Drc > 1e-6 /*|| ChannelWH->Drc > 1e-5 || Rain->Drc > 1e-5 */) {
+                        dolargedt = false;
+                        break;
+                    }
+                }}
+                if (dolargedt)
+                    _dt = longdt; // not more than rainfall step?
+                else
+                    _dt =_dt_user;
+            }
 
             InfilDynamicCrusting(); // if crusting recalc Ksateff and Poreff becuase of crusting effect
 
@@ -474,11 +478,16 @@ void TWorld::HydrologyProcesses()
    // double soiltot1 = SoilWaterMass();
 
     if (SwitchIncludeET) {
-        if (SwitchDailyET)
+        if (SwitchDailyET) {
+            ETdaylength = getDayLength(time);
             ETafactor = getETaFactor(); // based on daylength if daily values, converts from m/day to m/timestep directly
-        else
+            qDebug() << ETdaylength << ETafactor;
+        } else {
             ETafactor = 1.0;   // if not ETfactor can be 1,.0 because ET is already in m/timestep
+            ETdaylength = 12.0;
+        }
     }
+//    ETafactorTot += ETafactor;
 
     // above ground
     #pragma omp parallel for num_threads(userCores)

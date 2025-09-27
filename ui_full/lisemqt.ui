@@ -70,7 +70,7 @@
        <enum>QTabWidget::TabPosition::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -2391,7 +2391,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>8</number>
+                  <number>1</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -3076,6 +3076,24 @@
                       <property name="verticalSpacing">
                        <number>4</number>
                       </property>
+                      <item row="3" column="0" colspan="2">
+                       <widget class="QLabel" name="label_5">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string> - Latitude area for day length (Degrees):</string>
+                        </property>
+                       </widget>
+                      </item>
                       <item row="1" column="1">
                        <widget class="QDoubleSpinBox" name="E_biasCorrectionET">
                         <property name="enabled">
@@ -3103,8 +3121,35 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="label_126">
+                      <item row="4" column="2">
+                       <widget class="QSpinBox" name="E_dayoftheYear">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="minimum">
+                         <number>1</number>
+                        </property>
+                        <property name="maximum">
+                         <number>366</number>
+                        </property>
+                        <property name="value">
+                         <number>1</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="6" column="0" colspan="3">
+                       <widget class="QLabel" name="label_57">
                         <property name="enabled">
                          <bool>true</bool>
                         </property>
@@ -3123,10 +3168,7 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string>Correction factor</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                         <string>Evapotranspiration stops when rainfall is more than (mm/h):</string>
                         </property>
                        </widget>
                       </item>
@@ -3157,7 +3199,22 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="4" column="3">
+                      <item row="4" column="0">
+                       <widget class="QLabel" name="label_63">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string> - Starting day for the ET data (1-366):</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="6" column="3">
                        <widget class="QDoubleSpinBox" name="E_rainfallETA_threshold">
                         <property name="enabled">
                          <bool>true</bool>
@@ -3213,7 +3270,34 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string>58.5</string>
+                         <string>52.22</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="label_126">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Correction factor</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                         </property>
                        </widget>
                       </item>
@@ -3389,13 +3473,10 @@
                         </item>
                        </layout>
                       </item>
-                      <item row="4" column="0" colspan="3">
-                       <widget class="QLabel" name="label_57">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
+                      <item row="5" column="2">
+                       <widget class="QLineEdit" name="E_longtimestep">
                         <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
                           <verstretch>0</verstretch>
                          </sizepolicy>
@@ -3409,15 +3490,12 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string>Evapotranspiration stops when rainfall is more than (mm/h):</string>
+                         <string>300</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="3" column="0" colspan="2">
-                       <widget class="QLabel" name="label_5">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
+                      <item row="5" column="0">
+                       <widget class="QLabel" name="label_118">
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
@@ -3427,7 +3505,7 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string> - Latitude area for day length (Degrees):</string>
+                         <string> - long timstep between rainfall (sec):</string>
                         </property>
                        </widget>
                       </item>
@@ -12972,7 +13050,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>ETa</string>
+                       <string>ETa (mm)</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>

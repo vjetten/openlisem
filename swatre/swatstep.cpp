@@ -74,18 +74,17 @@ void TWorld::calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S)
     // ETafactor is calculated at model level, before hydrology
     if (ETp->Drc*ETafactor > 0) {
 
-        double ETp_ = ETp->Drc * ETafactor;// * 100; // potential ETp in meter/day to cm/day!
+        double ETp_ = ETp->Drc * ETafactor *100/_dt; // potential ETp in meter/day to cm/day! //
         double tot = 0;
         double etanet = ETp_;
         const ZONE *zone = pixel->profile->zone;
-
         //transpiration under Cover from rootzone
         etanet = ETp_*(Cover->Drc)*(1-fractionImperm->Drc);
         for (int j = 0; j < zone->nrNodes; j++) {
             S[j] = 0;
             if (zone->rootz[j] > 0) {
                 // van genuchten H50 = -3.5 m
-                double f = 1.0/(1.0+pow(h[j]/-350,1.5));
+                double f = 1.0/(1.0+pow(h[j]/-350.0,1.5));
                 if (h[j] > -10) f = 0; // near saturation
                 if (h[j] < -16000) f = 0; // wilting point -16000 cm
                 S[j] =  etanet * f * zone->rootz[j];
@@ -93,20 +92,21 @@ void TWorld::calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S)
         }
 
         // add surface evaporation (1-Cover) to top node if no ponding
-        etanet = ETp_*(1-fractionImperm->Drc);
+        // etanet = ETp_*(1-fractionImperm->Drc);
         if (h[0] < -1) {
             double the = FindValue(h[0], pixel->profile->horizon[0], H_COL, THETA_COL);
             double theS = FindValue(0, pixel->profile->horizon[0], H_COL, THETA_COL);
-            S[0] += etanet * the/theS;
+            S[0] += etanet * the/theS * (1-Cover->Drc + 0.15*Cover->Drc);
         }
 
         for (int j = 0; j < zone->nrNodes; j++) {
             tot += S[j];
         }
-//if(r == 200 && c == 200) qDebug() << "swatre" << tot << S[0] << S[1] << S[2];
+if(r == 400 && c == 400)
+    qDebug() << "swatre" << ETp->Drc << etanet << ETafactor << tot;// << S[0] << S[1] << S[2];
 
-        ETa->Drc = tot;
-        ETaCum->Drc += tot;
+        ETa->Drc = tot/100*_dt;  //back from cm/day to to m/day
+        ETaCum->Drc += tot/100*_dt;
     }
 }
 //--------------------------------------------------------------------------------
@@ -345,7 +345,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
             isPonded = false;
             thomc[0] = -dt * kavg[1] / (dz[0]*disZ[1]);
             thomb[0] = -thomc[0] + C[0];
-            thomf[0] = C[0]*h[0] + dt/(-dz[0]) * (-qtop - kavg[1]) - dt*S[0];
+            thomf[0] = C[0]*h[0] + dt/(-dz[0]) * (-qtop - kavg[1]) - dt/_dt*S[0];
         }
 
         // Intermediate nodes: i = 1 to n-2
@@ -353,9 +353,11 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
             thoma[i] = -dt*kavg[i]/dz[i]/disZ[i];
             thomc[i] = -dt*kavg[i+1]/dz[i]/disZ[i+1];
             thomb[i] = -thoma[i] - thomc[i] + C[i];
-            thomf[i] = C[i]*h[i] + dt/-dz[i]*(kavg[i]-kavg[i+1]) - dt*S[i];  //add sinkterm according to Belmans
+            thomf[i] = C[i]*h[i] + dt/-dz[i]*(kavg[i]-kavg[i+1]) - dt/_dt*S[i];  //add sinkterm according to Belmans
+            //belmans
+            //thoma = Di; thomc = Ai; //Bi = 1 + thomc + thoma
             // Belmans: E = h + (dt/C*dz)K+1/2 + (dt/C*dz)K-1/2 - (dt/C)*S;
-            // F = C*E = Ch + dt*dz*K+1/2 +dt*dz*K-1/2  -dt*S
+            // thomf = C*E = Ch + dt*dz*K+1/2 +dt*dz*K-1/2  -dt*S
             //dh/dt = 1/C* 1/dz etc -dt*S/C eq 6 page 275
             // S is ET flux also in cm/day
         }
@@ -363,7 +365,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
         // last node : nN-1 (include boundary cond. qbot)
         thoma[nN-1] = -dt*kavg[nN-1]/dz[nN-1]/disZ[nN-1];
         thomb[nN-1] = -thoma[nN-1] + C[nN-1];
-        thomf[nN-1] = C[nN-1]*h[nN-1] + dt/(-dz[nN-1])*(kavg[nN-1]+qbot) - dt*S[nN-1];
+        thomf[nN-1] = C[nN-1]*h[nN-1] + dt/(-dz[nN-1])*(kavg[nN-1]+qbot) - dt/_dt*S[nN-1]; //
 
         // Gaussian elimination and backsubstitution h - first time
         double alpha = thomb[0];

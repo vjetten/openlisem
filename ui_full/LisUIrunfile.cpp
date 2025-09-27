@@ -173,7 +173,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use ET maps")==0)                   setETmaps = check;
         if (p1.compare("Daily ET")==0)                      checkDailyET->setChecked(check);
         //if (p1.compare("Daily ET distribution")==0)         checkDailyETDistribution->setChecked(check);
-        if (p1.compare("Daily ET latitude")==0)             E_latitude->setText(p);
+        if (p1.compare("ET latitude")==0)                   E_latitude->setText(p);
+        if (p1.compare("ET start day")==0)                  E_dayoftheYear->setValue(iii);
+        if (p1.compare("long timestep")==0)                 E_longtimestep->setText(p);
         if (p1.compare("ET Bias Correction")==0)            E_biasCorrectionET->setValue(valc);
         if (p1.compare("Rainfall ET threshold")==0)         E_rainfallETA_threshold->setValue(valc);
         //if (p1.compare("Include Snowmelt")==0)            checkSnowmelt->setChecked(check);
@@ -932,6 +934,9 @@ void lisemqt::updateModelData()
         if (p1.compare("ET maplist name") ==0)               namelist[j].value = ETSatFileName;
         if (p1.compare("ET Map Directory") ==0)              namelist[j].value = ETSatFileDir;
         if (p1.compare("ET Bias Correction")==0)             namelist[j].value = E_biasCorrectionET->text();
+        if (p1.compare("ET latitude")==0)                    namelist[j].value = E_latitude->text();
+        if (p1.compare("ET start day")==0)                   namelist[j].value = E_dayoftheYear->text();
+        if (p1.compare("long timestep")==0)                    namelist[j].value = E_longtimestep->text();
         if (p1.compare("Rainfall ET threshold")==0)          namelist[j].value = E_rainfallETA_threshold->text();
 
         //if (p1.compare("Include Snowmelt")==0)               namelist[j].value.setNum((int)checkSnowmelt->isChecked());

@@ -313,6 +313,12 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("ET Map Directory");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("ET Bias Correction");
+    namelist[i].value = QString("52.2");
+    namelist[i++].name = QString("ET latitude");
+    namelist[i].value = QString("180");
+    namelist[i++].name = QString("ET start day");
+    namelist[i].value = QString("300.0");
+    namelist[i++].name = QString("long timestep");
     namelist[i].value = QString("2.0");
     namelist[i++].name = QString("Rainfall ET threshold");
     namelist[i].value = QString("0");

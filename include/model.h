@@ -685,7 +685,9 @@ public:
     double LitterSmax, ETaTot, ETaTotmm, ETaTotVol, GWlevel, GWleveltot;
     double thetai1tot, thetai2tot, thetai1cur, thetai2cur;
     double maxRainaxis;
-    double latitude;
+    double ETlatitude;
+    double ETstartday;
+    double ETdaylength;
     double HinitValue;
     double TileEntrySuction;
 
@@ -937,7 +939,7 @@ public:
     double calcSinkterm(long i_,  double WH, double *S);
     void calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S);
    // void calcSinktermSWATRE(PIXEL_INFO *pixel, QVector<double> h, QVector<double> S);
-    double calculateDayLength(double latitude, int dayNumber);
+    double getDayLength(double time);
     void VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
     void BrooksCorey(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
     void getThetafromH(int j, SOIL_LIST s);
@@ -967,6 +969,7 @@ public:
     double getETaFactor();
     double ETafactor;
     double ETafactorTot;
+    double longdt;
     void InfilEffectiveKsat();
     void InfilDynamicCrusting();
     void InfilSwatre();

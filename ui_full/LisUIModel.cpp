@@ -319,7 +319,8 @@ void lisemqt::stopmodel()
 void lisemqt::worldShow()
 {
     progressBar->setMaximum(op.maxstep);
-    progressBar->setValue(op.runstep);
+    int p = (int) (op.time/(op.EndTime-op.BeginTime) * op.maxstep);
+    progressBar->setValue(p);
 
     startPlots(); // called once using bool startplot
 

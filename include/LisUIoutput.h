@@ -38,7 +38,7 @@
 /// This tsructure is the link, visible by both
 
 struct output{
-    int runstep;
+    long runstep;
     int printstep;
     int maxstep;
     int cores;

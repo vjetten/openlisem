@@ -153,7 +153,9 @@ void TWorld::ReadSwatreInputNew(void)
             zone->rootz[i] /= sum;
         }
     }
-
+    // for (int i = 0; i < zone->nrNodes; i++) {
+    //      qDebug() << zone->rootz[i];
+    // }
     zone->disnod[zone->nrNodes] = 0.5 * zone->dz[zone->nrNodes-1];
 
  // for (int i = 0; i <= zone->nrNodes; i++)

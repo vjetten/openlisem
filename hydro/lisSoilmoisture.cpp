@@ -50,33 +50,6 @@
 
 
 
-double TWorld::calculateDayLength(double latitude, int dayNumber)
-{
-    const double degreesToRadians = M_PI / 180.0;
-
-    // Convert latitude from degrees to radians
-    latitude *= degreesToRadians;
-
-    // Earth's axial tilt in degrees
-
-    const double axialTiltRadians = 23.44 * degreesToRadians;
-
-    // Day angle in radians
-    double dayAngle = 2 * M_PI * (dayNumber - 1) / 365;
-
-    // Calculate the declination angle in radians
-    double declination = asin(sin(axialTiltRadians) * sin(dayAngle));
-
-    // Calculate the hour angle at sunrise and sunset in radians
-    double hourAngle = acos(-tan(latitude) * tan(declination));
-
-    // Calculate day length in hours
-    double dayLength = (2.0 * hourAngle) * (180.0 / M_PI) / 15.0;
-
-    return dayLength;
-}
-
-
 double TWorld::calcSinkterm(long i_, double WH, double *S)
 {
     SOIL_LIST s = crSoil[i_];
