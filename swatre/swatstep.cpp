@@ -74,7 +74,8 @@ void TWorld::calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S)
     // ETafactor is calculated at model level, before hydrology
     if (ETp->Drc*ETafactor > 0) {
 
-        double ETp_ = ETp->Drc * ETafactor *100/_dt; // potential ETp in meter/day to cm/day! //
+        double ETp_ = ETp->Drc * ETafactor*100/_dt;
+        // CONVERT potential ETp in meter/day to cm/sec! for SWATRE, K is also in cm/sec
         double tot = 0;
         double etanet = ETp_;
         const ZONE *zone = pixel->profile->zone;
@@ -92,7 +93,7 @@ void TWorld::calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S)
         }
 
         // add surface evaporation (1-Cover) to top node if no ponding
-        // etanet = ETp_*(1-fractionImperm->Drc);
+        etanet = ETp_*(1-fractionImperm->Drc);
         if (h[0] < -1) {
             double the = FindValue(h[0], pixel->profile->horizon[0], H_COL, THETA_COL);
             double theS = FindValue(0, pixel->profile->horizon[0], H_COL, THETA_COL);
@@ -102,8 +103,8 @@ void TWorld::calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S)
         for (int j = 0; j < zone->nrNodes; j++) {
             tot += S[j];
         }
-if(r == 400 && c == 400)
-    qDebug() << "swatre" << ETp->Drc << etanet << ETafactor << tot;// << S[0] << S[1] << S[2];
+// if(r == 400 && c == 400)
+//     qDebug() << "swatre" << ETp->Drc << etanet << ETafactor << tot;// << S[0] << S[1] << S[2];
 
         ETa->Drc = tot/100*_dt;  //back from cm/day to to m/day
         ETaCum->Drc += tot/100*_dt;
@@ -135,7 +136,7 @@ double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int
 }
 //--------------------------------------------------------------------------------
 // Units are:
-// Z and H in cm; table units K in cm/day converted to cm/sec, lisem time in seconds
+// Z and H in cm; table units K in cm/day converted to cm/sec, lisem time in seconds _dtday
 // NOTE: dz is negative, disZ is negative!
 
 // #define dz(j) p->zone->dz[j]
@@ -149,14 +150,16 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
     int c = pixel->c;
     int nN = p->zone->nrNodes;
 
-    double dt = _dt/5;//swatreDT;//
     double WH = pixel->wh*100; // m to cm
     int tnode = pixel->tilenode;
     double impfrac = fractionImperm->Drc;
-
-    double elapsedTime = 0;
     double drainout = 0;
     double percolation = 0;
+
+    double elapsedTime = 0;
+    double dt = _dt/5.0;//swatreDT;//
+
+
 
     //  qDebug() << i_ << r << c << p->profileId;
 
@@ -164,48 +167,42 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
     //NODE_ARRAY kavg, k, C, theta, thetaPrev, h, hPrev, dz, disZ, S;
     //NODE_ARRAY thoma, thomb, thomc, thomf, beta;
 
-    // slower:
-    // QVector <double> theta(MAX_NODES+3, 0.0);
-    // QVector <double> kavg(MAX_NODES+3, 0.0);
-    // QVector <double> k(MAX_NODES+3, 0.0);
-    // QVector <double> C(MAX_NODES+3, 0.0);
-    // QVector <double> thetaPrev(MAX_NODES+3, 0.0);
-    // QVector <double> h(MAX_NODES+3, 0.0);
-    // QVector <double> hPrev(MAX_NODES+3, 0.0);
-    // QVector <double> dz(MAX_NODES+3, 0.0);
-    // QVector <double> disZ(MAX_NODES+3, 0.0);
-    // QVector <double> S(MAX_NODES+3, 0.0);
-    // QVector <double> thoma(MAX_NODES+3, 0.0);
-    // QVector <double> thomb(MAX_NODES+3, 0.0);
-    // QVector <double> thomc(MAX_NODES+3, 0.0);
-    // QVector <double> thomf(MAX_NODES+3, 0.0);
-    // QVector <double> beta(MAX_NODES+3, 0.0);
-
-
-    double* theta = new double[MAX_NODES+3]();
-    double* kavg  = new double[MAX_NODES+3]();
-    double* k     = new double[MAX_NODES+3]();
-    double* C     = new double[MAX_NODES+3]();
-    double* thetaPrev = new double[MAX_NODES+3]();
-    double* h     = new double[MAX_NODES+3]();
-    double* hPrev = new double[MAX_NODES+3]();
-    double* dz    = new double[MAX_NODES+3]();
-    double* disZ  = new double[MAX_NODES+3]();
-    double* S     = new double[MAX_NODES+3]();
-    double* thoma = new double[MAX_NODES+3]();
-    double* thomb = new double[MAX_NODES+3]();
-    double* thomc = new double[MAX_NODES+3]();
-    double* thomf = new double[MAX_NODES+3]();
-    double* beta  = new double[MAX_NODES+3]();
+    // double* kavg  = new double[MAX_NODES+3]();
+    // double* k     = new double[MAX_NODES+3]();
+    // double* C     = new double[MAX_NODES+3]();
+    // double* h     = new double[MAX_NODES+3]();
+    // double* hPrev = new double[MAX_NODES+3]();
+    // double* theta = new double[MAX_NODES+3]();
+    // double* thetaPrev = new double[MAX_NODES+3]();
+    // double* dz    = new double[MAX_NODES+3]();
+    // double* disZ  = new double[MAX_NODES+3]();
+    // double* S     = new double[MAX_NODES+3]();
+    // double* thoma = new double[MAX_NODES+3]();
+    // double* thomb = new double[MAX_NODES+3]();
+    // double* thomc = new double[MAX_NODES+3]();
+    // double* thomf = new double[MAX_NODES+3]();
+    // double* beta  = new double[MAX_NODES+3]();
+    double* kavg        = new double[nN+2]();
+    double* k           = new double[nN+2]();
+    double* C           = new double[nN+2]();
+    double* h           = new double[nN+2]();
+    double* hPrev       = new double[nN+2]();
+    double* theta       = new double[nN+2]();
+    double* thetaPrev   = new double[nN+2]();
+    double* dz          = new double[nN+2]();
+    double* disZ        = new double[nN+2]();
+    double* S           = new double[nN+2]();
+    double* thoma       = new double[nN+2]();
+    double* thomb       = new double[nN+2]();
+    double* thomc       = new double[nN+2]();
+    double* thomf       = new double[nN+2]();
+    double* beta        = new double[nN+2]();
 
     for (int j = 0; j < nN; j++) {
-      h[j] = pixel->h[j];
-      dz[j] = p->zone->dz[j];
-      disZ[j] = p->zone->disnod[j];
+        h[j] = pixel->h[j];
+        dz[j] = p->zone->dz[j];
+        disZ[j] = p->zone->disnod[j];
     }
-    // memcpy(h, pixel->h.data(), nN * sizeof(double));
-    // memcpy(dz, p->zone->dz.data(), nN * sizeof(double));
-    // memcpy(disZ, p->zone->disnod.data(), nN * sizeof(double));
 
     if (SwitchIncludeET && WH <= 0) {
         calcSinktermSWATRE(pixel, h, S);
@@ -223,7 +220,6 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
             k[j] = FindValue(h[j], p->horizon[j], H_COL, K_COL);
             // K in cm/sec from h, ksatcal filled with values for ksat1,2,3
             C[j] = FindValue(h[j], p->horizon[j], DMCH_COL, DMCC_COL);
-                    //DmcNode(h[j], p->horizon[j],  true); // true is more detailed method, false is DMCH directly from H
             // differential moisture capacity d(theta)/d(h), tangent moisture retention curve
             theta[j] = FindValue(h[j], p->horizon[j], H_COL, THETA_COL);
             // moisture content from H
@@ -483,37 +479,21 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
     pixel->tiledrain = drainout;
     pixel->percolation = -percolation*0.01; // cm to m, this is not a flux?
 
-    // theta.clear();
-    // kavg.clear();
-    // k.clear();
-    // C.clear();
-    // thetaPrev.clear();
-    // h.clear();
-    // hPrev.clear();
-    // dz.clear();
-    // disZ.clear();
-    // S.clear();
-    // thoma.clear();
-    // thomb.clear();
-    // thomc.clear();
-    // thomf.clear();
-    // beta.clear();
-
-   delete[] theta;
-   delete[] kavg;
-   delete[] k;
-   delete[] C;
-   delete[] thetaPrev;
-   delete[] h;
-   delete[] hPrev;
-   delete[] dz;
-   delete[] disZ;
-   delete[] S;
-   delete[] thoma;
-   delete[] thomb;
-   delete[] thomc;
-   delete[] thomf;
-   delete[] beta ;
+    delete[] theta;
+    delete[] kavg;
+    delete[] k;
+    delete[] C;
+    delete[] thetaPrev;
+    delete[] h;
+    delete[] hPrev;
+    delete[] dz;
+    delete[] disZ;
+    delete[] S;
+    delete[] thoma;
+    delete[] thomb;
+    delete[] thomc;
+    delete[] thomf;
+    delete[] beta ;
 
 }
 //--------------------------------------------------------------------------------

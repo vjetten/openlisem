@@ -689,8 +689,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Use time avg V");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Erosion outside 2D loop");
-   // namelist[i].value = QString("1e-10");
-   // namelist[i++].name = QString("Min WH flow");
+    namelist[i].value = QString("1e-6");
+    namelist[i++].name = QString("Minimum WH and V flow");
     namelist[i].value = QString("10.0");
     namelist[i++].name = QString("Pit Value");
     namelist[i].value = QString("0");

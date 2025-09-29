@@ -673,6 +673,7 @@ void lisemqt::on_checkRainfall_toggled(bool checked)
 void lisemqt::on_checkET_toggled(bool checked)
 {
     groupET->setEnabled(checked);
+    checkDailyET->setEnabled(checked);
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_checkInterception_toggled(bool checked)

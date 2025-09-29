@@ -947,7 +947,7 @@ void lisemqt::resetTabRainfall()
     checkDailyET->setChecked(true);
     //checkDailyETDistribution->setChecked(true);
     E_latitude->setText("52.2");
-    E_dayoftheYear->setValue("180");
+    E_dayoftheYear->setValue(180);
     E_biasCorrectionET->setValue(1.0);
     E_rainfallETA_threshold->setValue(2.0);
 

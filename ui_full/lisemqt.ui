@@ -70,7 +70,7 @@
        <enum>QTabWidget::TabPosition::North</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -2353,7 +2353,7 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>0</y>
+                <y>-211</y>
                 <width>1013</width>
                 <height>819</height>
                </rect>
@@ -2391,7 +2391,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>9</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -10406,6 +10406,45 @@
                            <property name="text">
                             <string>Do erosion outside the 2D loop</string>
                            </property>
+                           <property name="checked">
+                            <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="0" colspan="4">
+                          <widget class="QLabel" name="label_161">
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Minimum threshold for waterheight and velocity calculations: </string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="3" column="4">
+                          <widget class="QLineEdit" name="E_minWHVSWOF">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>1e-6</string>
+                           </property>
                           </widget>
                          </item>
                         </layout>
@@ -13050,7 +13089,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>ETa (mm)</string>
+                       <string>ETa</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>

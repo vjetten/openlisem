@@ -453,11 +453,11 @@ void lisemqt::showOutputData()
     label_qtot->setText(format.arg(QString::number(op.Qtotmm,'f',dig)));
     label_infiltot->setText(format.arg(QString::number(op.InfilTotmm,'f',dig)));
     if (checkGridRentention) {
-        label_37->setText("Surf.Store+Ret (mm)");
+        label_37->setText("Surf.Store+Reten.");
         label_surfstor->setText(format.arg(QString::number(op.SurfStormm+op.RetentionVolTotmm,'f',dig)));
     }
     else {
-        label_37->setText("Surf. Store (mm)");
+        label_37->setText("Surf.Store");
         label_surfstor->setText(format.arg(QString::number(op.SurfStormm,'f',dig)));
     }
     label_interctot->setText(format.arg(QString::number(op.IntercTotmm+op.IntercHouseTotmm+op.IntercLitterTotmm,'f',dig)));

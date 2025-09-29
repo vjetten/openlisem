@@ -272,6 +272,39 @@ double TWorld::getETaFactor()
     return ETaf;
 }
 //---------------------------------------------------------------------------
+void TWorld::GetETparameters()
+{
+    if (!SwitchIncludeET)
+        return;
+\
+
+    ETafactor = 1.0;   // if not ETfactor can be 1,.0 because ET is already in mm/timestep
+
+    if (SwitchDailyET) {
+
+        // increase timestep between rainfall
+        if (longdt > _dt) {
+            bool do_longdt = true;
+            FOR_ROW_COL_MV_L {
+                if (/*WH->Drc > 1e-3 &&*/ V->Drc > 5e-5 ) {
+                    do_longdt = false;
+                    break;
+                }
+            }}
+            if (do_longdt) {
+                if (_dt == _dt_user)
+                    _dt = longdt;
+                else
+                    _dt =_dt_user;
+            }
+        }
+
+        ETdaylength = getDayLength(time);
+        ETafactor = getETaFactor(); // based on daylength if daily values, converts from m/day to m/timestep directly
+
+    }
+}
+//---------------------------------------------------------------------------
 void TWorld::cell_ETa(int r, int c)
 {
     if (Rain->Drc*3600000.0/_dt > rainfallETa_threshold) {
@@ -403,4 +436,3 @@ void TWorld::cell_ETa(int r, int c)
         ETaCum->Drc += tot;
     }
 }
-

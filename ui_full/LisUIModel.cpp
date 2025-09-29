@@ -319,8 +319,11 @@ void lisemqt::stopmodel()
 void lisemqt::worldShow()
 {
     progressBar->setMaximum(op.maxstep);
-    int p = (int) (op.time/(op.EndTime-op.BeginTime) * op.maxstep);
-    progressBar->setValue(p);
+    if (checkET->isChecked() && checkDailyET->isChecked()) {
+        int p = (int) (op.time/(op.EndTime-op.BeginTime) * op.maxstep);
+        progressBar->setValue(p);
+    } else
+        progressBar->setValue(op.runstep);
 
     startPlots(); // called once using bool startplot
 

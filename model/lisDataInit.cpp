@@ -180,7 +180,8 @@ void TWorld::InitParameters(void)
         F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
         F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
         F_scheme = qMin(3,F_scheme);
-        F_minWH = he_ca;//getvaluedouble("Min WH flow");   //HLL HLL2 Rusanov
+        F_minWH = getvaluedouble("Minimum WH and V flow");   //HLL HLL2 Rusanov
+        if (F_minWH == 0) F_minWH = he_ca;
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
         SwitchLinkedList = false; //getvalueint("Use linked List") == 1;
         SwitchPerimeterKW = getvalueint("Use Perimeter KW") == 1;

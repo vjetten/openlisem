@@ -906,6 +906,7 @@ public:
 
     // 1D hydro processes
     // => input timeseries
+    void GetETparameters();
     void GetInputTimeseries();
     void GetUserDischargeData(QString name);
     void GetWHboundaryData(QString name);

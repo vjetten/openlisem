@@ -359,7 +359,7 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
         }
         l->hydro[THETA_COL].append(SL[THETA_COL].toDouble());
         l->hydro[H_COL].append(SL[H_COL].toDouble());
-        l->hydro[K_COL].append(SL[K_COL].toDouble()/86400); // cm/day to cm/sec
+        l->hydro[K_COL].append(SL[K_COL].toDouble()/86400.0); // cm/day to cm/sec
     }
 
     for (int i = 0; i < l->Rows-1; i++) {

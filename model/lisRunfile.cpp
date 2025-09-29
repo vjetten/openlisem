@@ -49,7 +49,11 @@ QString TWorld::getvaluename(QString vname)
         if(vname.toUpper() == runnamelist[i].name.toUpper()) {
             if (InfilMethod == INFIL_SWATRE && runnamelist[i].name.toUpper() == QString("INITHEAD"))
             {
-                QFileInfo info(inputDir + runnamelist[i].value + QString(".001"));
+                QString s = runnamelist[i].value;
+                if (s.contains(".0"))
+                    s.remove(s.lastIndexOf('.'),10);
+                QFileInfo info(inputDir + s + QString(".001"));
+
                 if (!info.exists()) {
                     ErrorString = "Filename not found for map \"<I>"+runnamelist[i].name + "\" - " + info.fileName();
                     throw 1;
@@ -448,14 +452,19 @@ void TWorld::ParseRunfileData(void)
 
         if (InfilMethod == INFIL_SWATRE)
         {
+            qDebug() << "hier";
             if (p1.compare("Swatre table directory")==0) {
                 SwatreTableDir = CheckDir(p);
             }
             if (p1.compare("Swatre profile file")==0) {
                 SwatreTableName = p;
             }
-            if (!SwitchHinit4all)
+         //   if (!SwitchHinit4all) {
                 initheadName = getvaluename("inithead");
+                qDebug() << initheadName;
+                if (initheadName.contains(".0"))
+                    initheadName.remove(initheadName.size() - 5, 10);
+        //    }
         }
 
         if (SwitchRainfall)

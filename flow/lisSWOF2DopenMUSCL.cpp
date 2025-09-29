@@ -49,6 +49,12 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     sumh = getMass(h);
 
     //F_MaxIter = 10000;
+    Fill(*tmd,0);
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (h->Drc > F_minWH)
+            tmd->Drc = 1; // flag which cells have to be calculated
+    }}
 
     do {
 
@@ -123,9 +129,16 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         if(count > F_MaxIter)
         stop = true;
 
-        // small mass balance corrections
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            tmd->Drc = 0;
+            if (h->Drc > F_minWH && qSqrt(u->Drc*u->Drc+v->Drc*v->Drc) > F_minWH)
+                tmd->Drc = 1;
+        }}
+
     } while (!stop);
 
+    // small mass balance corrections within 2d flow
     correctMassBalance(sumh, h);
 
     if (SwitchErosion && SwitchErosionOutsideLoop) {
@@ -149,17 +162,17 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
     double factor = exp(-0.005*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
     double factor2 = factor;//pow(factor,0.667); // manning reduction V=h^2/3
 
-    Fill(*tmd,0);
+   // Fill(*tmd,0);
     // map edges are zero, avoid domain touching the edges
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (h->Drc > he_ca)
-            tmd->Drc = 1;
+        //if (h->Drc > he_ca)
+        //     tmd->Drc = 1;
 
-        // if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
-        // if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
-        // if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
-        // if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
+        if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
+        if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
+        if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
+        if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
 
         if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
             tmd->Drc = 0;
