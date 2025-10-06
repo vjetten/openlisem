@@ -495,6 +495,7 @@ public:
         SwitchDynamicCrusting,
         SwitchImpermeable,
         SwitchDumphead,
+        SwitchDumpSwatreKsat,
         SwitchGeometric,
         SwitchTwoLayer,
         SwitchThreeLayer,

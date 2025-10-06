@@ -2034,6 +2034,7 @@ void TWorld::IntializeOptions(void)
     SwitchInfilCompact = false;
     SwitchInfilCrust = false;
     SwitchDumphead = false;
+    SwitchDumpSwatreKsat = true;
     initSwatreStructure = false;  // check to flag when swatre 3D structure is created, needed to clean up data
     SwitchGeometric = true;
     SwitchImpermeable = false;

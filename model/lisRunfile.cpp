@@ -452,19 +452,17 @@ void TWorld::ParseRunfileData(void)
 
         if (InfilMethod == INFIL_SWATRE)
         {
-            qDebug() << "hier";
             if (p1.compare("Swatre table directory")==0) {
                 SwatreTableDir = CheckDir(p);
             }
             if (p1.compare("Swatre profile file")==0) {
                 SwatreTableName = p;
             }
-         //   if (!SwitchHinit4all) {
+            if (!SwitchHinit4all) {
                 initheadName = getvaluename("inithead");
-                qDebug() << initheadName;
                 if (initheadName.contains(".0"))
                     initheadName.remove(initheadName.size() - 5, 10);
-        //    }
+            }
         }
 
         if (SwitchRainfall)
