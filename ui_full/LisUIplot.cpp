@@ -421,6 +421,7 @@ void lisemqt::showOutputData()
         int mins = long(op.EndTime) % 1440;
         QString ts = QString("%1:%2").arg(days,3,10,QLatin1Char('0')).arg(mins,4,10,QLatin1Char('0'));
         label_endtime->setText(ts);
+
     }
 
     int days = op.time/1440;
