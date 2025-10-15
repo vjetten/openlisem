@@ -445,6 +445,8 @@ void lisemqt::defaultRunFile()
   //  namelist[i++].name = QString("Include channel infil");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Channel baseflow method");
+    namelist[i].value = QString("1.0");
+    namelist[i++].name = QString("Channel tortuosity");
     // namelist[i++].name = QString("Include stationary baseflow");
     // namelist[i].value = QString("0");
     // namelist[i++].name = QString("Stationary baseflow as map");
@@ -599,8 +601,6 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Ksat3 calibration");
     namelist[i].value = QString("1.0");
-    namelist[i++].name = QString("N calibration");
-    namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Theta calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Psi calibration");
@@ -609,15 +609,15 @@ void lisemqt::defaultRunFile()
     // namelist[i].value = QString("1.0");
     // namelist[i++].name = QString("SoilDepth2 calibration");
     namelist[i].value = QString("1.0");
-    namelist[i++].name = QString("Channel Ksat calibration");
+    namelist[i++].name = QString("N calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Channel N calibration");
     namelist[i].value = QString("1.0");
-    namelist[i++].name = QString("Culvert size calibration");
+    namelist[i++].name = QString("Channel Ksat calibration");
     namelist[i].value = QString("0.0");
     namelist[i++].name = QString("Boundary water level calibration");
     namelist[i].value = QString("1.0");
-    namelist[i++].name = QString("Channel tortuosity");
+    namelist[i++].name = QString("Culvert size calibration");
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Cohesion calibration");
     namelist[i].value = QString("1.0");

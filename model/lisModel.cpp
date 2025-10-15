@@ -126,11 +126,13 @@ void TWorld::DoModel()
                        << "Ksat3 calibration"
                        << "Theta calibration"
                        << "Psi calibration"
+
                        << "N calibration"
                        << "Channel N calibration"
                        << "Channel Ksat calibration"
                        << "Boundary water level calibration"
                        << "Culvert size calibration"
+
                        << "Aggregate stability calibration"
                        << "Cohesion calibration"
                        << "Grain Size calibration D50"
@@ -142,20 +144,26 @@ void TWorld::DoModel()
 
                 if (op.calhydro.size() > 0) {
                     for (int i = 0; i < 7; i++) {
-                        if (p1.compare(calstrings[i])==0)
+                        if (p1.compare(calstrings[i])==0) {
                             runnamelist[j].value = op.calhydro[i];
+                            qDebug() << p1 << calstrings[i] << op.calhydro[i];
+                        }
                     }
                 }
                 if (op.calflow.size() > 0) {
                     for (int i = 0; i < 5; i++) {
-                        if (p1.compare(calstrings[i+7])==0)
+                        if (p1.compare(calstrings[i+7])==0) {
                             runnamelist[j].value = op.calflow[i];
+                            qDebug() << p1 << calstrings[i+7] << op.calflow[i];
+                        }
                     }
                 }
                 if (op.caleros.size() > 0) {
                     for (int i = 0; i < 5; i++) {
-                        if (p1.compare(calstrings[i+12])==0)
+                        if (p1.compare(calstrings[i+12])==0) {
                             runnamelist[j].value = op.caleros[i];
+                            qDebug() << p1 << calstrings[i+12] << op.caleros[i];
+                        }
                     }
                 }
             }

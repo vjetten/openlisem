@@ -1035,7 +1035,7 @@ void TWorld::InitChannel(void)
 
     cover(*ChannelGrad, *LDD, 0);
     cover(*ChannelN, *LDD, 0);
-    calcValue(*ChannelN, ChnCalibration, MUL);
+    //calcValue(*ChannelN, ChnCalibration, MUL);
 
     // correct input channel maps when there is no channel
     FOR_ROW_COL_MV_L {
@@ -1094,11 +1094,16 @@ void TWorld::InitChannel(void)
                 crch_[i_].culvert = true;
                 crch_[i_].shape = (int) ChannelCulvert->Drc;
                 ChannelDiameter->Drc = CulvertCalibration*ChannelDiameter->Drc;
+            } else {
+                ChannelN->Drc *= ChnCalibration;
             }
         }}
     } else {
         ChannelDiameter = NewMap(0);
         ChannelCulvert = NewMap(0);
+        FOR_ROW_COL_MV_CHL {
+            ChannelN->Drc *= ChnCalibration;
+        }}
     }
 
     FOR_ROW_COL_MV_CHL {
