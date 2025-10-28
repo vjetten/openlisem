@@ -305,9 +305,12 @@ void TWorld::DoModel()
         // ---- THE TIME LOOP ----
         for (time = BeginTime; time < EndTime; time += _dt)
         {
+            savemaptodisk = false;
             // printstep determines report frequency in #define report(...)
-            if (runstep > 0 && runstep % printinterval == 0)
+            if (runstep > 0 && runstep % printinterval == 0) {
+                savemaptodisk = true;
                 printstep++;
+            }
 
             runstep++;
 

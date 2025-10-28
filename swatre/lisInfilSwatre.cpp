@@ -175,23 +175,24 @@ void TWorld::InfilSwatre()
 
     }}
 
-if(SwitchDumpSwatreKsat) {
-    SwitchDumpSwatreKsat = false;
-    for (int i = 0; i < SwatreSoilModel->pixel[0].profile->zone->nrNodes; i++) {
+    if(SwitchDumpSwatreKsat) {
+        SwitchDumpSwatreKsat = false;
+        for (int i = 0; i < SwatreSoilModel->pixel[0].profile->zone->nrNodes; i++) {
 
-        QString dig = QString("%1").arg(i+1, 3, 10, QLatin1Char('0'));
-        QString ksname = QString("ksat0000.") + dig;
-        QString pname = QString("pore0000.") + dig;
+            QString dig = QString("%1").arg(i+1, 3, 10, QLatin1Char('0'));
+            QString ksname = QString("ksat0000.") + dig;
+            QString pname = QString("pore0000.") + dig;
 
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            tma->Drc = 10*86400/24.0*FindValue(0, SwatreSoilModel->pixel[i_].profile->horizon[i], H_COL, K_COL);
-            tmb->Drc = FindValue(0, SwatreSoilModel->pixel[i_].profile->horizon[i], H_COL, THETA_COL);
-        }}
-        report(*tma, ksname);
-        report(*tmb, pname);
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                //qDebug() << r << c << i << SwatreSoilModel->pixel[i_].profile->horizon[i]->name;
+                tma->Drc = 10*86400/24.0*FindValue(0, SwatreSoilModel->pixel[i_].profile->horizon[i], H_COL, K_COL);
+                tmb->Drc = FindValue(0, SwatreSoilModel->pixel[i_].profile->horizon[i], H_COL, THETA_COL);
+            }}
+            report(*tma, ksname);
+            report(*tmb, pname);
+        }
     }
-}
 
 
     // dump a map with h at every node

@@ -201,7 +201,7 @@ void TWorld::ReportMapSeries(void)
     if (SwitchOutinf)
         report(*InfilmmCum, Outinf);
 
-    // surface storagge (mm)
+    // surface storage (mm)
     if (SwitchOutss)
     {
         #pragma omp parallel for num_threads(userCores)

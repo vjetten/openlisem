@@ -382,8 +382,9 @@ void lisemqt::startPlots()
     OutletLocationY.append(op.OutletLocationY);
 
     outletpoint = op.OutletIndices.at(1);
-    spinBoxPointtoShow->setValue(1);
+   //    spinBoxPointtoShow->setValue(1);
     spinBoxPointtoShow->setMaximum(OutletIndices.at(OutletIndices.length()-1));
+    spinBoxPointtoShow->setValue(OutletIndices[1]);
     label_hydroCount->setText(QString("Output all (0) or point (1-%1)").arg(OutletIndices.count()-1));
 
     if (outletpoint > 0) {

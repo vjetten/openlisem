@@ -48,10 +48,11 @@ void TWorld::reportToFile(void)
     // report catchment averages per timestep
 
     // spatial output, maps and mapseries
-//    if (!SwitchEndRun) {
+    // savemaptodisk reacts to printinterval
+    if(savemaptodisk) {
         ReportMaps();
         ReportMapSeries();
-//    }
+    }
     // report all maps and mapseries
 
     ReportErosionLandunits();

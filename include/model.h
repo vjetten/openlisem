@@ -707,6 +707,7 @@ public:
     double _dt, _dx;
     double _dt_user, _dtCHkin, _CHMaxV;
     long runstep, printstep, printinterval;
+    bool savemaptodisk;
     double _llx, _lly;
 
     QString mapFormat; //Gtiff or pcraster
