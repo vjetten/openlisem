@@ -477,7 +477,6 @@ public:
         SwitchWritePCRtimeplot,
         SwitchSeparateOutput,
         SwitchWriteHeaders,
-        //SwitchEndRun,
         SwitchResultDatetime,
         SwitchOutputTimestamp,
 
@@ -707,7 +706,7 @@ public:
     double _dt, _dx;
     double _dt_user, _dtCHkin, _CHMaxV;
     long runstep, printstep, printinterval;
-    bool savemaptodisk;
+    bool savemaptodisk, SwitchReportMapsEnd;
     double _llx, _lly;
 
     QString mapFormat; //Gtiff or pcraster

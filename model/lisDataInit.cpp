@@ -929,8 +929,8 @@ void TWorld::InitBoundary(void)
                 FlowBoundary->Drc = 0;
         }
     }
-   report(*FlowBoundary, "flowbound.map");
-   report(*DomainEdge, "DomainEdge.map");
+   //report(*FlowBoundary, "flowbound.map");
+   //report(*DomainEdge, "DomainEdge.map");
 
 }
 //---------------------------------------------------------------------------
@@ -1987,7 +1987,6 @@ void TWorld::IntializeOptions(void)
     //SwitchOutputTimeUser = false;
     SwitchSeparateOutput = false;
     SwitchWriteHeaders = true; // write headers in output files in first timestep
-    //SwitchEndRun = false;
 
     SwitchAdvancedOptions = false;
     SwitchPsiUser = false;

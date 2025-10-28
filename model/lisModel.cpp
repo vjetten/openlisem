@@ -311,6 +311,8 @@ void TWorld::DoModel()
                 savemaptodisk = true;
                 printstep++;
             }
+            if (SwitchReportMapsEnd)
+                savemaptodisk = false;
 
             runstep++;
 
@@ -387,8 +389,10 @@ void TWorld::DoModel()
             }
         } // TIME LOOP
 
-        // if (SwitchEndRun)
-        //     ReportMaps();
+        if(SwitchReportMapsEnd) {
+            ReportMaps();
+            ReportMapSeries();
+        }
 
         if (!noInterface) {
             // wrap up and close the thread

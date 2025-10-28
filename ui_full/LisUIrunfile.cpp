@@ -150,6 +150,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("End run report")==0)                 checkEndRunReport->setChecked(check);
         if (p1.compare("Include Satellite Image")==0)        checksatImage->setChecked(check);
         if (p1.compare("Output interval")==0)                printinterval->setValue(qMax(1,iii));
+        if (p1.compare("Output maps end")==0)                checkReportMapsEnd->setChecked(check);
         if (p1.compare("Erosion map units (0/1/2)")==0)
         {
             int units = p.toInt();
@@ -1224,6 +1225,7 @@ void lisemqt::updateModelData()
         // VJ 110209 canopy openess, factor Aston as user input
 
         if (p1.compare("Output interval")==0) namelist[j].value = printinterval->cleanText();
+        if (p1.compare("Output maps end")==0) namelist[j].value.setNum((int)checkReportMapsEnd->isChecked());
         //if (p1.compare("Regular runoff output")==0) namelist[j].value.setNum(1);
         if (p1.compare("User defined output")==0) namelist[j].value.setNum(0);
         //if (p1.compare("Output times")==0) namelist[j].value.setNum(0);

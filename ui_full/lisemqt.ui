@@ -2044,25 +2044,6 @@
            </item>
            <item row="4" column="0">
             <layout class="QGridLayout" name="gridLayout_33">
-             <item row="0" column="2">
-              <widget class="QSpinBox" name="printinterval">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="font">
-                <font>
-                 <pointsize>8</pointsize>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="minimum">
-                <number>1</number>
-               </property>
-              </widget>
-             </item>
              <item row="0" column="1">
               <widget class="QLabel" name="label_80">
                <property name="sizePolicy">
@@ -2100,11 +2081,11 @@
                 </font>
                </property>
                <property name="text">
-                <string>timesteps</string>
+                <string>timesteps, or </string>
                </property>
               </widget>
              </item>
-             <item row="0" column="4">
+             <item row="0" column="5">
               <spacer name="horizontalSpacer_2">
                <property name="orientation">
                 <enum>Qt::Orientation::Horizontal</enum>
@@ -2116,6 +2097,41 @@
                 </size>
                </property>
               </spacer>
+             </item>
+             <item row="0" column="2">
+              <widget class="QSpinBox" name="printinterval">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>8</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>999</number>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="4">
+              <widget class="QCheckBox" name="checkReportMapsEnd">
+               <property name="font">
+                <font>
+                 <pointsize>8</pointsize>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>report maps only at the end</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </item>

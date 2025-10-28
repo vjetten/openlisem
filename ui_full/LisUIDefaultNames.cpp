@@ -636,6 +636,8 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Output interval");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Output maps end");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("OutRunoff");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("OutWH");

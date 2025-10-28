@@ -225,9 +225,9 @@ void TWorld::ParseRunfileData(void)
 
         // output
         if (p1.compare("Output interval")==0)                   printinterval = iii;
+        if (p1.compare("Output maps end")==0)                   SwitchReportMapsEnd = iii;
         //if (p1.compare("Report point output separate")==0)      SwitchSeparateOutput = iii == 1;
         if (p1.compare("Report digits out")==0)                 ReportDigitsOut = iii;
-       //if (p1.compare("Report end run")==0)                    SwitchEndRun = iii == 1;
         if (p1.compare("Include Satellite Image")==0)           SwitchImage = iii == 1;
         if (p1.compare("Erosion map units (0/1/2)")==0)     ErosionUnits = iii;
         if (p1.compare("Report discharge units")==0)        QUnits = iii;
