@@ -196,7 +196,7 @@ void TWorld::InfilSwatre()
 
 
     // dump a map with h at every node
-    if(SwitchDumphead) {
+    if(SwitchDumphead && savemaptodisk) {
         for (int i = 0; i < SwatreSoilModel->pixel[0].profile->zone->nrNodes; i++) {
 
             QString dig = QString("%1").arg(i+1, 3, 10, QLatin1Char('0'));
