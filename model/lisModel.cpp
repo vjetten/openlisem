@@ -402,11 +402,16 @@ void TWorld::DoModel()
 
                     #pragma omp parallel for num_threads(userCores)
                     FOR_ROW_COL_MV_L {
-                        hSwatre->Drc =  qMin(0.0, SwatreSoilModel->pixel[i_].h[i]);
-                        thetaSwatre->Drc = FindValue(hSwatre->Drc, SwatreSoilModel->pixel[i_].profile->horizon[i], H_COL, THETA_COL);
+                        if (ProfileID->Drc <= 0 || fractionImperm->Drc > 0.999) {
+                            tma->Drc = 0;
+                            tmb->Drc = 0;
+                        } else {
+                            tma->Drc =  qMin(0.0, SwatreSoilModel->pixel[i_].h[i]);
+                            tmb->Drc = FindValue(tma->Drc, SwatreSoilModel->pixel[i_].profile->horizon[i], H_COL, THETA_COL);
+                        }
                     }}
-                    report(*hSwatre, hname);
-                    report(*thetaSwatre, tname);
+                    report(*tma, hname);
+                    report(*tmb, tname);
                 }
             }        }
 

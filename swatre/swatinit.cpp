@@ -117,7 +117,7 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
             inith->append(map);
         } else {
             cTMap* map = NewMap(HinitValue);
-            // silly and confusing to have a user defined value and a calibration on it
+            // confusing to have a user defined value and a calibration on it
             // #pragma omp parallel for num_threads(userCores)
             // FOR_ROW_COL_MV_L {
             //     map->Drc *= psiCalibration;
@@ -130,6 +130,7 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
         FOR_ROW_COL_MV_L {
             cTMap *map = inith->at(k);
             s->pixel[i_].h.append(map->Drc);
+           // s->pixel[i_].theta.append(0.5);
 
             // find depth of tilenode
             if (SwitchIncludeTile) {

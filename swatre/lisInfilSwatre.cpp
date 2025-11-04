@@ -175,6 +175,7 @@ void TWorld::InfilSwatre()
 
     }}
 
+//SwitchDumpSwatreKsat = false;
     if(SwitchDumpSwatreKsat) {
         SwitchDumpSwatreKsat = false;
         for (int i = 0; i < SwatreSoilModel->pixel[0].profile->zone->nrNodes; i++) {
@@ -185,9 +186,15 @@ void TWorld::InfilSwatre()
 
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                //qDebug() << r << c << i << SwatreSoilModel->pixel[i_].profile->horizon[i]->name;
-                tma->Drc = 10*86400/24.0*FindValue(0, SwatreSoilModel->pixel[i_].profile->horizon[i], H_COL, K_COL);
-                tmb->Drc = FindValue(0, SwatreSoilModel->pixel[i_].profile->horizon[i], H_COL, THETA_COL);
+                if (ProfileID->Drc <= 0 || fractionImperm->Drc > 0.999) {
+                    tma->Drc = 0;
+                    tmb->Drc = 0;
+                } else {
+
+                    //   qDebug() << r << c << i << SwatreSoilModel->pixel[i_].profile->horizon[i]->name;
+                    tma->Drc = 10*86400/24.0*FindValue(0, SwatreSoilModel->pixel[i_].profile->horizon[i], H_COL, K_COL);
+                    tmb->Drc = FindValue(0, SwatreSoilModel->pixel[i_].profile->horizon[i], H_COL, THETA_COL);
+                }
             }}
             report(*tma, ksname);
             report(*tmb, pname);
@@ -197,19 +204,30 @@ void TWorld::InfilSwatre()
 
     // dump a map with h at every node
     if(SwitchDumphead && savemaptodisk) {
-        for (int i = 0; i < SwatreSoilModel->pixel[0].profile->zone->nrNodes; i++) {
-
-            QString dig = QString("%1").arg(i+1, 3, 10, QLatin1Char('0'));
-            QString hname = QString("head0000.") + dig;
-            QString tname = QString("theta000.") + dig;
+        for (int j = 0; j < SwatreSoilModel->pixel[0].profile->zone->nrNodes; j++) {
+            //qDebug() << "write head" << SwatreSoilModel->pixel[0].profile->zone->nrNodes << j;
 
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                hSwatre->Drc =  qMin(0.0, SwatreSoilModel->pixel[i_].h[i]);
-                thetaSwatre->Drc = FindValue(hSwatre->Drc, SwatreSoilModel->pixel[i_].profile->horizon[i], H_COL, THETA_COL);
+                if (ProfileID->Drc <= 0 || fractionImperm->Drc > 0.999) {
+                    tma->Drc = 0;
+                    tmb->Drc = 0;
+                } else {
+                    PIXEL_INFO *pixel = &SwatreSoilModel->pixel[i_];
+                    const PROFILE *p = pixel->profile;
+                    // Q_ASSERT(p->horizon[j]);
+                    // Q_ASSERT(p->horizon[j]->lut);
+
+                    tma->Drc = qMin(0.0, pixel->h[j]);
+                    tmb->Drc = FindValue(tma->Drc, p->horizon[j], H_COL, THETA_COL);
+                }
             }}
-            report(*hSwatre, hname);
-            report(*thetaSwatre, tname);
+
+            QString dig = QString("%1").arg(j+1, 3, 10, QLatin1Char('0'));
+            QString hname = QString("head0000.") + dig;
+            QString tname = QString("theta000.") + dig;
+            report(*tma, hname);
+          //  report(*tmb, tname);
         }
     }
 }

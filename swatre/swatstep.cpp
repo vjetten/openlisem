@@ -473,6 +473,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
     //memcpy(pixel->h.data(), h, nN * sizeof(double));
     for (int j = 0; j < nN; j++) {
         pixel->h[j] = h[j];
+      //  pixel->theta[j] = theta[j];
     }
     // these variables can all be direcvtly saved to the maps, inflated pixel structure
     pixel->wh = WH*0.01; //convert cm to m
