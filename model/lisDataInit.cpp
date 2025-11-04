@@ -741,6 +741,13 @@ void TWorld::InitSoilInput(void)
             calcValue(*SoilDepth2, 1000, DIV);
             //calcValue(*SoilDepth2, SD2Calibration, MUL);
 
+            FOR_ROW_COL_MV_L {
+                if (SoilDepth2->Drc <= SoilDepth1->Drc) {
+                    ErrorString = "Soildepth2 is less or equal than soildepth 1. Soildepth2 must be the *total* depth of the soil (not the thickness), and always larger than soildepth1.";
+                    throw 2;
+                }
+            }}
+
             SoilDepth2init = NewMap(0);
             copy(*SoilDepth2init, *SoilDepth2);
 
@@ -848,8 +855,8 @@ void TWorld::InitSoilInput(void)
     if (InfilMethod == INFIL_SWATRE) {
 
         inith = new QVector<cTMap*>();
-        hSwatre = NewMap(0);
-        thetaSwatre = NewMap(0);
+      //  hSwatre = NewMap(0);
+      //  thetaSwatre = NewMap(0);
 
         // read all Swatre profile maps
         ProfileID = ReadMap(LDD,getvaluename("profmap"));
