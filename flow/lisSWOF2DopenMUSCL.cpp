@@ -498,15 +498,19 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             if (bc1) {
                 h_x1r = qMax(0.0, hx1r - qMax(0.0,  dz_x1 + fb_x1)); //rechts van c-1
                 h_xl  = qMax(0.0, hxl  - qMax(0.0, -dz_x1 + fb_x1)); //links van het midden
+                //fb1 is barrier height (m) between c and c-1 cell boundary
+                // if h_x1r or h_xl < z+barrier then make it zero, no pressure on that boundary
+                // dz_x1 = (Z - z_x1);
             } else {
-                h_x1r=ux1r=vx1r=0.0;
-                // FOR REFERNCE, ALL ATTEMPTS GIVE NAN,
-                // h_x1r=H;
-                // ux1r=U;
-                // vx1r=V;
-                // h_x1r=h_x1;
-                // ux1r=u_x1;
-                // vx1r=v_x1;
+                h_x1r = 0.0;
+            }
+            if (h_x1r == 0) {
+                ux1r = 0;
+                vx1r = 0;
+            }
+            if (h_xl == 0) {
+                uxl = 0;
+                vxl = 0;
             }
             hll_x1 = F_Riemann(h_x1r,ux1r,vx1r, h_xl,uxl,vxl); // c-1 (x1 right) and c (x1 left)
 
@@ -515,13 +519,15 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                 h_xr  = qMax(0.0, hxr  - qMax(0.0,  dz_x2 + fb_x2));
                 h_x2l = qMax(0.0, hx2l - qMax(0.0, -dz_x2 + fb_x2));
             } else {
-                h_x2l=ux2l=vx2l=0.0;
-                // h_x2l=H;
-                // ux2l=U;
-                // vx2l=V;
-                // h_x2l=h_x2;
-                // ux2l=u_x2;
-                // vx2l=v_x2;
+                h_x2l = 0.0;
+            }
+            if (h_xr == 0) {
+                vxr = 0;
+                uxr = 0;
+            }
+            if (h_x2l == 0) {
+                vx2l = 0;
+                ux2l = 0;
             }
             hll_x2 = F_Riemann(h_xr,uxr,vxr, h_x2l,ux2l,vx2l); // c and c+1
 
@@ -529,13 +535,15 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                 h_y1d = qMax(0.0, hy1d - qMax(0.0,  dz_y1 + fb_y1));
                 h_yu  = qMax(0.0, hyu  - qMax(0.0, -dz_y1 + fb_y1));
             } else {
-                h_y1d=vy1d=uy1d=0.0;
-                // h_y1d=H;
-                // uy1d=U;
-                // vy1d=V;
-                // h_y1d=h_y1;
-                // uy1d=u_y1;
-                // vy1d=v_y1;
+                h_y1d = 0.0;
+            }
+            if (h_yu == 0) {
+                uyu = 0;
+                vyu = 0;
+            }
+            if (h_y1d == 0) {
+                uy1d = 0;
+                vy1d = 0;
             }
             hll_y1 = F_Riemann(h_y1d,vy1d,uy1d, h_yu,vyu,uyu); // r-1 (y1 down) and r (y up)
             // v and u chnaged places for y comnpared to x ? why? is also in swof code
@@ -544,13 +552,15 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
                 h_yd  = qMax(0.0, hyd  - qMax(0.0,  dz_y2 + fb_y2));// lower side of upper cell
                 h_y2u = qMax(0.0, hy2u - qMax(0.0, -dz_y2 + fb_y2));// upper side of lower cell
             } else {
-                h_y2u=vy2u=uy2u=0.0;
-                // h_y2u=H;
-                // uy2u=U;
-                // vy2u=V;
-                // h_y2u=h_y2;
-                // uy2u=u_y2;
-                // vy2u=v_y2;
+                h_y2u = 0.0;
+            }
+            if (h_yd == 0) {
+                uyd = 0;
+                vyd = 0;
+            }
+            if (h_y2u == 0) {
+                uy2u = 0;
+                vy2u = 0;
             }
             hll_y2 = F_Riemann(h_yd,vyd,uyd, h_y2u,vy2u,uy2u); // r and r+1
 
@@ -560,6 +570,8 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             FloodDT->Drc = qMin(dtx, dty);
 
             // save the Riemann results in maps, needed for Saint-Venant
+            // noite hxl, hxr, hyl, hyr are all equal to H when not using MUSCL, else they have a value based on the minmod limiter
+            // so h_xl-hxl is the difference in height between the boundary of the cell and the mid of the cell
             gflowx->Drc = GRAV*0.5*( (h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr) + delzcx*(hxl+hxr) ); // delzcx = 0 if not muscl
             gflowy->Drc = GRAV*0.5*( (h_yu-hyu)*(h_yu+hyu) + (hyd-h_yd)*(hyd+h_yd) + delzcy*(hyu+hyd) );
             hllx12_0->Drc = hll_x1.v[0] - hll_x2.v[0];

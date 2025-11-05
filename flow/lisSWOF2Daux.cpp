@@ -464,7 +464,7 @@ vec4 TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
         f3 = 0.;
         cfl = 0.;
     }else{
-        cfl = qMax(fabs(u_L)+sqrt(GRAV*h_L),fabs(u_R)+sqrt(GRAV*h_R));
+        cfl = qMax(fabs(u_L)+sqrt(GRAV*h_L), fabs(u_R)+sqrt(GRAV*h_R));
         double q_R = u_R*h_R;
         double q_L = u_L*h_L;
         f1 = ((q_L+q_R) - cfl*(h_R-h_L))*0.5;
