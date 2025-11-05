@@ -157,9 +157,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
     double percolation = 0;
 
     double elapsedTime = 0;
-    double dt = _dt/5.0;//swatreDT;//
-
-
+    double dt = pixel->currDt;//swatreDT;//_dt/5.0;//swatreDT;//
 
     //  qDebug() << i_ << r << c << p->profileId;
 
@@ -450,6 +448,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
 
         // estimate new dt within lisemtimestep
         dt = NewTimeStep(dt, hPrev, h, nN, swatreDT, SwatrePrecision);
+        pixel->currDt = dt;
 
         if (elapsedTime+dt >= _dt - TIME_EPS)
             dt = _dt - elapsedTime;

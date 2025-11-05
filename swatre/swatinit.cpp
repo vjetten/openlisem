@@ -62,6 +62,8 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
         s->pixel[i_].wh = 0;
         s->pixel[i_].percolation = 0;
         s->pixel[i_].tilenode = -1;      // set tiledrain to 0, and tiledepth to -1 (above surface)
+        s->pixel[i_].currDt = swatreDT;
+
         // s->pixel[i_].corrKsOA = 1.0;
         // s->pixel[i_].corrKsOB = 0.0;
         // s->pixel[i_].corrKsDA = 1.0;

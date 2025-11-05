@@ -142,6 +142,7 @@ typedef struct PIXEL_INFO {
     double percolation;
     double tiledrain;   /** drainage into tiledrin system at a given depth */
     double thetaroot;
+    double currDt;
     // double corrKsOA;
     // double corrKsOB;
     // double corrKsDA;
