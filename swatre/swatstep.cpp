@@ -157,7 +157,10 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
     double percolation = 0;
 
     double elapsedTime = 0;
-    double dt = pixel->currDt;//swatreDT;//_dt/5.0;//swatreDT;//
+    double dt = pixel->currDt;//_dt/5.0;//
+  //  dt = swatreDT;//
+ //   dt = _dt/5.0;
+    int count = 0;
 
     //  qDebug() << i_ << r << c << p->profileId;
 
@@ -208,7 +211,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
     // get sinkterm S
 
     while (elapsedTime < _dt) {
-
+count++;
         bool isPonded, fltsat;    // flag if ponded or if profile fully saturated
         double qmax, qtop, qbot, ThetaSat;  // fluxes at top and bottom, max theta
         double qdrain; // tile drainage
@@ -448,7 +451,6 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
 
         // estimate new dt within lisemtimestep
         dt = NewTimeStep(dt, hPrev, h, nN, swatreDT, SwatrePrecision);
-        pixel->currDt = dt;
 
         if (elapsedTime+dt >= _dt - TIME_EPS)
             dt = _dt - elapsedTime;
@@ -456,6 +458,11 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
         elapsedTime += dt;
 
     } // elapsedTime < lisemTimeStep
+
+    pixel->currDt = qMin(qMax(dt, swatreDT),_dt/2);
+
+    if (i_ == 5000)
+        qDebug() << pixel->currDt << count;
 
     double sumth = 0;
     double n = 0;
