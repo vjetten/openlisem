@@ -221,23 +221,6 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
             // moisture content from H
         }
 
-        // per pixel correction of Ks and Pore for org mat and density
-        // near saturated so for h > -1 cm, and only for topsoil, assumed to be 30 cm
-        // if (SwitchOMCorrection) {
-        //     for (int j = 0; j < nN && p->zone->endComp[j] <= 30 && h[j] > -10; j++) {
-        //         k[j] = pixel->corrKsOA*k[j] + pixel->corrKsOB;
-        //         theta[j] = pixel->corrPOA*theta[j] + pixel->corrPOB;
-        //        // theta gives mass balance error because this decouples Theta from H?
-        //     }
-        // }
-
-        // if (SwitchDensCorrection) {
-        //     for (int j = 0; j < nN  && p->zone->endComp[j] <= 30 && h[j] > -10.0; j++) {
-        //         k[j] = pixel->corrKsDA*k[j] + pixel->corrKsDB;
-        //         theta[j] = pixel->corrPDA*theta[j] + pixel->corrPDB;
-        //     }
-        // }
-
         // do calibration after dens and OM calculations
         for (int j = 0; j < nN; j++) {
              k[j] *= p->KsatCal[j];

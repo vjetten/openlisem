@@ -527,10 +527,10 @@ void lisemqt::ParseInputData()
             if (p1.compare("Rainfall Directory")==0) {
                 QString hoi = findCommonRoot(p, orgMapsDir);
                 RainFileDir = findDir(p, false, false);
-                qDebug() << "raindir" << RainFileDir;
+              //  qDebug() << "raindir" << RainFileDir;
                 if (RainFileDir.isEmpty())
                     RainFileDir = CheckDir(p, false);
-                qDebug() << "raindir2" << RainFileDir;
+              //  qDebug() << "raindir2" << RainFileDir;
             }
             if (p1.compare("Rainfall file")==0) RainFileName = p;
         }

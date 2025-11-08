@@ -143,14 +143,6 @@ typedef struct PIXEL_INFO {
     double tiledrain;   /** drainage into tiledrin system at a given depth */
     double thetaroot;
     double currDt;
-    // double corrKsOA;
-    // double corrKsOB;
-    // double corrKsDA;
-    // double corrKsDB;
-    // double corrPOA;
-    // double corrPOB;
-    // double corrPDA;
-    // double corrPDB;
     int tilenode;    /** nearest node that has the tiledrain */
    // int dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
 } PIXEL_INFO;
