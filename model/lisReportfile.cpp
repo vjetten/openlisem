@@ -278,10 +278,13 @@ void TWorld::reportToUI(void)
         double p = op.OutletQpeak.at(j);
         double q = op.OutletQ.at(j)->last();  //at(op.OutletQ.at(j)->length()-1); // this point last in list
 
-        if(p < q)
-        {
+        if(p < q) {
             op.OutletQpeak.replace(j,q);
-            op.OutletQpeaktime.replace(j,time/60);
+            if (SwitchEventbased)
+                op.OutletQpeaktime.replace(j,time/60-op.BeginTime);
+            else
+                op.OutletQpeaktime.replace(j,time/60);
+           // qDebug() << time << op.BeginTime;
         }
     }
 }

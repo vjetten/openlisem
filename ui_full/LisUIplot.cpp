@@ -474,8 +474,10 @@ void lisemqt::showOutputData()
 
     // peak time
     label_QPfrac->setText(format.arg(QString::number((op.RainTotmm > 0 ? qMax(0.0,op.Qtotmm-op.BaseFlowTotmm)/op.RainTotmm*100 : 0),'f',dig)));
-    label_ppeaktime->setText(format.arg(QString::number(op.RainpeakTime,'f',2)));
-
+    if (checkEventBased->isChecked())
+        label_ppeaktime->setText(format.arg(QString::number(op.RainpeakTime-op.BeginTime,'f',2)));
+    else
+        label_ppeaktime->setText(format.arg(QString::number(op.RainpeakTime,'f',2)));
     // mass balance
     label_MB->setText(QString::number(op.MB,'e',dig));
     if (op.MB > 0)

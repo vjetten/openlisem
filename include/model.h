@@ -1169,6 +1169,7 @@ public:
     QString initheadName;
     void InitNewSoilProfile();
     double swatreDT;
+    double swatreMaxDT;
     bool initSwatreStructure;
     SOIL_MODEL *SwatreSoilModel;
     SOIL_MODEL *SwatreSoilModelCrust;

@@ -181,7 +181,7 @@ void TWorld::cell_FlowDetachment()
                 if (SwitchSnowmelt)
                     detachment = (1-Snowcover->Drc) * detachment;
 
-                detachment *= qMin(1.0, qMax(0.0, 1.0 - (RoadWidthHSDX->Drc/_dx)));
+                detachment *= qBound(0.0,1.0 - (RoadWidthHSDX->Drc/_dx),1.0);
                 // no flow detachment on hard surfaces, map is 0 is not selected
 
                 if (SwitchSedtrap && SedMaxVolume->Drc > 0)
@@ -294,7 +294,7 @@ void TWorld::cell_FlowDetachmentContinuous()
                 if (SwitchSnowmelt)
                     detachment = (1-Snowcover->Drc) * detachment;
 
-                detachment *= qMin(1.0, qMax(0.0, 1.0 - (RoadWidthHSDX->Drc/_dx)));
+                detachment *= qBound(0.0,1.0 - (RoadWidthHSDX->Drc/_dx),1.0);
                 // no flow detachment on hard surfaces, map is 0 is not selected
 
                 if (SwitchSedtrap && SedMaxVolume->Drc > 0)

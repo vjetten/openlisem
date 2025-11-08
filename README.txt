@@ -21,6 +21,7 @@ NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x
 - BUG-FIX: bug in culverts, maximum channel discharge was calculated in places where no ciulverts exist
 - BUG-FIX: when event based is not checked, time output on screen now adds a day so that the first timestep is 001:0000 and not 000:0000
 - BUG-FIX: evaporation in SWATRE did not work properly
+- BUG-FIX: Swatre internal time increase did not work as intended
 - Added: culvert type 5 is unconfined flow but underground, so no connection with surface water.
 - Added: option to write all maps only at the end of the run.
 - Added: SWATRE Ksat and porosity for layers is written at the start of the run

@@ -699,10 +699,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Use linked list");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Use Perimeter KW");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Use Channel Kinwave dt");
-    namelist[i].value = QString("60.0");
-    namelist[i++].name = QString("Channel KinWave dt");
+    // namelist[i].value = QString("0");
+    // namelist[i++].name = QString("Use Channel Kinwave dt");
+    // namelist[i].value = QString("60.0");
+    // namelist[i++].name = QString("Channel KinWave dt");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Use Channel Max V");
     namelist[i].value = QString("10.0");

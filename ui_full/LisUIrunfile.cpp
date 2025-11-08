@@ -387,8 +387,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Correct MB with WH")==0)                checkMB_WH->setChecked(check);
         if (p1.compare("Flood max iterations")==0)              E_FloodMaxIter->setValue(iii);
         if (p1.compare("Minimum WH and V flow")==0)             E_minWHVSWOF->setText(p);
-        if (p1.compare("Use Channel Kinwave dt")==0)            checkKinWaveChannel->setChecked(check);
-        if (p1.compare("Channel KinWave dt")==0)                E_ChannelKinWaveDt->setValue(valc);
+   //     if (p1.compare("Use Channel Kinwave dt")==0)            checkKinWaveChannel->setChecked(check);
+   //     if (p1.compare("Channel KinWave dt")==0)                E_ChannelKinWaveDt->setValue(valc);
         if (p1.compare("Use Channel Max V")==0)                 checkChanMaxVelocity->setChecked(check);
         if (p1.compare("Channel Max V")  ==0)                   E_chanMaxVelocity->setValue(valc);
         if (p1.compare("Channel 2D flow connect")==0)           checkChannel2DflowConnect->setChecked(check);
@@ -474,8 +474,8 @@ void lisemqt::ParseInputData()
     if (checkIncludeTiledrains->isChecked() || checkStormDrains->isChecked())
         tileanddrains = true;
 
-    doChannelBaseflow = (checkGWflow->isChecked() || checkStationaryBaseflow->isChecked()) && checkIncludeChannel->isChecked();
-
+    //doChannelBaseflow = (checkGWflow->isChecked() || checkStationaryBaseflow->isChecked()) && checkIncludeChannel->isChecked();
+    doChannelBaseflow = (checkGWflow->isChecked() || E_BaseflowMethod->currentIndex() > 1) && checkIncludeChannel->isChecked();
     E_SigmaDiffusion->setEnabled(checkDiffusion->isChecked());
 
     setFloodTab(true);  //TODO: check
@@ -1043,8 +1043,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Pit Value")==0)                      namelist[j].value = E_pitValue->text();
         if (p1.compare("Use linked list")==0)                namelist[j].value.setNum((int)checkLinkedList->isChecked());
         if (p1.compare("Use Perimeter KW")==0)               namelist[j].value.setNum((int)checkPerimeterKW->isChecked());
-        if (p1.compare("Use Channel Kinwave dt")==0)         namelist[j].value.setNum((int)checkKinWaveChannel->isChecked());
-        if (p1.compare("Channel KinWave dt")==0)             namelist[j].value = E_ChannelKinWaveDt->text();
+      //  if (p1.compare("Use Channel Kinwave dt")==0)         namelist[j].value.setNum((int)checkKinWaveChannel->isChecked());
+      //  if (p1.compare("Channel KinWave dt")==0)             namelist[j].value = E_ChannelKinWaveDt->text();
         if (p1.compare("Use Channel Max V")==0)              namelist[j].value.setNum((int)checkChanMaxVelocity->isChecked());
         if (p1.compare("Channel Max V")==0)                  namelist[j].value = E_chanMaxVelocity->text();
         if (p1.compare("Channel 2D flow connect")==0)        namelist[j].value.setNum((int)checkChannel2DflowConnect->isChecked());

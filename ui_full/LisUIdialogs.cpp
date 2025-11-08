@@ -584,16 +584,16 @@ void lisemqt::showTextfileOld(QString name)
 //        E_BeginTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
 // }
 //--------------------------------------------------------------------
-void lisemqt::on_checkStationaryBaseflow_toggled(bool checked)
-{
-    if (checked) checkChannelInfil->setChecked(false);
-   // doChannelBaseflow = checked;
-}
-//--------------------------------------------------------------------
-void lisemqt::on_checkChannelInfil_toggled(bool checked)
-{
-    if (checked) checkStationaryBaseflow->setChecked(false);
-}
+// void lisemqt::on_checkStationaryBaseflow_toggled(bool checked)
+// {
+//     if (checked) checkChannelInfil->setChecked(false);
+//    // doChannelBaseflow = checked;
+// }
+// //--------------------------------------------------------------------
+// void lisemqt::on_checkChannelInfil_toggled(bool checked)
+// {
+//     if (checked) checkStationaryBaseflow->setChecked(false);
+// }
 //--------------------------------------------------------------------
 void lisemqt::on_E_EfficiencyDETCH_currentIndexChanged(int index)
 {

@@ -529,9 +529,9 @@ private slots:
 
  //   void on_E_BeginTimeDay_returnPressed();
 
-    void on_checkStationaryBaseflow_toggled(bool checked);
+ //   void on_checkStationaryBaseflow_toggled(bool checked);
 
-    void on_checkChannelInfil_toggled(bool checked);
+//    void on_checkChannelInfil_toggled(bool checked);
 
     void on_E_EfficiencyDETCH_currentIndexChanged(int index);
 

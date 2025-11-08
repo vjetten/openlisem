@@ -110,6 +110,8 @@ void TWorld::InitParameters(void)
     HinitValue = getvaluedouble("Initial matrix potential");
     SoilWBdtfactor = 2;//getvaluedouble("SoilWB dt factor"); // not really used, only for soap but soap not working
     swatreDT = getvaluedouble("SWATRE internal minimum timestep");
+    swatreMaxDT = _dt/2.0; // bound the max dt in SWATRE
+    swatreDT = qMin(swatreDT,swatreMaxDT);
     TileEntrySuction = getvaluedouble("Tile entry suction");
     TileEntrySuction = qMax(-100.0,qMin(TileEntrySuction, 0.0));
     KavgType = getvalueint("Infil Kavg");

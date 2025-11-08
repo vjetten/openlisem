@@ -114,13 +114,9 @@ void TWorld::calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S)
 double TWorld::NewTimeStep(double prevDt,const double *hLast,const double *h,int nrNodes, double dtMin, double precParam)
 //double TWorld::NewTimeStep(double prevDt,QVector <double> hLast,QVector <double> h,int nrNodes, double dtMin, double precParam)//
 {
-   // double precParam = SwatrePrecision;
-    // note "5" is a precision factor determining next timestep, set to 5 in old lisem
-    // higher gives better results!
-   // precParam = 5;
     double dt = _dt;
     double accur1 = qMax(0.0, 0.3 - 0.02 * precParam);
-    double accur2 = 0.1*accur1;//0.03 - 0.002 * precParam; //SwatrePrecision;//
+    double accur2 = qMax(0.0, 0.03 - 0.002 * precParam);
 
     for(int i=0; i < nrNodes; i++) {
         double mdih = accur1 + accur2 * qMax(1.0, fabs(h[i]));
@@ -158,8 +154,6 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
 
     double elapsedTime = 0;
     double dt = pixel->currDt;//_dt/5.0;//
-//    dt = swatreDT;//
- //   dt = _dt/5.0;
     int count = 0;
 
     //  qDebug() << i_ << r << c << p->profileId;
@@ -461,10 +455,10 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
 
     } // elapsedTime < lisemTimeStep
 
-    pixel->currDt = qMin(qMax(dt, swatreDT),_dt/2);
+    pixel->currDt = qBound(swatreDT, dt, swatreMaxDT);
 
-    if (i_ == 5000)
-        qDebug() << pixel->currDt << count;
+    // if (i_ == 5000)
+    //     qDebug() << pixel->currDt << count;
 
     double sumth = 0;
     double n = 0;

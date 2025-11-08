@@ -354,7 +354,7 @@ void TWorld::ParseRunfileData(void)
 
         // advanced
         if (p1.compare("Advanced Options")==0)                  SwitchAdvancedOptions = iii == 1;
-        if (p1.compare("Use Channel Kinwave dt")==0)            SwitchChannelKinwaveDt = iii == 1;
+//        if (p1.compare("Use Channel Kinwave dt")==0)            SwitchChannelKinwaveDt = iii == 1;
         if (p1.compare("Use Channel Max GV")==0)                SwitchChannelMaxV = iii == 1;
         if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
         if (p1.compare("Erosion outside 2D loop")==0)           SwitchErosionOutsideLoop = iii == 1;
