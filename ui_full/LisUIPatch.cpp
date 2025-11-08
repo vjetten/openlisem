@@ -111,7 +111,7 @@ void lisemqt::downloadPatch(QString latestVersion)
 
                 QMessageBox::StandardButton installButton;
                 installButton = QMessageBox::question(nullptr, "Install new version",
-                                                      "The new version has been downloaded successfully in your Download folder. Do you want to close Lisem and install the new version?",
+                                                      "The new version has been downloaded successfully in your Download folder. Do you want to close Lisem and install the new version? (the old version will be uninstalled, your list of runfiles is preserved)",
                                                       QMessageBox::Yes | QMessageBox::No);
 
                 if (installButton == QMessageBox::Yes) {
@@ -164,11 +164,12 @@ bool lisemqt::isNewVersionAvailable(QString &GitHubVersion)
         revisionGIT = githubParts[sizeGIT-1];
     }
 
-    if (beta && !betaGIT)
-        return false;
+ //   if (beta && !betaGIT)
+ //       return false;
     // do not update a beta version, do nothing with revision numbers for now
 
     // case current 7.4.8 and online 7.4.9 or 7.4.9 and online 7.5
+    // use full numbvers, so 7.5.0 and not 7.5
     for (int i = 0; i < qMin(size, sizeGIT); ++i) {
         int currentPart = currentParts.at(i).toInt();
         int githubPart = githubParts.at(i).toInt();
@@ -177,7 +178,6 @@ bool lisemqt::isNewVersionAvailable(QString &GitHubVersion)
         else if (currentPart > githubPart)
             return false;
     }
-
     return size > sizeGIT;
 }
 //-------------------------------------------------------------------------------------
@@ -203,7 +203,7 @@ QString lisemqt::getLatestVersionFromGitHub()
         qDebug() << "Network error: " << reply->errorString();
     }
     reply->deleteLater();
-
+//qDebug() << "latest version git" << latestVersion;
     return latestVersion;
 }
 //-------------------------------------------------------------------------------------
