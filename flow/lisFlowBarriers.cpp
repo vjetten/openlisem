@@ -49,7 +49,10 @@ void TWorld::GetFlowBarrierData(QString name)
         throw 1;
     }
 
-    fff.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!fff.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        ErrorString = "Flow Barrier file cannot be opened: " + name;
+        throw 1;
+    }
 
     while (!fff.atEnd())
     {
@@ -277,7 +280,7 @@ void TWorld::InitFlowBarriers(void)
     FlowBarrierE = NewMap(0);
 
     if(SwitchFlowBarriers)
-    {   
+    {
         FlowBarrierNT = NewMap(-1);
         FlowBarrierWT = NewMap(-1);
         FlowBarrierST = NewMap(-1);

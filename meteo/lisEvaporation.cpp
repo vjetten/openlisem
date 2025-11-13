@@ -52,7 +52,11 @@ void TWorld::GetETStationData(QString name)
     nrETseries = 0;
 
     // read ET text file
-    fff.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!fff.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        ErrorString = "ET file cannot be opened: " + name;
+        throw 1;
+    }
+
     while (!fff.atEnd())
     {
         S = fff.readLine();

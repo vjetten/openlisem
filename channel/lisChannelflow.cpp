@@ -124,7 +124,7 @@ void TWorld::ChannelBaseflow(void)
         GroundwaterFlow();
         // move groundwater, GWout is the flow itself between cells
 
-        cTMap *pore = Thetaeff;
+        cTMap *pore = Poreeff;
         cTMap *ksat = Ksateff;
         cTMap *SD = SoilDepth1init;
         if (SwitchTwoLayer) {

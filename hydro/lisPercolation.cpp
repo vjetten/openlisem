@@ -34,12 +34,10 @@ functions: \n
 - void TWorld::cell_SlopeStability(int r, int c);
 - void TWorld::cell_Channelinfow1(int r, int c);
 - void TWorld::cell_Channelinfow2(int r, int c);
-- void TWorld::SoilWater(); NOT USED
  */
 
 #include "lisemqt.h"
 #include "model.h"
-
 
 
 // calc average soil moisture content for output to screen and folder
@@ -206,8 +204,8 @@ double TWorld::cell_PercolationMulti(int r, int c, double factor)
     double Percolation, dL, theta_E;
     double Lw_ = Lw->Drc;
     cTMap *SoilDepth = SoilDepth1;
-    cTMap *pore = Thetaeff;
-    cTMap *theta = ThetaI1;
+    cTMap *pore = Poreeff;
+    cTMap *theta = Thetaeff;
     cTMap *thetar = ThetaR1;
     cTMap *ksat = Ksateff;
     cTMap *lambda = lambda1;
@@ -272,6 +270,211 @@ double TWorld::cell_PercolationMulti(int r, int c, double factor)
     return(0);
 }
 //---------------------------------------------------------------------------
+void TWorld::cell_Redistribution1(int r, int c)
+{
+    double Lw_ = Lw->Drc;
+    double L_min = 0.05; // minimum L before percolation starts
+
+    if (SwitchImpermeable) {
+        if (Lw_ > SoilDepth1->Drc-0.001)
+            return;
+    }
+    if (Lw_ < L_min)
+        return;
+
+    double pore = Poreeff->Drc;
+    double thetar = ThetaR1->Drc;
+    double theta = Thetaeff->Drc;
+    double SoilDep1 = SoilDepth1->Drc;
+    double FC1 = ThetaFC1->Drc;
+
+    // percolation flux, avg Ksat and Kunsat below zone
+    double Percolation = Ksateff->Drc * pow((theta-thetar)/(pore-thetar), 3.0+2.0/lambda1->Drc); // m/timestep
+    Percolation = Aavg(Percolation, Ksateff->Drc);
+
+    // max flux that can move from the wetting front assuming the freed space goes to FC1
+    double moisture = (pore-FC1)*Lw_;
+    Percolation = qMin(Percolation, moisture);
+
+    // space in SD1 under Lw_
+    double store = (SoilDep1 - Lw_) * (pore-theta);
+    // not more than fits into SoilDep1-Lw
+    Percolation = qMin(store, Percolation);
+
+    //  now we have the correct Percolation, adjust theta and Lw_
+    Lw_ = qMax(0.0,moisture-Percolation)/(pore-thetar);
+    theta = theta + Percolation/(SoilDep1-Lw_);
+
+    Thetaeff->Drc = theta;
+    Lw->Drc = Lw_;
+
+}
+//---------------------------------------------------------------------------
+void TWorld::cell_Redistribution2(int r, int c)
+{
+   double Lw_ = Lw->Drc;
+
+   if (SwitchImpermeable) {
+        if (Lw_ > SoilDepth2->Drc-0.001)
+        return;
+        // soil is full, no redistribution
+   }
+
+   if (Ksateff->Drc == 0 || Poreeff->Drc == 0)
+       return;
+   // avoid a lot of misery under roads for instance!
+
+   double Percolation;
+   double pore = Poreeff->Drc;
+   double thetar = ThetaR1->Drc;
+   double theta = Thetaeff->Drc;
+   double SoilDep1 = SoilDepth1->Drc;
+   double FC1 = ThetaFC1->Drc;
+
+   double pore2 = ThetaS2->Drc;
+   double thetar2 = ThetaR2->Drc;
+   double theta2 = ThetaI2->Drc;
+   double SoilDep2 = SoilDepth2->Drc;
+   double FC2 = ThetaFC2->Drc;
+   double DL2 = SoilDep2-SoilDep1;
+
+   // if Lw still in layer 1
+   if (Lw_ <= SoilDep1) {
+       // [1] flow from the saturated zone into the unsat layer below. but only the remainder of layer 1
+
+       // percolation flux, avg Ksat and Kunsat below zone
+       double Percolation = Ksateff->Drc * pow((theta-thetar)/(pore-thetar), 3.0+2.0/lambda1->Drc); // m/timestep
+       Percolation = Aavg(Percolation, Ksateff->Drc);
+
+       // available sat moisture above Lw_
+       double dm = (pore-FC1)*Lw_;
+       // max that can move assuming the freed space goes to FC1
+       Percolation = qMin(dm, Percolation);
+       // space in SD1 under Lw_
+       double store = (SoilDep1 - Lw_) * (pore-theta);
+       // not more than fits into SoilDep1-Lw
+       Percolation = qMin(store, Percolation);
+
+       double moisture = Lw_ * (pore-thetar);
+       //Lw_ = qMax(0.0,moisture-Percolation)/(pore-thetar);
+       Lw_ = qMax(0.0,moisture-Percolation)/pore;
+       // new Lw_
+       theta = qMin(pore, theta + Percolation/(SoilDep1-Lw_));
+       // increase moisture under Lw
+
+       // [2] unsaturated flow between layer 1 and 2
+       if(theta > thetar) {
+           // if there is room in layer 2 and layer 1 is not too dry
+           // avg percolation flux between layers, theta1 decreases, theta2 increases
+           if (theta2 < pore2-0.001) {
+               double Perc1 = Ksateff->Drc * pow((theta-thetar)/(pore-thetar),   3.0+2.0/lambda1->Drc); // m/timestep
+               double Perc2 = Ksat2->Drc * pow((theta2-thetar2)/(pore2-thetar2), 3.0+2.0/lambda2->Drc); // m/timestep
+               Percolation = Aavg(Perc1, Perc2);
+
+               double m1 = (SoilDep1-Lw_)*(theta-thetar);  // max moist, if Lw_ = SoilDep1 than m1 = 0
+               Percolation = qMin(Percolation, m1);
+               double m2 = DL2*(pore2-theta2); // max fit
+               Percolation = qMin(Percolation, m2);
+               if (Percolation > 0) {
+                   theta = qMax(thetar, theta - Percolation/(SoilDep1-Lw_));
+                   theta2 = qMin(pore2, theta2 + Percolation/DL2);
+               }
+           } // else Percolation is simply 0 and no change
+       }
+   } else {  //Lw_ >= SoilDep1
+        // [3] flow from wetting zone into unsat below wetting zone in layer 2
+
+        double Ksat = Havg(Ksateff->Drc,Ksat2->Drc,SoilDep1,Lw_-SoilDep1);
+        // harmonic mean Ksat above Lw_
+        Percolation = Ksat2->Drc * pow((theta2-thetar2)/(pore2-thetar2), 3.0+2.0/lambda2->Drc); // m/timestep
+        //Percolation is K below Lw_
+        Percolation = Aavg(Ksat, Ksat2->Drc);
+
+        double dm1 = (pore - FC1)*SoilDep1;
+        double dm2 = (pore2 - FC2)*(Lw_-SoilDep1);
+        //max available moisture to move from wetting front in layer 1 and 2, assuming not more than porre - field cap
+        Percolation = qMin(Percolation, dm1+dm2);
+
+        double moist1 = SoilDep1 * (pore - thetar); // moisture above wettingfront in layer 1
+        double moist2 = (Lw_-SoilDep1) * (pore2 - thetar2); // moisture above wettingfront in layer 2
+        double moisture = moist1+moist2 - Percolation;
+        // new moisture total above wetting front, therefore saturated
+
+        if (moisture > moist1) { // Lw_ still in layer 2
+
+            Lw_ = SoilDep1 + (moisture-moist1)/pore2; // new Lw_
+
+            double moistbelow = (SoilDep2-Lw_)*theta2 + Percolation;
+            theta2 = qMax(thetar2, moistbelow/(SoilDep2-Lw_)); //new theta2
+            theta2 = qMin(theta2, pore2); //new theta2
+
+        } else {
+            // Lw_ moved back into layer 1
+            // a bit weird, the moiusture increased below the wetting front in layer 2,
+            // but the wetting front itself moved back into 1.
+            double moistbelow = (SoilDep2-Lw_)*theta2 + Percolation;
+            Lw_ = moisture/pore;
+
+            theta = FC1; // assumption, linked to dm1 above
+            theta2 = qMax(thetar2, moistbelow/SoilDep2); //new theta2
+            theta2 = qMin(theta2, pore2); //new theta2
+        }
+   }
+
+   Thetaeff->Drc = theta;
+   ThetaI2->Drc = theta2;
+   Lw->Drc = Lw_;
+}
+//---------------------------------------------------------------------------
+
+
+void TWorld::cell_SlopeStability(int r, int c)
+{
+
+   //    grad = slope(DEM)+0.005;
+   //    cosS = cos(atan(grad));
+   //    sinS = sin(atan(grad));
+
+   //    bulk_w = 9.8;
+   //    # bulk density water in kN/m3
+
+   //    Mu = GWDepth/1000;
+   //    # pore pressure in m
+   //    report D = soildepth/1000;
+   //    # soil depth in m
+   //    report S = (coh+(D*bulk - Mu*bulk_w)*(cosS**2)*TanPhi);
+   //    # shear strength
+   //    report T = D*bulk*sinS*cosS;
+
+
+   //    F = S/T;
+   //    #safety factor, strength/stress, F >=1 means stable
+   //    F = if(outcrop, 2, F);
+   //    # no instability on outcrops
+   //    report F = min(2,F);
+   //    #Safety Factor based on Coulomb, cut off at <= 2 for display
+   //    report FDays = FDays + if (F lt 1, 1, 0);
+   //    # cumulative days in year when unstable
+   //    report FdayTot = FDays;
+   //    # report the last timestep, cumulative unstable days
+
+   double F = 0;
+   if (CohesionSoil->Drc > 0) {
+        double cosGrad_ = cosGrad->Drc;
+        //  qDebug() << cosGrad_;
+        double soilbulk = SoilDepth2->Drc*BulkDensity->Drc;
+        double S = CohesionSoil->Drc + (soilbulk - GWWH->Drc * 1000.0)*(cosGrad_*cosGrad_)*AngleFriction->Drc; // shear strength kPa
+
+        double T = soilbulk *Grad->Drc*cosGrad_;// shear stress kPa
+        //  qDebug() << S << soilbulk << Grad->Drc << cosGrad_; //T;
+        F = Grad->Drc > 0.01 ? S/T : 0.0;
+   }
+
+   FSlope->Drc = F;
+
+}
+
+//---------------------------------------------------------------------------
 void TWorld::cell_Tiledrain1(int r, int c)
 {
     if (!SwitchIncludeTile)
@@ -280,7 +483,7 @@ void TWorld::cell_Tiledrain1(int r, int c)
         return;
 
     double Lw_ = Lw->Drc;
-    double pore = Thetaeff->Drc;
+    double pore = Poreeff->Drc;
     double thetar = ThetaR1->Drc;
     double theta = Thetaeff->Drc;
     double SoilDep1 = SoilDepth1->Drc;
@@ -305,50 +508,6 @@ void TWorld::cell_Tiledrain1(int r, int c)
         Lw->Drc = newLw_;
         TileWaterVolSoil->Drc = vol;
     }
-}
-//---------------------------------------------------------------------------
-void TWorld::cell_Redistribution1(int r, int c)
-{
-    double Lw_ = Lw->Drc;
-    double L_min = 0.05; // minimum L before percolation starts
-
-    if (SwitchImpermeable) {
-        if (Lw_ > SoilDepth1->Drc-0.001)
-            return;
-    }
-    if (Lw_ < L_min)
-        return;
-
-    double pore = Thetaeff->Drc;
-    double thetar = ThetaR1->Drc;
-    double theta = Thetaeff->Drc;
-    double SoilDep1 = SoilDepth1->Drc;
-    double FC1 = ThetaFC1->Drc;
-
-    // percolation flux, avg Ksat and Kunsat below zone
-    double Percolation = Ksateff->Drc * pow((theta-thetar)/(pore-thetar), 3.0+2.0/lambda1->Drc); // m/timestep
-    Percolation = Aavg(Percolation, Ksateff->Drc);
-
-    // available sat moisture above Lw_
-    double moisture = Lw_ * (pore-thetar);
-    Percolation = qMin(Percolation, moisture);
-
-    // max that can move assuming the freed space goes to FC1
-    double dm = (pore-FC1)*Lw_;
-    Percolation = qMin(Percolation, dm);
-
-    // space in SD1 under Lw_
-    double store = (SoilDep1 - Lw_) * (pore-theta);
-    // not more than fits into SoilDep1-Lw
-    Percolation = qMin(store, Percolation);
-
-    //  now we have the correct Percolation, adjust theta and Lw_
-    Lw_ = qMax(0.0,moisture-Percolation)/(pore-thetar);
-    theta = theta + Percolation/(SoilDep1-Lw_);
-
-    Thetaeff->Drc = theta;
-    Lw->Drc = Lw_;
-
 }
 //---------------------------------------------------------------------------
 void TWorld::cell_Tiledrain2(int r, int c)
@@ -412,167 +571,7 @@ void TWorld::cell_Tiledrain2(int r, int c)
         TileWaterVolSoil->Drc = vol;
     }
 }
-//---------------------------------------------------------------------------
-void TWorld::cell_Redistribution2(int r, int c)
-{
-   double Lw_ = Lw->Drc;
 
-   if (SwitchImpermeable) {
-        if (Lw_ > SoilDepth2->Drc-0.001)
-        return;
-        // soil is full, no redistribution
-   }
-
-   if (Ksateff->Drc == 0 || Poreeff->Drc == 0)
-       return;
-   // avoid a lot of misery under roads for instance!
-
-   double Percolation;
-   double pore = Poreeff->Drc;
-   double thetar = ThetaR1->Drc;
-   double theta = Thetaeff->Drc;
-   double SoilDep1 = SoilDepth1->Drc;
-   double FC1 = ThetaFC1->Drc;
-
-   double pore2 = ThetaS2->Drc;
-   double thetar2 = ThetaR2->Drc;
-   double theta2 = ThetaI2->Drc;
-   double SoilDep2 = SoilDepth2->Drc;
-   double FC2 = ThetaFC2->Drc;
-   double DL2 = SoilDep2-SoilDep1;
-
-   // if Lw still in layer 1
-   if (Lw_ < SoilDep1) {
-       // 1) unsaturated flow between layer 1 and 2, do this first
-       if(theta > thetar) {
-           // if there is room in layer 2 and layer 1 is not too dry
-           // avg percolation flux between layers, theta1 decreases, theta2 increases
-           if (theta2 < pore2-0.001) {
-               double Perc1 = Ksateff->Drc * pow((theta-thetar)/(pore-thetar),   3.0+2.0/lambda1->Drc); // m/timestep
-               double Perc2 = Ksat2->Drc * pow((theta2-thetar2)/(pore2-thetar2), 3.0+2.0/lambda2->Drc); // m/timestep
-               Percolation = Aavg(Perc1, Perc2);
-
-               double m1 = (SoilDep1-Lw_)*(theta-thetar);  // max moist, if Lw_ = SoilDep1 than m1 = 0
-               Percolation = qMin(Percolation, m1);
-               double m2 = DL2*(pore2-theta2); // max fit
-               Percolation = qMin(Percolation, m2);
-               if (Percolation > 0) {
-                   theta = qMax(thetar, theta - Percolation/(SoilDep1-Lw_));
-                   theta2 = qMin(pore2, theta2 + Percolation/DL2);
-               }
-           } // else Percolation is simply 0 and no change
-       }
-       // 2) flow from the saturated zone into the unsat layer below
-       // percolation flux, avg Ksat and Kunsat below zone
-       double Percolation = Ksateff->Drc * pow((theta-thetar)/(pore-thetar), 3.0+2.0/lambda1->Drc); // m/timestep
-       Percolation = Aavg(Percolation, Ksateff->Drc);
-
-       double moisture = Lw_ * (pore-thetar);
-       // available sat moisture above Lw_
-       double dm = (pore-FC1)*Lw_;
-       // max that can move assuming the freed space goes to FC1
-       Percolation = qMin(dm, Percolation);
-       // space in SD1 under Lw_
-       double store = (SoilDep1 - Lw_) * (pore-theta);
-       // not more than fits into SoilDep1-Lw
-       Percolation = qMin(store, Percolation);
-
-       Lw_ = qMax(0.0,moisture-Percolation)/(pore-thetar);
-       // new Lw_
-       theta = theta + Percolation/(SoilDep1-Lw_);
-       // increase moisture under Lw
-   } else {
-        //Lw_ >= SoilDep1
-        //flow from wetting zone into unsat below wetting zone in layer 2
-        double Ksat = Ksateff->Drc;
-        if (Lw_ > SoilDep1+0.01)
-            Ksat = Havg(Ksateff->Drc,Ksat2->Drc,SoilDep1,Lw_-SoilDep1);
-        // harmonic mean Ksat above Lw_
-        Percolation = Ksat2->Drc * pow((theta2-thetar2)/(pore2-thetar2), 3.0+2.0/lambda2->Drc); // m/timestep
-        Percolation = Aavg(Ksat, Ksat2->Drc);
-        double moist1 = SoilDep1 * (pore - thetar); // moisture above wettingfront in layer 1
-        double moist2 = (Lw_-SoilDep1) * (pore2 - thetar2); // moisture above wettingfront in layer 2
-
-        double dm1 = (pore - FC1)*SoilDep1;
-        double dm2 = (pore2 - FC2)*(Lw_-SoilDep1);
-        //max available moisture to move from wetting front in layer 1 and 2, assuming not more than porre - field cap
-        Percolation = qMin(Percolation, dm1+dm2);
-
-        double moisture = moist1+moist2 - Percolation;
-        // new moisture total above wetting front, saturated
-        if (moisture > moist1) {
-            // Lw_ still in layer 2
-            moisture -= moist1; // moisture in layer 2
-            //double moistbelow = (SoilDep2-Lw_)*(theta2-thetar2) + Percolation;
-            //Lw_ = SoilDep1 + moisture/(pore2-thetar2); // new Lw_
-            double moistbelow = (SoilDep2-Lw_)*theta2 + Percolation;
-            Lw_ = SoilDep1 + moisture/pore2; // new Lw_
-            theta2 = qMax(thetar2, moistbelow/(SoilDep2-Lw_)); //new theta2
-            theta2 = qMin(theta2, pore2); //new theta2
-        } else {
-            // Lw_ moved back into layer 1
-            //double moistbelow = (SoilDep2-Lw_)*(theta2-thetar2) + Percolation; // before percolation, old Lw_
-            double moistbelow = (SoilDep2-Lw_)*theta2 + Percolation;
-            //Lw_ = SoilDep1 + moisture/(pore-thetar);
-            Lw_ = SoilDep1 + moisture/pore;
-            theta = FC1; // assumption
-            theta2 = qMax(thetar2, moistbelow/(SoilDep2-Lw_)); //new theta2
-            theta2 = qMin(theta2, pore2); //new theta2
-        }
-   }
-
-   Thetaeff->Drc = theta;
-   ThetaI2->Drc = theta2;
-   Lw->Drc = Lw_;
-}
-//---------------------------------------------------------------------------
-
-
-void TWorld::cell_SlopeStability(int r, int c)
-{
-
-   //    grad = slope(DEM)+0.005;
-   //    cosS = cos(atan(grad));
-   //    sinS = sin(atan(grad));
-
-   //    bulk_w = 9.8;
-   //    # bulk density water in kN/m3
-
-   //    Mu = GWDepth/1000;
-   //    # pore pressure in m
-   //    report D = soildepth/1000;
-   //    # soil depth in m
-   //    report S = (coh+(D*bulk - Mu*bulk_w)*(cosS**2)*TanPhi);
-   //    # shear strength
-   //    report T = D*bulk*sinS*cosS;
-
-
-   //    F = S/T;
-   //    #safety factor, strength/stress, F >=1 means stable
-   //    F = if(outcrop, 2, F);
-   //    # no instability on outcrops
-   //    report F = min(2,F);
-   //    #Safety Factor based on Coulomb, cut off at <= 2 for display
-   //    report FDays = FDays + if (F lt 1, 1, 0);
-   //    # cumulative days in year when unstable
-   //    report FdayTot = FDays;
-   //    # report the last timestep, cumulative unstable days
-
-   double F = 0;
-   if (CohesionSoil->Drc > 0) {
-        double cosGrad_ = cosGrad->Drc;
-        //  qDebug() << cosGrad_;
-        double soilbulk = SoilDepth2->Drc*BulkDensity->Drc;
-        double S = CohesionSoil->Drc + (soilbulk - GWWH->Drc * 1000.0)*(cosGrad_*cosGrad_)*AngleFriction->Drc; // shear strength kPa
-
-        double T = soilbulk *Grad->Drc*cosGrad_;// shear stress kPa
-        //  qDebug() << S << soilbulk << Grad->Drc << cosGrad_; //T;
-        F = Grad->Drc > 0.01 ? S/T : 0.0;
-   }
-
-   FSlope->Drc = F;
-
-}
 
 //---------------------------------------------------------------------------
 
@@ -752,29 +751,3 @@ void TWorld::cell_Channelinfow2(int r, int c)
    // update channel side inflow, sometimes nan occurs  in lw
 */
 }
-
-/*!
- \brief Calculates changes in soilwater with percolation from the bottom of the profile.
-
-  Calculates changes in soilwater with percolation from the bottom of the profile, \n
-  resulting in the soil becoming dryer. Based on BrooksCorey type of percolation: \n
-*/
-// this function is not used!
-void TWorld::SoilWater()
-{
-   if (InfilMethod == INFIL_SWATRE || !SwitchInfiltration) //InfilMethod == INFIL_NONE)
-        return;
-   if (SwitchImpermeable)
-        return;
-
-#pragma omp parallel for num_threads(userCores)
-   FOR_ROW_COL_MV_L {
-        if (SwitchTwoLayer)
-            cell_Redistribution2(r, c);
-        else
-            cell_Redistribution1(r, c);
-
-        Perc->Drc = cell_Percolation(r, c, 1.0);
-   }}
-}
-

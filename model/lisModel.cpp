@@ -58,7 +58,8 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
     if (start) {
         //create error file
         QFile efout(resultDir+errorFileName);
-        efout.open(QIODevice::WriteOnly | QIODevice::Text);
+        if (!efout.open(QIODevice::WriteOnly | QIODevice::Text))
+            return;
         QTextStream eout(&efout);
         eout << "#mass balance error (%)\n";
 
@@ -69,7 +70,8 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
 
  //   if (doError) {
         QFile efout(resultDir+errorFileName);
-        efout.open(QIODevice::Append | QIODevice::Text);
+        if (!efout.open(QIODevice::Append | QIODevice::Text))
+            return;
         QTextStream eout(&efout);
         eout << " " << runstep << "," << MB << "," << (SwitchErosion ? MBs : 0.0) << "\n";
         efout.flush();

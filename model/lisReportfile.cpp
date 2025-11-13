@@ -302,7 +302,10 @@ void TWorld::ReportTotalSeries(void)
     {
         SwitchWriteHeaders = false;
         QFile fout(newname1);
-        fout.open(QIODevice::WriteOnly | QIODevice::Text);
+        if (!fout.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            ErrorString = "Cannot open the result file: "+totalSeriesFileName;
+            throw 1;
+        }
         QTextStream out(&fout);
 
         out << "LISEM run - " << op.runfilename << "\n";
@@ -351,7 +354,11 @@ void TWorld::ReportTotalSeries(void)
 
 
     QFile fout(newname1);
-    fout.open(QIODevice::Append | QIODevice::Text);
+    if (!fout.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        ErrorString = "Cannot open the result file: "+totalSeriesFileName;
+        throw 1;
+    }
+
     QTextStream out(&fout);
     out.setRealNumberPrecision(DIG);
     out.setFieldWidth(width);
@@ -526,7 +533,10 @@ void TWorld::ReportTimeseriesPCR(void)
             // make filename using point number
 
             QFile fout(newname1);
-            fout.open(QIODevice::WriteOnly | QIODevice::Text);
+            if (!fout.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                ErrorString = "Cannot open the result file: "+newname1;
+                throw 1;
+            }
             QTextStream out(&fout);
             out.setRealNumberPrecision(DIG);
             out.setFieldWidth(width);
@@ -584,7 +594,10 @@ void TWorld::ReportTimeseriesPCR(void)
         newname1 = fi.path() + "/" + fi.baseName() + "_" + crout_[i_].code + "." +  fi.suffix();
 
         QFile fout(newname1);
-        fout.open(QIODevice::Append | QIODevice::Text);
+        if (!fout.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            ErrorString = "Cannot open the result file: "+newname1;
+            throw 1;
+        }
 
         QTextStream out(&fout);
         out.setFieldWidth(width);
@@ -656,7 +669,10 @@ void TWorld::ReportTimeseriesCSV(void)
             // make filename using point number
 
             QFile fout(newname1);
-            fout.open(QIODevice::WriteOnly | QIODevice::Text);
+            if (!fout.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                ErrorString = "Cannot open the result file: "+newname1;
+                throw 1;
+            }
             QTextStream out(&fout);
             out.setRealNumberPrecision(DIG);
             out.setFieldWidth(width);
@@ -720,8 +736,10 @@ void TWorld::ReportTimeseriesCSV(void)
     FOR_ROW_COL_MV_OUTL {
         newname1 = fi.path() + "/" + fi.baseName() + "_" + crout_[i_].code + "." +  fi.suffix();
         QFile fout(newname1);
-        fout.open(QIODevice::Append | QIODevice::Text);
-
+        if (!fout.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            ErrorString = "Cannot open the result file: "+newname1;
+            throw 1;
+        }
         QTextStream out(&fout);
         out.setFieldWidth(width);
         out.setRealNumberNotation(QTextStream::FixedNotation);
@@ -834,7 +852,10 @@ void TWorld::ReportErosionLandunits(void)
     QString name;
     name = resultDir + totalLandunitFileName;//QFileInfo(totalLandunitFileName).baseName()+"-"+op.timeStartRun+".csv";
     QFile fout(name);
-    fout.open(QIODevice::WriteOnly | QIODevice::Text);
+    if (!fout.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        ErrorString = "Cannot open the result file: "+name;
+        throw 1;
+    }
     QTextStream out(&fout);
     out.setRealNumberPrecision(3);
     out.setRealNumberNotation(QTextStream::FixedNotation);

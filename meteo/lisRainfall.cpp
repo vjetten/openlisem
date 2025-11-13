@@ -48,9 +48,16 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
         throw 1;
     }
 
-
     // read all lines in the text file
-    fff.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!fff.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        if (type == 0)
+            ErrorString = "Rainfall file cannot be opened: " + name;
+        if (type == 1)
+            ErrorString = "ET file cannot be opened: " + name;
+        if (type == 2)
+            ErrorString = "Snowmelt file cannot be opened: " + name;
+        throw 1;
+    };
     while (!fff.atEnd())
     {
         S = fff.readLine();
@@ -204,7 +211,10 @@ void TWorld::GetRainfallStationData(QString name)
     currentRainfallrow = 0;
 
     // read rainfall text file
-    fff.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!fff.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        ErrorString = "Rainfall file cannot be opened: " + name;
+        throw 1;
+    }
     while (!fff.atEnd())
     {
         S = fff.readLine();

@@ -212,7 +212,10 @@ void lisemqt::on_toolButton_help(int page)
     if (page == HELPADVANCED    ) filename = ":/help8.html";
 
     QFile file(filename);
-    file.open(QFile::ReadOnly | QFile::Text);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        ErrorString = "Cannot open the file: "+filename;
+        throw 1;
+    }
     QTextStream stream(&file);
     helptxt->setHtml(stream.readAll());
   //  helpbox->show();
@@ -446,7 +449,10 @@ void lisemqt::showTextfile(QString name)
     }
 
     QFile file(name);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        ErrorString = "Cannot open the file: "+name;
+        throw 1;
+    }
     QTextStream in(&file);
     QString initialText = in.readAll();
     file.close();
