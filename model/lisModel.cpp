@@ -562,7 +562,7 @@ void TWorld::HydrologyProcesses()
                     //cell_Channelinfow2(r, c);
                 } else {
                     cell_Tiledrain1(r,c);
-                   // cell_Redistribution1(r, c);
+                    cell_Redistribution1(r, c);
                     //cell_Channelinfow1(r, c);
                 }
 
