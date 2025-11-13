@@ -238,7 +238,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use Rainfall maps")==0)        SwitchRainfallSatellite = iii == 1;
         if (p1.compare("Daily ET")==0)                 SwitchDailyET = iii == 1;
         if (p1.compare("ET latitude")==0)              ETlatitude = p.toDouble();
-        if (p1.compare("ET start day")==0)             ETstartday = p.toDouble();
+       // if (p1.compare("ET start day")==0)             ETstartday = p.toDouble();
         if (p1.compare("long timestep")==0)            longdt = p.toDouble();
         if (p1.compare("Rainfall ID interpolation")==0)SwitchIDinterpolation = iii == 1;
         if (p1.compare("Include ET")==0)               SwitchIncludeET = iii == 1;

@@ -306,6 +306,23 @@ void TWorld::DoModel()
         // ---- THE TIME LOOP ----
         for (time = BeginTime; time < EndTime; time += _dt)
         {
+            if (SwitchIncludeET && SwitchDailyET) {
+                // increase timestep between rainfall
+                if (longdt > _dt) {
+                    bool do_longdt = true;
+                    FOR_ROW_COL_MV_L {
+                        if (/*WH->Drc > 1e-3 &&*/ V->Drc > 5e-5 ) {
+                            do_longdt = false;
+                            break;
+                        }
+                    }}
+                    if (do_longdt)
+                        _dt = longdt;
+                    else
+                        _dt =_dt_user;
+                }
+            qDebug() << _dt;
+            }
             savemaptodisk = false;
             // printstep determines report frequency in #define report(...)
             if (runstep > 0 && runstep % printinterval == 0) {
@@ -545,7 +562,7 @@ void TWorld::HydrologyProcesses()
                     //cell_Channelinfow2(r, c);
                 } else {
                     cell_Tiledrain1(r,c);
-                    cell_Redistribution1(r, c);
+                   // cell_Redistribution1(r, c);
                     //cell_Channelinfow1(r, c);
                 }
 

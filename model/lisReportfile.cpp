@@ -164,7 +164,7 @@ void TWorld::reportToUI(void)
     op._nrCols = _nrCols;
     op._nrRows = _nrRows;
     op.runstep = runstep;
-    op.maxstep = (int) ((EndTime-BeginTime)/_dt);
+    op.maxstep = (int) ((EndTime-BeginTime)/_dt_user);
     //op.EndTime = EndTime/60.0;
     op.CatchmentArea = CatchmentArea;
 

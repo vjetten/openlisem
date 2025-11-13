@@ -674,6 +674,8 @@ void lisemqt::on_checkET_toggled(bool checked)
 {
     groupET->setEnabled(checked);
     checkDailyET->setEnabled(checked);
+    E_longtimestep->setVisible(checked);
+    E_longtimestep->setEnabled(checked);
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_checkInterception_toggled(bool checked)

@@ -238,7 +238,7 @@ double TWorld::getDayLength(double time)
 {
     const double degreesToRadians = M_PI / 180.0;
 
-    int dayNumber = floor(time)/86400.0 + ETstartday;
+    int dayNumber = floor(time)/86400.0;// + ETstartday;
 
     // Convert latitude from degrees to radians
     double latitude = ETlatitude * degreesToRadians;
@@ -276,32 +276,11 @@ void TWorld::GetETparameters()
 {
     if (!SwitchIncludeET)
         return;
-\
-
     ETafactor = 1.0;   // if not ETfactor can be 1,.0 because ET is already in mm/timestep
 
     if (SwitchDailyET) {
-
-        // increase timestep between rainfall
-        if (longdt > _dt) {
-            bool do_longdt = true;
-            FOR_ROW_COL_MV_L {
-                if (/*WH->Drc > 1e-3 &&*/ V->Drc > 5e-5 ) {
-                    do_longdt = false;
-                    break;
-                }
-            }}
-            if (do_longdt) {
-                if (_dt == _dt_user)
-                    _dt = longdt;
-                else
-                    _dt =_dt_user;
-            }
-        }
-
         ETdaylength = getDayLength(time);
         ETafactor = getETaFactor(); // based on daylength if daily values, converts from m/day to m/timestep directly
-
     }
 }
 //---------------------------------------------------------------------------
