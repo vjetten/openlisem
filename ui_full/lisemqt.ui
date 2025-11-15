@@ -348,7 +348,7 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>-211</y>
+                <y>0</y>
                 <width>1013</width>
                 <height>819</height>
                </rect>
@@ -386,7 +386,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>9</number>
+                  <number>1</number>
                  </property>
                  <property name="iconSize">
                   <size>

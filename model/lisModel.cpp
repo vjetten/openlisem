@@ -558,14 +558,20 @@ void TWorld::HydrologyProcesses()
             FOR_ROW_COL_MV_L {
                 cell_InfilMethods(r, c);
 
-                if (SwitchTwoLayer) {
-                    cell_Tiledrain2(r,c);
-                    cell_Redistribution2(r, c);
-                    //cell_Channelinfow2(r, c);
+                if (SwitchThreeLayer) {
+                    cell_RedistributionUnsat(r, c);
+                    cell_Redistribution3(r, c);
                 } else {
-                    cell_Tiledrain1(r,c);
-                    cell_Redistribution1(r, c);
-                    //cell_Channelinfow1(r, c);
+                    if (SwitchTwoLayer) {
+                        cell_RedistributionUnsat(r, c);
+                        cell_Redistribution2(r, c);
+                        cell_Tiledrain2(r,c);
+                        //cell_Channelinfow2(r, c);
+                    } else {
+                        cell_Redistribution1(r, c);
+                        cell_Tiledrain1(r,c);
+                        //cell_Channelinfow1(r, c);
+                    }
                 }
 
                 if (!SwitchImpermeable)

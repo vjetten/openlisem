@@ -2,8 +2,10 @@ Latest fixes and changes:
 =========================
 
 see Readme.txt for a complete list
-251113 - v7.4.8.beta.R1
-- BUG FIX: redistribution water after Green and Ampt
+251114 - v7.4.8.beta.R1
+- BUG FIX: redistribution infiltrated water with  Green and Ampt, and is only active after infiltration stops
+- BUG FIX: restored depth wetting front map in interface display
+- Added: 3-layer Green nand Ampt infiltration and redistribution: EXPERIMENTAL
 
 251108 - v7.4.8
 - Changed: channel flow is shown in total discharge on screen and output map (was: only overland flow).

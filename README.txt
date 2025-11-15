@@ -4,7 +4,7 @@ The model can be downloaded from:
 https://github.com/vjetten/openlisem/releases/tag/lisem_bin
 
 ============
-Date: 251104
+Date: 251114
 ============
 
 This software is under the copyright model GPLv3 (distributed with the model) and subject to additional disclaimers.
@@ -15,6 +15,11 @@ NOTE: since version 7.4.7.R7 a 4Byte floating point version is maintained that t
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
+
+251114 - v7.4.8.beta.R1
+- BUG FIX: redistribution infiltrated water with  Green and Ampt, and is only active after infiltration stops
+- BUG FIX: restored depth wetting front map in interface display
+- Added: 3-layer Green nand Ampt infiltration and redistribution: EXPERIMENTAL
 
 251104 - v7.4.7.beta.R9
 - BUG-FIX: skipping steps for writing maps did not work properly.

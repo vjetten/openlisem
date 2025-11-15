@@ -208,9 +208,9 @@ void TWorld::cell_InfilMethods(int r, int c)
         // actual infil in m, cannot have more infil than water on the surface, includes rainfall
 
         if (fact_ > 0) {
-//            if (SwitchThreeLayer)
-//                fact_ = IncreaseInfiltrationDepthNew3(fact_, r, c);
-//            else
+            if (SwitchThreeLayer)
+                fact_ = IncreaseInfiltrationDepthNew3(fact_, r, c);
+            else
                 if (SwitchTwoLayer)
                     fact_ = IncreaseInfiltrationDepthNew2(fact_, r, c);
                 else

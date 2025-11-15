@@ -447,16 +447,16 @@ void lisemqt::showTextfile(QString name)
         QMessageBox::warning(this,"openLISEM",QString("Cannot find file!"));
         return;
     }
-
+qDebug() << name;
     QFile file(name);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         ErrorString = "Cannot open the file: "+name;
         throw 1;
     }
     QTextStream in(&file);
     QString initialText = in.readAll();
     file.close();
-
+qDebug() << initialText;
     // Find the longest line in the text
     QStringList lines = initialText.split("\n");
     int maxWidth = 0;

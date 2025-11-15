@@ -82,7 +82,11 @@ set_property(DIRECTORY PROPERTY CMAKE_CONFIGURE_DEPENDS "")
 
 # Compiler flags
 IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -std=c++11 -fpermissive ${OpenMP_CXX_FLAGS}")
+    if(COMPILE_AS_4BYTE)
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -DUSE_FLOAT -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -std=c++11 -fpermissive ${OpenMP_CXX_FLAGS}")
+    elseif()
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -std=c++11 -fpermissive ${OpenMP_CXX_FLAGS}")
+    endif(COMPILE_AS_4BYTE)
     IF(UNIX)
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wl,-rpath=${ORIGIN}./lib")
     ENDIF()
@@ -211,7 +215,7 @@ qt_wrap_ui(UI_SOURCES ui_full/lisemqt.ui ui_full/lismpeg.ui)
 qt_add_resources(RCC_SOURCES resources/openlisem.qrc)
 
 # Add executable target
-add_executable(Lisem WIN32
+add_executable(${TGT} WIN32
     ${UI_SOURCES}
     ${RCC_SOURCES}
     ${APP_SOURCES}
@@ -219,7 +223,7 @@ add_executable(Lisem WIN32
 )
 
 # Link the necessary libraries
-target_link_libraries(Lisem
+target_link_libraries(${TGT}
     Qt6::Widgets Qt6::Gui Qt6::Core Qt6::Network
     ${GDAL_LIBRARIES} ${QWT_LIBRARIES} ${OSSL_LIBRARIES}
     OpenMP::OpenMP_CXX

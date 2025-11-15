@@ -45,6 +45,7 @@ void TWorld::ReportMaps(void)
         VH->Drc = COMBO_V->Drc * hmxWH->Drc;
         Lwmm->Drc = Lw->Drc *1000;
     }}
+report(*Lwmm,"LW");
 
     if(SwitchErosion)
     {

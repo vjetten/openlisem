@@ -959,6 +959,8 @@ public:
     void cell_Redistribution0(int r, int c);
     void cell_Redistribution1(int r, int c);
     void cell_Redistribution2(int r, int c);
+    void cell_Redistribution3(int r, int c);
+    void cell_RedistributionUnsat(int r, int c);
     void cell_Tiledrain1(int r, int c);
     void cell_Tiledrain2(int r, int c);
     void cell_Channelinfow1(int r, int c);
