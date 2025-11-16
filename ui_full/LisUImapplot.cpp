@@ -68,14 +68,14 @@ void lisemqt::ssetAlphaMap(int v)
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaChannelOutlet(int v)
 {
-   // showChannelVector(false);
     showChannelVector(true);
+    showOutpointsVector(true);
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaChannel(int v)
 {
-   // showChannelVector(false);
     showChannelVector(true);
+    showOutpointsVector(true);
 }
 //---------------------------------------------------------------------------
 void lisemqt::ssetAlphaRoad(int v)
@@ -135,6 +135,7 @@ void lisemqt::initMapPlot()
     // maps structures do not have to be deleted. every run has the same maps, and the content is filled ynamically
     // the rivers and culverts etc are really recreated and need to be deleted
     showChannelVector(false);
+    showOutpointsVector(false);
 
     rivers.clear();
     culverts.clear();
@@ -645,6 +646,30 @@ void lisemqt::showBaseMap()
 
 }
 //---------------------------------------------------------------------------
+void lisemqt::showOutpointsVector(bool yes)
+{
+
+    if (yes) {
+        // attach everything and use new pensizes
+
+        int dxi = spinCulvertSize->value();
+        outlets.setSymbol(new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi )));
+        outlets.attach( MPlot );
+
+        obspoints.setSymbol(new QwtSymbol( QwtSymbol::Ellipse, Qt::cyan, QPen( Qt::black ), QSize( dxi,dxi )));
+        obspoints.attach( MPlot );
+
+    } else {
+        // detach everything
+
+        obspoints.detach();
+
+        outlets.detach();
+    }
+
+    MPlot->replot();
+}
+//---------------------------------------------------------------------------
 void lisemqt::showChannelVector(bool yes)
 {
     if (!checkIncludeChannel->isChecked())
@@ -679,19 +704,19 @@ void lisemqt::showChannelVector(bool yes)
             culverts[i]->setAxes(QwtAxis::XBottom, QwtAxis::YLeft);
         }
 
-        int dxi = spinCulvertSize->value();
-        outlets.setSymbol(new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi )));
-        outlets.attach( MPlot );
+        // int dxi = spinCulvertSize->value();
+        // outlets.setSymbol(new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi )));
+        // outlets.attach( MPlot );
 
-        obspoints.setSymbol(new QwtSymbol( QwtSymbol::Ellipse, Qt::cyan, QPen( Qt::black ), QSize( dxi,dxi )));
-        obspoints.attach( MPlot );
+        // obspoints.setSymbol(new QwtSymbol( QwtSymbol::Ellipse, Qt::cyan, QPen( Qt::black ), QSize( dxi,dxi )));
+        // obspoints.attach( MPlot );
 
     } else {
         // detach everything
 
-        obspoints.detach();
+     //   obspoints.detach();
 
-        outlets.detach();
+     //   outlets.detach();
 
         if (culverts.length() > 0 && !culverts.isEmpty()) {
             for (int i = 0; i < culverts.length(); i++)
@@ -708,19 +733,20 @@ void lisemqt::showChannelVector(bool yes)
     MPlot->replot();
 }
 //---------------------------------------------------------------------------
-void lisemqt::showChannelVectorNew()
+void lisemqt::initChannelVectorandOutlet()
 {
-    if (!checkIncludeChannel->isChecked())
+    if (!startplot)
         return;
-
-    // fill the line and dot structures once at startplot
-    // draw once with showChannelVector(true);
-    if (startplot) {
+    spinChannelSize->setEnabled(checkIncludeChannel->isChecked());
+    label_137->setEnabled(checkIncludeChannel->isChecked());
+    if (checkIncludeChannel->isChecked()) {
+        // fill the line and dot structures once at startplot
+        // draw once with showChannelVector(true);
 
         // Channel network
         QVector <double> X;
         QVector <double> Y;
-        checkMapChannels->setChecked(true);
+
         int _dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
         int _dy[10] = {0, -1,-1,-1,  0, 0, 0,  1, 1, 1};
 
@@ -816,50 +842,49 @@ void lisemqt::showChannelVectorNew()
                 culverts << culvert;
             }
         }
-
-        // dot size
-        int dxi = 6;//MPlot->invTransform(QwtAxis::XBottom,dx*1.2);
-        // dxi = dxi - MPlot->invTransform(QwtAxis::XBottom,dx);
-        // dxi = qMin(9,dxi);
-        spinCulvertSize->setValue(dxi);
-
-        // points in outlet.map
-        outlets.setSymbol(new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi )));
-        outlets.setPen( Qt::black );
-        outlets.setStyle( QwtPlotCurve::NoCurve );
-        outlets.setAxes(QwtAxis::XBottom, QwtAxis::YLeft);
-        outlets.setSamples(op.EndPointX,op.EndPointY);
-
-        // points in outpoint.map
-        obspoints.setSymbol(new QwtSymbol( QwtSymbol::Ellipse, Qt::cyan, QPen( Qt::black ), QSize( dxi,dxi )));
-        obspoints.setPen( Qt::black );
-        obspoints.setStyle( QwtPlotCurve::NoCurve );
-        obspoints.setAxes(QwtAxis::XBottom, QwtAxis::YLeft);
-        obspoints.setSamples(op.ObsPointX,op.ObsPointY);
-
         // clear all structures here for the next run of a different area
         Xa.clear();
         Ya.clear();
         Xc.clear();
         Yc.clear();
-        op.ObsPointX.clear();
-        op.ObsPointY.clear();
-        op.EndPointX.clear();
-        op.EndPointY.clear();
+
+        showChannelVector(true);
+    }
+
+    // dot size
+    int dxi = 6;
+    spinCulvertSize->setValue(dxi);
+
+    // points in outlet.map
+    outlets.setSymbol(new QwtSymbol( QwtSymbol::Ellipse, Qt::white, QPen( Qt::black ), QSize( dxi,dxi )));
+    outlets.setPen( Qt::black );
+    outlets.setStyle( QwtPlotCurve::NoCurve );
+    outlets.setAxes(QwtAxis::XBottom, QwtAxis::YLeft);
+    outlets.setSamples(op.EndPointX,op.EndPointY);
+
+    // points in outpoint.map
+    obspoints.setSymbol(new QwtSymbol( QwtSymbol::Ellipse, Qt::cyan, QPen( Qt::black ), QSize( dxi,dxi )));
+    obspoints.setPen( Qt::black );
+    obspoints.setStyle( QwtPlotCurve::NoCurve );
+    obspoints.setAxes(QwtAxis::XBottom, QwtAxis::YLeft);
+    obspoints.setSamples(op.ObsPointX,op.ObsPointY);
+
+    // clear all structures here for the next run of a different area
+    op.ObsPointX.clear();
+    op.ObsPointY.clear();
+    op.EndPointX.clear();
+    op.EndPointY.clear();
 
         // attach everything to MPlot and draw
-        showChannelVector(true);
-
-    } // startplot
+    showOutpointsVector(true);
 }
-
+//---------------------------------------------------------------------------
 void lisemqt::getOutletMap()
 {
-    if (!checkIncludeChannel->isChecked())
-        return;
-
-    if (startplot)
-    {
+//    if (!checkIncludeChannel->isChecked())
+//        return;
+// there are also outpoint without channel
+    if (startplot) {
         double m1, m2;
         double res = fillDrawMapData(op.outletMap, 1.0, RDc, &m1, &m2);
         if (res ==-1e20)
@@ -868,7 +893,6 @@ void lisemqt::getOutletMap()
         outletMap->setData(RDc);
         outletMap->setAlpha(0);
     }
-
 }
 //---------------------------------------------------------------------------
 void lisemqt::showRoadMap()

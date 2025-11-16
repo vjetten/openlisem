@@ -2,6 +2,10 @@ Latest fixes and changes:
 =========================
 
 see Readme.txt for a complete list
+251116 - v7.4.8.beta.R2
+- Changed: outpoints and outlets arre always visible in map display, also without channel
+- BUG FIX: hydrographs and totals were not apended in the csv files
+
 251114 - v7.4.8.beta.R1
 - BUG FIX: redistribution infiltrated water with  Green and Ampt, and is only active after infiltration stops
 - BUG FIX: restored depth wetting front map in interface display

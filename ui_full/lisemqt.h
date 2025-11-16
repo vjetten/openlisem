@@ -185,7 +185,7 @@ public:
 
     void showBaseMap();
     void getOutletMap();
-    void showChannelVectorNew();
+    void initChannelVectorandOutlet();
     void showRoadMap();
     void showHouseMap();
     void showHardSurfaceMap();
@@ -217,11 +217,6 @@ public:
     QwtMatrixRasterData *RDf;
     QwtMatrixRasterData *RImage;
     QList<double> contourLevels;
-    // QwtAxisId *axisYL1;
-    // QwtAxisId *axisYL2;
-    // QwtAxisId *axisYR1;
-    // QwtAxisId *axisYR2;
-    // QwtAxisId *axisX;
     QList <QVector <double>> Xa;
     QList <QVector <double>> Ya;
     QList <QVector <double>> Xc;
@@ -489,7 +484,7 @@ private slots:
     void showMapb(bool);
     void showMapd(double);
     void showChannelVector(bool);
-
+    void showOutpointsVector(bool yes);
     // functions that interact with the world thread signals
     void worldShow();
     void worldDone(const QString &results);

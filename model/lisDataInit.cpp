@@ -76,7 +76,7 @@ void TWorld::GetInputData(void)
     //## get flow barriers;
     InitFlowBarriers();
 
-    //creta onscreen network
+    //creta onscreen network, and outpoints
     InitScreenChanNetwork();
 
 }
@@ -2503,32 +2503,37 @@ void TWorld::InitShade(void)
 // for drawing onscreen
 void TWorld::InitScreenChanNetwork()
 {
-    if(!SwitchIncludeChannel)
-        return;
-
-    op.lddch_.clear();
-    op.lddch_.append(crlinkedlddch_);
-
- //   op.CulvertX.clear();
- //   op.CulvertY.clear();
     op.EndPointX.clear();
     op.EndPointY.clear();
     op.ObsPointX.clear();
     op.ObsPointY.clear();
+    op.lddch_.clear();
 
-    FOR_ROW_COL_MV_CH {
-        if (LDDChannel->Drc == 5){
-            op.EndPointX << _llx + c*_dx + 0.5*_dx;
-            op.EndPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
+    if(SwitchIncludeChannel) {
+        op.lddch_.append(crlinkedlddch_);
+
+        FOR_ROW_COL_MV_CHL {
+            if (LDDChannel->Drc == 5){
+                op.EndPointX << _llx + c*_dx + 0.5*_dx;
+                op.EndPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
+            }}
         }
+    } else {
+        FOR_ROW_COL_MV_L {
+            if (LDD->Drc == 5){
+                op.EndPointX << _llx + c*_dx + 0.5*_dx;
+                op.EndPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
+            }
+        }}
     }
-    FOR_ROW_COL_MV_CH {
+
+    FOR_ROW_COL_MV_L {
         if (PointMap->Drc > 0){
             op.ObsPointX << _llx + c*_dx + 0.5*_dx;
             op.ObsPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
-
         }
-    }
+    }}
+
 }
 //---------------------------------------------------------------------------
 void TWorld::InitNewSoilProfile()

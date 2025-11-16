@@ -177,8 +177,8 @@ void lisemqt::runmodel()
     //transparencyImage->setEnabled(checksatImage->isChecked());
     checkMapImage->setEnabled(checksatImage->isChecked());
 
-    checkMapChannels->setChecked(false);
-    checkMapChannels->setEnabled(checkIncludeChannel->isChecked());
+    //checkMapChannels->setChecked(true);
+    //checkMapChannels->setEnabled(checkIncludeChannel->isChecked());
 
     if (checkInfrastructure->isChecked()) {
          checkMapBuildings->setChecked(checkHouses->isChecked());
@@ -336,7 +336,7 @@ void lisemqt::worldShow()
 
         getOutletMap();
 
-        showChannelVectorNew(); // make channel vectors once
+        initChannelVectorandOutlet(); // make channel vectors once
 
         showRoadMap(); // show road map
 

@@ -352,9 +352,8 @@ void TWorld::ReportTotalSeries(void)
         fout.close();
     }
 
-
     QFile fout(newname1);
-    if (!fout.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (!fout.open(QIODevice::Append | QIODevice::Text)) {
         ErrorString = "Cannot open the result file: "+totalSeriesFileName;
         throw 1;
     }
@@ -594,7 +593,7 @@ void TWorld::ReportTimeseriesPCR(void)
         newname1 = fi.path() + "/" + fi.baseName() + "_" + crout_[i_].code + "." +  fi.suffix();
 
         QFile fout(newname1);
-        if (!fout.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        if (!fout.open(QIODevice::Append | QIODevice::Text)) {
             ErrorString = "Cannot open the result file: "+newname1;
             throw 1;
         }
@@ -736,7 +735,7 @@ void TWorld::ReportTimeseriesCSV(void)
     FOR_ROW_COL_MV_OUTL {
         newname1 = fi.path() + "/" + fi.baseName() + "_" + crout_[i_].code + "." +  fi.suffix();
         QFile fout(newname1);
-        if (!fout.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        if (!fout.open(QIODevice::Append | QIODevice::Text)) {
             ErrorString = "Cannot open the result file: "+newname1;
             throw 1;
         }

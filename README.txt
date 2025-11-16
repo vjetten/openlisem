@@ -4,7 +4,7 @@ The model can be downloaded from:
 https://github.com/vjetten/openlisem/releases/tag/lisem_bin
 
 ============
-Date: 251114
+Date: 251116
 ============
 
 This software is under the copyright model GPLv3 (distributed with the model) and subject to additional disclaimers.
@@ -15,6 +15,10 @@ NOTE: since version 7.4.7.R7 a 4Byte floating point version is maintained that t
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
+
+251116 - v7.4.8.beta.R2
+- Changed: outpoints and outlets arre always visible in map display, also without channel
+- BUG FIX: hydrographs and totals were not written
 
 251114 - v7.4.8.beta.R1
 - BUG FIX: redistribution infiltrated water with  Green and Ampt, and is only active after infiltration stops
@@ -37,7 +41,7 @@ NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x
 - Changed: some interface options
 
 250901 - v7.4.7.beta.R8
-- Added: option to load stationary baseflow as precalculated map
+- Added: option to load stationary baseflow as precalculated map (experimental)
 - Added: water flowing into urban storm drains does not dissapear but fills up the storm drains, when full the stormdrains will overflow.
 
 250713 - v7.4.7.beta.R1-R7

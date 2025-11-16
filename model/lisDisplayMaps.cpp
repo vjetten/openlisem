@@ -52,7 +52,7 @@ void TWorld::setupDisplayMaps()
 
     op.baseMap = new cTMap();
     op.baseMapDEM = new cTMap();
-    op.channelMap = new cTMap();
+//    op.channelMap = new cTMap();
     op.outletMap = new cTMap();
     op.roadMap = new cTMap();
     op.houseMap = new cTMap();
@@ -62,7 +62,8 @@ void TWorld::setupDisplayMaps()
 
     op.baseMap->MakeMap(LDD, 0);
     op.baseMapDEM->MakeMap(LDD, 0);
-    op.channelMap->MakeMap(LDD, 0);
+    if (SwitchIncludeChannel)
+        op.channelMap->MakeMap(LDD, 0);
     op.outletMap->MakeMap(LDD, 0);
     op.roadMap->MakeMap(LDD, 0);
     op.houseMap->MakeMap(LDD, 0);
@@ -78,7 +79,8 @@ void TWorld::setupDisplayMaps()
       op.Image = RGB_Image;
 
     if (SwitchIncludeChannel) {
-      copy(*op.channelMap, *LDDChannel);//*ChannelMaskExtended);
+        op.channelMap = new cTMap();
+        copy(*op.channelMap, *LDDChannel);
     }
     copy(*op.outletMap, *PointMap);
 

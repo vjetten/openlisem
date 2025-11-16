@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(Lisem)
 
-set(COMPILE_AS_4BYTE FALSE)
+set(COMPILE_AS_4BYTE  FALSE)
 
 set(TGT Lisem)
 if(COMPILE_AS_4BYTE)
