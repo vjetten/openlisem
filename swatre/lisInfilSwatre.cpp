@@ -186,8 +186,8 @@ void TWorld::InfilSwatre()
 
            // #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                double id = ProfileID->Drc ;
-                qDebug() << r << c << id;
+                // double id = ProfileID->Drc ;
+                // qDebug() << r << c << id;
                 if (ProfileID->Drc <= 0 || fractionImperm->Drc > 0.999) {
                     tma->Drc = 0;
                     tmb->Drc = 0;
