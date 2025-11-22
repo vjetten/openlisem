@@ -264,7 +264,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
         if (!ok)
             Error(QString("SWATRE: Can't read end of horizon for profile nr %1").arg(p->profileId));
         if (endHor <= endHorPrev)
-            Error(QString("SWATRE: Error in profile definition nr %1, depth horizons do not increase").arg(p->profileId));
+            Error(QString("SWATRE: Error in profile definition nr %1, depth horizons does not increase").arg(p->profileId));
 
         // read the horizon and the luts for each node
         h = ReadHorizonNew(SwatreTableDir, tableName);
@@ -367,7 +367,7 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
             Error(QString("matrix head not increasing in table %1 at h = %2.").arg(fileName).arg(l->hydro[H_COL][i]));
         if (l->hydro[THETA_COL][i+1] <= l->hydro[THETA_COL][i])
             Error(QString("moisture content not increasing in table %1 at theta = %2.").arg(fileName).arg(l->hydro[THETA_COL][i]));
-        if (l->hydro[K_COL][i+1] <= l->hydro[K_COL][i])
+        if (l->hydro[K_COL][i+1] < l->hydro[K_COL][i])
             Error(QString("Hydraulic conductivity not increasing in table %1 at K = %2.").arg(fileName).arg(l->hydro[K_COL][i]));
     }
 
