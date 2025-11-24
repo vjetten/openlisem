@@ -551,7 +551,7 @@ void TWorld::cell_RedistributionUnsat(int r, int c)
         if (Percolation > 0) {
             moist1 -= Percolation;
             moist2 += Percolation;
-            theta = qMax(thetar, moist1/(SoilDep1-Lw_));
+            theta = thetar + moist1/(SoilDep1-Lw_);
             theta2 = qMin(pore2, moist2/DL2);
         }
     }
@@ -578,7 +578,7 @@ void TWorld::cell_RedistributionUnsat(int r, int c)
             if (Percolation > 0) {
                 moist2 -= Percolation;
                 moist3 += Percolation;
-                theta2 = qMax(thetar2, moist2/DL2);
+                theta2 = thetar2 + moist2/DL2;
                 theta3 = qMin(pore3, moist3/DL3);
             }
         }
