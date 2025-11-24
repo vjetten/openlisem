@@ -152,11 +152,11 @@ void TWorld::reportToUI(void)
 
     op.t = time_ms.elapsed()*0.001/60.0;
     op.t = omp_get_wtime()/60.0 - startTime;
-    op.time = time/60.0;
+    op.time = time/60.0; // current time in min
     if (SwitchEventbased)
-        op.Time.append(time/60.0);
+        op.Time.append(time/60.0);  // vector of time in min
     else
-        op.Time.append(time/86400.0);
+        op.Time.append(time/86400.0); // vector of time in days
     op.maxtime = op.t/runstep * op.maxstep;
     op._dx = _dx;
     op._llx = _llx;

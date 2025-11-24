@@ -94,6 +94,7 @@ struct output{
     cTMap *roadMap;
     cTMap *houseMap;
     cTMap *hardsurfaceMap;
+    cTMap *bufferMap;
     cTRGBMap *Image;
 
     QList<double> graindiameters;

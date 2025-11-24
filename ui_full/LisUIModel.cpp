@@ -68,6 +68,7 @@ void lisemqt::ClearOP()
     delete op.roadMap;
     delete op.houseMap;
     delete op.hardsurfaceMap;
+    delete op.bufferMap;
     delete op.Image;
 }
 
@@ -184,6 +185,7 @@ void lisemqt::runmodel()
          checkMapBuildings->setChecked(checkHouses->isChecked());
          checkMapRoads->setChecked(checkRoadsystem->isChecked());
          checkMapHardSurface->setChecked(checkHardsurface->isChecked());
+         checkMapBuffers->setChecked(checkBuffers->isChecked());
         transparencyHardSurface->setValue(200);
         transparencyRoad->setValue(200);
     }
@@ -344,6 +346,8 @@ void lisemqt::worldShow()
 
         showHardSurfaceMap(); // show parking lots etc
 
+        showBufferMap(); // show building structures map
+
         showImageMap();
 
         startplot = false; //if not set to false all the above are done eahc time
@@ -444,6 +448,7 @@ void lisemqt::initOP()
     op.roadMap = nullptr;
     op.houseMap = nullptr;
     op.hardsurfaceMap = nullptr;
+    op.bufferMap = nullptr;
     op.Image = nullptr;
 
     op.EndPointX.clear();

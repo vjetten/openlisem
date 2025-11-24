@@ -70,7 +70,7 @@
        <enum>QTabWidget::TabPosition::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_input">
        <attribute name="title">
@@ -349,8 +349,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1013</width>
-                <height>819</height>
+                <width>988</width>
+                <height>816</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
@@ -14408,6 +14408,19 @@
                    </size>
                   </property>
                  </spacer>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="checkMapBuffers">
+                  <property name="font">
+                   <font>
+                    <pointsize>8</pointsize>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Buffers</string>
+                  </property>
+                 </widget>
                 </item>
                 <item>
                  <widget class="QCheckBox" name="checkMapImage">

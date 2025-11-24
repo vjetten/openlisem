@@ -744,6 +744,7 @@ void lisemqt::on_checkInfrastructure_toggled(bool checked)
     checkMapHardSurface->setEnabled(checked);
     checkMapBuildings->setEnabled(checked);
     checkMapRoads->setEnabled(checked);
+    checkMapBuffers->setEnabled(checked);
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_checkConservation_toggled(bool checked)

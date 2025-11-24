@@ -219,6 +219,24 @@ public:
     { }
 };
 //---------------------------------------------------------------------------
+/// House color legend
+class colorMapBuffer: public QwtLinearColorMap
+{
+    virtual QRgb rgb( const QwtInterval &interval, double value ) const
+    {
+        if ( value < 0.05 )
+            return qRgba( 0, 0, 0, 0 );
+   //     int a = (int) 255*value;
+   //     return qRgba(10,10,10,a);
+        return QwtLinearColorMap::rgb( interval, value );
+
+    }
+public:
+    colorMapBuffer():
+          QwtLinearColorMap( QColor("#74cec4"), QColor("#00a1a7"))
+    { }
+};
+//---------------------------------------------------------------------------
 // flow barrier map
 class colorMapImage: public QwtLinearColorMap
 {

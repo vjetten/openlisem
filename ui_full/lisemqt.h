@@ -188,6 +188,7 @@ public:
     void initChannelVectorandOutlet();
     void showRoadMap();
     void showHouseMap();
+    void showBufferMap();
     void showHardSurfaceMap();
     void showImageMap();
     void changeSize();
@@ -206,6 +207,7 @@ public:
     QwtPlotSpectrogram *hardsurfMap;  // raster map drawing
     QwtPlotSpectrogram *roadMap;  // raster map drawing
     QwtPlotSpectrogram *houseMap;  // raster map drawing
+    QwtPlotSpectrogram *bufferMap;  // raster map drawing
     QwtPlotSpectrogram *imageMap;
     QwtPlotSpectrogram *outletMap;
     QwtMatrixRasterData *RD;      // data for thematic raster maps
@@ -215,6 +217,7 @@ public:
     QwtMatrixRasterData *RDd;
     QwtMatrixRasterData *RDe;
     QwtMatrixRasterData *RDf;
+    QwtMatrixRasterData *RDg;
     QwtMatrixRasterData *RImage;
     QList<double> contourLevels;
     QList <QVector <double>> Xa;

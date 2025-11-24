@@ -108,7 +108,7 @@ void lisemqt::ssetAlphaHardSurfaceW(int v)
 void lisemqt::ssetAlphaHardSurface(int v)
 {
     if (checkInfrastructure->isChecked()) {
-        bool doit = (checkHouses->isChecked() || checkHardsurface->isChecked() || checkRoadsystem->isChecked());
+        bool doit = (checkHouses->isChecked() || checkHardsurface->isChecked() || checkRoadsystem->isChecked() || checkBuffers->isChecked());
         if (v > 0 && checkHouses->isChecked())
             houseMap->setAlpha(v);
         // if (v > 0 && checkHardsurface->isChecked())
@@ -202,36 +202,41 @@ void lisemqt::setupMapPlot()
     // shaded relief
 
 
-    // 4
+    // 3
     roadMap = new QwtPlotSpectrogram();
     roadMap->setRenderThreadCount( 0 );
     roadMap->attach( MPlot );
     // road map
 
-    // 5
+    // 4
     hardsurfMap = new QwtPlotSpectrogram();
     hardsurfMap->setRenderThreadCount( 0 );
     hardsurfMap->attach( MPlot );
 
-    //6 data
+    // 5 data
     drawMap = new QwtPlotSpectrogram();
     drawMap->setRenderThreadCount( 0 );
     drawMap->attach( MPlot );
     //map for runoff, infil, flood etc
 
-    // 3
+    // 6
     houseMap = new QwtPlotSpectrogram();
     houseMap->setRenderThreadCount( 0 );
     houseMap->attach( MPlot );
     // building structure map
 
-    //7
+    // 7
+    bufferMap = new QwtPlotSpectrogram();
+    bufferMap ->setRenderThreadCount( 0 );
+    bufferMap ->attach( MPlot );
+
+    //8
     outletMap = new QwtPlotSpectrogram();
     outletMap->setRenderThreadCount( 0 );
     outletMap->attach( MPlot );
     // outlet map used for outlet number when hovering (?)
 
-    //8
+    //9
     contourDEM = new QwtPlotSpectrogram();
     contourDEM->setRenderThreadCount( 0 );
     contourDEM->attach( MPlot );
@@ -244,6 +249,7 @@ void lisemqt::setupMapPlot()
     RDd = new QwtMatrixRasterData();
     RDe = new QwtMatrixRasterData();
     RDf = new QwtMatrixRasterData();
+    RDg = new QwtMatrixRasterData();
     RImage = new QwtMatrixRasterData();
 
     // raster data to link to plot
@@ -479,6 +485,7 @@ void lisemqt::showMap()
     roadMap->setAlpha(checkMapRoads->isChecked() ? transparencyRoad->value() : 0);
     houseMap->setAlpha(checkMapBuildings->isChecked() ? transparencyHardSurface->value() : 0);
     hardsurfMap->setAlpha(checkMapHardSurface->isChecked() ? transparencyRoad->value() : 0);
+    bufferMap->setAlpha(checkMapBuffers->isChecked() ? transparencyRoad->value() : 0);
 
     // imageMap->setAlpha(0);  // flow barriers for now not used, sat image instead
     if (checksatImage->isChecked()){
@@ -936,9 +943,29 @@ void lisemqt::showHouseMap()
     houseMap->setColorMap(new colorMapHouse());
 }
 //---------------------------------------------------------------------------
+void lisemqt::showBufferMap()
+{
+    if (startplot)
+    {
+        double m1, m2;
+        double res = fillDrawMapData(op.bufferMap,1.0, RDg, &m1, &m2);
+
+        if (res ==-1e20)
+            return;
+
+        RDg->setInterval( Qt::ZAxis, QwtInterval( m1, m2));
+        bufferMap->setData(RDg);
+    }
+
+    if (checkMapBuildings->isChecked())
+        bufferMap->setAlpha(transparencyRoad->value());
+    else
+        bufferMap->setAlpha(0);
+    bufferMap->setColorMap(new colorMapBuffer());
+}
+//---------------------------------------------------------------------------
 void lisemqt::showHardSurfaceMap()
 {
-
     if (startplot)
     {
         double m1, m2;

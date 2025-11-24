@@ -46,6 +46,7 @@ void TWorld::setupDisplayMaps()
         delete op.roadMap;
         delete op.houseMap;
         delete op.hardsurfaceMap;
+        delete op.bufferMap;
         if (SwitchImage)
             delete op.Image;
     }
@@ -57,6 +58,7 @@ void TWorld::setupDisplayMaps()
     op.houseMap = new cTMap();
     op.channelMap = new cTMap();
     op.hardsurfaceMap = new cTMap();
+    op.bufferMap = new cTMap();
     if (SwitchImage)
         op.Image = new cTRGBMap();
 
@@ -67,6 +69,7 @@ void TWorld::setupDisplayMaps()
     op.roadMap->MakeMap(LDD, 0);
     op.houseMap->MakeMap(LDD, 0);
     op.hardsurfaceMap->MakeMap(LDD, 0);
+    op.bufferMap->MakeMap(LDD, 0);
 
     // fill with data
 
@@ -94,6 +97,12 @@ void TWorld::setupDisplayMaps()
     if(SwitchHardsurface)
     copy(*op.hardsurfaceMap,*HardSurface);
 
+    if(SwitchBuffers) {
+        FOR_ROW_COL_MV_L {
+            tma->Drc = Buffers->Drc != 0 ? 1 : 0;
+        }}
+        copy(*op.bufferMap,*tma);//Buffers);
+    }
 
 }
 //---------------------------------------------------------------------------

@@ -652,6 +652,7 @@ void lisemqt::SetToolBar()
     //connect(checkMapChannels, SIGNAL(clicked(bool)), this, SLOT(showChannelVector(bool)));
     connect(checkMapImage, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
     connect(checkMapHardSurface, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
+    connect(checkMapBuffers, SIGNAL(clicked(bool)), this, SLOT(showMapb(bool)));
 
     connect(ComboMaxSpinBox,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
     connect(ComboMinSpinBox,SIGNAL(valueChanged(double)),this,SLOT(showMapd(double)));
