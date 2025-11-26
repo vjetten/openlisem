@@ -1044,29 +1044,43 @@ void TWorld::InitChannel(void)
 
     cover(*ChannelGrad, *LDD, 0);
     cover(*ChannelN, *LDD, 0);
-    //calcValue(*ChannelN, ChnCalibration, MUL);
 
-    // correct input channel maps when there is no channel
+    // flag input channel maps when there is no channel
+    int re = -1;
+    int ce = -1;
+    QString S = "";
     FOR_ROW_COL_MV_L {
-        if (pcr::isMV(LDDChannel->Drc)) {
-            ChannelWidth->Drc = 0;
-            ChannelDepth->Drc = 0;
-            ChannelN->Drc = 0;
-            ChannelGrad->Drc = 0;
-            ChannelSide->Drc = 0;
+        if (!pcr::isMV(LDDChannel->Drc)) {
+            if (pcr::isMV(ChannelWidth->Drc) || ChannelWidth->Drc <= 0) {
+                re = r; ce = c; S = "Channel width";
+                break;
+            }
+            if (pcr::isMV(ChannelDepth->Drc) || ChannelDepth->Drc <= 0) {
+                re = r; ce = c; S = "Channel Depth";
+                break;
+            }
+            if (pcr::isMV(ChannelGrad->Drc) || ChannelGrad->Drc <= 0) {
+                re = r; ce = c; S = "Channel Gradient";
+                break;
+            }
+            if (pcr::isMV(ChannelN->Drc) || ChannelN->Drc <= 0) {
+                re = r; ce = c; S = "Channel Manning";;
+                break;
+            }
+            if (pcr::isMV(ChannelSide->Drc) || ChannelSide->Drc < 0) {
+                re = r; ce = c; S = "Channel Side angle";;
+                break;
+            }
         }
     }}
+    if (re > -1 || ce > -1) {
+        ErrorString = QString("%1 is invalid where the channel LDD is defined: row %2 - col %3").arg(S).arg(re).arg(ce);
+        throw 1;
+    }
 
     FOR_ROW_COL_MV_CHL {
         ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
        // ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc)); // same as DX else mass balance problems
-
-         if (SwitchBuffers) {
-             if (Buffers->Drc > 0) {
-                ChannelDepth->Drc = 0.1;
-                ChannelSide->Drc = 0;
-             }
-         }
 
         //ChannelCos->Drc = cos(atan(ChannelSide->Drc));
 

@@ -2,6 +2,12 @@ Latest fixes and changes:
 =========================
 
 see Readme.txt for a complete list
+251126 - v7.4.8.beta.R4
+- Added: show buffers in the map view
+- Added: add surface micro storage in display map list
+- BUG FIX: small bug fix in unsat flow between layers in G&A
+- BUG FIX: SWATRE user defined minimum timestep condition was not added inside the time loop in SWATRE
+
 251116 - v7.4.8.beta.R2
 - Changed: outpoints and outlets arre always visible in map display, also without channel
 - BUG FIX: hydrographs and totals were not apended in the csv files

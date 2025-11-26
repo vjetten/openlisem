@@ -432,6 +432,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
 
         // estimate new dt within lisemtimestep
         dt = NewTimeStep(dt, hPrev, h, nN, swatreDT, SwatrePrecision);
+        dt = qMax(dt, swatreDT);
 
         if (elapsedTime+dt >= _dt - TIME_EPS)
             dt = _dt - elapsedTime;

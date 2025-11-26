@@ -225,16 +225,16 @@ void lisemqt::setupMapPlot()
     houseMap->attach( MPlot );
     // building structure map
 
-    // 7
-    bufferMap = new QwtPlotSpectrogram();
-    bufferMap ->setRenderThreadCount( 0 );
-    bufferMap ->attach( MPlot );
-
-    //8
+    //7
     outletMap = new QwtPlotSpectrogram();
     outletMap->setRenderThreadCount( 0 );
     outletMap->attach( MPlot );
     // outlet map used for outlet number when hovering (?)
+
+    // 8
+    bufferMap = new QwtPlotSpectrogram();
+    bufferMap ->setRenderThreadCount( 0 );
+    bufferMap ->attach( MPlot );
 
     //9
     contourDEM = new QwtPlotSpectrogram();
