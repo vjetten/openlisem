@@ -230,7 +230,7 @@ size_t RputSomeCells(
                    */
 {
 	CSF_FADDR  writeAt;
-	CSF_CR  cr = map->raster.cellRepr;
+    CSF_CR  cr = (CSF_CR)map->raster.cellRepr;
 
 	/* convert */
 	map->app2file(nrCells, buf);

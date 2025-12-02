@@ -57,6 +57,9 @@ void TWorld::GetInputData(void)
     InitChannel();
     //## read and initialize all channel maps and variables
 
+    InitGroundwater();
+    // GW, CHECK if can be done unrelated to channel
+
     InitFlood();
     // vars for dyn wave
 
@@ -64,6 +67,7 @@ void TWorld::GetInputData(void)
     //find domain boundaries
 
     InitShade();
+
     InitImages();
 
     //## read and initialize all tile drain system maps and variables
@@ -72,20 +76,45 @@ void TWorld::GetInputData(void)
     //## get flow barriers;
     InitFlowBarriers();
 
+    //creta onscreen network, and outpoints
     InitScreenChanNetwork();
 
 }
 //---------------------------------------------------------------------------
+//     SmaxCalibration = getvaluedouble("Smax calibration");
+//     RRCalibration = getvaluedouble("RR calibration");
+//     ksatCalibration = getvaluedouble("Ksat calibration");
+//     ksat2Calibration = getvaluedouble("Ksat2 calibration");
+//     ksat3Calibration = getvaluedouble("Ksat3 calibration");
+//     thetaCalibration = getvaluedouble("Theta calibration");
+//     psiCalibration = getvaluedouble("Psi calibration");
+
+//     nCalibration = getvaluedouble("N calibration");
+//     ChnCalibration = getvaluedouble("Culvert size calibration");
+//     ChKsatCalibration = getvaluedouble("Channel Ksat calibration");
+//     WaveCalibration = getvaluedouble("Boundary water level calibration");
+//     CulvertCalibration = getvaluedouble("Culvert size calibration");
+
+//     ASCalibration = getvaluedouble("Aggregate stability calibration");
+//     COHCalibration = getvaluedouble("Cohesion calibration");
+//     gsizeCalibrationD50 = getvaluedouble("Grain Size calibration D50");
+//     gsizeCalibrationD90 = getvaluedouble("Grain Size calibration D90");
+//     COHCHCalibration = getvaluedouble("Cohesion Channel calibration");
 void TWorld::InitParameters(void)
-{       
+{
     PBiasCorrection = getvaluedouble("Rainfall Bias Correction");
     ETBiasCorrection = getvaluedouble("ET Bias Correction");
-    rainfallETa_threshold = getvaluedouble("Rainfall ET threshold");
+    rainfallETa_threshold = getvaluedouble("Rainfall ET threshold"); // in mm
     rainIDIfactor = getvaluedouble("IDI factor");
 
     HinitValue = getvaluedouble("Initial matrix potential");
-    SoilWBdtfactor = getvaluedouble("SoilWB dt factor"); // not really used, only for soap but soap not working
+    SoilWBdtfactor = 2;//getvaluedouble("SoilWB dt factor"); // not really used, only for soap but soap not working
     swatreDT = getvaluedouble("SWATRE internal minimum timestep");
+    swatreMaxDT = _dt/2.0; // bound the max dt in SWATRE
+    swatreDT = qMin(swatreDT,swatreMaxDT);
+    TileEntrySuction = getvaluedouble("Tile entry suction");
+    TileEntrySuction = qMax(-100.0,qMin(TileEntrySuction, 0.0));
+    KavgType = getvalueint("Infil Kavg");
 
     GW_recharge = getvaluedouble("GW recharge factor");
     GW_flow = getvaluedouble("GW flow factor");
@@ -118,9 +147,9 @@ void TWorld::InitParameters(void)
   //  SD2Calibration = getvaluedouble("SoilDepth2 calibration");
 
     ChnCalibration = getvaluedouble("Channel N calibration");
+    CulvertCalibration = getvaluedouble("Culvert size calibration");
 
     WaveCalibration = getvaluedouble("Boundary water level calibration");
-
 
     //ChnTortuosity = 1.0;
     ChnTortuosity = getvaluedouble("Channel tortuosity");
@@ -140,11 +169,9 @@ void TWorld::InitParameters(void)
     // VJ 170923 moved all 2D switches here
     minReportFloodHeight = getvaluedouble("Minimum reported flood height");
     courant_factor = getvaluedouble("Flooding courant factor");
-    courant_factorSed = std::min(0.2,courant_factor);
+    courant_factorSed = qMin(0.2,courant_factor);
     // courant_factor_sed = getvaluedouble("Flooding courant factor diffusive");
     TimestepfloodMin = getvaluedouble("Timestep flood");
-    SwitchMUSCL = getvalueint("Flood Solution") == 1;
-    SwitchHeun = getvalueint("Flood Heun 2nd order") == 1;
     F_pitValue = getvaluedouble("Pit Value");
 
     SwitchCorrectMB_WH = getvalueint("Correct MB with WH") == 1;
@@ -154,35 +181,38 @@ void TWorld::InitParameters(void)
         F_MaxIter = getvalueint("Flood max iterations");
         F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
         F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
-        F_minWH = getvaluedouble("Min WH flow");   //HLL HLL2 Rusanov
+        F_scheme = qMin(3,F_scheme);
+        F_minWH = getvaluedouble("Minimum WH and V flow");   //HLL HLL2 Rusanov
+        if (F_minWH == 0) F_minWH = he_ca;
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
-        SwitchLinkedList = getvalueint("Use linked List") == 1;
+        SwitchLinkedList = false; //getvalueint("Use linked List") == 1;
         SwitchPerimeterKW = getvalueint("Use Perimeter KW") == 1;
-        _dtCHkin = getvaluedouble("Channel Kinwave dt");
+        _dtCHkin = _dx/2;//getvaluedouble("Channel Kinwave dt");
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
         SwitchChannelWFinflow = false;//getvalueint("Channel WF inflow") == 1;
-        SwatrePrecision = 5;// getvaluedouble("SWATRE precision");
+        SwatrePrecision = getvaluedouble("SWATRE precision");
     } else {
         F_MaxIter = 200;
-        F_minWH = 0.00001;
+        F_minWH = he_ca;
         F_fluxLimiter = 1; //minmod, vanleer, albeda
-        F_scheme = 4;   //Rusanov HLL HLL2 HLL2c
+        F_scheme = 3;   //Rusanov HLL HLL2 HLL2c
         F_pitValue = _dx/100;
         SwitchLinkedList = false;
         SwitchPerimeterKW = false;
-        _dtCHkin = 60.0;
+        _dtCHkin = _dx/2;
         SwitchChannel2DflowConnect = false;
         SwitchChannelWFinflow = false;
 
         nN1_ = 3;
         nN2_ = 3;
         nN3_ = 6;
-        SoilWBdtfactor = 10;
+        SoilWBdtfactor = 2;
 
-        SwatrePrecision = 5;
+        SwatrePrecision = 6;
         //SwitchGWChangeSD = true;
     }
 
+    rillfactor = 1.0;
     _CHMaxV = 20.0;
     if (SwitchChannelMaxV)
        _CHMaxV =  getvaluedouble("Channel Max V");
@@ -193,6 +223,9 @@ void TWorld::InitParameters(void)
     if (wave == 2) SwitchKinematic2D = K2D_METHOD_DYN;
     if (wave < 2) SwitchWaveUser = false; // waveuser is an incoming wave at the boundary (tsunami type)
 
+    if (SwitchKinematic2D == K2D_METHOD_KIN)
+        FlowBoundaryType = 0;
+
     userCores = getvalueint("Nr user Cores");
     int cores = omp_get_max_threads();
     if (userCores == 0 || userCores > cores)
@@ -202,7 +235,7 @@ void TWorld::InitParameters(void)
 }
 //---------------------------------------------------------------------------
 void TWorld::InitStandardInput(void)
-{   
+{
     //## catchment data
     LDD = InitMask(getvaluename("ldd"));
     // THIS SHOULD BE THE FIRST MAP
@@ -211,15 +244,16 @@ void TWorld::InitStandardInput(void)
 
     FOR_ROW_COL_MV {
         if (LDD->Drc == 0)
-            SET_MV_REAL8(&LDD->Drc);
+            SET_MV_REAL4(&LDD->Drc);
+        //SET_MV_REAL8(&LDD->Drc);
     }
-
 
     tm = NewMap(0); // temp map for aux calculations
     tma = NewMap(0); // temp map for aux calculations
     tmb = NewMap(0); // temp map for aux calculations
     tmc = NewMap(0); // temp map for aux calculations
     tmd = NewMap(0); // temp map for aux calculations
+    tmshow = NewMap(0); // temp map form reporting when debug stuff
 
     nrValidCells = 0;
     FOR_ROW_COL_MV {
@@ -238,10 +272,10 @@ void TWorld::InitStandardInput(void)
 
     FOR_ROW_COL_MV {
         if (LDD->Drc == 5) {
-        LDD_COOR newcr;
-        newcr.r = r;
-        newcr.c = c;
-        crldd5_ << newcr;
+            LDD_COOR newcr;
+            newcr.r = r;
+            newcr.c = c;
+            crldd5_ << newcr;
         }
     }
     nrValidCellsLDD5 = crldd5_.size();
@@ -251,12 +285,27 @@ void TWorld::InitStandardInput(void)
     DEM = ReadMap(LDD, getvaluename("dem"));
     MBm = NewMap(0);
 
-    Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
-    checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
-    sqrtGrad = NewMap(0);
-    FOR_ROW_COL_MV {
-        sqrtGrad->Drc = sqrt(Grad->Drc);
+
+    Fill(*tma,0);
+    for(long i_ =  0; i_ < crlinkedldd_.size(); i_++) {
+        int r = crlinkedldd_.at(i_).r;
+        int c = crlinkedldd_.at(i_).c;
+
+        for (int j = -1; j < 2; j++)
+            for (int i = -1; i < 2; i++) {
+                if ((r+j > 0 && r+j < _nrRows) && (c+i > 0 && c+i < _nrCols)) {
+                    if (DEM->Drc < DEM->data[r+j][c+i])
+                        tma->Drc = DEM->data[r+j][c+i];
+                    else
+                        tma->Drc = DEM->Drc;
+                }
+            }
+
     }
+    report(*tma, "demadj.map");
+
+    Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
+    //checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
 
     SwitchSlopeStability = false;
     if (SwitchSlopeStability) {
@@ -277,24 +326,19 @@ void TWorld::InitStandardInput(void)
         report(*tanGrad,"tangrad.map");
     }
 
-
     if (SwitchCorrectDEM)
         CorrectDEM(DEM, Grad);
 
     if (SwitchBuffers) {
         Buffers = ReadMap(LDD, getvaluename("buffers"));
-        calcMap(*DEM, *Buffers, ADD);
-    } 
+        FOR_ROW_COL_MV_L {
+            if(!pcr::isMV(Buffers->Drc))
+                DEM->Drc += Buffers->Drc;
+        }}
+    //    calcMap(*DEM, *Buffers, ADD);
+    }
 
-    // int cnt = 0;
-    // Outlet = NewMap(0);
-    // FOR_ROW_COL_MV {
-    //     if(LDD->Drc == 5) {
-    //         cnt++;
-    //         //qDebug() << "ldd" << r << c << cnt;
-    //         Outlet->Drc = cnt;
-    //     }
-    // }
+
     bool found = false;
     Outlet = ReadMap(LDD,getvaluename("outlet"));
     FOR_ROW_COL_MV {
@@ -330,7 +374,9 @@ void TWorld::InitStandardInput(void)
                 LDD_COORout newcr;
                 newcr.r = r;
                 newcr.c = c;
-                newcr.nr = (int)PointMap->Drc ;
+                int p = static_cast <int>(PointMap->Drc);
+                newcr.nr = p;
+                newcr.code.setNum(p);
                 crout_ << newcr;
             }
         }
@@ -377,7 +423,8 @@ void TWorld::InitMeteoInput(void)
 
     Rain = NewMap(0);
     Rainc = NewMap(0);
-    RainCum = NewMap(0);
+    RainCumInt = NewMap(0);
+    RainCumCrust = NewMap(0);
     RainCumFlat = NewMap(0);
     RainNet = NewMap(0);
 
@@ -413,27 +460,31 @@ void TWorld::InitLULCInput(void)
 {
     //===== surface =====
     N = ReadMap(LDD,getvaluename("manning"));
-    checkMap(*N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
+    checkMap(*LDD, *N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
     calcValue(*N, nCalibration, MUL);
 
     Norg = NewMap(0);
     copy(*Norg, *N); //ed in sed trap... if trap is full go back to original N
 
     RR = ReadMap(LDD,getvaluename("RR"));
-    checkMap(*RR, SMALLER, 0.0, "Random roughness RR must be >= 0");
+    checkMap(*LDD, *RR, SMALLER, 0.0, "Random roughness RR must be >= 0");
     calcValue(*RR, RRCalibration, MUL);
 
+    RetentionVolTot = 0;
+    RetentionVolTotmm = 0;
+    RetentionVolTotPot = 0;
     if (SwitchGridRetention) {
         GridRetention = ReadMap(LDD, getvaluename("gridretention"));
+        GridRetentionAct = NewMap(0);
+        RetentionVolTotPot = MapTotal(*GridRetention);
     }
-
 
     //===== interception =====
     LAI = ReadMap(LDD,getvaluename("lai"));
-    checkMap(*LAI, SMALLER, 0.0, "LAI must be >= 0");
+    checkMap(*LDD, *LAI, SMALLER, 0.0, "LAI must be >= 0");
     Cover = ReadMap(LDD,getvaluename("cover"));
-    checkMap(*Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
-    checkMap(*Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
+    checkMap(*LDD, *Cover, SMALLER, 0.0, "Cover fraction must be >= 0");
+    checkMap(*LDD, *Cover, LARGER, 1.0, "Cover fraction must be <= 1.0");
 
     LeafDrain = NewMap(0);
     CStor = NewMap(0);
@@ -473,7 +524,7 @@ void TWorld::InitLULCInput(void)
     if (SwitchRoadsystem)
     {
         RoadWidthDX  = ReadMap(LDD,getvaluename("road"));
-        checkMap(*RoadWidthDX, LARGER, _dx, "road width cannot be larger than gridcell size");       
+        checkMap(*LDD, *RoadWidthDX, LARGER, _dx, "road width cannot be larger than gridcell size");
     }
     else
         RoadWidthDX = NewMap(0);
@@ -490,8 +541,8 @@ void TWorld::InitLULCInput(void)
     RoadWidthHSDX = NewMap(0);
     if (SwitchRoadsystem || SwitchHardsurface)
         FOR_ROW_COL_MV_L {
-            //double frac = std::min(1.0,(HardSurface->Drc*_dx + RoadWidthDX->Drc)/_dx);
-            RoadWidthHSDX->Drc = std::min(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
+            //double frac = qMin(1.0,(HardSurface->Drc*_dx + RoadWidthDX->Drc)/_dx);
+            RoadWidthHSDX->Drc = qMin(_dx, RoadWidthDX->Drc + HardSurface->Drc*_dx);
         }}
 
     if (SwitchHouses)
@@ -513,8 +564,8 @@ void TWorld::InitLULCInput(void)
         LCStor = NewMap(0);
         LInterc = NewMap(0);
         Litter = ReadMap(LDD,getvaluename("litter"));
-        checkMap(*Litter, SMALLER, 0.0, "Litter cover fraction must be >= 0");
-        checkMap(*Litter, LARGER, 1.0, "Litter cover fraction must be <= 1.0");
+        checkMap(*LDD, *Litter, SMALLER, 0.0, "Litter cover fraction must be >= 0");
+        checkMap(*LDD, *Litter, LARGER, 1.0, "Litter cover fraction must be <= 1.0");
         LitterSmax = getvaluedouble("Litter interception storage");
     }
 
@@ -527,7 +578,7 @@ void TWorld::InitLULCInput(void)
             frac = RoadWidthHSDX->Drc/_dx;
         if (SwitchRoadsystem && SwitchHouses )
             frac = RoadWidthHSDX->Drc/_dx + HouseCover->Drc;
-        fractionImperm->Drc = std::min(std::max(0.0, frac), 1.0);
+        fractionImperm->Drc = qMin(qMax(0.0, frac), 1.0);
         // 0 is fully permeable, 1 = impermeable
     }}
 
@@ -567,6 +618,37 @@ void TWorld::InitLULCInput(void)
     }
 }
 //---------------------------------------------------------------------------
+void TWorld::calcSoilPhysics(cTMap *Ksat, cTMap *lambda, cTMap *thfc, cTMap *thr,
+                             cTMap *psi, cTMap *psiae, double calk, double calpsi)
+{
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+
+        double logks = log(qMin(1000.0,qMax(0.5,Ksat->Drc))); //NOTE ln = log, log = log10
+        // see the excel file with the regression equations in auxfiles
+        // the regression fit has cm as output unit.
+        lambda->Drc = 0.0849*logks+0.159;
+        lambda->Drc = qMin(qMax(0.1,lambda->Drc),0.7);
+
+        psiae->Drc = exp( -0.3012*logks + 3.5164);
+        if (!SwitchPsiUser)
+            psi->Drc = exp(-0.3382*logks + 3.3425); // psi is different than air entry potential/bubble pressure
+
+        thr->Drc = 0.0673*exp(-0.238*logks);
+        thfc->Drc = -0.0519*logks + 0.3714;
+
+    }}
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        psi->Drc = qMax(psi->Drc, psiae->Drc);
+        psi->Drc *= 0.01*calpsi;
+        psiae->Drc *= 0.01;
+        Ksat->Drc *= calk;
+    }}
+
+}
+//---------------------------------------------------------------------------
 void TWorld::InitSoilInput(void)
 {
     // safeguard for deleting, set to null pointer
@@ -579,40 +661,43 @@ void TWorld::InitSoilInput(void)
     ThetaI1a = NewMap(0); // used for screen output
     ThetaI2a = NewMap(0); // for output, average soil layer 2
 
-    if(SwitchOMCorrection)
-        OMcorr = ReadMap(LDD,getvaluename("OMmap"));
-    else
-        OMcorr = NewMap(0);
+    // if(SwitchOMCorrection)
+    //     OMcorr = ReadMap(LDD,getvaluename("OMmap"));
+    // else
+    //     OMcorr = NewMap(0);
 
-    if(SwitchDensCorrection)
-        DensFact = ReadMap(LDD,getvaluename("Densmap"));
-    else
-        DensFact  = NewMap(1.0);
-    FOR_ROW_COL_MV_L {
-        DensFact->Drc = std::min(1.2, std::max(0.9, DensFact->Drc));
-        OMcorr->Drc = std::min(2.0, std::max(-2.0, OMcorr->Drc));
-    }}
+    // if(SwitchDensCorrection)
+    //     DensFact = ReadMap(LDD,getvaluename("Densmap"));
+    // else
+    //     DensFact  = NewMap(1.0);
+    // FOR_ROW_COL_MV_L {
+    //     DensFact->Drc = qMin(1.2, qMax(0.9, DensFact->Drc));
+    //     OMcorr->Drc = qMin(2.0, qMax(-2.0, OMcorr->Drc));
+    // }}
 
     if (SwitchInfilCrust) {
+        CrustFraction0 = NewMap(0);
         CrustFraction = ReadMap(LDD,getvaluename("crustfrc"));
-        checkMap(*CrustFraction, LARGER, 1.0, "crust fraction cannot be more than 1");
+        checkMap(*LDD, *CrustFraction, LARGER, 1.0, "crust fraction cannot be more than 1");
+        copy(*CrustFraction0, *CrustFraction);
     } else {
         CrustFraction = NewMap(0);
     }
 
     if (SwitchInfilCompact) {
         CompactFraction = ReadMap(LDD,getvaluename("compfrc"));
-        checkMap(*CompactFraction, LARGER, 1.0, "compacted area fraction cannot be more than 1");
+        checkMap(*LDD, *CompactFraction, LARGER, 1.0, "compacted area fraction cannot be more than 1");
     } else {
         CompactFraction = NewMap(0);
     }
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (CrustFraction->Drc + CompactFraction->Drc > 1.0) {
-            CrustFraction->Drc = 1.0-CompactFraction->Drc;
-        }
-    }}
 
+    if (SwitchInfilCompact && SwitchInfilCrust) {
+        FOR_ROW_COL_MV_L {
+            if (CrustFraction->Drc + CompactFraction->Drc > 1.0) {
+                CrustFraction->Drc = 1.0-CompactFraction->Drc;
+            }
+        }}
+    }
     //## infiltration data
     if(InfilMethod != INFIL_SWATRE)
     {
@@ -634,56 +719,14 @@ void TWorld::InitSoilInput(void)
         Ksat1 = ReadMap(LDD,getvaluename("ksat1"));
 
         ThetaR1 = NewMap(0);
-        lambda1 = NewMap(0);
         psi1ae = NewMap(0);
         ThetaFC1 = NewMap(0);
-        vgalpha1 = NewMap(0);
-        vgn1 = NewMap(0);
-
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            //bca1->Drc = 5.55*qPow(Ksat1->Drc,-0.114);  // old and untracable! and wrong
-            // comes form CHARIM somehow
-            //Saxton and Rawls 2006
-            //  lambda1->Drc = 0.0384*log(Ksat1->Drc)+0.0626;
-            //rawls et al., 1982
-
-            double ks = log(std::min(1000.0,std::max(0.5,Ksat1->Drc))); //NOTE ln = log, log = log10
-            // see the excel file with the regression equations in auxfiles
-            // the regression fit has cm as output unit.
-            lambda1->Drc = 0.0849*ks+0.159;
-            lambda1->Drc = std::min(std::max(0.1,lambda1->Drc),0.7);
-
-            psi1ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
-
-            vgalpha1->Drc = 100*0.0119*exp(0.4657*ks);//(0.02*ks + 0.0095); // in m-1
-            vgn1->Drc = 0.2656*ks + 1.1042;
-            ThetaR1->Drc = 0.0673*exp(-0.238*log(ks));
-            ThetaFC1->Drc = -0.0519*log(ks) + 0.3714;
-            // NOTE alpha must have the reverse units of H. If H is in m, alpha must be in 1/m
-        }}
-        //report(*vgalpha1,"valpha.map");
-        //report(*vgn1,"vn.map");
-
-        if (SwitchPsiUser) {
+        lambda1 = NewMap(0);
+        if (SwitchPsiUser)
             Psi1 = ReadMap(LDD,getvaluename("psi1"));
-            calcValue(*Psi1, psiCalibration, MUL); //calibration of user input psi
-            calcValue(*Psi1, 0.01, MUL); //cm to m
-        } else {
+        else
             Psi1 = NewMap(0);
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                Psi1->Drc = exp(-0.3382*log(std::max(0.5,Ksat1->Drc)) + 3.3425)*0.01;
-               // double ks = std::max(0.5,std::min(1000.0,log(Ksat1->Drc)));
-                //double psiae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
-                Psi1->Drc = std::max(Psi1->Drc, psi1ae->Drc);
-            }}
-        // MC - note that this regression can cause very high psi values. In Rawls et al 1983 large ranges of possible values are reported!
-        }
-        calcValue(*Psi1, psiCalibration, MUL);
-        calcValue(*Ksat1, ksatCalibration, MUL);
-            // apply calibration after all empirical relations
-
+        calcSoilPhysics(Ksat1, lambda1, ThetaFC1, ThetaR1, Psi1, psi1ae, ksatCalibration, psiCalibration);
 
         if (nrSoilLayers == 2) {
             SwitchTwoLayer = true;
@@ -700,6 +743,13 @@ void TWorld::InitSoilInput(void)
             calcValue(*SoilDepth2, 1000, DIV);
             //calcValue(*SoilDepth2, SD2Calibration, MUL);
 
+            FOR_ROW_COL_MV_L {
+                if (SoilDepth2->Drc <= SoilDepth1->Drc) {
+                    ErrorString = "Soildepth2 is less or equal than soildepth 1. Soildepth2 must be the *total* depth of the soil (not the thickness), and always larger than soildepth1.";
+                    throw 2;
+                }
+            }}
+
             SoilDepth2init = NewMap(0);
             copy(*SoilDepth2init, *SoilDepth2);
 
@@ -714,60 +764,21 @@ void TWorld::InitSoilInput(void)
             ThetaR2 = NewMap(0);
             lambda2 = NewMap(0);             // lambda brooks corey
             psi2ae = NewMap(0);
-
             ThetaFC2 = NewMap(0);
-            vgalpha2 = NewMap(0);
-            vgn2 = NewMap(0);
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                // regression eq from data from Saxton and rawls 2006, excel file
-                double ks = log(std::min(1000.0,std::max(0.5,Ksat2->Drc)));
-                vgalpha2->Drc = 100*0.0119*exp(0.4657*ks);//(0.02*ks + 0.0095); // in m-1
-                vgn2->Drc = 0.2656*ks + 1.1042;
-
-                lambda2->Drc = 0.0849*ks+0.159;
-                lambda2->Drc = std::min(std::max(0.1,lambda2->Drc),0.7);
-                psi2ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
-                ThetaR2->Drc = 0.0673*exp(-0.238*log(ks));
-                ThetaFC2->Drc = -0.0519*log(ks) + 0.3714;
-            }}
-
-            // wetting front psi
-            if (SwitchPsiUser) {
+            if (SwitchPsiUser)
                 Psi2 = ReadMap(LDD,getvaluename("psi2"));
-                //   calcValue(*Psi2, psiCalibration, MUL); //VJ 110712 calibration of psi
-                calcValue(*Psi2, 0.01, MUL);
-            } else {
+            else
                 Psi2 = NewMap(0);
-                #pragma omp parallel for num_threads(userCores)
-                FOR_ROW_COL_MV_L {
-                    Psi2->Drc = exp(-0.3382*log(std::max(0.5,Ksat2->Drc)) + 3.3425)*0.01;
-                    //double ks = std::max(0.5,std::min(1000.0,log(Ksat2->Drc)));
-                    //double psi2ae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
-                    Psi2->Drc = std::max(Psi2->Drc,psi2ae->Drc);
-                }}
-            }
-            calcValue(*Psi2, psiCalibration, MUL);
-            calcValue(*Ksat2, ksat2Calibration, MUL);
+            calcSoilPhysics(Ksat2, lambda2, ThetaFC2, ThetaR2, Psi2, psi2ae, ksat2Calibration, psiCalibration);
+
         }
 
         if (SwitchThreeLayer)
         {
             SoilDepth3 = ReadMap(LDD,getvaluename("soilDep3"));
             calcValue(*SoilDepth3, 1000, DIV);
-            //calcValue(*SoilDepth2, SD2Calibration, MUL);
-
             SoilDepth3init = NewMap(0);
             copy(*SoilDepth3init, *SoilDepth3);
-
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                if (SoilDepth3->Drc < 0)
-                {
-                    ErrorString = QString("SoilDepth3 values < 0 at row %1, col %2").arg(r).arg(c);
-                    throw 1;
-                }
-            }}
 
             ThetaS3 = ReadMap(LDD,getvaluename("thetaS3"));
             ThetaI3 = ReadMap(LDD,getvaluename("thetaI3"));
@@ -782,45 +793,18 @@ void TWorld::InitSoilInput(void)
             lambda3 = NewMap(0);             // lambda brooks corey
             psi3ae = NewMap(0);
             ThetaFC3 = NewMap(0);
-            vgalpha3 = NewMap(0);
-            vgn3 = NewMap(0);
-            FOR_ROW_COL_MV_L {
-                // regression eq from data from Saxton and rawls 2006, excel file
-                double ks = log(std::min(1000.0,std::max(0.5,Ksat3->Drc)));
-                vgalpha3->Drc = 100*0.015*exp(0.3816*ks);//(0.02*ks + 0.0095); // in m-1
-                vgn3->Drc = 0.2656*ks + 1.1042;
-
-                lambda3->Drc = 0.0849*ks+0.159;
-                lambda3->Drc = std::min(std::max(0.1,lambda3->Drc),0.7);
-
-                psi3ae->Drc = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
-                ThetaR3->Drc = 0.0673*exp(-0.238*log(ks));
-                ThetaFC3->Drc = -0.0519*log(ks) + 0.3714;
-            }}
-
-            // wetting front psi
-            if (SwitchPsiUser) {
+            if (SwitchPsiUser)
                 Psi3 = ReadMap(LDD,getvaluename("psi3"));
-                //   calcValue(*Psi3, psiCalibration, MUL); //VJ 110712 calibration of psi
-                calcValue(*Psi3, 0.01, MUL);
-            } else {
+            else
                 Psi3 = NewMap(0);
-                #pragma omp parallel for num_threads(userCores)
-                FOR_ROW_COL_MV_L {
-                    Psi3->Drc = exp(-0.3382*log(Ksat2->Drc) + 3.3425)*0.01;
-                    //double ks = std::max(0.5,std::min(1000.0,log(Ksat3->Drc)));
-                    //double psi3ae = exp( -0.3012*ks + 3.5164) * 0.01; // 0.01 to convert to m
-                    Psi3->Drc = std::max(Psi2->Drc,psi3ae->Drc);
-                }}
-            }
-            calcValue(*Psi3, psiCalibration, MUL);
-            calcValue(*Ksat3, ksat3Calibration, MUL);
+            calcSoilPhysics(Ksat3, lambda3, ThetaFC3, ThetaR3, Psi3, psi3ae, ksat3Calibration, psiCalibration);
+
         }
 
         if (SwitchInfilCrust) {
             KsatCrust = ReadMap(LDD,getvaluename("ksatcrst"));
             calcValue(*KsatCrust, ksatCalibration, MUL);
-			//DO THIS, else inconsistency, and Ksat can be smaller than ksatcrust
+            //DO THIS, else inconsistency, and Ksat can be smaller than ksatcrust
 
             PoreCrust = ReadMap(LDD,getvaluename("porecrst"));
         } else {
@@ -833,7 +817,7 @@ void TWorld::InitSoilInput(void)
             KsatCompact = ReadMap(LDD,getvaluename("ksatcomp"));
             calcValue(*KsatCompact, ksatCalibration, MUL);
             //DO THIS, else inconsistency, Ksat can be smaller than ksatcomp
-            PoreCompact = ReadMap(LDD,getvaluename("porecomp"));                       
+            PoreCompact = ReadMap(LDD,getvaluename("porecomp"));
         } else {
             KsatCompact = NewMap(0);
             PoreCompact = NewMap(0);
@@ -873,11 +857,12 @@ void TWorld::InitSoilInput(void)
     if (InfilMethod == INFIL_SWATRE) {
 
         inith = new QVector<cTMap*>();
-        hSwatre = NewMap(0);
-        thetaSwatre = NewMap(0);
+      //  hSwatre = NewMap(0);
+      //  thetaSwatre = NewMap(0);
 
         // read all Swatre profile maps
         ProfileID = ReadMap(LDD,getvaluename("profmap"));
+        ProfileIDList = countUnits(*ProfileID);
 
         if (SwitchGrassStrip)
             ProfileIDGrass = ReadMap(LDD,getvaluename("profgrass"));
@@ -890,17 +875,21 @@ void TWorld::InitSoilInput(void)
 
         // read the swatre tables and make the information structure ZONE etc
         // this does not make the profile information
+
         ReadSwatreInputNew();
+
     }
 }
 //---------------------------------------------------------------------------
 void TWorld::InitBoundary(void)
 {
-    BoundaryQ = 0;
-    BoundaryQs = 0;
+    QBoundary = 0;
+    QsBoundary = 0;
+
+    QBoundFlow = NewMap(0);
+    DomainEdge = NewMap(0);
 
     // make a 1 cell edge around the domain, used to determine flood at the edge
-    DomainEdge = NewMap(0);
     for (int r = 1; r < _nrRows-1; r++)
         for (int c = 1; c < _nrCols-1; c++)
             if(!pcr::isMV(LDD->data[r][c]))
@@ -918,37 +907,39 @@ void TWorld::InitBoundary(void)
         if(c == _nrCols-1)  DomainEdge->Drc = 6;
     }
 
-    FlowBoundary = NewMap(0);
-
-    if(FlowBoundaryType == 1) // potential outflow everywhere
-    {
+    if(FlowBoundaryType < 2)
+        FlowBoundary = NewMap(0);
+    if(FlowBoundaryType == 1) {
+        // potential outflow everywhere
         // determine dynamically in function K2DDEMA
         // for flood DomainEdge is used
-        copy( *FlowBoundary, *DomainEdge);
+        FOR_ROW_COL_MV_L {
+            if(DomainEdge->Drc > 0) FlowBoundary->Drc = 1;
+        }}
     }
     if (FlowBoundaryType == 2 ) // user defined outflow (0 close, >0 outflow)
     {
         FlowBoundary = ReadMap(LDD,getvaluename("flowboundary"));
-        // use flowboundary for domainedge
-        FOR_ROW_COL_MV {
-            if (FlowBoundary->Drc > 0)
-                FlowBoundary->Drc = DomainEdge->Drc;
+        // use flowboundary for DomainEdge
+        FOR_ROW_COL_MV_L {
+            if (DomainEdge->Drc == 0)
+                FlowBoundary->Drc = 0;
             // this sets the cells to 1 row/col instead of a user sloppy digitizing
-        }
+        }}
     }
-    // always set outlet to 1
+
     FOR_ROW_COL_MV {
         if(LDD->Drc == 5)
-            FlowBoundary->Drc = 1;
+            FlowBoundary->Drc = 0;
     }
     if (SwitchIncludeChannel) {
         FOR_ROW_COL_MV_CH {
             if(LDDChannel->Drc == 5)
-                FlowBoundary->Drc = 1;
+                FlowBoundary->Drc = 0;
         }
     }
- //  report(*FlowBoundary, "bound.map");
- //  report(*DomainEdge, "edge.map");
+   //report(*FlowBoundary, "flowbound.map");
+   //report(*DomainEdge, "DomainEdge.map");
 
 }
 //---------------------------------------------------------------------------
@@ -967,24 +958,23 @@ void TWorld::InitChannel(void)
     if(!SwitchIncludeChannel)
         return;
 
-    //SedToChannel = NewMap(0);
-    //ChannelFlowWidth = NewMap(0);
-    ChannelWidthMax = NewMap(0);
     ChannelWaterVol = NewMap(0);
     ChannelQ = NewMap(0);
-    ChannelQb = NewMap(0); //baseflow
+    //ChannelQb = NewMap(0); //baseflow not used
     ChannelQn = NewMap(0);
     ChannelQntot = NewMap(0);
-    ChannelSed = NewMap(0);
+
     ChannelQs = NewMap(0);
-    ChannelQsn = NewMap(0);
+    ChannelQsn = NewMap(0); // sum of SS flux andf BL flux
     ChannelQsr = NewMap(0);
     ChannelV = NewMap(0);//
-    ChannelU = NewMap(0);//
     ChannelWH = NewMap(0);
-    //Channelq = NewMap(0);//
+    ChannelWidthB = NewMap(0);
+    ChannelPerimeter = NewMap(0);
+    //ChannelCos = NewMap(0);
+
     ChannelAlpha = NewMap(0);//
-    ChannelDX = NewMap(0); //!!!!!!!!!!!!!!!! dit moet DX zijn
+    ChannelDX = NewMap(0); //!!!!!!!!!!!!!!!! dit moet DX zijn anders massabalans fout? of nu niet meer?
     ChannelInfilVol = NewMap(0);
 
     maxChannelflow = NewMap(0);//
@@ -994,8 +984,9 @@ void TWorld::InitChannel(void)
     LDDChannel = InitMaskChannel(getvaluename("lddchan"));
     // LDDChannel is the mask for channels
 
+    // make 0 values into MV
     FOR_ROW_COL_MV_CH {
-        if (LDDChannel->Drc == 0)
+        if (LDDChannel->Drc <= 0)
             SET_MV_REAL8(&LDDChannel->Drc);
     }
 
@@ -1003,19 +994,20 @@ void TWorld::InitChannel(void)
     FOR_ROW_COL_MV_CH {
         nrValidCellsCH++;
     }
-    //crch_ = (LDD_COOR*) malloc(sizeof(LDD_COOR)*nrValidCellsCH);
-    //long i = 0;
+
     FOR_ROW_COL_MV_CH {
-        LDD_COOR newcr;
+        LDD_COORCH newcr;
         newcr.r = r;
         newcr.c = c;
-        // LDD_COOR *newcr = new LDD_COOR;
-        // newcr->r = r;
-        // newcr->c = c;
+        //newcr.ldd = 0; // needed?
+        newcr.culvert = false;
+        newcr.shape = SHAPERECT;
+
         crch_ << newcr;
     }
     crlinkedlddch_= MakeLinkedList(LDDChannel);
 
+    // not used?
     crlddch5_.clear();
     FOR_ROW_COL_MV_CH {
         if (LDDChannel->Drc == 5) {
@@ -1027,119 +1019,295 @@ void TWorld::InitChannel(void)
     }
     nrValidCellsLDDCH5 = crlddch5_.size();
 
-
-    // for 1D or 2D overland flow: channel outlet points are checked, leading
-    // FOR_ROW_COL_MV_CH {
-    //     if(Outlet->Drc > 0 && LDDChannel->Drc != 5)
-    //     {
-    //         //qDebug() << r << c << LDDChannel->Drc << Outlet->Drc;
-    //         ErrorString = QString("Outlet points (outlet.map) do not coincide with Channel LDD endpoints: %1 %2.").arg(Outlet->Drc).arg(LDDChannel->Drc);
-    //         throw 1;
-    //     }
-    // }
+    // Qnout.clear();
+    // Qnout.resize(nrValidCellsLDDCH5);
+    // Qnout.fill(0.0);
+    // qDebug() <<"Qnout" << Qnout.size();
 
     ChannelWidth = ReadMap(LDDChannel, getvaluename("chanwidth")); // bottom width in m
+    checkMap(*LDDChannel, *ChannelWidth, SMALLEREQUAL, 0, "Channel width must be larger than 0.");
 
-    //     ChannelWidth->checkMap(LARGER, _dx, "Channel width must be smaller than cell size");
-    //ChannelWidth->checkMap(SMALLEREQUAL, 0, "Channel width must be larger than 0 in channel cells");
     ChannelDepth = ReadMap(LDDChannel, getvaluename("chandepth"));
+    checkMap(*LDDChannel, *ChannelDepth, SMALLEREQUAL, 0, "Channel depth must be larger than 0.");
+
     cover(*ChannelWidth, *LDD,0);
     cover(*ChannelDepth, *LDD,0);
 
     ChannelWidthO = NewMap(0);
- //   ChannelDepthO = NewMap(0);
-
-    FOR_ROW_COL_MV_CH {
-        ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
-
-        ChannelWidthO->Drc = ChannelWidth->Drc;
-      //  ChannelDepthO->Drc = ChannelDepth->Drc;
-
-        SwitchChannelAdjustCHW = true;
-        if (SwitchChannelAdjustCHW && ChannelWidth->Drc  > 0.95* _dx) {
-            ChannelWidth->Drc = 0.95*_dx;
-            ChannelDepth->Drc *= ChannelWidthO->Drc/ChannelWidth->Drc; //(0.95*_dx);
-        }
-
-        if (ChannelWidth->Drc <= 0) {
-            ErrorString = QString("Map %1 contains channel cells with width = 0").arg(getvaluename("chanwidth"));
-            throw 1;
-        }
-    }
 
     ChannelSide = ReadMap(LDDChannel, getvaluename("chanside"));
+    cover(*ChannelSide, *LDD, 0);
+
     ChannelGrad = ReadMap(LDDChannel, getvaluename("changrad"));
-    checkMap(*ChannelGrad, LARGER, 1.0, "Channel Gradient must be SINE of slope angle (not tangent)");
-    //calcValue(*ChannelGrad, 0.001, MAX);
-    //VJ 171002 better to check and set Q to 0 in the code
+    checkMap(*LDDChannel,*ChannelGrad, LARGER, 1.0, "Channel Gradient must be SINE of slope angle (not tangent)");
     ChannelN = ReadMap(LDDChannel, getvaluename("chanman"));
 
     cover(*ChannelGrad, *LDD, 0);
-    cover(*ChannelSide, *LDD, 0);
     cover(*ChannelN, *LDD, 0);
 
-    ChannelNcul = NewMap(0);
-    ChannelQSide = NewMap(0);
+    // flag input channel maps when there is no channel
+    int re = -1;
+    int ce = -1;
+    QString S = "";
+    FOR_ROW_COL_MV_L {
+        if (!pcr::isMV(LDDChannel->Drc)) {
+            if (pcr::isMV(ChannelWidth->Drc) || ChannelWidth->Drc <= 0) {
+                re = r; ce = c; S = "Channel width";
+                break;
+            }
+            if (pcr::isMV(ChannelDepth->Drc) || ChannelDepth->Drc <= 0) {
+                re = r; ce = c; S = "Channel Depth";
+                break;
+            }
+            if (pcr::isMV(ChannelGrad->Drc) || ChannelGrad->Drc <= 0) {
+                re = r; ce = c; S = "Channel Gradient";
+                break;
+            }
+            if (pcr::isMV(ChannelN->Drc) || ChannelN->Drc <= 0) {
+                re = r; ce = c; S = "Channel Manning";;
+                break;
+            }
+            if (pcr::isMV(ChannelSide->Drc) || ChannelSide->Drc < 0) {
+                re = r; ce = c; S = "Channel Side angle";;
+                break;
+            }
+        }
+    }}
+    if (re > -1 || ce > -1) {
+        ErrorString = QString("%1 is invalid where the channel LDD is defined: row %2 - col %3").arg(S).arg(re).arg(ce);
+        throw 1;
+    }
 
-    calcValue(*ChannelN, ChnCalibration, MUL);
-    copy(*ChannelNcul, *ChannelN);
+    FOR_ROW_COL_MV_CHL {
+        ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
+       // ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc)); // same as DX else mass balance problems
 
-    if (SwitchChannelInfil)
-    {
+        //ChannelCos->Drc = cos(atan(ChannelSide->Drc));
+
+        ChannelWidthO->Drc = ChannelWidth->Drc;
+
+        if (ChannelWidth->Drc > 0.95* _dx) {
+            ChannelWidth->Drc = 0.95*_dx;
+        }
+
+        ChannelWidthB->Drc = ChannelWidth->Drc;
+        if (ChannelSide->Drc > 0) {
+            ChannelWidthB->Drc = qMax(0.0,ChannelWidth->Drc - 2*ChannelDepth->Drc*ChannelSide->Drc);
+            crch_[i_].shape = SHAPETRAP;
+            if (ChannelWidthB->Drc == 0) {
+                ChannelSide->Drc = ChannelWidthO->Drc/(2*ChannelDepth->Drc);
+                crch_[i_].shape = SHAPETRIA;
+            }
+        }
+       // tma->Drc = crch_[i_].shape;
+    }}
+
+    // Culverts and channel shapes
+    ChannelMaxQ = NewMap(0);
+    ChannelMaxAlpha = NewMap(0);
+    ChannelMaxArea = NewMap(0);
+    if (SwitchCulverts) {
+        ChannelCulvert = ReadMap(LDDChannel, getvaluename("chancul"));
+        ChannelDiameter = ReadMap(LDDChannel, getvaluename("chandiam"));
+        cover(*ChannelDiameter, *LDD, 0);
+        cover(*ChannelCulvert, *LDD, 0);
+
+        FOR_ROW_COL_MV_CHL {
+            if (ChannelCulvert->Drc > 0) {
+                crch_[i_].culvert = true;
+                crch_[i_].shape = (int) ChannelCulvert->Drc;
+                ChannelDiameter->Drc = CulvertCalibration*ChannelDiameter->Drc;
+            } else {
+                ChannelN->Drc *= ChnCalibration;
+            }
+        }}
+    } else {
+        ChannelDiameter = NewMap(0);
+        ChannelCulvert = NewMap(0);
+        FOR_ROW_COL_MV_CHL {
+            ChannelN->Drc *= ChnCalibration;
+        }}
+    }
+
+    FOR_ROW_COL_MV_CHL {
+        double perim;
+        switch (crch_[i_].shape) {
+            case SHAPERECT : ChannelMaxArea->Drc = ChannelWidth->Drc*ChannelDepth->Drc; // or ChannelWidth ?
+                perim = ChannelWidth->Drc*2*ChannelDepth->Drc;
+                break;
+            case SHAPECIRC : ChannelMaxArea->Drc = M_PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;//pi r^2
+                perim = M_PI*ChannelDiameter->Drc;
+           //     qDebug() << r << c << perim;
+                break;
+            case SHAPETRAP : ChannelMaxArea->Drc = 0.5*(ChannelWidthB->Drc + ChannelWidth->Drc)*ChannelDepth->Drc;
+                perim = ChannelWidthB->Drc+2*ChannelDepth->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+                break;
+            case SHAPETRIA : ChannelMaxArea->Drc = 0.5*ChannelWidth->Drc*ChannelDepth->Drc;
+                perim = 2*ChannelDepth->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+                break;
+            //SHAPEFREE is simply covered free flow, so it is a culvert but not confined
+        }
+
+        // used for confined flow
+        if (ChannelCulvert->Drc > 0 && ChannelCulvert->Drc < 5) {
+            ChannelMaxQ->Drc = std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
+            ChannelMaxAlpha->Drc = ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, 0.6);
+        } else {
+            ChannelMaxQ->Drc = 0;
+            ChannelMaxAlpha->Drc= 0;
+        }
+    }}
+
+    // infiltration
+    if (SwitchChannelInfil) {
         ChannelKsat = ReadMap(LDDChannel, getvaluename("chanksat"));
         cover(*ChannelKsat, *LDD, 0);
         calcValue(*ChannelKsat, ChKsatCalibration, MUL);
         // ksat in m3 is does not change during the run
         ChannelInfM3 = NewMap(0);
-        FOR_ROW_COL_MV_CH {
-            ChannelInfM3->Drc =  ChannelKsat->Drc * _dt/3600000.0 * ChannelDX->Drc * ChannelWidthO->Drc;
-        }
-
-        // ChannelStore = NewMap(0.050); // 10 cm deep * 0.5 porosity
-        // store not used?
+        // FOR_ROW_COL_MV_CHL {
+        //     ChannelInfM3->Drc =  ChannelKsat->Drc * _dt/3600000.0 * ChannelDX->Drc * ChannelWidthO->Drc;
+        // }}
+        // depends on perimeter! recalc during run
     }
 
-    if (SwitchCulverts) {
+    // gridcell retention
+    ChanRetentionVolTotPot = 0;
+    if (SwitchGridRetention) {
+        ChanRetention = ReadMap(LDD, getvaluename("chanretention"));
+        ChanRetentionAct = NewMap(0);
+        ChanRetentionVolTotPot = MapTotal(*ChanRetention);
+    }
 
-        ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
-        cover(*ChannelMaxQ, *LDD,0);
-        ChannelMaxAlpha = NewMap(0);
+    // make ldd of culverts negative for drawing
+    for(long i_ =  0; i_ < crlinkedlddch_.size(); i_++) {
+        int r = crlinkedlddch_.at(i_).r;
+        int c = crlinkedlddch_.at(i_).c;
+        if (ChannelCulvert->Drc > 0) {
+            LDD_COORIN in = crlinkedlddch_.at(i_);
+            in.ldd *= -1;
+            crlinkedlddch_.replace(i_, in);
+        }
+    }
 
+    // stationay baseflow
+
+    if (SwitchChannelBaseflowStationary) {
+        if (!SwitchChannelBaseflowMap) {
+
+            FindStationaryBaseFlow();
+            report(*BaseFlowInitialVolume,"baseflowinitm3s.map");
+            report(*BaseFlowInflow,"baseinflow.map");
+
+            //BaseFlowInit = MapTotal(*BaseFlowInitialVolume);
+            // moved
+
+        } else {
+            BaseFlowInflow = ReadMap(LDD, getvaluename("baseflow"));
+            BaseFlowInitialVolume = ReadMap(LDD, getvaluename("baseflowinitvol")); // in m3
+            // use rdefined
+        }
+        // this results in 2 maps: BaseFlowInflow (added every timestep in m3/s),
+        // BaseFlowInitialVolume (added once at the start in m3)
+    }
+
+    // erosion
+    if(SwitchErosion) {
+
+        TotalChanDetMap = NewMap(0);
+        TotalChanDepMap = NewMap(0);
+        ChannelDetFlow = NewMap(0);
+        ChannelDep = NewMap(0);
+        ChannelSSSed = NewMap(0);
+        ChannelSSConc = NewMap(0);
+        ChannelSSTC = NewMap(0);
+        ChannelSSDepth = NewMap(0);
+        ChannelQSSs = NewMap(0);
+        ChannelQSSsn = NewMap(0);
+        if (SwitchUse2Phase) {
+            ChannelBLSed = NewMap(0);
+            ChannelBLConc = NewMap(0);
+            ChannelBLTC = NewMap(0);
+            ChannelBLDepth = NewMap(0);
+            ChannelQBLs = NewMap(0);
+            ChannelQBLsn = NewMap(0);
+        }
+
+        ChannelConc = NewMap(0);
+        ChannelTC = NewMap(0);
+        ChannelY = NewMap(0);
+
+        D50CH = NewMap(0);
+        SwitchD50CHavg = false;
+        if(SwitchD50CHavg) {
+            double D50ch = mapAverage(*D50);
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
+                D50CH->Drc = D50ch;
+            }}
+        } else {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
+                D50CH->Drc = D50->Drc;
+            }}
+        }
+
+        if (SwitchUse2Phase) {
+            D90CH = NewMap(0);
+            if(SwitchD50CHavg) {
+                double D90ch = mapAverage(*D90);
+                #pragma omp parallel for num_threads(userCores)
+                FOR_ROW_COL_MV_CHL {
+                    D90CH->Drc = D90ch;
+                }}
+            } else {
+                #pragma omp parallel for num_threads(userCores)
+                FOR_ROW_COL_MV_CHL {
+                    D90CH->Drc = D90->Drc;
+                }}
+            }
+        }
+
+        COHCHCalibration = 1.0;
+        UcrCHCalibration = 1.0;
+
+        ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
+        COHCHCalibration = getvaluedouble("Cohesion Channel calibration");
+        //UcrCHCalibration = getvaluedouble("Ucr Channel calibration");
+        DirectEfficiency = getvaluedouble("Direct efficiency channel");
+
+        TurbulenceFactor = getvaluedouble("Turbulence factor channel");
+
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
-            if (ChannelMaxQ->Drc > 0) {
-                // ChannelWidth->Drc = 0.3;
-                // ChannelWidthO->Drc = 0.3;
-                // ChannelDepth->Drc = 0.3;
-                ChannelN->Drc = 0.015;
-                ChannelGrad->Drc = 0.002;
+            if (ChannelCohesion->Drc > 0)
+                ChannelCohesion->Drc *= COHCHCalibration;
 
-                ChannelMaxAlpha->Drc = (ChannelWidth->Drc*ChannelDepth->Drc)/std::pow(ChannelMaxQ->Drc, 0.6);
-            }
+            if (ChannelCohesion->Drc == 0) {
+                ChannelY->Drc = 1.0;
+            } else {
+                if (SwitchEfficiencyDETCH == 1)
+                    ChannelY->Drc = qMin(1.0, 1.0/(0.89+0.56*fabs(ChannelCohesion->Drc)));
+                else
+                    if (SwitchEfficiencyDETCH == 2)
+                        ChannelY->Drc = qMin(1.0, 0.79*exp(-0.85*fabs(ChannelCohesion->Drc)));
+                    else
+                        if (SwitchEfficiencyDETCH == 3)
+                            ChannelY->Drc = qMin(1.0, 1.0/(2.0*fabs(ChannelCohesion->Drc)));
+                        else
+                            if (SwitchEfficiencyDETCH == 4)
+                                ChannelY->Drc = DirectEfficiency;
+               }
+            if (ChannelCohesion->Drc < 0)
+                ChannelY->Drc = 0;
         }}
-
-        // there can be no side inflow in a culvert (which is actually not true!)
-        for (int i = 0; i < crlinkedlddch_.size(); i++) {
-            int c = crlinkedlddch_.at(i).c;
-            int r = crlinkedlddch_.at(i).r;
-            if (ChannelMaxQ->Drc > 0) {
-                LDD_COORIN hoi = crlinkedlddch_.at(i);
-                hoi.ldd *= -1;
-                crlinkedlddch_.replace(i, hoi) ;
-            }
-        }
-
-    } else {
-        ChannelMaxQ = NewMap(-1);
-        ChannelMaxAlpha = NewMap(-1);
     }
+}
 
-
-    FOR_ROW_COL_MV_CH
-    {
-        ChannelWidthMax->Drc = ChannelWidth->Drc; // not used!
-        // make always a rectangular channel
-    }
-
+//--------------------------------------------------------------------------
+//CHECK if can be done unrelated to channel
+void TWorld::InitGroundwater(void)
+{
     if (SwitchGWflow) {
 
         LDDbaseflow = ReadMap(LDD, getvaluename("lddbase"));
@@ -1172,6 +1340,7 @@ void TWorld::InitChannel(void)
                 GWz->Drc = DEM->Drc - SoilDepth1->Drc;
             tm->Drc = SoilDepth2->Drc;
         }}
+
         Average3x3(*GWz, *LDD, false);
 
         Average3x3(*tm, *LDD, false);
@@ -1183,89 +1352,6 @@ void TWorld::InitChannel(void)
         report(*GWN,"gwn.map");
 
     }
-
-    if(SwitchErosion) {
-        TotalChanDetMap = NewMap(0);
-        TotalChanDepMap = NewMap(0);
-        ChannelDetFlow = NewMap(0);
-        ChannelDep = NewMap(0);
-        ChannelSSSed = NewMap(0);
-        ChannelSSConc = NewMap(0);
-        ChannelSSTC = NewMap(0);
-        ChannelSSDepth = NewMap(0);
-        ChannelQSSs = NewMap(0);
-        ChannelQSSsn = NewMap(0);
-        if (SwitchUse2Phase) {
-            ChannelBLSed = NewMap(0);
-            ChannelBLConc = NewMap(0);
-            ChannelBLTC = NewMap(0);
-            ChannelBLDepth = NewMap(0);
-            ChannelQBLs = NewMap(0);
-            ChannelQBLsn = NewMap(0);
-        }
-
-        ChannelConc = NewMap(0);
-        ChannelTC = NewMap(0);
-        ChannelY = NewMap(0);
-
-        D50CH = NewMap(0);
-        SwitchD50CHavg = false;
-        if(SwitchD50CHavg) {
-            double D50ch = mapAverage(*D50);
-            FOR_ROW_COL_MV_CHL {
-                D50CH->Drc = D50ch;
-            }}
-        } else {
-            FOR_ROW_COL_MV_CHL {
-                D50CH->Drc = D50->Drc;
-            }}
-        }
-
-        if (SwitchUse2Phase) {
-            D90CH = NewMap(0);
-            if(SwitchD50CHavg) {
-                double D90ch = mapAverage(*D90);
-                FOR_ROW_COL_MV_CHL {
-                    D90CH->Drc = D90ch;
-                }}
-            } else {
-                FOR_ROW_COL_MV_CHL {
-                    D90CH->Drc = D90->Drc;
-                }}
-            }
-        }
-
-        COHCHCalibration = 1.0;
-        UcrCHCalibration = 1.0;
-
-        ChannelCohesion = ReadMap(LDDChannel, getvaluename("chancoh"));
-        COHCHCalibration = getvaluedouble("Cohesion Channel calibration");
-        UcrCHCalibration = getvaluedouble("Ucr Channel calibration");
-        DirectEfficiency = getvaluedouble("Direct efficiency channel");
-
-        FOR_ROW_COL_MV_CHL {
-            if (ChannelCohesion->Drc > 0)
-                ChannelCohesion->Drc *= COHCHCalibration;
-
-            if (ChannelCohesion->Drc == 0) {
-                ChannelY->Drc = 1.0;
-            } else {
-                if (SwitchEfficiencyDETCH == 1)
-                    ChannelY->Drc = std::min(1.0, 1.0/(0.89+0.56*fabs(ChannelCohesion->Drc)));
-                else
-                    if (SwitchEfficiencyDETCH == 2)
-                        ChannelY->Drc = std::min(1.0, 0.79*exp(-0.85*fabs(ChannelCohesion->Drc)));
-                    else
-                        if (SwitchEfficiencyDETCH == 3)
-                            ChannelY->Drc = std::min(1.0, 1.0/(2.0*fabs(ChannelCohesion->Drc)));
-                        else
-                            if (SwitchEfficiencyDETCH == 4)
-                                ChannelY->Drc = DirectEfficiency;
-               }
-            if (ChannelCohesion->Drc < 0)
-                ChannelY->Drc = 0;
-        }}
-    }
 }
 //---------------------------------------------------------------------------
 void TWorld::InitFlood(void)
@@ -1274,79 +1360,25 @@ void TWorld::InitFlood(void)
     FloodDepTot = 0;
     FloodDetTot = 0;
 
-    prepareFlood = true;
-    Qflood = NewMap(0);
-    hmxWH = NewMap(0);
-    FloodWaterVol = NewMap(0);
-    RunoffWaterVol = NewMap(0);
     floodTimeStart = NewMap(0);
-
     hs = NewMap(0);
     Uflood = NewMap(0);
     Vflood = NewMap(0);
-    hmx = NewMap(0);
-    hmxflood = NewMap(0);
-    FloodDomain = NewMap(0);
 
-    floodHmxMax = NewMap(0);//
-    floodVMax = NewMap(0);//
-    floodVHMax = NewMap(0);//
-    floodTime = NewMap(0);//
     FloodDT = NewMap(0);
-
+    gflowx = NewMap(0);
+    gflowy = NewMap(0);
+    hllx12_0 = NewMap(0);
+    hlly12_0 = NewMap(0);
+    hllx21_1 = NewMap(0);
+    hllx21_2 = NewMap(0);
+    hlly21_1 = NewMap(0);
+    hlly21_2 = NewMap(0);
     iter_n = 0;
 
-    dcr_.clear();
+    dcr_.clear(); // clear list of M_PIts  that need diagonal flow
     if (Switch2DDiagonalFlow)
         DiagonalFlowDEM();
-
-    // OBSOLETE
-    // if (!SwitchSWOFopen) {
-    //FloodT = NewMap(0);
-    //     vs = NewMap(0);
-    //     us = NewMap(0);
-    //     z1r = NewMap(0);
-    //     z1l = NewMap(0);
-    //     z2r = NewMap(0);
-    //     z2l = NewMap(0);
-    //     h1r = NewMap(0);
-    //     h1l = NewMap(0);
-    //     h2r = NewMap(0);
-    //     h2l = NewMap(0);
-    //     v1r = NewMap(0);
-    //     v1l = NewMap(0);
-    //     v2r = NewMap(0);
-    //     v2l = NewMap(0);
-    //     u1r = NewMap(0);
-    //     u1l = NewMap(0);
-    //     u2r = NewMap(0);
-    //     u2l = NewMap(0);
-
-    //     delzc1 = NewMap(0);
-    //     delzc2 = NewMap(0);
-
-    //     f1 = NewMap(0);
-    //     f2 = NewMap(0);
-    //     f3 = NewMap(0);
-    //     cflx = NewMap(0);
-    //     cfly = NewMap(0);
-    //     g1 = NewMap(0);
-    //     g2 = NewMap(0);
-    //     g3 = NewMap(0);
-    //     f1o = NewMap(0);
-    //     f2o = NewMap(0);
-    //     f3o = NewMap(0);
-    //     g1o = NewMap(0);
-    //     g2o = NewMap(0);
-    //     g3o = NewMap(0);
-    //     h1d = NewMap(0);
-    //     h1g = NewMap(0);
-    //     h2d = NewMap(0);
-    //     h2g = NewMap(0);
-    //     delz1 = NewMap(0);
-    //     delz2 = NewMap(0);
-    //     prepareFloodZ(DEM);
-    // }
 
     if (SwitchErosion) {
         BLDepthFlood = NewMap(0);
@@ -1366,111 +1398,89 @@ void TWorld::InitFlood(void)
 //---------------------------------------------------------------------------
 void TWorld::DiagonalFlowDEM()
 {
-    Fill(*tma,0);
-    Fill(*tmb,0);
     FOR_ROW_COL_MV_L {
         double Z = DEM->Drc;
         double z_x1 =  c > 0 && !MV(r,c-1)         ? DEM->data[r][c-1] : Z;
         double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? DEM->data[r][c+1] : Z;
         double z_y1 =  r > 0 && !MV(r-1,c)         ? DEM->data[r-1][c] : Z;
         double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? DEM->data[r+1][c] : Z;
-
-
+        int Ldd = 0;
+        int ldd = static_cast <int>(LDD->Drc);
+/*
+ *  DEM based:
         double z_x11 =  c > 0 && r > 0 && !MV(r-1,c-1)         ? DEM->data[r-1][c-1] : Z;
         double z_x21 =  c > 0 && r < _nrRows-1 && !MV(r+1,c-1) ? DEM->data[r+1][c-1] : Z;
         double z_y11 =  r > 0 && c < _nrCols-1 && !MV(r-1,c+1)         ? DEM->data[r-1][c+1] : Z;
         double z_y21 =  r < _nrRows-1 && c < _nrCols-1 && !MV(r+1,c+1) ? DEM->data[r+1][c+1] : Z;
 
-/*
         //note: true blockage if the diagonal cells are higher than the centre cell will not be flagged
         // left blockage
-        if (z_x1 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-            bool z1 = z_x11 < Z+F_pitValue;
-            bool z2 = z_y11 < Z+F_pitValue;
+        if (z_x1 > Z+F_M_PItValue && z_y1 > Z+F_M_PItValue && z_y2 > Z+F_M_PItValue) {
+            bool z1 = z_x11 < Z+F_M_PItValue;
+            bool z2 = z_y11 < Z+F_M_PItValue;
             if (z1 && z2) {
                 if (z_x11 < z_y11)
                     z2 = false;
             }
 
-            if(z1) tma->Drc = 7;
-            if(z2) tma->Drc = 1;
+            if(z1) Ldd = 7;
+            if(z2) Ldd = 1;
         }
         // right blockage
-        if (z_x2 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-            bool z1 = z_y11 < Z+F_pitValue;
-            bool z2 = z_y21 < Z+F_pitValue;
+        if (z_x2 > Z+F_M_PItValue && z_y1 > Z+F_M_PItValue && z_y2 > Z+F_M_PItValue) {
+            bool z1 = z_y11 < Z+F_M_PItValue;
+            bool z2 = z_y21 < Z+F_M_PItValue;
             if (z1 && z2) {
                 if (z_y11 < z_y21)
                     z2 = false;
             }
-            if(z1) tma->Drc = 9;
-            if(z2) tma->Drc = 3;
+            if(z1) Ldd = 9;
+            if(z2) Ldd = 3;
         }
         // upper blockage
-        if (z_y1 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-            bool z1 = z_x11 < Z+F_pitValue;
-            bool z2 = z_x21 < Z+F_pitValue;
+        if (z_y1 > Z+F_M_PItValue && z_x1 > Z+F_M_PItValue && z_x2 > Z+F_M_PItValue) {
+            bool z1 = z_x11 < Z+F_M_PItValue;
+            bool z2 = z_x21 < Z+F_M_PItValue;
             if (z1 && z2) {
                 if (z_x11 < z_x21)
                     z2 = false;
             }
-            if(z1) tma->Drc = 7;
-            if(z2) tma->Drc = 9;
+            if(z1) Ldd = 7;
+            if(z2) Ldd = 9;
         }
         //lower blockage
-        if (z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-            bool z1 = z_x21 < Z+F_pitValue;
-            bool z2 = z_y21 < Z+F_pitValue;
+        if (z_y2 > Z+F_M_PItValue && z_x1 > Z+F_M_PItValue && z_x2 > Z+F_M_PItValue) {
+            bool z1 = z_x21 < Z+F_M_PItValue;
+            bool z2 = z_y21 < Z+F_M_PItValue;
             if (z1 && z2) {
                 if (z_x21 < z_y21)
                     z2 = false;
             }
-            if(z1) tma->Drc = 1;
-            if(z2) tma->Drc = 3;
-        }
-
-// ldd map based:
-        int ldd = (int) LDD->Drc;
-        if (z_x1 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-            if (ldd == 1 || ldd == 7)
-                tmb->Drc = ldd;
-        }
-        if (z_x2 > Z+F_pitValue && z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue) {
-            if (ldd == 3 || ldd == 9)
-                tmb->Drc = ldd;
-        }
-        if (z_y1 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-            if (ldd == 7 || ldd == 9)
-                tmb->Drc = ldd;
-        }
-        if (z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
-            if (ldd == 1 || ldd == 3)
-                tmb->Drc = ldd;
+            if(z1) Ldd = 1;
+            if(z2) Ldd = 3;
         }
 */
-        int ldd = (int) LDD->Drc;
+
+        // if the center cell is lower than Z in the X and Y direction, take the ldd value
         if (z_y1 > Z+F_pitValue && z_y2 > Z+F_pitValue && z_x1 > Z+F_pitValue && z_x2 > Z+F_pitValue) {
             if (ldd == 1 || ldd == 3 || ldd == 7 || ldd == 9)
-                tma->Drc = ldd;
+                Ldd = ldd;
         }
 
-//          DEMdz->Drc = tma->Drc;
         // do not include channels, channels will do the outflow
         if(SwitchIncludeChannel && ChannelWidth->Drc > 0) {
-            tma->Drc = 0;
-            tmb->Drc = 0;
+            Ldd = 0;
         }
 
-        // make a list of pits
-        if (tma->Drc > 0) {
-            LDD_COORi dclrc;
+        // make a list of M_PIts for diagonal flow in SWOF
+        if (Ldd > 0) {
+            LDD_COORldd dclrc;
             dclrc.r = r;
             dclrc.c = c;
-            dclrc.ldd = (int) tma->Drc;
+            dclrc.ldd = Ldd;
             dcr_ << dclrc;
         }
     }}
-    //report(*tma,"diagflow.map");
 }
 //---------------------------------------------------------------------------
 void TWorld::CorrectDEM(cTMap *h, cTMap * g)
@@ -1503,7 +1513,7 @@ void TWorld::CorrectDEM(cTMap *h, cTMap * g)
             g->Drc = 0.001;
         }
     }}
-    //report(*tmb, "dempits.map");
+    //report(*tmb, "demM_PIts.map");
 }
 //---------------------------------------------------------------------------
 void TWorld::InitErosion(void)
@@ -1528,7 +1538,7 @@ void TWorld::InitErosion(void)
         return;
 
     PlantHeight = ReadMap(LDD,getvaluename("CH"));
-    checkMap(*PlantHeight, SMALLER, 0.0, "Cover fraction must be >= 0");
+    checkMap(*LDD, *PlantHeight, SMALLER, 0.0, "Cover fraction must be >= 0");
 
     StoneFraction  = ReadMap(LDD,getvaluename("stonefrc"));
 
@@ -1593,8 +1603,8 @@ void TWorld::InitErosion(void)
     FS_SigmaDiffusion = getvaluedouble("Sigma diffusion");
     R_SigmaDiffusion = getvaluedouble("Sigma diffusion"); // same diffusion for river and OF
 
-    SVCHCalibration = 1.0;
-    SVCHCalibration = getvaluedouble("SV calibration");
+    SVCHCalibration = 1;
+    //SVCHCalibration = getvaluedouble("SV calibration");
 
 
 //    if (SwitchUse2Phase && SwitchUseGrainSizeDistribution) {
@@ -1645,9 +1655,9 @@ void TWorld::InitErosion(void)
     //splashb = NewMap(0);
 
     FOR_ROW_COL_MV {
-        SettlingVelocitySS->Drc = GetSV(D50->Drc/gsizeCalibrationD50);
+        SettlingVelocitySS->Drc = GetSV(D50->Drc);
         if (SwitchUse2Phase)
-            SettlingVelocityBL->Drc = GetSV(D90->Drc/gsizeCalibrationD90);
+            SettlingVelocityBL->Drc = GetSV(D90->Drc);
     }
 
     SplashStrength = NewMap(0);
@@ -1669,29 +1679,29 @@ void TWorld::InitErosion(void)
             Y->Drc = 1.0;
         else {
             if (SwitchEfficiencyDET == 1)
-                Y->Drc = std::min(1.0, 1.0/(0.89+0.56*fabs(CohesionSoil->Drc)));
+                Y->Drc = qMin(1.0, 1.0/(0.89+0.56*fabs(CohesionSoil->Drc)));
             else
                 if (SwitchEfficiencyDET == 2)
-                    Y->Drc = std::min(1.0, 0.79*exp(-0.85*fabs(CohesionSoil->Drc)));
+                    Y->Drc = qMin(1.0, 0.79*exp(-0.85*fabs(CohesionSoil->Drc)));
                 else
                     if (SwitchEfficiencyDET == 3)
-                        Y->Drc = std::min(1.0, 1.0/(2.0*fabs(CohesionSoil->Drc)));
+                        Y->Drc = qMin(1.0, 1.0/(2.0*fabs(CohesionSoil->Drc)));
         }
         if (CohesionSoil->Drc < 0)
             Y->Drc = 0; // to force max strength
 
-        // empirical analysis based on Limburg data, dating 1989
+        // emM_PIrical analysis based on Limburg data, dating 1989
         // aggr stab is Lowe test median drops to halve an aggregate
         if (SwitchSplashEQ == 1) {
             if (AggrStab->Drc > 0)
-                SplashStrength->Drc = 5.331*pow(std::max(ASCalibration*AggrStab->Drc, 1.0),-0.238);
-                //SplashStrength->Drc = 2.82/std::max(ASCalibration*AggrStab->Drc, 1.0);
+                SplashStrength->Drc = 5.331*pow(qMax(ASCalibration*AggrStab->Drc, 1.0),-0.238);
+                //SplashStrength->Drc = 2.82/qMax(ASCalibration*AggrStab->Drc, 1.0);
                 //splashb = 2.96;
                 //redone as y = 5.3361x^-0.238  excell
         }
 
         // Eurosem method, aggr stab is not strength but sed delivery so the opposite
-        if (SwitchSplashEQ == 2) {                      
+        if (SwitchSplashEQ == 2) {
            SplashStrength->Drc = (1/ASCalibration)*AggrStab->Drc;
         }
         if (AggrStab->Drc < 0 || RootCohesion->Drc < 0)
@@ -1702,6 +1712,8 @@ void TWorld::InitErosion(void)
 
 //---------------------------------------------------------------------------
 /// called after get input data, initializes non-input maps and variables
+///
+// this is a mix of maps and vars always needed but a bit messy!!!
 void TWorld::IntializeData(void)
 {
     //TO DO add units and descriptions --> TMmapVariables.h
@@ -1729,7 +1741,7 @@ void TWorld::IntializeData(void)
     MDS = NewMap(0);
     FOR_ROW_COL_MV {
         double RRmm = 10 * RR->Drc;
-        MDS->Drc = std::max(0.0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
+        MDS->Drc = qMax(0.0, 0.243*RRmm + 0.010*RRmm*RRmm - 0.012*RRmm*tan(asin(Grad->Drc))*100);
         MDS->Drc /= 1000; // convert to m
     }
 
@@ -1782,20 +1794,17 @@ void TWorld::IntializeData(void)
     //floodVolTotInit = 0;
     floodVolTotMax = 0;
     floodAreaMax = 0;
-    floodBoundaryTot = 0;
+    QBoundaryTot = 0;
     floodBoundarySedTot = 0;
 
     // infiltration
     InfilVolFlood = NewMap(0);
-    //InfilVolKinWave = NewMap(0);
     InfilVol = NewMap(0);
     InfilmmCum = NewMap(0);
     InfilVolCum = NewMap(0);
-    fact = NewMap(0); // used in SWATRE
     Ksateff = NewMap(0);
     Poreeff = NewMap(0);
     Thetaeff = NewMap(0);
-    FFull = NewMap(0);
     Perc = NewMap(0);
     PercmmCum = NewMap(0);
     Fcum = NewMap(0);
@@ -1805,6 +1814,7 @@ void TWorld::IntializeData(void)
     //### runoff maps
     Qtot = 0;
     Qtot_dt = 0;
+    QTile = 0;
     QTiletot = 0;
     QfloodoutTot = 0;
     Qfloodout = 0;
@@ -1818,6 +1828,20 @@ void TWorld::IntializeData(void)
     WHrunoff = NewMap(0);
     WHmax = NewMap(0);
     WHstore = NewMap(0);
+    FloodWaterVol = NewMap(0);
+    RunoffWaterVol = NewMap(0);
+    hmxWH = NewMap(0);
+    hmx = NewMap(0);
+    hmxrunoff = NewMap(0);
+
+    FloodDomain = NewMap(0);
+
+    floodHmxMax = NewMap(0);//
+    floodVMax = NewMap(0);//
+    floodVHMax = NewMap(0);//
+    floodTime = NewMap(0);//
+
+
     MicroStoreVol = NewMap(0);
     FlowWidth = NewMap(0);
     V = NewMap(0);
@@ -1833,7 +1857,7 @@ void TWorld::IntializeData(void)
         FOR_ROW_COL_MV_L {
             if (DischargeUserPoints->Drc > 0 && ChannelWidth->Drc == 0) {
                 //message
-                int p = (int) DischargeUserPoints->Drc ;
+                int p = static_cast <int>(DischargeUserPoints->Drc);
                 ErrorString = QString("Discharge input point %1 is not in a channel!").arg(p);
                 DEBUG(ErrorString);
                 throw 1;
@@ -1851,8 +1875,6 @@ void TWorld::IntializeData(void)
         WHbound = NewMap(0);
         WHboundRain = NewMap(0);
     }
-
-    K2DOutlets = NewMap(0);
 
     QinKW = NewMap(0);
     Qoutput = NewMap(0);
@@ -1877,10 +1899,6 @@ void TWorld::IntializeData(void)
 
     // needs to be done here because profile uses data like impermable fration, tiledrain etc
     if (InfilMethod == INFIL_SWATRE) {
-
-        thetaTop = NewMap(0); // for pesticides
-        WHold= NewMap(0);
-        WHnew = NewMap(0);
 
         // VJ 110420 added tiledrain depth for all profiles, is all used in infiltration
         SwatreSoilModel = InitSwatre(ProfileID);
@@ -1908,46 +1926,15 @@ void TWorld::IntializeData(void)
 
     // SwitchUseMaterialDepth not active!
     SwitchUseMaterialDepth = false;
-    // if(SwitchErosion && SwitchUseMaterialDepth)
-    // {
-    //     Storage = ReadMap(LDD, getvaluename("detmat"));
-    //     StorageDep = NewMap(0.0);
-    //     SedimentMixingDepth = ReadMap(LDD, getvaluename("sedmixdepth"));
-    //     FOR_ROW_COL_MV
-    //     {
-    //         if(Storage->Drc != -1)
-    //         {
-    //             Storage->Drc = Storage->Drc * ChannelAdj->Drc * DX->Drc;
-    //         }else
-    //         {
-    //             Storage->Drc = -999999;
-    //         }
-    //         SedimentMixingDepth->Drc  = std::max(0.01, SedimentMixingDepth->Drc);
-    //     }
-    // }
 
-    // if(SwitchIncludeChannel) {
-    //     if(SwitchErosion && SwitchUseMaterialDepth)
-    //     {
-    //         RStorageDep = NewMap(0.0);
-    //         RSedimentMixingDepth = ReadMap(LDD, getvaluename("chansedmixdepth"));
-    //         RStorage = ReadMap(LDD, getvaluename("chandetmat"));
-    //         FOR_ROW_COL_MV
-    //         {
-    //             if(RStorage->Drc != -1)
-    //             {
-    //                 RStorage->Drc = RStorage->Drc * ChannelWidth->Drc * DX->Drc;
-    //             }else
-    //             {
-    //                 RStorage->Drc = -999999;
-    //             }
-    //             RSedimentMixingDepth->Drc = std::max(RSedimentMixingDepth->Drc, 0.01);
-    //         }
-    //     }
-    // }
+    // // add switch if baseflow map added, don't calculate new.
+    // if (SwitchChannelBaseflowStationary && !SwitchChannelBaseflowMap)
+    //     FindStationaryBaseFlow();
 
+    // in case of baseflow map, add initial volume from precalculated map
     if (SwitchChannelBaseflowStationary)
-        FindStationaryBaseFlow();
+        BaseFlowInit = MapTotal(*BaseFlowInitialVolume);
+        // correct mass balance
 
     // load data for pesticide
     SedMassIn = NewMap(0);
@@ -2093,7 +2080,6 @@ void TWorld::IntializeOptions(void)
     //SwitchOutputTimeUser = false;
     SwitchSeparateOutput = false;
     SwitchWriteHeaders = true; // write headers in output files in first timestep
-    SwitchEndRun = false;
 
     SwitchAdvancedOptions = false;
     SwitchPsiUser = false;
@@ -2106,7 +2092,6 @@ void TWorld::IntializeOptions(void)
     SwitchLitter = false;
 
     SwitchLinkedList = false;
-    SwitchChannelKinWave = true;
     SwitchTimeavgV = true;
     SwitchChannelKinwaveDt = false;
     SwitchChannelMaxV = true;
@@ -2114,14 +2099,10 @@ void TWorld::IntializeOptions(void)
     SwitchSWOFopen = true;
     SwitchMUSCL = false;
     SwitchFloodInitial = false;
-    SwitchFlowBarriers = false;
-    SwitchBuffers = false;
-    SwitchHeun = false;
     SwitchErosion = false;
     SwitchUse2Phase = false;
     SwitchUseGrainSizeDistribution = false;
     SwitchReadGrainSizeDistribution = false;
-    SwitchSedtrap = false;
     SwitchEfficiencyDET = 1;
     SwitchEfficiencyDETCH = 2;
     SwitchKETimebased = false;
@@ -2130,33 +2111,46 @@ void TWorld::IntializeOptions(void)
     SwitchUseMaterialDepth = false;
 
     SwitchIncludeChannel = false;
-    //SwitchChannelBaseflow = false;
     SwitchGWflow = false;
     SwitchGW2Dflow =  false;
     SwitchGWSWOFflow =  false;
     SwitchLDDGWflow = false;
     SwitchSWATGWflow = false;
     SwitchChannelBaseflowStationary = false;
+    SwitchChannelBaseflowMap = false;
     SwitchChannelInfil = false;
     SwitchCulverts = false;
     SwitchDischargeUser = false;
     SwitchWaveUser = false;
     SwitchIncludeTile = false;
     SwitchIncludeStormDrains = false;
+    SwitchUseSWMMflow = false;
+    SwitchDrainCircular = false;
 
     SwitchHardsurface = false;
     SwitchInfilCompact = false;
     SwitchInfilCrust = false;
-    SwitchGrassStrip = false;
     SwitchDumphead = false;
+    SwitchDumpSwatreKsat = true;
     initSwatreStructure = false;  // check to flag when swatre 3D structure is created, needed to clean up data
     SwitchGeometric = true;
     SwitchImpermeable = false;
     SwitchTwoLayer = false;
     SwitchThreeLayer = false;
 
+    SwitchConservation = false;
+    SwitchFlowBarriers = false;
+    SwitchBuffers = false;
+    SwitchSedtrap = false;
+    SwitchGridRetention = false;
+    SwitchGrassStrip = false;
+    
     SwitchPest = false;
     SwitchReportPest = false;
+
+
+//    SwitchPesticide = false;
+//    Switchheaderpest = true;
 
     addedbaseflow = false;
 }
@@ -2219,7 +2213,7 @@ void TWorld::FindStationaryBaseFlow()
                             c = colNr+dx[i];
 
                             if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
-                                ldd = (int) LDDChannel->Drc;
+                                ldd = static_cast <int>(LDDChannel->Drc);
                             else
                                 continue;
 
@@ -2287,7 +2281,7 @@ void TWorld::FindStationaryBaseFlow()
                             c = colNr+dx[i];
 
                             if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
-                                ldd = (int) LDDChannel->Drc;
+                                ldd = static_cast <int>(LDDChannel->Drc);
                             else
                                 continue;
 
@@ -2329,7 +2323,7 @@ void TWorld::FindStationaryBaseFlow()
                                 c = colNr+dx[i];
 
                                 if (INSIDE(r, c) && !pcr::isMV(LDDChannel->Drc))
-                                    ldd = (int) LDDChannel->Drc;
+                                    ldd = static_cast <int>(LDDChannel->Drc);
                                 else
                                     continue;
 
@@ -2368,7 +2362,7 @@ void TWorld::FindStationaryBaseFlow()
                                     double FW = ChannelWidth->Drc;
                                     P = FW + 2.0*h;
                                     A = FW*h;
-                                    F = std::max(0.0, 1.0 - q/(sqrt(ChannelGrad->Drc)/ChannelN->Drc*A*pow(A/P,2.0/3.0)));
+                                    F = qMax(0.0, 1.0 - q/(sqrt(ChannelGrad->Drc)/ChannelN->Drc*A*pow(A/P,2.0/3.0)));
                                     dF = (5.0*FW+6.0*h)/(3.0*h*P);
                                     h1 = h - F/dF;
                                     // function divided by derivative
@@ -2380,7 +2374,7 @@ void TWorld::FindStationaryBaseFlow()
                                 h = ChannelDepth->data[list->rowNr][list->colNr];
                                 A = ChannelWidth->Drc*h;
                             }
-                            BaseFlowInitialVolume->data[list->rowNr][list->colNr] = A*DX->Drc;
+                            BaseFlowInitialVolume->data[list->rowNr][list->colNr] = A*ChannelDX->Drc;
 
                             temp=list;
                             list=list->prev;
@@ -2394,49 +2388,35 @@ void TWorld::FindStationaryBaseFlow()
         }
     }
 
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         tmc->Drc = 0;
         tmd->Drc = 0;
     }}
-    report(*BaseFlowInitialVolume,"baseflowinitm3s.map");
-    report(*BaseFlowInflow,"baseinflow.map");
-
-
-    BaseFlowInit = MapTotal(*BaseFlowInitialVolume);
-
 }
 //---------------------------------------------------------------------------
 void TWorld::InitImages()
 {
-    if(SwitchImage && QFileInfo(satImageFileName).exists())
-
-    {
+    if(SwitchImage && QFileInfo(satImageFileDir + satImageFileName).exists()) {
         DEBUG("Reading background satellite inage");
-        cTRGBMap *image = readRasterImage(satImageFileName);
+        RGB_Image = readRasterImage(satImageFileDir+satImageFileName);
         //        qDebug() << "sat image" <<  image->cellSize()  << image->nrCols() << image->nrRows();
-        this->RGB_Image = image;
     }
 }
 //---------------------------------------------------------------------------
 // read and Intiialize all Tile drain variables and maps
+// for soil tile drains and road strom drains the same maps are used
 void TWorld::InitTiledrains(void)
 {
     if (SwitchIncludeTile || SwitchIncludeStormDrains) {
-
-        //switch tile is soil draimn and switch drain is urban drains
-
         // channel vars and maps that must be there even if channel is switched off
-        TileVolTot = 0;
         TileWaterVol = NewMap(0);
         RunoffVolinToTile = NewMap(0);
         TileQ = NewMap(0);
-        TileMaxQ = NewMap(0);
         TileQn = NewMap(0);
-        Tileq = NewMap(0);
         TileAlpha = NewMap(0);
+        TileMaxQ = NewMap(0);
         TileMaxAlpha = NewMap(0);
-
-        //##### Tile maps #####
 
         LDDTile = InitMaskTiledrain(getvaluename("lddtile"));
         // must be first LDDTile is the mask for tile drains
@@ -2444,7 +2424,6 @@ void TWorld::InitTiledrains(void)
             if (LDDTile->Drc == 0)
                 SET_MV_REAL8(&LDDTile->Drc);
         }
-
 
         nrValidCellsTile = 0;
         FOR_ROW_COL_MV_TILE {
@@ -2458,56 +2437,65 @@ void TWorld::InitTiledrains(void)
         }
         crlinkedlddtile_= MakeLinkedList(LDDTile);
 
+        TileDrainDistance = getvaluedouble("Drain inlet distance");
+        TileDrainSize = getvaluedouble("Drain inlet size");
 
         TileArea = NewMap(0);
-        TileDiameter = NewMap(0);
-        //TileInlet = ReadMap(LDDTile, getvaluename("tilesink"));
+
         TileGrad = ReadMap(LDDTile, getvaluename("tilegrad"));
-        checkMap(*TileGrad, LARGER, 1.0, "Tile drain gradient must be SINE of slope angle (not tangent)");
+        checkMap(*LDDTile, *TileGrad, LARGER, 1.0, "Tile drain gradient must be SINE of slope angle (not tangent)");
         calcValue(*TileGrad, 0.001, MAX);
+        cover(*TileGrad, *LDD, 0);
+
         TileN = ReadMap(LDDTile, getvaluename("tileman"));
-        cover(*TileGrad, *LDD, 0);
         cover(*TileN, *LDD, 0);
-        //cover(*TileInlet, *LDD, 0);
-        TileWaterVolSoil = NewMap(0);
-        TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
-        TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
-        TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
 
-        cover(*TileN, *LDD, 0);
-        cover(*TileGrad, *LDD, 0);
-        cover(*TileDiameter, *LDD, 0);
-        cover(*TileWidth, *LDD, 0);
-        cover(*TileHeight, *LDD, 0);
-
-        // FOR_ROW_COL_MV_TILE {
-        //     TileInlet->Drc = std::min(TileInlet->Drc, 0.9*_dx*_dx);
-        // }
-
+        // soil tile drain extra maps
         if (SwitchIncludeTile) {
             TileDepth = ReadMap(LDDTile, getvaluename("tiledepth"));
-            cover(*TileDepth, *LDD, -1); //VJ non tile cells flagged by -1 value, needed in swatre init
-            TileDrainSoil = NewMap(0);
+            cover(*TileDepth, *LDD, -1); //non tile cells flagged by -1 value, needed in swatre init
+            TileWaterVolSoil = NewMap(0);
+        } else {
+            TileDepth = NewMap(-1);
         }
 
-        // dimensions rectangular or circular
-        if (SwitchIncludeStormDrains && SwitchStormDrainCircular) {
+        // drain circular
+        if (SwitchDrainCircular) {
             TileDiameter = ReadMap(LDDTile, getvaluename("tilediameter"));
-            FOR_ROW_COL_MV_TILE {
-                double area = SQR(TileDiameter->Drc*0.5)*PI;// PI r^2
-                TileArea->Drc = area * 2; // two sides of the street
-            }
-            CalcMAXDischCircular();
+            FOR_ROW_COL_MV_TILEL {
+                TileN->Drc = 0.025;
+                TileArea->Drc = TileDiameter->Drc*TileDiameter->Drc*0.25*M_PI;// M_PI r^2
+                TileMaxQ->Drc = TileArea->Drc * std::pow(TileArea->Drc/(M_PI*TileDiameter->Drc),2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+                // max Q is V*A when full
+                TileMaxAlpha->Drc  = TileArea->Drc/std::pow(TileMaxQ->Drc, BETAcirc);
+                // BETAcirc is set to 0.6 but may be different
+            }}
         }
-        if (SwitchIncludeStormDrains && !SwitchStormDrainCircular) {
+
+        // drain square
+        if (!SwitchDrainCircular) {
+            TileDiameter = NewMap(0);
+            TileWidth = ReadMap(LDDTile, getvaluename("tilewidth"));
+            TileHeight = ReadMap(LDDTile, getvaluename("tileheight"));
+            cover(*TileWidth, *LDD, 0);
+            cover(*TileHeight, *LDD, 0);
             //rectangular drainage
-            FOR_ROW_COL_MV_TILE {
-                TileArea->Drc = 2 * TileWidth->Drc*TileHeight->Drc;
-                // two sides of the street
-            }
-            CalcMAXDischRectangular();
+            FOR_ROW_COL_MV_TILEL {
+                TileArea->Drc = TileWidth->Drc*TileHeight->Drc;
+                TileDiameter->Drc = 2*TileWidth->Drc + 2*TileHeight->Drc;
+                double Perim = TileWidth->Drc+2*TileHeight->Drc;
+                TileMaxQ->Drc = TileArea->Drc*pow(TileArea->Drc/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
+                TileMaxAlpha->Drc  = TileArea->Drc/std::pow(TileMaxQ->Drc, BETArect);
+            }}
         }
-    }
+
+        if (SwitchDrainNoOutflow) {
+            FOR_ROW_COL_MV_TILEL {
+                if (LDDTile->Drc == 5)
+                    TileMaxQ->Drc = 1e-6; //No outflow from tiledrains
+            }}
+        }
+   }
 }
 //---------------------------------------------------------------------------
 // Make a shaded relief map from the DEM for map display
@@ -2521,21 +2509,20 @@ void TWorld::InitShade(void)
     double maxDem = -1e9;
     double minDem = 1e9;
 
-    FOR_ROW_COL_MV
-    {
-        //        double Incl = 15.0/180.0*PI;
-        //        double Decl = 300/180.0*PI;
+    FOR_ROW_COL_MV_L {
+        //        double Incl = 15.0/180.0*M_PI;
+        //        double Decl = 300/180.0*M_PI;
         double mat[9];
         double dx, dy;//, aspect;
         double factor = 1.0;
 
-        minDem = std::min(DEM->Drc, minDem);
-        maxDem = std::max(DEM->Drc, maxDem);
+        minDem = qMin(DEM->Drc, minDem);
+        maxDem = qMax(DEM->Drc, maxDem);
 
-        for (int i = 0; i < 9; i++)
+        for (int i = 0; i < 9; i++) {
             mat[i] = DEM->Drc;
-        if (r > 0 && r < _nrRows-1 && c > 0 && c < _nrCols-1)
-        {
+        }
+        if (r > 0 && r < _nrRows-1 && c > 0 && c < _nrCols-1) {
             if(!pcr::isMV(LDD->data[r-1][c-1]))
                 mat[0] = DEM->data[r-1][c-1];
             if(!pcr::isMV(LDD->data[r-1][c  ]))
@@ -2560,16 +2547,6 @@ void TWorld::InitShade(void)
         dx = (mat[2] + 2*mat[5] + mat[8] - mat[0] -2*mat[3] - mat[6])/(8*_dx);
         dy = (mat[0] + 2*mat[1] + mat[2] - mat[6] -2*mat[7] - mat[8])/(8*_dx);
 
-        //        if (dy < 0)
-        //            aspect = atan(dx/dy)+2*PI;
-        //        else
-        //            if (dy > 0)
-        //                aspect = atan(dx/dy)+PI;
-        //            else
-        //                aspect = 0;
-        //Shade->Drc = cos(Incl)*Grad->Drc*cos(aspect-Decl) + sin(Incl)*cos(asin(Grad->Drc));
-
-
         //http://edndoc.esri.com/arcobjects/9.2/net/shared/geoprocessing/spatial_analyst_tools/how_hillshade_works.htm
         //Burrough, P. A. and McDonell, R.A., 1998. Principles of Geographical Information Systems (Oxford University Press, New York), p. 190.
         double z_factor = 2.0;
@@ -2579,74 +2556,114 @@ void TWorld::InitShade(void)
         {
             Aspect_rad = atan2(dy, -dx);
             if (Aspect_rad < 0)
-                Aspect_rad = 2*PI + Aspect_rad;
+                Aspect_rad = 2*M_PI + Aspect_rad;
         }
         else
         {
             if(dy > 0)
-                Aspect_rad = PI/2.0;
+                Aspect_rad = M_PI/2.0;
             else
-                Aspect_rad = 2*PI - PI/2.0;
+                Aspect_rad = 2*M_PI - M_PI/2.0;
         }
-        double Zenith_rad = 70.0 * PI / 180.0;
-        double Azimuth_rad = 240 * PI / 180.0;
+        double Zenith_rad = 70.0 * M_PI / 180.0;
+        double Azimuth_rad = 240 * M_PI / 180.0;
         tma->Drc = 255.0 * ( ( cos(Zenith_rad) * cos(Slope_rad) ) + ( sin(Zenith_rad) * sin(Slope_rad) * cos(Azimuth_rad - Aspect_rad) ) );
-    }
+    }}
     double MaxV = mapMaximum(*tma);
     double MinV = mapMinimum(*tma);
 
-    FOR_ROW_COL_MV
-    {
+    FOR_ROW_COL_MV_L {
         tma->Drc = (tma->Drc-MinV)/(MaxV-MinV);
         // VJ add a bit of elevation for enhanced effect
         tma->Drc = 0.8*tma->Drc+0.2*(DEM->Drc - minDem)/(maxDem-minDem);
         //ShadeBW->Drc = Shade->Drc;
-    }
+    }}
     MaxV = mapMaximum(*tma);
     MinV = mapMinimum(*tma);
-    FOR_ROW_COL_MV
-    {
+    FOR_ROW_COL_MV_L {
         ShadeBW->Drc = (tma->Drc-MinV)/(MaxV-MinV);
         // VJ add a bit of elevation for enhanced effect
-    }
+    }}
 
 }
 //---------------------------------------------------------------------------
 // for drawing onscreen
 void TWorld::InitScreenChanNetwork()
 {
-    if(!SwitchIncludeChannel)
-        return;
-
-    op.lddch_.clear();
-    op.lddch_.append(crlinkedlddch_);
-
- //   op.CulvertX.clear();
- //   op.CulvertY.clear();
     op.EndPointX.clear();
     op.EndPointY.clear();
     op.ObsPointX.clear();
     op.ObsPointY.clear();
+    op.lddch_.clear();
 
-    FOR_ROW_COL_MV_CH {
-        if (LDDChannel->Drc == 5){
-            op.EndPointX << _llx + c*_dx + 0.5*_dx;
-            op.EndPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
+    if(SwitchIncludeChannel) {
+        op.lddch_.append(crlinkedlddch_);
+
+        FOR_ROW_COL_MV_CHL {
+            if (LDDChannel->Drc == 5){
+                op.EndPointX << _llx + c*_dx + 0.5*_dx;
+                op.EndPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
+            }}
         }
+    } else {
+        FOR_ROW_COL_MV_L {
+            if (LDD->Drc == 5){
+                op.EndPointX << _llx + c*_dx + 0.5*_dx;
+                op.EndPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
+            }
+        }}
     }
-    FOR_ROW_COL_MV_CH {
+
+    FOR_ROW_COL_MV_L {
         if (PointMap->Drc > 0){
             op.ObsPointX << _llx + c*_dx + 0.5*_dx;
             op.ObsPointY << _lly + (_nrRows-r-1)*_dx + 0.5*_dx;
-
         }
-    }
+    }}
+
 }
 //---------------------------------------------------------------------------
 void TWorld::InitNewSoilProfile()
 {
     if(InfilMethod != INFIL_SOAP)
         return;
+    vgalpha1 = NewMap(0);
+    vgn1 = NewMap(0);
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        double ks = log(qMin(1000.0,qMax(0.5,Ksat1->Drc))); //NOTE ln = log, log = log10
+        // see the excel file with the regression equations in auxfiles
+        // the regression fit has cm as output unit.
+       vgalpha1->Drc = 100*0.0119*exp(0.4657*ks);//(0.02*ks + 0.0095); // in m-1
+       vgn1->Drc = 0.2656*ks + 1.1042;
+        // NOTE alpha must have the reverse units of H. If H is in m, alpha must be in 1/m
+    }}
+    if(SwitchTwoLayer) {
+        vgalpha2 = NewMap(0);
+        vgn2 = NewMap(0);
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            double ks = log(qMin(1000.0,qMax(0.5,Ksat2->Drc))); //NOTE ln = log, log = log10
+            // see the excel file with the regression equations in auxfiles
+            // the regression fit has cm as output unit.
+           vgalpha2->Drc = 100*0.0119*exp(0.4657*ks);//(0.02*ks + 0.0095); // in m-1
+           vgn2->Drc = 0.2656*ks + 1.1042;
+            // NOTE alpha must have the reverse units of H. If H is in m, alpha must be in 1/m
+        }}
+    }
+    if (SwitchThreeLayer) {
+        vgalpha3 = NewMap(0);
+        vgn3 = NewMap(0);
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            double ks = log(qMin(1000.0,qMax(0.5,Ksat3->Drc))); //NOTE ln = log, log = log10
+            // see the excel file with the regression equations in auxfiles
+            // the regression fit has cm as output unit.
+           vgalpha3->Drc = 100*0.0119*exp(0.4657*ks);//(0.02*ks + 0.0095); // in m-1
+           vgn3->Drc = 0.2656*ks + 1.1042;
+            // NOTE alpha must have the reverse units of H. If H is in m, alpha must be in 1/m
+        }}
+    }
 
     nN1_ = getvalueint("SoilWB nodes 1");
     nN2_ = 0;
@@ -2655,8 +2672,8 @@ void TWorld::InitNewSoilProfile()
     nN3_ = 0;
     if (SwitchThreeLayer)
         nN3_ = getvalueint("SoilWB nodes 3");
-    SoilWBdtfactor = getvaluedouble("SoilWB dt factor");
-    swatreDT = std::min(SoilWBdtfactor, _dt);
+    SoilWBdtfactor = 2.0;//getvaluedouble("SoilWB dt factor");
+    swatreDT = qMin(SoilWBdtfactor, _dt);
     KavgType = getvalueint("Infil Kavg");
     int vg = getvalueint("Van Genuchten");
     SwitchBrooksCorey = bool(vg == 1);

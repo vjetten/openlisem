@@ -212,7 +212,10 @@ void lisemqt::on_toolButton_help(int page)
     if (page == HELPADVANCED    ) filename = ":/help8.html";
 
     QFile file(filename);
-    file.open(QFile::ReadOnly | QFile::Text);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        ErrorString = "Cannot open the file: "+filename;
+        throw 1;
+    }
     QTextStream stream(&file);
     helptxt->setHtml(stream.readAll());
   //  helpbox->show();
@@ -440,12 +443,20 @@ void lisemqt::on_toolButton_ETmapShow_clicked()
 void lisemqt::showTextfile(QString name)
 {
    // Read text from file
+    if (!QFileInfo(name).exists()) {
+        QMessageBox::warning(this,"openLISEM",QString("Cannot find file!"));
+        return;
+    }
+qDebug() << name;
     QFile file(name);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        ErrorString = "Cannot open the file: "+name;
+        throw 1;
+    }
     QTextStream in(&file);
     QString initialText = in.readAll();
     file.close();
-
+qDebug() << initialText;
     // Find the longest line in the text
     QStringList lines = initialText.split("\n");
     int maxWidth = 0;
@@ -555,40 +566,40 @@ void lisemqt::showTextfileOld(QString name)
     file.close();
 }
 //--------------------------------------------------------------------
-void lisemqt::on_E_EndTimeDay_returnPressed()
-{
-    int daye = E_EndTimeDay->text().split(":")[0].toInt();
-    int mine = E_EndTimeDay->text().split(":")[1].toInt();
-    daye = std::max(1,std::min(daye, 366));
-    if (mine > 1440) {
-        daye = mine/1440 + 1;
-        mine = mine % 1440;
-    }
-    E_EndTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
-}
+// void lisemqt::on_E_EndTimeDay_returnPressed()
+// {
+//     int daye = E_EndTimeDay->text().split(":")[0].toInt();
+//     int mine = E_EndTimeDay->text().split(":")[1].toInt();
+//     daye = qMax(1,qMin(daye, 366));
+//     if (mine > 1440) {
+//         daye = mine/1440 + 1;
+//         mine = mine % 1440;
+//     }
+//     E_EndTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
+// }
 //--------------------------------------------------------------------
-void lisemqt::on_E_BeginTimeDay_returnPressed()
-{
-       int daye = E_BeginTimeDay->text().split(":")[0].toInt();
-       int mine = E_BeginTimeDay->text().split(":")[1].toInt();
-       daye = std::max(1,std::min(daye, 366));
-       if (mine > 1440) {
-           daye = mine/1440 + 1;
-           mine = mine % 1440;
-       }
-       E_BeginTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
-}
+// void lisemqt::on_E_BeginTimeDay_returnPressed()
+// {
+//        int daye = E_BeginTimeDay->text().split(":")[0].toInt();
+//        int mine = E_BeginTimeDay->text().split(":")[1].toInt();
+//        daye = qMax(1,qMin(daye, 366));
+//        if (mine > 1440) {
+//            daye = mine/1440 + 1;
+//            mine = mine % 1440;
+//        }
+//        E_BeginTimeDay->setText(QString("%1:%2").arg(daye,3,10,QLatin1Char('0')).arg(mine,4,10,QLatin1Char('0')));
+// }
 //--------------------------------------------------------------------
-void lisemqt::on_checkStationaryBaseflow_toggled(bool checked)
-{
-    if (checked) checkChannelInfil->setChecked(false);
-   // doChannelBaseflow = checked;
-}
-//--------------------------------------------------------------------
-void lisemqt::on_checkChannelInfil_toggled(bool checked)
-{
-    if (checked) checkStationaryBaseflow->setChecked(false);
-}
+// void lisemqt::on_checkStationaryBaseflow_toggled(bool checked)
+// {
+//     if (checked) checkChannelInfil->setChecked(false);
+//    // doChannelBaseflow = checked;
+// }
+// //--------------------------------------------------------------------
+// void lisemqt::on_checkChannelInfil_toggled(bool checked)
+// {
+//     if (checked) checkStationaryBaseflow->setChecked(false);
+// }
 //--------------------------------------------------------------------
 void lisemqt::on_E_EfficiencyDETCH_currentIndexChanged(int index)
 {
@@ -655,7 +666,7 @@ void lisemqt::on_toolButton_satImageName_clicked()
     {
         QFileInfo fi(path);
         satImageFileName = fi.fileName();
-        satImageFileDir = CheckDir(fi.absolutePath(), false);//Dir().path());
+        satImageFileDir = CheckDir(fi.absolutePath(), false);
         E_satImageName->setText( satImageFileDir + satImageFileName );
     }
 }
@@ -668,6 +679,9 @@ void lisemqt::on_checkRainfall_toggled(bool checked)
 void lisemqt::on_checkET_toggled(bool checked)
 {
     groupET->setEnabled(checked);
+    checkDailyET->setEnabled(checked);
+    E_longtimestep->setVisible(checked);
+    E_longtimestep->setEnabled(checked);
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_checkInterception_toggled(bool checked)
@@ -690,8 +704,8 @@ void lisemqt::on_checkInfiltration_toggled(bool checked)
 void lisemqt::on_checkIncludeChannel_toggled(bool checked)
 {
     groupChannelParams->setEnabled(checked);
-    checkMapChannels->setEnabled(checked);
-
+    //checkMapChannels->setEnabled(checked);
+    groupAdvChannel->setEnabled(checked);
    // checkMapNameModel(CHANNELMAPS, 0, checked);
 }
 //---------------------------------------------------------------------------
@@ -730,6 +744,7 @@ void lisemqt::on_checkInfrastructure_toggled(bool checked)
     checkMapHardSurface->setEnabled(checked);
     checkMapBuildings->setEnabled(checked);
     checkMapRoads->setEnabled(checked);
+    checkMapBuffers->setEnabled(checked);
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_checkConservation_toggled(bool checked)
@@ -788,7 +803,12 @@ void lisemqt::on_spinSoilLayers_valueChanged(int arg1)
         label_calKsat3->setEnabled(true);
         E_CalibrateKsat3->setEnabled(true);
     }
-
+    if (arg1 == 0) { // SWATRE
+        label_calKsat2->setEnabled(true);
+        E_CalibrateKsat2->setEnabled(true);
+        label_calKsat3->setEnabled(true);
+        E_CalibrateKsat3->setEnabled(true);
+    }
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int index)
@@ -800,8 +820,99 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int index)
     label_153->setEnabled(index > 0);
 }
 //---------------------------------------------------------------------------
-void lisemqt::on_toolButton_clicked()
+void lisemqt::on_toolButton_version_clicked()
 {
     checkforpatch = true;
     CheckVersion();
 }
+//---------------------------------------------------------------------------
+void lisemqt::on_checkNewversionGITHUB_toggled(bool checked)
+{
+    checkforpatch = checked;
+    qDebug() << checkforpatch;
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_checksatImage_toggled(bool checked)
+{
+    if (checked && !E_satImageName->text().isEmpty() && !QFileInfo(E_satImageName->text()).exists()) {
+        checksatImage->setChecked(false);
+    }
+    if (checked && E_satImageName->text().isEmpty()) {
+        checksatImage->setChecked(false);
+    }
+
+}
+//---------------------------------------------------------------------------
+
+void lisemqt::on_E_Timestep_editingFinished()
+{
+    bool ok;
+    double value = E_Timestep->text().toDouble(&ok);
+    if (ok) {
+        // Format to "005.0" style with leading zeros and one decimal place
+        QString formattedValue = QString::asprintf("%05.1f", value);
+        E_Timestep->setText(formattedValue);
+    } else {
+        E_Timestep->setText("Invalid input");
+    }
+}
+//---------------------------------------------------------------
+void lisemqt::on_E_BeginTimeDay_editingFinished()
+{
+    QString inputText = E_BeginTimeDay->text();
+    bool dayOk = false, minuteOk = false;
+    int days, minutes;
+
+    if (inputText.contains(":")) {
+        QStringList parts = inputText.split(":");
+        if (parts.size() == 2) {
+            days = parts[0].toInt(&dayOk);
+            minutes = parts[1].toInt(&minuteOk);
+        }
+    } else {
+        days = 1; dayOk = true;
+        minutes = inputText.toInt(&minuteOk);
+    }
+
+    if (dayOk && minuteOk) {
+        // Format days with leading zeros (3 digits) and minutes (4 digits)
+        QString formattedValue = QString::asprintf("%03d:%04d", days, minutes);
+        E_BeginTimeDay->setText(formattedValue);
+    } else {
+        E_BeginTimeDay->setText("Invalid input");
+    }
+
+}
+//---------------------------------------------------------------
+void lisemqt::on_E_EndTimeDay_editingFinished()
+{
+    QString inputText = E_EndTimeDay->text();
+    bool dayOk = false, minuteOk = false;
+    int days, minutes;
+
+    if (inputText.contains(":")) {
+        QStringList parts = inputText.split(":");
+        days = parts[0].toInt(&dayOk);
+        minutes = parts[1].toInt(&minuteOk);
+    } else {
+        days = 1; dayOk = true;
+        minutes = inputText.toInt(&minuteOk);
+    }
+
+    if (dayOk && minuteOk) {
+        // Format days with leading zeros (3 digits) and minutes (4 digits)
+        QString formattedValue = QString::asprintf("%03d:%04d", days, minutes);
+        E_EndTimeDay->setText(formattedValue);
+    } else {
+        E_EndTimeDay->setText("Invalid input");
+    }
+
+}
+//---------------------------------------------------------------
+void lisemqt::on_E_FlowBoundary_valueChanged(int arg1)
+{
+    flowboundary = false;
+    if (arg1 > 0 && E_OFWaveType->currentIndex() > 0)
+        flowboundary = true;
+}
+//---------------------------------------------------------------

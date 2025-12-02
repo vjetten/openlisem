@@ -62,7 +62,10 @@ void TWorld::GetSnowmeltData(QString name)
 
     nrSnowmeltseries = 0;
 
-    fff.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!fff.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        ErrorString = "Snowmelt file cannot be opened: " + name;
+        throw 1;
+    }
 
     while (!fff.atEnd())
     {

@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.16)
 
 project(Lisem)
 
+set(COMPILE_AS_4BYTE  FALSE)
+
+set(TGT Lisem)
+if(COMPILE_AS_4BYTE)
+  set(TGT Lisem4bt)
+endif(COMPILE_AS_4BYTE)
+
 # Instruct CMake to run moc, uic, and rcc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -54,7 +61,7 @@ endif()
 # Include application makefile
 INCLUDE(Application)
 
-target_sources(Lisem
+target_sources(${TGT}
   PRIVATE
   AUTHORS
   README.txt

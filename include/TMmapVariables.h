@@ -36,19 +36,21 @@ cTMap
 *DX,                         //!< cell length divided by cosine slope (so corrected for terrain gradient) [m]
 *CellArea,                   //!< cell area = DX * _dx [m^2]
 *Grad,                       //!< sine of the DEM gradient [-]
-*sqrtGrad,
 *LDD,                        //!< local drain direction map [-]
 *Outlet,                     //!< main outlet of the catchment, value 5 in LDD map [-]
 *PointMap,                   //!< map with output points, values > 0 [-]
 *FlowBoundary,               //!< map with open boundary fior diffusive runoff (1) or closed boundary (0)
 *WaterSheds,                 //!< map with numbered siubcatchments, must be 1,2,3 ... n
+*QBoundFlow,
+*DomainEdge,
 
 *IDRainPoints,                   //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *RainZone,                   //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *ETZone,                     //!< rainfall zone map (clasified map, numers corrspond to raingaug number in rainfall file) [-]
 *Rain,                       //!< map with rain from tis time intervall [m]
 *Rainc,                      //!< map with rain from tis time intervall, spread over the surface (corrected or slope) [m]
-*RainCum,                    //!< cumulative rainfall, as spreadoutover slope [m]
+*RainCumInt,                 //!< cumulative rainfall, as spreadoutover slope [m], needed for interception
+*RainCumCrust,               //!< cumulative rainfall, as spreadoutover slope [m], needed for crusting
 *RainCumFlat,                //!< cumulative rainfall [m]
 *RainNet,                    //!< net rainfall after interception [m]
 *LeafDrain,                  //!< drainge from canopy, storage overflow [m]
@@ -76,8 +78,8 @@ cTMap
 *SnowmeltCum,                //!< cumulative showmelt depth [m]
 
 *WH,                         //!< water height on the surface [m]
-*WHold,                      //!< water height on the surface before infiltration [m]
-*WHnew,                      //!< water height on the surface before infiltration [m]
+//*WHold,                      //!< water height on the surface before infiltration [m]
+//*WHnew,                      //!< water height on the surface before infiltration [m]
 *WHrunoff,                   //!< water height available for runoff [m]
 *WHmax,                      //!< max runoff wh in m for reporting
 *WHstore,                    //!< water heigth stored in micro depressions [m]
@@ -134,6 +136,7 @@ cTMap
 *StoneFraction,              //!< fraction of stones on the surface, affects splash [-]
 *CompactFraction,            //!< fraction compacted at the surface, uses ksat compact [-]
 *CrustFraction,              //!< fraction crusted at the surface, uses ksat crust [-]
+*CrustFraction0,              //!< fraction crusted at the surface, uses ksat crust [-]
 //*RepellencyFraction,         //!< fraction of water repellency of node 1 in Swatre [-]
 //*RepellencyCell,             //!< Cell included in water repellency in Swatre [-]
 *HardSurface,                //!< value 1 if 'hard' surface: no interception, infiltration, detachment [-]
@@ -171,11 +174,8 @@ cTMap
 *TC,                         //!< transport capacity [kg/m^3]
 *Conc,                       //!< sediment concentration in flow [kg/m^3]
 *Sed,                        //!< sediment content of flow [kg]
-//*CG,                         //!< parameter Govers in TC equation
-//*DG,                         //!< parameter Govers in TC equation
 *SettlingVelocitySS,           //!< settling velocity according to Stokes [m/s]
 *SettlingVelocityBL,           //!< settling velocity according to Stokes [m/s]
-*K2DOutlets,
 
 // Pesticides
 *PMmw,                      //!< Map with mass of pesticides in soil part of mixing zone [mg]
@@ -216,8 +216,7 @@ cTMap
 // infiltration
 *Fcum,                       //!< cumulative infiltration [m]
 //*FSurplus,                   //!< surplus infiltration for kinematic wave, calculated as actual infil - potential infil [m]
-*FFull,                      //!< map flagging when the soil is full
-*fact,                       //!< actual infiltration rate [m/s]
+//*fact,                       //!< actual infiltration rate [m/s]
 //*fpot,                       //!< potential infiltration rate [m/s]
 //*InfilVolKinWave,            //!< volume infiltrated in the kin wave (slope and channel) in this timestep [m^3]
 *InfilVol,                   //!< volume of water infiltrated in this timestep [m^3]
@@ -293,7 +292,6 @@ cTMap
 *GrassWidthDX,               //!< width of grasstrip in [m]
 
 //swatre
-*thetaTop,                   //!< average theta of node 0 and 1 for water repelency and nutrients
 *OMcorr,
 *DensFact,
 *ProfileID,                  //!< SWATRE profile unit number map
@@ -310,7 +308,7 @@ cTMap
 *ChannelDepth,               //!<
 *ChannelSide,                //!<
 *ChannelQSide,                //!<
-*ChannelQb,                   //!<
+//*ChannelQb,                   //!<
 *ChannelQ,                   //!<
 *ChannelQn,                  //!<
 *ChannelQntot,
@@ -322,16 +320,20 @@ cTMap
 *ChannelQSSsn,                 //!<
 *ChannelGrad,                //!<
 *ChannelV,                   //!<
-*ChannelU,                   //!<
 *ChannelN,                   //!<
-*ChannelNcul,                   //!<
 *ChannelWH,                  //!<
+*ChannelPerimeter,
+*ChannelWidthB,
+//*ChannelCos,
 //*ChannelWHExtended,                  //!<
 //*ChannelVolExtended,                  //!<
 *ChannelWaterVol,            //!<
 //*Channelq,                   //!<
 *ChannelAlpha,               //!<
-*ChannelWidthMax,           //!<
+*ChannelDX,                  //!<
+*ChannelKsat,                //!<
+*ChannelInfM3,                //!<
+
 *ChannelAdj,                //!<
 *CHAdjDX,                //!< channel adjusted DX
 *BaseflowL,
@@ -342,14 +344,11 @@ cTMap
 *AngleFriction,
 *FSlope,
 
-
+// channel erosion
 //*ChannelPerimeter,           //!<
-*ChannelDX,                  //!<
-*ChannelKsat,                //!<
-*ChannelInfM3,                //!<
 *ChannelDetFlow,             //!<
 *ChannelDep,                 //!<
-*ChannelSed,                 //!<
+//*ChannelSed,                 //!<
 *ChannelBLSed,                 //!<
 *ChannelSSSed,                 //!<
 *ChannelBLTC,                 //!<
@@ -371,7 +370,6 @@ cTMap
 *BaseFlowInflow,
 
 // flood maps
-*Qflood,                    //!<
 *floodHmxMax,                    //!<
 *floodTime,                    //!<
 *floodTimeStart,                //!<
@@ -381,46 +379,35 @@ cTMap
 *maxChannelWH,                    //!<
 *hmx,                        //!<
 *hmxWH,                        //!<
+*hmxrunoff,
 *hmxInit,                    //!<
-*hmxflood,
 *FloodDomain,                //!<
 *Buffers,                    //!<
 *GridRetention,                    //!<
+*GridRetentionAct,
+*ChanRetention,                    //!<
+*ChanRetentionAct,
+*ChannelDiameter,                //!<
+*ChannelCulvert,                //!<
 *ChannelMaxQ,                //!<
 *ChannelMaxAlpha,                //!<
+*ChannelMaxArea,
 *FloodWaterVol,                //!<
 *RunoffWaterVol,                //!<
 
 //*FloodZonePotential,                //!<
-*DomainEdge,                //!<
 *FloodDT,
 *Uflood,*Vflood,
 *hs, //*vs, *us,
+*gflowx,
+*gflowy,
+*hllx12_0,
+*hlly12_0,
+*hllx21_1,
+*hllx21_2,
+*hlly21_1,
+*hlly21_2,
 
-//OBSOLETE
-// //*FloodT,
-// *VRO, *URO, *iro,
-
-// // FULLSWOF2D
-// *f1o, *f2o, *f3o,
-// *g1o, *g2o, *g3o,
-// *z1r, *z1l, *z2r, *z2l,
-// *h1r, *h1l, *h2r, *h2l,
-// *h1d, *h1g, *h2d, *h2g,
-// *v1r, *v1l, *v2r, *v2l,
-// *u1r, *u1l, *u2r, *u2l,
-// //*delta_zx, *delta_zy,
-// *delzc1, *delzc2,
-// *delz1, *delz2,
-// *f1, *f2, *f3, *cflx,
-// *g1, *g2, *g3, *cfly,
-// *hsa, *vsa, *usa,
-
-// *hll0_x1, *hll1_x1, *hll2_x1,
-// *hll0_y1, *hll1_y1, *hll2_y1,
-// *hll0_x2, *hll1_x2, *hll2_x2,
-// *hll0_y2, *hll1_y2, *hll2_y2,
-// *sxzh, *syzh,
 
 //FULLSWOF2D with Sediment
 *BLDepthFlood,
@@ -446,21 +433,13 @@ cTMap
 *TileQ,                      //!< water flux in drains m3/s
 *TileMaxQ,                      //!< water flux in drains m3/s
 *TileQn,                     //!< new water flux in drains m3/s
-//*TileQs,                     //!< sediment flux in drains kg/s
-//*TileQsn,                    //!< new sediment flux in drains kg/s
-//*TileQoutflow,               //!< water outflow in outlet
 *TileGrad,                   //!< gradient of the tiledrain system
 *TileN,                      //!< mannings inside the tiledrains
-//*TileWH,                     //!< water height in the tile drains (m)
 *TileWaterVol,               //!< water volume in the tiledrains (m3)
 *TileWaterVolSoil,           //!< water volume in the tiledrains from the soil only, used for mass bal corection (m3)
-*Tileq,                      //!< possible drainage inside tiles, not used
 *RunoffVolinToTile,          //!< can be used for shortcut of surface pits to tile system
 *TileAlpha,                  //!< alpha in tile drain, in A = alpha*Q^beta
 *TileMaxAlpha,                      //!< water flux in drains m3/s
-//*TileDX,                     //!< cell length in tile drain, dx/cos angle
-//*TileV,                      //!< velocity in tile drain m/s
-//*TileQmax,                   //!< max Q tile drain m3/s
 
 *TotalChanDetMap,                //!<
 *TotalChanDepMap,                //!<
@@ -473,6 +452,7 @@ cTMap
 *tmb,                        //!< Auxilary map
 *tmc,                        //!< Auxilary map
 *tmd,                        //!< Auxilary map
+*tmshow,
 //display combinations
 *COMBO_V,
 *COMBO_SS,

@@ -40,18 +40,21 @@ void TWorld::GetUserDischargeData(QString name)
     int nrSeries = 0;
     double time = 0.0;
 
+    nrDischargeseries = 0;
+    DischargeSeries.clear();
+    currentDischargerow = 0;
+
     if (!fi.exists())
     {
         ErrorString = "User defined input discharge file not found: " + name;
         throw 1;
     }
 
-    nrDischargeseries = 0;
-    DischargeSeries.clear();
-    currentDischargerow = 0;
-
     // read rainfall text file
-    fff.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!fff.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        ErrorString = "User defined input discharge file cannot be opened: " + name;
+        throw 1;
+    };
     while (!fff.atEnd())
     {
         S = fff.readLine();
@@ -213,7 +216,11 @@ void TWorld::GetWHboundaryData(QString name)
     currentWHrow = 0;
 
     // read WH text file
-    fff.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!fff.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        ErrorString = "water height file cannot be opened: " + name;
+        throw 1;
+    }
+
     while (!fff.atEnd())
     {
         S = fff.readLine();

@@ -25,6 +25,7 @@
 #pragma once
 #include <QString>
 #include <masked_raster.h>
+#include "PrecisionConfig.h"
 
 class cTMap;
 

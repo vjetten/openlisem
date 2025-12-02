@@ -68,6 +68,13 @@ cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
 {
     cTMap *_M = new cTMap(readRaster(name));
 
+    if (_M->nrCols() != _nrCols || _M->nrRows() != _nrRows) {
+        QString S = QString("Map %1 does not have the right number of roiws and cols: %2, %3").arg(name).arg(_M->nrRows()).arg(_M->nrCols());
+        Error(S);
+        return(nullptr);
+    }
+
+
     for (int r = 0; r < _nrRows; r++)
         for (int c = 0; c < _nrCols; c++)
             if (!pcr::isMV(Mask->Drc) && pcr::isMV(_M->Drc))
@@ -77,7 +84,6 @@ cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
                 ErrorString = QString("Missing value at row=%1 and col=%2 in map: %3.").arg(r).arg(c).arg(name);
             }
 
-    //maplistCTMap[maplistnr].m = _M;
     maplistCTMap << _M;
     maplistnr++;
 

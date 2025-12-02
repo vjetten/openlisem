@@ -49,7 +49,10 @@ void TWorld::GetFlowBarrierData(QString name)
         throw 1;
     }
 
-    fff.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!fff.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        ErrorString = "Flow Barrier file cannot be opened: " + name;
+        throw 1;
+    }
 
     while (!fff.atEnd())
     {
@@ -238,7 +241,7 @@ double TWorld::FB(int r, int c, int rd, int cd)
     }
     else if(rd == 1 && cd == 1)
     {
-        return dem + (std::max(std::max(FlowBarrierS->Drc,FlowBarrierE->Drc),std::max(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0))));
+        return dem + (qMax(qMax(FlowBarrierS->Drc,FlowBarrierE->Drc),qMax(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0))));
     }
     else if(rd == 0 && cd == 1)
     {
@@ -246,7 +249,7 @@ double TWorld::FB(int r, int c, int rd, int cd)
     }
     else if(rd == -1 && cd == 1)
     {
-        return dem + (std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),std::max(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0))));
+        return dem + (qMax(qMax(FlowBarrierN->Drc,FlowBarrierE->Drc),qMax(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0))));
     }
     else if(rd == -1 && cd == 0)
     {
@@ -254,114 +257,19 @@ double TWorld::FB(int r, int c, int rd, int cd)
     }
     else if(rd == -1 && cd == -1)
     {
-        return dem + (std::max(std::max(FlowBarrierN->Drc,FlowBarrierW->Drc),std::max(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0))));
+        return dem + (qMax(qMax(FlowBarrierN->Drc,FlowBarrierW->Drc),qMax(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0))));
     }
     else if(rd == 0 && cd == -1)
     {
         return dem + (FlowBarrierW->Drc);
     }else if(rd == 1 && cd == -1)
     {
-        return dem + (std::max(std::max(FlowBarrierS->Drc,FlowBarrierW->Drc),std::max(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0))));
+        return dem + (qMax(qMax(FlowBarrierS->Drc,FlowBarrierW->Drc),qMax(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0))));
     }
 
     return 0;
 }
 
-//---------------------------------------------------------------------------
-/**
- * @fn void TWorld::DEMFB()
- * @brief Returns the digital elevation model height, with the addition of flow barriers
- *
- * @param r : row number
- * @param c : column number
- * @param rd : row direction (-1 for top, 1 for bottom)
- * @param cd : column direction (-1 for left, 1 for right)
- * @param addwh : include water height for overland flow
- * @return digital elevation model height, with the addition of flow barriers
- * @see K2DDEMA
- */
-double TWorld::DEMFB(int r, int c, int rd, int cd, bool addwh)
-{
-    cTMap *h = WHrunoff;
-    if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
-        h = hmx;
-    }
-
-    double wh = 0;
-    double dem = 0;
-    if(INSIDE(r+rd,c+cd))
-    {
-        if(!pcr::isMV(LDD->data[r+rd][c+cd]))
-        {
-            if(addwh)
-                wh = h->data[r + rd][c + cd];
-            dem = DEM->data[r + rd][c + cd];
-        } else {
-            if(!pcr::isMV(LDD->data[r][c])) {
-                wh = 0;
-                dem = DEM->Drc;
-            } else {
-               return 0;
-            }
-        }
-
-    } else if(INSIDE(r,c)) {
-        if(!pcr::isMV(LDD->Drc))
-        {
-            wh = 0;
-            dem = DEM->Drc;
-        } else {
-           return 0;
-        }
-
-    } else {
-        return 0;
-    }
-
-    if(OUTORMV(r+rd,c+cd))
-    {
-        return dem;
-    }
-
-
-    if(rd == 0 && cd == 0)
-    {
-        return dem + wh;
-    }
-
-    if(rd == 1 && cd == 0)
-    {
-        return dem + std::max(wh,(FlowBarrierS->Drc));
-    }
-    else if(rd == 1 && cd == 1)
-    {
-        return dem + std::max(wh,(std::max(std::max(FlowBarrierS->Drc,FlowBarrierE->Drc),std::max(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0)))));
-    }
-    else if(rd == 0 && cd == 1)
-    {
-        return dem + std::max(wh,(FlowBarrierE->Drc));
-    }
-    else if(rd == -1 && cd == 1)
-    {
-        return dem + std::max(wh,(std::max(std::max(FlowBarrierN->Drc,FlowBarrierE->Drc),std::max(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0)))));
-    }
-    else if(rd == -1 && cd == 0)
-    {
-        return dem + std::max(wh,(FlowBarrierN->Drc));
-    }
-    else if(rd == -1 && cd == -1)
-    {
-        return dem + std::max(wh,(std::max(std::max(FlowBarrierN->Drc,FlowBarrierW->Drc),std::max(FB(r,c  +cd,0,rd),FB(r+rd,c,cd,0)))));
-    }
-    else if(rd == 0 && cd == -1)
-    {
-        return dem + std::max(wh,(FlowBarrierW->Drc));
-    }else if(rd == 1 && cd == -1)
-    {
-        return dem + std::max(wh,(std::max(std::max(FlowBarrierS->Drc,FlowBarrierW->Drc),std::max(FB(r,c +cd,0,rd),FB(r+rd,c,cd,0)))));
-    }
-    return 0;
-}
 
 //---------------------------------------------------------------------------
 void TWorld::InitFlowBarriers(void)
@@ -372,7 +280,7 @@ void TWorld::InitFlowBarriers(void)
     FlowBarrierE = NewMap(0);
 
     if(SwitchFlowBarriers)
-    {   
+    {
         FlowBarrierNT = NewMap(-1);
         FlowBarrierWT = NewMap(-1);
         FlowBarrierST = NewMap(-1);

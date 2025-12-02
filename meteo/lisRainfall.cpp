@@ -23,6 +23,7 @@
 *************************************************************************/
 
 #include <memory>
+#include <QMessageBox>
 #include "io.h"
 #include "model.h"
 #include "operation.h"
@@ -47,9 +48,16 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
         throw 1;
     }
 
-
     // read all lines in the text file
-    fff.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!fff.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        if (type == 0)
+            ErrorString = "Rainfall file cannot be opened: " + name;
+        if (type == 1)
+            ErrorString = "ET file cannot be opened: " + name;
+        if (type == 2)
+            ErrorString = "Snowmelt file cannot be opened: " + name;
+        throw 1;
+    };
     while (!fff.atEnd())
     {
         S = fff.readLine();
@@ -203,7 +211,10 @@ void TWorld::GetRainfallStationData(QString name)
     currentRainfallrow = 0;
 
     // read rainfall text file
-    fff.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!fff.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        ErrorString = "Rainfall file cannot be opened: " + name;
+        throw 1;
+    }
     while (!fff.atEnd())
     {
         S = fff.readLine();
@@ -462,8 +473,14 @@ void TWorld::GetRainfallMapfromStations(double currenttime)
             FOR_ROW_COL_MV_L {
                 double value = -1;
                 for (int k = 0; k < stationID.size(); k++) {
-                    if ((int) RainZone->Drc == RainfallSeries[currentrow].stationnr.at(k))
+                    if (static_cast <int>(RainZone->Drc) == RainfallSeries[currentrow].stationnr.at(k))
                         value = RainfallSeries[currentrow].intensity[k]*tt;
+                }
+                if (value == -1) {
+                    ErrorString = QString("rainzone ID found in map that does not exist in rainfall file %1.").arg(RainZone->Drc);
+                    DEBUG(ErrorString);
+                    continue;
+                    //throw 1;
                 }
                 Rain->Drc = value; //rain in m per timestep
 
@@ -479,8 +496,14 @@ void TWorld::GetRainfallMapfromStations(double currenttime)
         // correction for slope dx/DX, water spreads out over larger area
         RainCumFlat->Drc += Rain->Drc;
         // cumulative rainfall
-        RainCum->Drc += Rainc->Drc;
+        RainCumInt->Drc += Rainc->Drc;
         // cumulative rainfall corrected for slope, used in interception, in m
+        // can be reset to zero when ETa active and canopy dries out
+        if (Rain->Drc * 3600000/_dt > 5.0)
+            RainCumCrust->Drc += Rainc->Drc;
+        // cumulative rainfall for crusting larger than 5 mm/h (Boiffin)
+
+        // cumulative rainfall corrected for slope, used in crusting, in m
         RainNet->Drc = Rainc->Drc;
         // net rainfall in case of interception
     }}
@@ -573,8 +596,11 @@ void TWorld::GetRainfallMapfromSat(double currenttime)
         // correction for slope dx/DX, water spreads out over larger area
         RainCumFlat->Drc += Rain->Drc;
         // cumulative rainfall
-        RainCum->Drc += Rainc->Drc;
-        // cumulative rainfall corrected for slope, used in interception
+        RainCumInt->Drc += Rainc->Drc;
+        // cumulative rainfall corrected for slope, used in interception, can be set to zero
+        RainCumCrust->Drc += Rainc->Drc;
+        // cumulative rainfall corrected for slope, used in Crusting
+
         RainNet->Drc = Rainc->Drc;
         // net rainfall in case of interception
     }}
@@ -597,7 +623,7 @@ double TWorld::getmaxRainfall()
         for (int i = 0; i < nrRainfallseries-1; i++) {
             auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[i].name)));
             avg = MapTotal(*_M)/nrCells;
-            maxv = std::max(avg, maxv);
+            maxv = qMax(avg, maxv);
         }
     } else {
         avg = 0;
@@ -605,7 +631,7 @@ double TWorld::getmaxRainfall()
             for (int j = 0; j < RainfallSeries[i].intensity.size(); j++)
                 avg = avg + RainfallSeries[i].intensity[j]*tt;
         }
-        maxv = std::max(maxv, avg);
+        maxv = qMax(maxv, avg);
     }
     return (maxv);
 }

@@ -103,7 +103,7 @@ class lisemqt : public QMainWindow, private Ui::lisemqtClass
     Q_OBJECT
 
 public:
-    lisemqt(QWidget *parent = 0, bool doBatch = false, QString runName = "");
+    lisemqt(QWidget *parent = 0, bool doBatch = false, bool forceRes = false, QString runName = "");
     ~lisemqt();
 
     int genfontsize;
@@ -120,9 +120,11 @@ public:
     QString mencoderDir;
 
     bool darkLISEM;
-    bool doBatchmode;
     bool checkforpatch;
     QString batchRunname;
+
+    bool flowboundary;
+    bool tileanddrains;
 
     bool isNewVersionAvailable(QString &GitHubVersion);
     QString getLatestVersionFromGitHub();
@@ -138,6 +140,8 @@ public:
     void SetToolBar();
     void GetStorePath();
     void StorePath();
+    void saveSettings();
+    void loadSettings();
     void SetStyleUI();
     void lightStyleUI();
     void darkStyleUI();
@@ -148,10 +152,12 @@ public:
     void updateModelData();
     void defaultRunFile();
     QString CheckDir(QString p, bool makeit);
+    QString findDir(QString p, bool makeit, bool warn);
+    QString findCommonRoot(QString p,QString pR);
     void RunAllChecks();
     void savefile(QString name);
     void SetConnections();
-    QStringList runfilelist;
+    //QStringList runfilelist;
 
     QList <QPointF> dataRain;
     QList <QPointF> dataQ;
@@ -179,15 +185,16 @@ public:
 
     void showBaseMap();
     void getOutletMap();
-    void showChannelVectorNew();
+    void initChannelVectorandOutlet();
     void showRoadMap();
     void showHouseMap();
+    void showBufferMap();
     void showHardSurfaceMap();
     void showImageMap();
     void changeSize();
     double Masp;
     double fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD, double *minv, double *maxv);
-    double fillDrawMapDataRGB(cTMap * base,  cTRGBMap *_M, QwtMatrixRasterData *_RD);
+    double fillDrawMapDataRGB(cTRGBMap *_M, QwtMatrixRasterData *_RD);
 
     QwtPlot *MPlot;               // plot in which the raster map is drawn
     QwtText title;
@@ -200,6 +207,7 @@ public:
     QwtPlotSpectrogram *hardsurfMap;  // raster map drawing
     QwtPlotSpectrogram *roadMap;  // raster map drawing
     QwtPlotSpectrogram *houseMap;  // raster map drawing
+    QwtPlotSpectrogram *bufferMap;  // raster map drawing
     QwtPlotSpectrogram *imageMap;
     QwtPlotSpectrogram *outletMap;
     QwtMatrixRasterData *RD;      // data for thematic raster maps
@@ -209,13 +217,9 @@ public:
     QwtMatrixRasterData *RDd;
     QwtMatrixRasterData *RDe;
     QwtMatrixRasterData *RDf;
+    QwtMatrixRasterData *RDg;
     QwtMatrixRasterData *RImage;
     QList<double> contourLevels;
-    // QwtAxisId *axisYL1;
-    // QwtAxisId *axisYL2;
-    // QwtAxisId *axisYR1;
-    // QwtAxisId *axisYR2;
-    // QwtAxisId *axisX;
     QList <QVector <double>> Xa;
     QList <QVector <double>> Ya;
     QList <QVector <double>> Xc;
@@ -285,7 +289,6 @@ public:
 
     bool startplot;
     bool stoprun;
-    QVector <double> times;
     int lastOptionSceen;
 
     bool oldRunfile; // check is old runfile for ksat calibration
@@ -366,6 +369,7 @@ public slots:
     void deleteRunFileList();
     void runmodel();
     void ClearOP();
+    void deleteWStructures();
     void stopmodel();
     void pausemodel();
     void shootScreen();
@@ -483,9 +487,9 @@ private slots:
     void showMapb(bool);
     void showMapd(double);
     void showChannelVector(bool);
-
+    void showOutpointsVector(bool yes);
     // functions that interact with the world thread signals
-    void worldShow(bool showall);
+    void worldShow();
     void worldDone(const QString &results);
     void worldDebug(const QString &results);
 
@@ -519,13 +523,13 @@ private slots:
 
     void on_toolButton_ETmapShow_clicked();
 
-    void on_E_EndTimeDay_returnPressed();
+  //  void on_E_EndTimeDay_returnPressed();
 
-    void on_E_BeginTimeDay_returnPressed();
+ //   void on_E_BeginTimeDay_returnPressed();
 
-    void on_checkStationaryBaseflow_toggled(bool checked);
+ //   void on_checkStationaryBaseflow_toggled(bool checked);
 
-    void on_checkChannelInfil_toggled(bool checked);
+//    void on_checkChannelInfil_toggled(bool checked);
 
     void on_E_EfficiencyDETCH_currentIndexChanged(int index);
 
@@ -568,7 +572,19 @@ private slots:
     //void loadImage();
     void on_E_InfiltrationMethod_currentIndexChanged(int index);
 
-    void on_toolButton_clicked();
+    void on_checksatImage_toggled(bool checked);
+
+    void on_E_Timestep_editingFinished();
+
+    void on_E_BeginTimeDay_editingFinished();
+
+    void on_E_EndTimeDay_editingFinished();
+
+    void on_toolButton_version_clicked();
+
+    void on_checkNewversionGITHUB_toggled(bool checked);
+
+    void on_E_FlowBoundary_valueChanged(int arg1);
 
 private:
     QNetworkAccessManager *manager;
@@ -595,10 +611,13 @@ private:
     QAction *fontAct;
     QAction *fontIncreaseAct;
     QAction *fontDecreaseAct;
+
     // the model world
     TWorld *W;
+    QThread *worldThread;
 
 };
+
 
 
 #endif // LISEMQT_H

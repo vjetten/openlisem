@@ -1,33 +1,45 @@
-Latest fixes and chnages:
+Latest fixes and changes:
 =========================
-250121 - v7.4.5
-- BUG FIX: Delete all map and swatre data after no GUI run
-- BUG FIX: Swatre compacted profiles incorrectly named
-- BUG FIX: Swatre impermeable surfaces no longer ignored
-- BUG FIX: Swatre internal timestep saved correctly in run file
-- BUG FIX: check if compacted or crusted porosity is smaller than initial moisture
-- BUG FIX: channel infiltration not correctly added to mass balance
-- BUG FIX: soil moisture of topsoil reset to initial moisture for each timestep
-interface:
-- BUG FIX: wrong help file shown in certain pages, help text updated
-- BUG FIX: Update Lisem, wrong check
-- BUG FIX: some conservation measures not properly stored in the run file
-- BIG FIX: reset options of certain tabs did not work
-Changes:
-- Separated dynamic crustiung from static crusting
-- Included gridretention (Fanyaa Yuu, trenches etc) in mitigation measures, acts also as sediment trap
-- Swatre input matrix potential as one value or user maps, output as mapseries of h and theta for each node (001 .. 016)
-- Added options for dealing with Org.Mat. differences (-2% to 2%) and Density Factor (0.9 to 1.1) in SWATRE and GA infiltration
-- restored psi from user or calculated as option in Advanced options
-- make LISEM update from server optional, and possible to reacitivate in advanced options
-- Updated help files
-- Save fontsize and dark lisem in openlisem.ini
 
-241203 - v7.4.4
-- Update system: lisem will check online in github if a newer version exists
+see Readme.txt for a complete list
+251126 - v7.4.8.beta.R4
+- Added: show buffers in the map view
+- Added: add surface micro storage in display map list
+- BUG FIX: small bug fix in unsat flow between layers in G&A
+- BUG FIX: SWATRE user defined minimum timestep condition was not added inside the time loop in SWATRE
 
-241125 - v7.4.3
-- BUG FIX: Swatre did not account for impermeable surfaces
-- BUG FIX: sign error in Swatre causing invcerse effect of initial h
-- culvert kin wave code extended to subsurface drains, to be tested
-- Interface advanced option: perimeter for overland flow is not just the width but w+2h (compatibility old versions)
+251116 - v7.4.8.beta.R2
+- Changed: outpoints and outlets arre always visible in map display, also without channel
+- BUG FIX: hydrographs and totals were not apended in the csv files
+
+251114 - v7.4.8.beta.R1
+- BUG FIX: redistribution infiltrated water with  Green and Ampt, and is only active after infiltration stops
+- BUG FIX: restored depth wetting front map in interface display
+- Added: 3-layer Green nand Ampt infiltration and redistribution: EXPERIMENTAL
+
+251108 - v7.4.8
+- Changed: channel flow is shown in total discharge on screen and output map (was: only overland flow).
+- Changed: 4Byte instead of double for large domains,read all maps as float (4 byte) instead of double (8 byte), save 40-50% RAM use.
+- Changed: Code thread behaviour was obselete. Renewed and cleaned use of the model in a thread separate form the GUI.
+
+- Added: Different channel shapes: rectangular, circular, trapezium and triangular. The last two are controlled with the channel side angle.
+- Added: water in urban storm drains does not dissapear but fills up the storm drains (closed outlet), when full the stormdrains will overflow.
+- Added: load stationary baseflow as precalculated map.
+- Added: A channel culvert map that has confined flow in these pixels, with shape values: 1=rectangular,2=circular,3=trapezium,4=triangular.
+         note: Culvert type nr 5 is unconfined flow but a culvert.
+- Added: Option to stop SWATRE when there is no rainfall or runoff in a cell (faster), for single events.
+- Added: Inflow into stormdrains according to water pressure above inlet
+- Added: Do erosion calculations inside (slow) or outside (fast) 2D flow loop (Advanced options)
+- Added: connection to channel based on hydraulic flow for broad crested weir = default (Advanced options)
+- Removed: possibility to do Org Mat. and bulkdensity corrections on Ksat and Porosity in the code. Too complex, user should do this in the input.
+- Added: options for adding all calibration parameters as command-line options running in batch mode.
+
+- BUG-FIX: bug in culverts, maximum channel discharge was calculated in places where no culverts exist.
+- BUG-FIX: SWATRE internal timestep calculation was wrong.
+- BUG-FIX: SWATRE evaporation did not work properly.
+- BUG-FIX: SWATRE Shared memory structured caused wrong results in parallel computing, showed as striping on screen.
+- BUG-FIX: Culverts: fixed confined flow with a Kinematic Wave in culverts and pipes.
+- BUG-FIX: running from a batch file, and from a cmd window, with and without GUI.
+- BUG FIX: correct calculation and reporting of boundary flow and channel flow.
+- BUG FIX: some wrong checks for Missing Value in 2D flow, unknown behaviour.
+- BUG-FIX: output tilemaps repaired.

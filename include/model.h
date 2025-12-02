@@ -54,23 +54,32 @@
 
 #define SHOWDEBUG (showr == 270 && showc == 318)
 
-#define PI 3.14159265
+//#define PI 3.14159265
 
 #define HMIN 1e-6
-#define DO_SEDDEP 0
+#define DO_SEDDEP 1
 #define GRAV 9.8067
+#define SQRT2G 4.42869
+#define GRAV_DEM 4.90335
 
-#define he_ca 1e-10
-#define ve_ca 1e-10
+#define he_ca 1e-12
+#define ve_ca 1e-12
 
 #define EPSILON 1e-10
 
-#define GRAV_DEM 4.90335
+#define BETArect 0.6
+#define BETAcirc 0.6
+
+#define SHAPERECT 1
+#define SHAPECIRC 2
+#define SHAPETRAP 3
+#define SHAPETRIA 4
+#define SHAPEFREE 5
 
 #define Aavg(a,b)  (0.5*(a+b))
 #define Savg(a,b)  sqrt(a*b)
 #define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
-#define Mavg(a,b)  std::min(a,b)
+#define Mavg(a,b)  qMin(a,b)
 #define SQR(a) ((a)*(a))
 
 #define DEBUG(s) emit debug(QString(s))
@@ -102,45 +111,19 @@
     for (int c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDD->data[r][c]))
 
-//SLOW!
-//#define FOR_ROW_COL_MV_L for(int r = 0; r < _nrRows; r++)\
-//    for (int c = 0; c < _nrCols; c++)\
-//    if(!pcr::isMV(LDD->data[r][c]))
-
-// faster
-//#define FOR_ROW_COL_MV_L for(QVector <LDD_COOR>::iterator crit_ = cr_.begin(); crit_ != cr_.end();  ++crit_)\
-//{int r = crit_->r; int c = crit_->c;
-
-// faster
-//#define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
-//{long _i_ = cri_[i_]; int r = (int)(_i_/_nrCols); int c = (int)(_i_ % _nrCols);
-
-// fastest, QVector stores all elements in the same consequtive memory!
-//#define FOR_ROW_COL_MV_L for(long i_ = 0; i_< nrValidCells; i_++)\
-//{int r = cr_[i_].r; int c = cr_[i_].c;
-// slower
-//#define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < _nrCols*_nrRows; i_++)\
-//{int r = i_/_nrCols; int c=i_%_nrCols;\
-//if(!pcr::isMV(LDD->data[r][c]))
-
-
-// #define FOR_ROW_COL_MV_L for(long i_ = nrValidCells-1; i_ >= 0; i_--)\
-//  {int r = cr_[i_]->r; int c = cr_[i_]->c;
 #define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < nrValidCells; i_++)\
  {int r = cr_[i_].r; int c = cr_[i_].c;
 
-#define FOR_ROW_COL_LDD5 for(long i_ = nrValidCellsLDD5-1; i_ >= 0; i_--)\
+#define FOR_ROW_COL_LDD5 for(long i_ = 0; i_ < nrValidCellsLDD5; i_++)\
 {int r = crldd5_[i_].r; int c = crldd5_[i_].c;
 
-#define FOR_ROW_COL_LDDCH5 for(long i_ = nrValidCellsLDDCH5-1; i_ >= 0; i_--)\
+#define FOR_ROW_COL_LDDCH5 for(long i_ = 0; i_ < nrValidCellsLDDCH5; i_++)\
 {int r = crlddch5_[i_].r; int c = crlddch5_[i_].c;
 
-// #define FOR_ROW_COL_MV_CHL for(long i_ = nrValidCellsCH-1; i_ >= 0; i_--)\
-// {int r = crch_[i_]->r; int c = crch_[i_]->c;
 #define FOR_ROW_COL_MV_CHL for(long i_ = 0; i_ < nrValidCellsCH; i_++)\
 {int r = crch_[i_].r; int c = crch_[i_].c;
 
-#define FOR_ROW_COL_MV_TILEL for(long i_ = nrValidCellsTile-1; i_ >= 0; i_--)\
+#define FOR_ROW_COL_MV_TILEL for(long i_ = 0; i_ < nrValidCellsTile; i_++)\
 {int r = crtile_[i_].r; int c = crtile_[i_].c;
 
 #define FOR_ROW_COL_MV_OUTL for(int i_ = 0; i_ < crout_.size(); i_++)\
@@ -177,6 +160,11 @@
 //#define INFIL_MOREL 21
 #define INFIL_SMITH 22
 #define INFIL_SMITH2 23
+
+#define CHBASEFLOW_NONE 0
+#define CHBASEFLOW_INFIL 1
+#define CHBASEFLOW_CALC 2
+#define CHBASEFLOW_USER 3
 
 #define KE_EXPFUNCTION 0
 #define KE_LOGFUNCTION 1
@@ -223,11 +211,20 @@ typedef struct LDD_COOR {
     int c;
 }  LDD_COOR;
 //---------------------------------------------------------------------------list
-typedef struct LDD_COORi {
+typedef struct LDD_COORCH {
+    int r;
+    int c;
+    //int ldd;
+    bool culvert;
+    int shape;
+}  LDD_COORCH;
+
+//---------------------------------------------------------------------------list
+typedef struct LDD_COORldd {
     int r;
     int c;
     int ldd;
-}  LDD_COORi;
+}  LDD_COORldd;
 //---------------------------------------------------------------------------
 typedef struct LDD_COORIN {
     int r;
@@ -235,7 +232,6 @@ typedef struct LDD_COORIN {
     int ldd;
     QVector <LDD_COOR> inn;
     int nr;
-    //LDD_COOR *inn;
 }  LDD_COORIN;
 //---------------------------------------------------------------------------
 typedef struct LDD_COORloc {
@@ -281,13 +277,12 @@ typedef struct UNIT_LIST {
 } UNIT_LIST;
 //---------------------------------------------------------------------------
 /// vec4 used for HLL
-typedef struct vec4 { double v[4]; } vec4;
-/// vec6 used for muscl
-typedef struct vec6 { double v[6]; } vec6;
+typedef struct vec4 { Real v[4]; } vec4;
+
 //---------------------------------------------------------------------------
 /// Structure to store rain station values of rainfile mapnames
 typedef struct RAIN_LIST {
-    double time;    
+    double time;
     QList <int> stationnr;
     QVector <double> intensity;
 } RAIN_LIST;
@@ -351,6 +346,23 @@ typedef struct SOIL_LIST {
     QVector <double> vg_n;
 
 } SOIL_LIST;
+//---------------------------------------------------------------------------
+typedef struct DRAIN_PROP {
+    int r;
+    int c;
+    int ldd;
+    double Afull;
+    double Qfull;
+    double beta, Beta1;
+    double sMax, sFull;
+    double dxdt;
+    double ain, aout;
+    double qin, qout;
+    double C1, C2;
+    double a1, a2;
+    double q1, q2;
+    double diam;
+}  DRAIN_PROP;
 
 /// \class TWorld model.h contains the model 'World': constants, variables and erosion processes
 
@@ -363,12 +375,12 @@ typedef struct SOIL_LIST {
 //http://blog.exys.org/entries/2010/QThread_affinity.html
 //http://thesmithfam.org/blog/2009/09/30/lock-free-multi-threading-in-qt/
 
-class TWorld: public QThread
+class TWorld: public QObject //public QThread
 {
     Q_OBJECT
 
 public:
-    TWorld(QObject *parent = nullptr);
+    explicit TWorld(QObject *parent = nullptr);
     ~TWorld();
 
     QLocale loc;
@@ -379,7 +391,7 @@ public:
     int nNodes, nN1_, nN2_, nN3_;
     int nrSoilLayers;
     double SoilWBdtfactor;
-    int KavgType;								 
+    int KavgType;
 
     long nrValidCells;
     long nrValidCellsLDD5;
@@ -388,7 +400,7 @@ public:
     long nrValidCellsWS;
     long nrValidCellsTile;
     QVector <LDD_COOR> cr_;
-    QVector <LDD_COOR> crch_;
+    QVector <LDD_COORCH> crch_;
     QVector <LDD_COORIN> crlinkedldd_;
     QVector <LDD_COORIN> crlinkedlddch_;
     QVector <LDD_COORIN> crlinkedlddbase_;
@@ -398,7 +410,7 @@ public:
     QVector <LDD_COOR> crlddch5_;
     QVector <LDD_COOR> crtile_;
     QVector <LDD_COORout> crout_;
-    QVector <LDD_COORi> dcr_;
+    QVector <LDD_COORldd> dcr_;
 
     // vector of soil structure
     QVector <SOIL_LIST> crSoil;
@@ -414,8 +426,10 @@ public:
     QVector <cTMap*> maplistCTMap;
     int maplistnr;
 
-    /// variable declaration list of all maps with comments:
+//---------------------------------------
+/// variable declaration list of all maps
 #include "TMmapVariables.h"
+//---------------------------------------
 
     /// SwitchXXX are boolean options that are set in interface and runfile, mainly corrsponding to checkboxes in the UI
 
@@ -436,9 +450,8 @@ public:
         SwitchInfiltration,
         // channel and Overland flow
         SwitchIncludeChannel,
-       // SwitchChannelBaseflow,
         SwitchChannelBaseflowStationary,
-        SwitchChannelAdjustCHW,
+        SwitchChannelBaseflowMap,
         SwitchChannelInfil,
         SwitchGWflow,
         SwitchGW2Dflow,
@@ -465,29 +478,30 @@ public:
         SwitchWritePCRtimeplot,
         SwitchSeparateOutput,
         SwitchWriteHeaders,
-        SwitchEndRun,
         SwitchResultDatetime,
         SwitchOutputTimestamp,
 
         // erosion,
         SwitchErosion,
         SwitchSlopeStability,
-        SwitchSedtrap,
         SwitchKETimebased,
+        SwitchUse2Phase,
+
 
         // infiltration,
+        SwitchSwatreDry,
         SwitchInfilCompact,
         SwitchInfilCrust,
         SwitchDynamicCrusting,
-        SwitchGrassStrip,
         SwitchImpermeable,
         SwitchDumphead,
+        SwitchDumpSwatreKsat,
         SwitchGeometric,
         SwitchTwoLayer,
         SwitchThreeLayer,
         SwitchHinit4all,
-        SwitchOMCorrection,
-        SwitchDensCorrection,
+        // SwitchOMCorrection,
+        // SwitchDensCorrection,
         //SwitchWaterRepellency,
         //SwitchInterceptionLAI,
         SwitchPsiUser,
@@ -503,20 +517,24 @@ public:
         SwitchHardsurface,
         SwitchIncludeTile,
         SwitchIncludeStormDrains,
-        SwitchStormDrainCircular,
+        SwitchDrainCircular,
+        SwitchDrainNoOutflow,
+        SwitchUseSWMMflow,
         SwitchHouses,
         SwitchInfrastructure,
         SwitchRaindrum,
         SwitchAddBuildingsDEM,
-        SwitchGridRetention,
 
-        //pesticide
-        SwitchPesticide,
-        Switchheaderpest,
+        SwitchConservation,
+        SwitchGridRetention,
+        SwitchSedtrap,
+        SwitchGrassStrip,
+
 
         // advanced
         SwitchAdvancedOptions,
         SwitchTimeavgV,
+        SwitchErosionOutsideLoop,
         SwitchCorrectMB_WH,
         SwitchCorrectDEM,
         Switch2DDiagonalFlow,
@@ -524,20 +542,17 @@ public:
         SwitchMUSCL,
         SwitchUserCores,
         SwitchVariableTimestep,
-        SwitchHeun,
         SwitchImage,
         SwitchChannelKinwaveDt,
         SwitchChannelKinwaveAvg,
         SwitchLinkedList,
         SwitchPerimeterKW,
-        SwitchChannelKinWave,
         SwitchChannelMaxV;
 
-    // TODO multi class sed
+    // // TODO multi class sed
     bool SwitchAdvancedSed,
          SwitchUseMaterialDepth,
          SwitchNoBoundarySed,
-         SwitchUse2Phase,
          SwitchUseGrainSizeDistribution,
          SwitchEstimateGrainSizeDistribution,
          SwitchReadGrainSizeDistribution,
@@ -573,6 +588,9 @@ public:
 
     /// infiltration method
     int InfilMethod;
+
+    /// stationary baselfow method
+    int BaseflowMethod;
 
     /// erosion units in output: to/ha; kg/cell; kg/m2
     int ErosionUnits;
@@ -617,6 +635,7 @@ public:
 //    double SD1Calibration;
 //    double SD2Calibration;
     double ChnCalibration;
+    double CulvertCalibration;
     double WaveCalibration;
     double ChnTortuosity;
     double ChKsatCalibration;
@@ -631,6 +650,9 @@ public:
     double StemflowFraction;
     double DirectEfficiency;
     double CanopyOpeness;
+    double TurbulenceFactor;
+    double TileDrainDistance;
+    double TileDrainSize;
 
     //sed transport equations
     int FS_SS_Method;
@@ -642,11 +664,12 @@ public:
 
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
-    double MB, MBeM3, Qtot, Qtot_dt, QTiletot, IntercTot, IntercETaTot, WaterVolTot, WaterVolSoilTileTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
+    double RetentionVolTotPot, ChanRetentionVolTotPot;
+    double MB, MBeM3, Qtot, Qtot_dt, QTiletot, QTile, IntercTot, IntercETaTot, WaterVolTot, RetentionVolTot,ChanRetentionVolTot,RetentionVolTotmm, WaterVolSoilTileTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
     double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowInit, BaseFlowInitmm, BaseFlowTotmm, PeakFlowTotmm, Qfloodout, QfloodoutTot, QuserInTot;
-    double floodBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
+    double QBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
     double IntercHouseTot, IntercHouseTotmm, IntercLitterTot, IntercLitterTotmm;
-    double ChannelSedTot, ChannelDepTot, ChannelDetTot, TileVolTot, SoilMoistTot, SoilMoistDiff, SoilMoistTotmm, QSideVolTot;
+    double ChannelSedTot, ChannelDepTot, ChannelDetTot, SoilMoistTot, SoilMoistDiff, SoilMoistTotmm, QSideVolTot;
     /// Sediment totals for mass balance and output (in kg)
     double MBs, DetTot, DetSplashTot, DetFlowTot, DepTot, SoilLossTot, SoilLossTot_dt, SedTot,
            FloodDetTot, FloodDepTot, FloodSedTot;
@@ -655,7 +678,7 @@ public:
     double StormDrainTotmm, floodVolTotmm, floodTotmmInit;
     /// peak times (min)
     double RainstartTime, RainpeakTime, SnowpeakTime, QpeakTime, Qpeak, Rainpeak, Snowpeak;
-    bool rainStarted;    
+    bool rainStarted;
     bool ETStarted;
     double ETstartTime;
     double BulkDens;
@@ -663,8 +686,11 @@ public:
     double LitterSmax, ETaTot, ETaTotmm, ETaTotVol, GWlevel, GWleveltot;
     double thetai1tot, thetai2tot, thetai1cur, thetai2cur;
     double maxRainaxis;
-    double latitude;
+    double ETlatitude;
+    double ETstartday;
+    double ETdaylength;
     double HinitValue;
+    double TileEntrySuction;
 
     ///pesticides
     double PMtot, PMerr, PMtotI, PMwerr, PMserr;
@@ -681,6 +707,7 @@ public:
     double _dt, _dx;
     double _dt_user, _dtCHkin, _CHMaxV;
     long runstep, printstep, printinterval;
+    bool savemaptodisk, SwitchReportMapsEnd;
     double _llx, _lly;
 
     QString mapFormat; //Gtiff or pcraster
@@ -772,10 +799,12 @@ public:
     QString temprunname;
     QString resultPestFile;
     /// standard names of output map series
-    QString Outrunoff, Outconc, Outwh, Outrwh, Outvelo, Outinf, Outinfilvol, Outss, Outchvol, //OutinfilvolKinWave,
+    //Outchvol,OutHmx, OutVf,OutHmxWH,OutQf, Outrwh,
+    QString Outrunoff, Outconc, Outwh, Outvelo, Outinf, Outss,
     Outtc, Outeros, Outdepo, OutSL, OutSed, OutInt,OutSedSS, OutSedBL,
-    OutTiledrain, OutTileVol,OutTileV, OutHmx, OutVf, OutQf, OutHmxWH, OutTheta1, OutTheta2, OutGW;
-    bool  SwitchOutrunoff, SwitchOutconc, SwitchOutwh, SwitchOutrwh, SwitchOutvelo, SwitchOutinf, SwitchOutss, SwitchOutchvol,
+    OutTiledrain, OutTileVol, OutTheta1, OutTheta2, OutGW;
+    //SwitchOutrwh,
+    bool  SwitchOutrunoff, SwitchOutconc, SwitchOutwh, SwitchOutvelo, SwitchOutinf, SwitchOutss, SwitchOutchvol,
     SwitchOutConc, SwitchOutTC, SwitchOutDet, SwitchOutDep, SwitchOutSL, SwitchOutSed, SwitchOutInt, SwitchOutSedSS, SwitchOutSedBL,
     SwitchOutTiledrain, SwitchOutTileVol, SwitchOutHmx, SwitchOutVf, SwitchOutQf, SwitchOutHmxWH, SwitchOutTheta, SwitchOutGW;
     QString errorFileName;
@@ -828,12 +857,14 @@ public:
     void InitStandardInput(void);
     void InitLULCInput(void);
     void InitSoilInput(void);
+    void InitGroundwater(void);
     void InitFlood(void);
     void InitMeteoInput(void);
     void InitScreenChanNetwork();
     void CorrectDEM(cTMap *h, cTMap * g);
     void DiagonalFlowDEM();
-    //void InitPesticide(void);
+    void calcSoilPhysics(cTMap *Ksat, cTMap *lambda, cTMap *thfc, cTMap *thr,
+                                 cTMap *psi, cTMap *psiae, double calk, double calpsi);
     // <= initiatlisation
 
 
@@ -841,43 +872,6 @@ public:
 
     double LogNormalDist(double d50,double sigma, double d); // not used
     double DetachMaterial(int r,int c, int d,bool channel,bool flood,bool bl, double detachment); //not used
-    // int numgrainclasses;
-    // QString GrainMaps;
-    // QList<double> graindiameters;
-    // QList<double> settlingvelocities;
-    //double distD50;
-    //double distD90;   // void SedimentSetMaterialDistribution();//(int r,int c);
-    // QList<cTMap *> IW_D;
-    // QList<cTMap *> W_D;
-    // QList<cTMap *> RW_D;
-    // //flood sediment
-    // QList<cTMap *> BL_D; //bed load sediment for a certain grain size (see graindiameters)
-    // QList<cTMap *> SS_D; //suspended sediment for a certain grain size
-    // QList<cTMap *> BLC_D; //concentration
-    // QList<cTMap *> SSC_D; //concentration
-    // QList<cTMap *> BLTC_D; //transport capacity
-    // QList<cTMap *> SSTC_D; //transport capacity
-    // QList<cTMap *> BLD_D; //layer depth
-    // QList<cTMap *> SSD_D; //layer depth
-
-    // //river sediment
-    // QList<cTMap *> RBL_D;
-    // QList<cTMap *> RSS_D;
-    // QList<cTMap *> RBLC_D;
-    // QList<cTMap *> RSSC_D;
-    // QList<cTMap *> RBLTC_D;
-    // QList<cTMap *> RSSTC_D;
-    // QList<cTMap *> RBLD_D;
-    // QList<cTMap *> RSSD_D;
-    // //overland flow
-    // QList<cTMap *> Sed_D;
-    // QList<cTMap *> TC_D;
-    // QList<cTMap *> Conc_D;
-    // //used for advection in the 1d kinematic method
-    // QList<cTMap *> Tempa_D;
-    // QList<cTMap *> Tempb_D;
-    // QList<cTMap *> Tempc_D;
-    // QList<cTMap *> Tempd_D;
 
     //material that is available for detachment
     QList<cTMap *> StorageDep_D;
@@ -925,6 +919,7 @@ public:
 
     // 1D hydro processes
     // => input timeseries
+    void GetETparameters();
     void GetInputTimeseries();
     void GetUserDischargeData(QString name);
     void GetWHboundaryData(QString name);
@@ -948,10 +943,6 @@ public:
 
     // => not used, replaced by cell_[process]
     void Interception();
-    void SoilWater();
-    void SurfaceStorage();
-    void addRainfallWH();
-    void Infiltration();
     // <= not used
 
     double SoilWaterMass();
@@ -959,7 +950,9 @@ public:
     // => TODO: SOAP infil model, swatre works better for now
     void cell_Soilwater(long i_); //SOAP
     double calcSinkterm(long i_,  double WH, double *S);
-    double calculateDayLength(double latitude, int dayNumber);
+    void calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S);
+   // void calcSinktermSWATRE(PIXEL_INFO *pixel, QVector<double> h, QVector<double> S);
+    double getDayLength(double time);
     void VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
     void BrooksCorey(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
     void getThetafromH(int j, SOIL_LIST s);
@@ -978,14 +971,20 @@ public:
     void cell_Redistribution0(int r, int c);
     void cell_Redistribution1(int r, int c);
     void cell_Redistribution2(int r, int c);
+    void cell_Redistribution3(int r, int c);
+    void cell_RedistributionUnsat(int r, int c);
+    void cell_Tiledrain1(int r, int c);
+    void cell_Tiledrain2(int r, int c);
     void cell_Channelinfow1(int r, int c);
     void cell_Channelinfow2(int r, int c);
-    void cell_depositInfil(int r, int c);
-    void cell_SplashDetachment(int r, int c);
-    void cell_FlowDetachment(int r, int c);
+    void cell_SplashDetachment();
+    void cell_FlowDetachment();
+    void cell_FlowDetachmentContinuous();
     void cell_ETa(int r, int c);
     double getETaFactor();
     double ETafactor;
+    double ETafactorTot;
+    double longdt;
     void InfilEffectiveKsat();
     void InfilDynamicCrusting();
     void InfilSwatre();
@@ -998,14 +997,22 @@ public:
 
     // => 1D and 2D overlandflow
     void OverlandFlow();
-    void CalcVelDisch(); //(int r, int c);
+    void CalcVelDisch();
     void OverlandFlow1D(void);
     void OverlandFlow2D();
-    void ToChannel();//int r, int c);
+    void ToChannel();
+    void ToChannelAlt();
     void ToFlood();
     void ToTiledrain();
-    void ToTiledrainAll();
     // <= OF
+
+    //SWMM pipe flow
+    void PipeFlowSWMM();
+    double getAfromS(DRAIN_PROP *dr, double s);
+    int findroot_Newton(DRAIN_PROP *dr, double x1, double x2);
+    int solveContinuity(DRAIN_PROP *dr);
+    double solve_theta(double r, double psi_target);
+    double psi_rel(double r, double theta);
 
     // => 1D flow on network
     void FindStationaryBaseFlow();
@@ -1015,16 +1022,22 @@ public:
     void ChannelSedimentFlow();
     void ChannelFlowandErosion();
     void ChannelVelocityandDischarge();
+    double pipeThetafroma(int r, int c, double a);
     void ChannelFlood(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V);
-    void ChannelOverflowIteration(cTMap *_h, cTMap *_V);
+    void ChannelOverflowAlt(cTMap *_h, cTMap *_V);
+    void chanHandPCirc(int r, int c);
+    void chanHandPRect(int r, int c);
+    void chanHandPTrap(int r, int c);
+    void chanHandPTria(int r, int c);
+    // tiles/stormdrains
     void TileFlow(void);
+    void TileFlowSWMM(void);
     void CalcVelDischRectangular(void);
-    void CalcMAXDischRectangular(void);
     void CalcVelDischCircular(void);
-    void CalcMAXDischCircular(void);
     double getMassCH(cTMap *M);
     void correctMassBalanceCH(double sum1, cTMap *M);
+
     // <= 1D flow
 
     // => 2D flow according to FULLSWOF2D
@@ -1032,11 +1045,13 @@ public:
     int F_scheme, F_fluxLimiter, F_MaxIter, F_AddGravity;
     double F_minWH;
     double F_pitValue;
-    bool prepareFlood, startFlood;
+    bool startFlood;
     int iter_n;
-    double fullSWOF2open(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     double fullSWOF2openMUSCL(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
-    void doSWOFLoop(int step, double dt, double dt_max, cTMap *activeCells, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
+    double doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
+
+    void doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v);
+
     void ChannelSWOFopen();  //TODO not used
     void KinematicSWOFopen(cTMap *_h, cTMap *_V);
     double limiter(double a, double b);
@@ -1047,10 +1062,10 @@ public:
     vec4 F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
-    void dynOutflowPoints(void);
+
     void OverlandFlow2Ddyn(void);
     void updateWHandHmx(void);
-    void Boundary2Ddyn();
+    void Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v);
     void SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);  //OBSOLETE
     void SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
     // <= 2D flow
@@ -1078,7 +1093,7 @@ public:
     // <= extend channel
 
     void InitFlowBarriers(void);
-    double DEMFB(int r, int c, int rd, int cd, bool addwh);
+    //double DEMFB(int r, int c, int rd, int cd, bool addwh);
     double FB(int r, int c, int rd, int cd);
     void SetFlowBarriers();
     void GetFlowBarrierData(QString name);
@@ -1089,8 +1104,8 @@ public:
     double mixing_coefficient, runoff_partitioning;
     double minReportFloodHeight;
     // boundary in 2D flow
-    double BoundaryQ;
-    double BoundaryQs;
+    double QBoundary;
+    double QsBoundary;
     double TimestepfloodMin, TimestepfloodLast;
     QVector <double> Qout;
 
@@ -1100,19 +1115,41 @@ public:
     void routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                                 cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
                                 cTMap *_Alpha, cTMap *_DX, cTMap*_Sed);//,cTMap*_VolStore, cTMap*_SedStore);
-    void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha,cTMap *_DX, cTMap *_Sed);
+    void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
+                            cTMap *_Alpha,cTMap *_DX, cTMap *_Sed, cTMap *_Qmax);
     double IterateToQnew(double Qin, double Qold, double alpha, double deltaT, double deltaX, double Qm, double Am);
     double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol, double sed);
     double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,double Sji1, double alpha, double dx);
-    void upstream(cTMap *_LDD, cTMap *_M, cTMap *out);
-    void upstreamDrain(cTMap *_LDD, cTMap *MaxQ, cTMap *in, cTMap *out);
+    void upstream(QVector <LDD_COORIN>_crlinked_, cTMap *_Q, cTMap *_Qn);
+    void downstream(QVector <LDD_COORIN>_crlinked_, cTMap *_Q, cTMap *_Qn);
+    void upstreamMax(QVector <LDD_COORIN>_crlinked_, cTMap *MaxQ, cTMap *Q, cTMap *_Qn);
+    void UpstreamAvg(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
     void AccufluxGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn, cTMap *_CW);
-    void UpstreamGW(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap *_Qn);
     QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
     double itercount;
     // <= kinematic
 
+    // <= pesticide
+    void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);
+    double MassPestInitial(void);
+    void PesticideCellDynamics(void);
+    void PesticideFlow1D(void);
+    void KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
+                   cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
+                   cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, cTMap *_PMW);
+    void KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
+                                 cTMap *_LDD, cTMap *_Qn, cTMap *_Qpsn, cTMap *_DX,
+                                 cTMap *_Alpha, cTMap *_Sed, cTMap *_Q, cTMap *_Qps,
+                                       cTMap *_PMS);
+    void PesticideSplashDetachment();
+    double ChowSubstance(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
+                                 double Pji1, double alpha, double dx, double dt);
+    void PesticideFlowDetachment(double rho);
+    double PesticideEnrichmentRatio(double Emax, double S, double beta);
+
+
     // => sediment stuff
+    double rillfactor;
     double GetSV(double d);
     void SplashDetachment();
     double MaxConcentration(double watvol, double sedvol);
@@ -1120,33 +1157,32 @@ public:
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentLayerDepth(int r , int c);
     void RiverSedimentMaxC(int r, int c);
-    double calcTCSuspended(int r,int c, int _d, int method, double h, double U, int type);
-    double calcTCBedload(int r,int c, int _d, int method, double h, double U, int type);
+    double calcTCSuspended(int r,int c, int _d, int method, double h, double w,  double U, int type);
+    double calcTCBedload(int r,int c, int _d, int method, double h, double w, double U, int type);
     void SWOFSedimentCheckZero(int r, int c, cTMap * h);
-    void SWOFSedimentSetConcentration(int r, int c, cTMap * h);
-    void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentFlowInterpolation(double dt, cTMap * h,cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentDet(cTMap *dt,int r,int c, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSedimentDetNew(double dt, cTMap * h,cTMap * u,cTMap * v);
-    void SWOFSediment(double dt, cTMap * h,cTMap * u,cTMap * v);
+    void SWOFSedimentSetConcentration(int r, int c, double h, double w);
+    void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap *v, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentFlowInterpolation(double dt, cTMap * h, cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
+    void SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);
-    void correctMassBalance(double sum1, cTMap *M, double th);
+    void correctMassBalance(double sum1, cTMap *M);
     void correctMassBalanceSed(double sum1, cTMap *M, double th);
-    double getMass(cTMap *M, double th);
+    double getMass(cTMap *M);
     double getMassSed(cTMap *M, double th);
-    //   double GetDpMat(int r, int c,double p,QList<cTMap *> *M);
-    //   double GetMpMat(int r, int c,double p,QList<cTMap *> *M, QList<double> *V);
-    //   double GetDp(int r, int c,double p);
-    //   double GetTotalDW(int r, int c,QList<cTMap *> *M);
-    // <= sediment stuff
+
+    void floodCount(cTMap *h);
+    void floodFill(cTMap *raster, cTMap* labels, int row, int col, int currentlabel);
 
     // => SWATRE
     /// filenames for Swatre soil information
+    QList <int> ProfileIDList;
     QString SwatreTableDir;
     QString SwatreTableName;
     QString initheadName;
     void InitNewSoilProfile();
     double swatreDT;
+    double swatreMaxDT;
     bool initSwatreStructure;
     SOIL_MODEL *SwatreSoilModel;
     SOIL_MODEL *SwatreSoilModelCrust;
@@ -1169,15 +1205,12 @@ public:
     HORIZON *ReadHorizonNew(QString tablePath, QString tableName);
     LUT *ReadSoilTableNew(QString fileName);
     void checkFileForInvalidLetters(const QString &filePath);
-    void cell_InfilSwatre(long i_, int r, int c);
-    void SwatreStep(long i_, int r, int c, SOIL_MODEL *s, cTMap *_WH, cTMap *_drain, cTMap *_theta);
-    void HeadCalc(const PROFILE *p, double *h, bool *isPonded, bool fltsat,
-                  const double *thetaPrev, const double *hPrev, const double *kavg, const double *dimoca,
-                  double dt, double pond, double qtop, double qbot);
+    QVector<NODES> threadBuffers;
+
     double  NewTimeStep(double prevDt, const double *hLast, const double *h, int nrNodes, double dtMin, double precParam);
-//    double  NewTimeStep(double prevDt, QVector <double> hlast, QVector <double> h, int nrNodes, double dtMin);
-//    void ComputeForPixel(PIXEL_INFO *pixel, SOIL_MODEL *s, double drainfraction);
-    void ComputeForPixel(long i_, SOIL_MODEL *s, double drainfraction);
+  //  double NewTimeStep(double prevDt,QVector <double> hLast,QVector <double> h,int nrNodes, double dtMin, double precParam);
+    //void ComputeForPixel(long i_, SOIL_MODEL *s);
+    void ComputeForPixel(long i_, SOIL_MODEL *s);//, NODES local);
     double DmcNode(double head,const  HORIZON *hor,bool on_dmch);
     double FindValue(double value,const  HORIZON *hor, int colv, int col);
     double HNode(double theta,const  HORIZON *hor); // obsolete
@@ -1199,18 +1232,16 @@ int showc;
     void TotalsFlow(void);
     void TotalsSediment(void);
     void MassBalance(void);
-    void OutputUI(void);
-    void reportAll(void);
-    void ReportTimeseriesNew(void);
+    void reportToUI(void);
+    void reportToFile(void);
     void ReportTimeseriesPCR(void);
     void ReportTimeseriesCSV(void);
     void ReportTotalSeries(void);
     void ReportMaps(void);
-    void ReportDump(void);
     void ReportMapSeries(void);
     void ReportTotalsNew(void);
+    void ReportErosionLandunits(void); //VJ 110107 report erosion stats per land unit
     void ReportTotalsPest(void); //MC 220628 initial setup pesticide report
-    void ReportLandunits(void); //VJ 110107 report erosion stats per land unit
     void CountLandunits(void); //VJ 110107 report erosion stats per land unit
     void saveMBerror2file(bool start);
     void FloodMaxandTiming();
@@ -1224,19 +1255,22 @@ int showc;
     bool showInfo;
     bool noOutput;
     bool batchmode;
+
     QMutex mutex;
-    QWaitCondition condition;
+    QWaitCondition mu_condition;
+    bool m_waitForGUI = true;
+
     void stop();
 
 protected:
-    void run();
+   // void run();
 
     // talk to the interface
     QElapsedTimer time_ms;
     double startTime;
     void setupDisplayMaps();
     void setupHydrographData();
-    void ClearHydrographData();
+
 
     //combobox map selection
     void GetComboMaps();
@@ -1244,7 +1278,6 @@ protected:
     void AddComboMap(int listn, QString name, QString unit,cTMap * map,QList<double> ColorMap,
                      QList<QString> Colors, bool log = false,bool symcol = false, double scale = 1.0, double step = 1.0);
     void setLegendColors();
-    void CopyComboMap(int i, cTMap *map);
 
     QList<double> Colormap;
     QList<QString> Colors;
@@ -1256,11 +1289,19 @@ signals:
     void done(const QString &results);
     void debug(const QString &results);
     void timedb(const QString &results);
-    void show(bool showall); //use the output structure "op" declared in global.h and LisUIoutput.h
+    void show();
+    //use the output structure "op" declared in global.h and LisUIoutput.h
 
-private slots:   //note, was private loop but dixygen does not recognize that
+public slots:   //note, was private loop but dixygen does not recognize that
     /// the main model loop, from here all processes are called in a time loop
     void DoModel();
+    // void onPause();
+    // void onResume();
+    // void onStop();
+
+// private:
+//     std::atomic_bool paused {false};
+//     std::atomic_bool stopped {false};
 
 };
 

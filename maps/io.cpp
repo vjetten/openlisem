@@ -47,24 +47,23 @@ using MapPtr = std::unique_ptr<MAP, decltype(close_csf_map)>;
 auto close_gdal_dataset = [](GDALDataset* dataset) { GDALClose(dataset); };
 
 //! Auto-ptr type for GDAL GDALDatasets.
-using GDALDatasetPtr = std::unique_ptr<GDALDataset, decltype(
-    close_gdal_dataset)>;
+using GDALDatasetPtr = std::unique_ptr<GDALDataset, decltype(close_gdal_dataset)>;
 
 
 /* for info:
 typedef struct CSF_RASTER_HEADER
 {
-	 UINT2    valueScale;
-	 UINT2    cellRepr;
-	 CSF_VAR_TYPE minVal;
-	 CSF_VAR_TYPE maxVal;
-	 REAL8    xUL;
-	 REAL8    yUL;
-	 UINT4    nrRows;
-	 UINT4    nrCols;
-	 REAL8    cellSizeX;
-	 REAL8    cellSizeY;
-	 REAL8    angle;
+     UINT2    valueScale;
+     UINT2    cellRepr;
+     CSF_VAR_TYPE minVal;
+     CSF_VAR_TYPE maxVal;
+     REAL8    xUL;
+     REAL8    yUL;
+     UINT4    nrRows;
+     UINT4    nrCols;
+     REAL8    cellSizeX;
+     REAL8    cellSizeY;
+     REAL8    angle;
 } CSF_RASTER_HEADER;
 */
 
@@ -72,8 +71,7 @@ typedef struct CSF_RASTER_HEADER
 /*!
     @brief      Return whether raster @a pathName can be opened for reading.
 */
-bool rasterCanBeOpenedForReading(
-    QString const& pathName)
+bool rasterCanBeOpenedForReading(QString const& pathName)
 {
     GDALDatasetPtr dataset(static_cast<GDALDataset*>(GDALOpen(
         pathName.toLatin1().constData(), GA_ReadOnly)), close_gdal_dataset);
@@ -86,12 +84,10 @@ bool rasterCanBeOpenedForReading(
 /*!
     @brief      Read raster @a pathName and return the result.
 */
-cTMap readRaster(
-    QString const& pathName)
+cTMap readRaster(QString const& pathName)
 {
     // Open raster dataset and obtain some properties.
-    GDALDatasetPtr dataset(static_cast<GDALDataset*>(GDALOpen(
-        pathName.toLatin1().constData(), GA_ReadOnly)), close_gdal_dataset);
+    GDALDatasetPtr dataset(static_cast<GDALDataset*>(GDALOpen(pathName.toLatin1().constData(), GA_ReadOnly)), close_gdal_dataset);
     if(!dataset) {
         Error(QString("Map %1 cannot be opened.").arg(pathName));
     }
@@ -117,14 +113,19 @@ cTMap readRaster(
     double const north{transformation[3]};
     double const cell_size{transformation[1]};
 
-    MaskedRaster<double> raster_data(nr_rows, nr_cols, north, west, cell_size);
+    MaskedRaster<Real> raster_data(nr_rows, nr_cols, north, west, cell_size);
 
     // All raster values are read into doubles, GDT_Float64. PCRaster value scales are not
     // taken into account.
-    if(band->RasterIO(GF_Read, 0, 0, nr_cols, nr_rows, raster_data[0],
-            nr_cols, nr_rows, GDT_Float64, 0, 0) != CE_None) {
+#ifdef USE_FLOAT
+    if(band->RasterIO(GF_Read, 0, 0, nr_cols, nr_rows, raster_data[0],nr_cols, nr_rows, GDT_Float32, 0, 0) != CE_None) {
         Error(QString("Raster band %1 cannot be read.").arg(pathName));
     }
+#else
+    if(band->RasterIO(GF_Read, 0, 0, nr_cols, nr_rows, raster_data[0],nr_cols, nr_rows, GDT_Float64, 0, 0) != CE_None) {
+        Error(QString("Raster band %1 cannot be read.").arg(pathName));
+    }
+#endif
 
     int hasNoDataValue{false};
     double noDataValue{band->GetNoDataValue(&hasNoDataValue)};
@@ -138,8 +139,7 @@ cTMap readRaster(
 /*!
     @brief      Read raster @a pathName and return the result.
 */
-cTRGBMap *readRasterImage(
-    QString const& pathName)
+cTRGBMap *readRasterImage(QString const& pathName)
 {
     // Open raster dataset and obtain some properties.
     GDALDatasetPtr dataset(static_cast<GDALDataset*>(GDALOpen(
@@ -213,7 +213,7 @@ cTRGBMap *readRasterImage(
         {
             for(int j = 0; j < nr_cols; j++)
             {
-                raster_data_int[i][j] = char(int(std::min(255.0,std::max(1.0,(255.0*(raster_data[i][j] - min)/(std::min(2.0*av,max)-min))))));
+                raster_data_int[i][j] = char(int(qMin(255.0,qMax(1.0,(255.0*(raster_data[i][j] - min)/(qMin(2.0*av,max)-min))))));
             }
         }
 
@@ -266,7 +266,7 @@ cTRGBMap *readRasterImage(
             {
                 for(int j = 0; j < nr_cols; j++)
                 {
-                    raster_data_int1[i][j] = char(int(std::min(255.0,std::max(1.0,255.0*(raster_data[i][j] - min)/(std::min(2.0*av,max)-min)))));
+                    raster_data_int1[i][j] = char(int(qMin(255.0,qMax(1.0,255.0*(raster_data[i][j] - min)/(qMin(2.0*av,max)-min)))));
                 }
             }
         }
@@ -316,7 +316,7 @@ cTRGBMap *readRasterImage(
             {
                 for(int j = 0; j < nr_cols; j++)
                 {
-                    raster_data_int2[i][j] = char(int(std::min(255.0,(255.0*(raster_data[i][j] - min)/(std::min(2.0*av,max)-min)))));
+                    raster_data_int2[i][j] = char(int(qMin(255.0,(255.0*(raster_data[i][j] - min)/(qMin(2.0*av,max)-min)))));
                 }
             }
         }
@@ -368,7 +368,7 @@ cTRGBMap *readRasterImage(
             {
                 for(int j = 0; j < nr_cols; j++)
                 {
-                    raster_data_int3[i][j] = char(int((std::min(255.0,255.0*(raster_data[i][j] - min)/(std::min(2.0*av,max)-min)))));
+                    raster_data_int3[i][j] = char(int((qMin(255.0,255.0*(raster_data[i][j] - min)/(qMin(2.0*av,max)-min)))));
                 }
             }
         }
@@ -378,10 +378,8 @@ cTRGBMap *readRasterImage(
     return nullptr;
 }
 
-
-void writePCRasterRaster(
-    cTMap const& raster,
-    QString pathName)
+// use directly pcraster not gdal
+void writePCRasterRaster(cTMap const& raster, QString pathName)
 {
     // Create and configure CSF map.
     MapPtr csfMap{Rcreate(pathName.toLatin1().constData(), raster.nrRows(),
@@ -392,17 +390,19 @@ void writePCRasterRaster(
         Error(QString("Dataset %1 cannot be created.").arg(pathName));
     }
 
+#ifdef USE_FLOAT
+    RuseAs(csfMap.get(), CR_REAL4); // sets the cellrepr to REAL4
+#else
     RuseAs(csfMap.get(), CR_REAL8);
+#endif
 
     // Copy cells to write to new buffer.
     auto const& raster_data(raster.data);
-    std::unique_ptr<double[]> buffer{new double[raster_data.nr_cells()]};
-    std::memcpy(buffer.get(), raster_data[0], sizeof(double) *
-        raster_data.nr_cells());
+    std::unique_ptr<Real[]> buffer{new Real[raster_data.nr_cells()]};
+    std::memcpy(buffer.get(), raster_data[0], sizeof(Real) * raster_data.nr_cells());
 
     // Write cells from buffer to file.
-    size_t nr_cells_written = RputSomeCells(csfMap.get(), 0,
-        raster_data.nr_cells(), buffer.get());
+    size_t nr_cells_written = RputSomeCells(csfMap.get(), 0, raster_data.nr_cells(), buffer.get());
 
     if(nr_cells_written != raster_data.nr_cells()) {
         Error("rputsomecells write error with " + pathName);
@@ -410,11 +410,8 @@ void writePCRasterRaster(
 }
 
 
-void writeGDALRaster(
-    cTMap const& raster,
-    QString const& pathName,
-    GDALDriver& driver,
-    QString const& format)
+// use gdal, much slower!
+void writeGDALRaster(cTMap const& raster, QString const& pathName, GDALDriver& driver, QString const& format)
 {
     // Create new dataset.
     int const nrRows{raster.nrRows()};
@@ -429,9 +426,11 @@ void writeGDALRaster(
     } else {
         options[0] = nullptr;
     }
-
-    GDALDatasetPtr dataset{driver.Create(pathName.toLatin1().constData(),
-                                         nrCols, nrRows, nrBands, GDT_Float32, const_cast<char**>(options)), close_gdal_dataset};
+#ifdef USE_FLOAT
+    GDALDatasetPtr dataset{driver.Create(pathName.toLatin1().constData(),nrCols, nrRows, nrBands, GDT_Float32, const_cast<char**>(options)), close_gdal_dataset};
+#else
+    GDALDatasetPtr dataset{driver.Create(pathName.toLatin1().constData(),nrCols, nrRows, nrBands, GDT_Float64, const_cast<char**>(options)), close_gdal_dataset};
+#endif
 
     if(!dataset) {
         Error(QString("Dataset %1 cannot be created. GDAL error: %2")
@@ -440,7 +439,7 @@ void writeGDALRaster(
         return;
     }
 
-    MaskedRaster<double> const& raster_data{raster.data};
+    MaskedRaster<Real> const& raster_data{raster.data};
 
     // Set some metadata.
     double transformation[]{
@@ -466,15 +465,17 @@ void writeGDALRaster(
     auto band = dataset->GetRasterBand(1);
 
     band->SetNoDataValue(-FLT_MAX);
-
-    if(band->RasterIO(GF_Write, 0, 0, nrCols, nrRows,
-                       const_cast<double*>(&raster_data.cell(0)),
-                       nrCols, nrRows, GDT_Float64, 0, 0) != CE_None) {
+#ifdef USE_FLOAT
+    if(band->RasterIO(GF_Write, 0, 0, nrCols, nrRows,const_cast<float*>(&raster_data.cell(0)),nrCols, nrRows, GDT_Float32, 0, 0) != CE_None) {
         Error(QString("Raster band %1 cannot be written.").arg(pathName));
     }
+#else
+    if(band->RasterIO(GF_Write, 0, 0, nrCols, nrRows,const_cast<double*>(&raster_data.cell(0)),nrCols, nrRows, GDT_Float64, 0, 0) != CE_None) {
+        Error(QString("Raster band %1 cannot be written.").arg(pathName));
+    }
+#endif
 
 }
-
 
 /*!
     @brief      Write raster @a raster to @a pathName using format driver
@@ -487,22 +488,17 @@ void writeGDALRaster(
                 Its driver doesn't implement Create() yet, but we handle
                 saving to PCRaster raster format ourselves.)
 */
-void writeRaster(
-    cTMap const& raster,
-    QString const& pathName,
-    QString const& format)
+void writeRaster(cTMap const& raster, QString const& pathName, QString const& format)
 {
     if (format == "PCRaster") {
         // The function writeGDALRaster() can also be used, but it is slower.
         // So the current implementation with the local PCRlibrary is still used.
         writePCRasterRaster(raster, pathName);
     } else {
-        GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(
-            format.toLatin1().constData());
+        GDALDriver* driver = GetGDALDriverManager()->GetDriverByName(format.toLatin1().constData());
 
         if(!driver) {
-            Error(QString("Format driver %1 not available.").arg(
-                format.toLatin1().constData()));
+            Error(QString("Format driver %1 not available.").arg(format.toLatin1().constData()));
         }
 
         char** metadata{driver->GetMetadata()};
@@ -520,15 +516,9 @@ void writeRaster(
 
 /// makes mapname if (name.map) or mapseries (name0000.001 to name0009.999)
 /// or 'verylongname' to verylongname99.999
-void WriteMapSeries(
-    cTMap const& raster,
-    QString const& Dir,
-    QString Name,
-    int count,
-    QString const& format)
+void WriteMapSeries(cTMap const& raster, QString const& Dir, QString Name, int count, QString const& format)
 {
     QString path;
-    QFileInfo fi(Name);
 
     // in no extension is given
     if(Name.indexOf(".") < 0) {
@@ -546,7 +536,7 @@ void WriteMapSeries(
 
         Name = nam + dig;
 
-        // so wh at count 1020 becomes wh000001.020
+        // so that count 1020 becomes wh000001.020
         // and waterheight becomes waterheight01.020
     }
 
