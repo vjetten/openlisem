@@ -582,7 +582,7 @@ void TWorld::HydrologyProcesses()
                 // assume there is no hmx in WHboundarea
             }
         }
-    }}
+
 
         if (SwitchPest) {
             // update concentration of pesticides after rainfall (mg/L)
@@ -590,7 +590,8 @@ void TWorld::HydrologyProcesses()
                 PCrw->Drc = PMrw->Drc / (WH->Drc * FlowWidth->Drc * DX->Drc * 1000);
             }
         }
-        
+    }}
+
     if (SwitchInfiltration) {
         // non SWATRE infiltration, redistribution and percolation
         if (InfilMethod != INFIL_SWATRE && InfilMethod != INFIL_SOAP) {

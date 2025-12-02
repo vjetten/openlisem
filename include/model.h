@@ -894,28 +894,25 @@ public:
     //QList<cTMap *> F_Advect;
     bool addedbaseflow;
 
-    // TODO PEST stuff, replace with work Meindert
     //Pesticides
+    // <= pesticide
     void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);
     double MassPestInitial(void);
-    //void InitPesticide(void);
     void PesticideCellDynamics(void);
-    void PesticideSplashDetachment(void);
-    void PesticideFlowDetachment(double rho);
     void PesticideFlow1D(void);
-    double PesticidePercolation(double perc, double soildep, double lw,
-                                double zm, double dx, double swdx, double pcmw);
     void KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
-                           cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
-                           cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, cTMap *_PMW);
+                                cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
+                                cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, cTMap *_PMW);
     void KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
-                           cTMap *_LDD, cTMap *_Qn, cTMap *_Qpsn, cTMap *_DX,
-                           cTMap *_Alpha, cTMap *_Sed, cTMap *_Q, cTMap *_Qps,
+                               cTMap *_LDD, cTMap *_Qn, cTMap *_Qpsn, cTMap *_DX,
+                               cTMap *_Alpha, cTMap *_Sed, cTMap *_Q, cTMap *_Qps,
                                cTMap *_PMS);
-
+    void PesticideSplashDetachment();
     double ChowSubstance(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
-                       double Pji1, double alpha, double dx, double dt);
+                         double Pji1, double alpha, double dx, double dt);
+    void PesticideFlowDetachment(double rho);
     double PesticideEnrichmentRatio(double Emax, double S, double beta);
+    // <= pesticide
 
     // 1D hydro processes
     // => input timeseries
@@ -1128,24 +1125,6 @@ public:
     QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
     double itercount;
     // <= kinematic
-
-    // <= pesticide
-    void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);
-    double MassPestInitial(void);
-    void PesticideCellDynamics(void);
-    void PesticideFlow1D(void);
-    void KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
-                   cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
-                   cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, cTMap *_PMW);
-    void KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
-                                 cTMap *_LDD, cTMap *_Qn, cTMap *_Qpsn, cTMap *_DX,
-                                 cTMap *_Alpha, cTMap *_Sed, cTMap *_Q, cTMap *_Qps,
-                                       cTMap *_PMS);
-    void PesticideSplashDetachment();
-    double ChowSubstance(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
-                                 double Pji1, double alpha, double dx, double dt);
-    void PesticideFlowDetachment(double rho);
-    double PesticideEnrichmentRatio(double Emax, double S, double beta);
 
 
     // => sediment stuff

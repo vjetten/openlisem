@@ -181,7 +181,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Rainfall ET threshold")==0)         E_rainfallETA_threshold->setValue(valc);
         //if (p1.compare("Include Snowmelt")==0)            checkSnowmelt->setChecked(check);
 
-        if (p1.compare("Include Pesticides")==0)            checkPesticides->setChecked(check);
+      //  if (p1.compare("Include Pesticides")==0)            checkPesticides->setChecked(check);
         // INTERCEPTION
         if (p1.compare("Include Interception")==0)     checkInterception->setChecked(check);
         if (p1.compare("Canopy storage equation")==0)
@@ -1003,7 +1003,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Swatre dry")==0)                    namelist[j].value.setNum((int)checkSwatreDry->isChecked());
 
         // pesticides
-        if (p1.compare("Include Pesticides")==0)            namelist[j].value.setNum((int)checkPesticides->isChecked());
+        //if (p1.compare("Include Pesticides")==0)            namelist[j].value.setNum((int)checkPesticides->isChecked());
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Channel baseflow method")==0) {

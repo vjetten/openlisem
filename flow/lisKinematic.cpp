@@ -282,7 +282,7 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
             // new sed volume based on all fluxes and org sed present
     }
 
-    }
+
 }
 //---------------------------------------------------------------------------
 /**
