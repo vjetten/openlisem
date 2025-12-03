@@ -323,7 +323,6 @@ void TWorld::DoModel()
                     else
                         _dt =_dt_user;
                 }
-            qDebug() << _dt;
             }
             savemaptodisk = false;
             // printstep determines report frequency in #define report(...)

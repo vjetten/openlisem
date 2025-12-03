@@ -290,8 +290,6 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
                 break;
             }
         }
-        if (fltsat && (qtop <= qbot))
-            fltsat = false;
 
         //----- BOTTOM -----
         // bottom is 0 or copy of flux of last 2 layers
@@ -299,6 +297,9 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
             qbot = 0;
         else
             qbot = kavg[nN-1]*(h[nN-1]-h[nN-2])/disZ[nN-1] - kavg[nN-1];
+
+        if (fltsat && (qtop <= qbot))
+            fltsat = false;
 
         for (int j = 0; j < nN; j++) {
           hPrev[j] = h[j];
@@ -394,7 +395,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
         //qbot = kavg[n-1]*(h[n-1]-h[n-2])/disZ[n-1] - kavg[n-1];
         percolation += qbot*dt;
 
-        if (isPonded || fltsat)
+        if (isPonded || (fltsat && (qtop < qbot)))
              qtop = -kavg[0] * ((h[0] - WH)/disZ[0] + 1) * (1.0-impfrac);
         // else qtop is WH/dt !
 
@@ -436,7 +437,8 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
 
         if (elapsedTime+dt >= _dt - TIME_EPS)
             dt = _dt - elapsedTime;
-
+        if (count > _dt/swatreDT)
+            break;
     } // elapsedTime < lisemTimeStep
 
     pixel->currDt = qBound(swatreDT, dt, swatreMaxDT);

@@ -278,6 +278,7 @@ typedef struct UNIT_LIST {
 //---------------------------------------------------------------------------
 /// vec4 used for HLL
 typedef struct vec4 { Real v[4]; } vec4;
+typedef struct vec3 { Real v[3]; } vec3;
 
 //---------------------------------------------------------------------------
 /// Structure to store rain station values of rainfile mapnames
@@ -1050,6 +1051,7 @@ public:
     vec4 F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
+    vec3 F_VFRoe(double h_L,double u_L,double h_R,double u_R);
 
     void OverlandFlow2Ddyn(void);
     void updateWHandHmx(void);
@@ -1116,6 +1118,8 @@ public:
     QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
     double itercount;
     // <= kinematic
+
+    void DynamicChannel(QVector<LDD_COORIN> _crlinked);
 
     // <= pesticide
     void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);

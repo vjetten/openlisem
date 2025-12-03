@@ -101,7 +101,7 @@ struct output{
 
     QList<int> ComboLists;
     QList<cTMap *> ComboMaps;
-    QList<cTMap *> ComboMapsSafe;
+   // QList<cTMap *> ComboMapsSafe;
     QList<QList<double>> ComboColorMap;
     QList<QList<QString>> ComboColors;
     QList<bool> ComboLogaritmic;

@@ -587,7 +587,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
     double dt_req_min = dt;
     #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-            dt_req_min = qMin(dt_req_min, FloodDT->Drc);
+        dt_req_min = qMin(dt_req_min, FloodDT->Drc);
     }}
     dt_req_min = qMax(TimestepfloodMin, qMin(dt, qMin(dt_req_min, _dt-timesum)));
 

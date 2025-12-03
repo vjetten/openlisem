@@ -500,6 +500,64 @@ vec4 TWorld::F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,do
     return (rec);
 }
 
+vec3 TWorld::F_VFRoe(double h_L,double u_L,double h_R,double u_R)
+{
+
+    double cL=sqrt(GRAV*h_L);
+    double cR=sqrt(GRAV*h_R);
+    double umean=(u_L+u_R)/2.;
+    double cmean=(cL+cR)/2.;
+    double lamb1=umean-cmean;
+    double lamb2=umean+cmean;
+    double lamb1L=u_L-cL;
+    double lamb2L=u_L+cL;
+    double lamb1R=u_R-cR;
+    double lamb2R=u_R+cR;
+    double f1, f2, cfl, c, tx;
+    vec3 res;
+
+    if ( ((lamb1L < 0.0) && (lamb1R > 0.0)) ||
+         ((lamb2L < 0.0) && (lamb2R > 0.0)) ) {
+        //entropy correction with the Rusanov flux
+        c = qMax(qFabs(u_L)+cL,qFabs(u_R)+cR);
+        f1 = (h_L*u_L+h_R*u_R)*0.5-c*(h_R-h_L)*0.5;
+        f2 = (u_L*u_L*h_L + (GRAV_DEM*h_L*h_L) + u_R*u_R*h_R + (GRAV_DEM*h_R*h_R) )*0.5 - c*(h_R*u_R-h_L*u_L)*0.5;
+        cfl = c*tx;
+    }
+    else
+        if (lamb1 >= 0.0){
+            //supercritical flow from the left to the right
+            f1 = h_L*u_L;
+            f2 = h_L*u_L*u_L + GRAV_DEM*h_L*h_L;
+            cfl = qMax(fabs(u_L)+cL,fabs(u_R)+cR)*tx;
+        }
+        else
+            if (lamb2 <= 0.0){
+                //supercritical flow from the right to the left
+                f1 = h_R*u_R;
+                f2 = h_R*u_R*u_R + GRAV_DEM*h_R*h_R;
+                cfl = qMax(fabs(u_L)+cL,fabs(u_R)+cR)*tx;
+            } else {
+                //subcritical flow
+                double lambmax=0.;
+                double ustar=0.;
+                double hstar=0.;
+
+                lambmax = qMax(fabs(lamb1),fabs(lamb2));
+                ustar = (u_L+u_R)/2.0-(cR-cL);
+                double tmp = (cR+cL)/2.0-(u_R-u_L)/4.0;
+                hstar = tmp*tmp/GRAV;
+                f1 = hstar*ustar;
+                f2 = hstar*ustar*ustar + GRAV_DEM*hstar*hstar;
+                cfl = qMax(lambmax,qMax(fabs(u_L)+cL,fabs(u_R)+cR))*tx;
+            }
+    res.v[0] = f1;
+    res.v[1] = f2;
+    res.v[2] = cfl;
+    return (res);
+}
+
+
 //--------------------------------------------------------------------------------------------
 // correct mass balance
 double TWorld::getMass(cTMap *M)

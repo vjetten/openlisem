@@ -229,7 +229,8 @@ void lisemqt::runmodel()
 
     connect(worldThread, &QThread::started, W, &TWorld::DoModel);
     connect(W, &TWorld::done, worldThread, &QThread::quit);
-    connect(worldThread, &QThread::finished, worldThread, &QThread::deleteLater); // dlete later means these are automatically deleted when the thread finishes
+    connect(worldThread, &QThread::finished, worldThread, &QThread::deleteLater);
+    // delete later means these are automatically deleted when the thread finishes
 
     W->showInfo = true;
 
