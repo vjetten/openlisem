@@ -66,3 +66,11 @@ target_sources(Lisem
   compile_lisem_linux.txt
 )
 
+# BMI wrapper option
+option(BUILD_BMI "Build BMI wrapper for model coupling" OFF)
+
+if(BUILD_BMI)
+    message(STATUS "Building BMI wrapper for openLISEM")
+    add_subdirectory(bmi)
+endif()
+

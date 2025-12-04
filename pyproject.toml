@@ -1,0 +1,36 @@
+[build-system]
+requires = [
+    "setuptools>=45",
+    "wheel",
+    "cmake>=3.16",
+    "pybind11>=2.6.0",
+    "numpy>=1.18.0",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bmi-openlisem"
+version = "0.1.0"
+description = "BMI wrapper for openLISEM hydrological and erosion model"
+readme = "README.txt"
+requires-python = ">=3.7"
+license = {text = "GPLv3"}
+authors = [
+    {name = "Victor Jetten", email = "v.g.jetten@utwente.nl"},
+]
+keywords = ["BMI", "hydrology", "erosion", "modeling", "openLISEM"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Hydrology",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3",
+]
+
+dependencies = [
+    "numpy>=1.18.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/vjetten/openlisem"
+Repository = "https://github.com/vjetten/openlisem"
