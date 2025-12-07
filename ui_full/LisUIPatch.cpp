@@ -54,7 +54,7 @@ void lisemqt::downloadPatch(QString latestVersion)
         // Create a file to save the patch
         QFile *file = new QFile(filePath);
         if (!file->open(QIODevice::WriteOnly)) {
-            qDebug() << "Error: Unable to open file for writing.";
+            qDebug() << "Error: Unable to open patch file.";
             delete file;
             return;
         }

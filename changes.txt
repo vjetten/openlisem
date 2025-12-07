@@ -2,7 +2,13 @@ Latest fixes and changes:
 =========================
 
 see Readme.txt for a complete list
-251126 - v7.4.8.beta.R4
+51205 - v7.4.8.beta.R4
+- BUG FIX: culverts were not drawn correctly
+- BUG FIX: channels were drawn on screen even if not selected
+- BUG FIX: since version R3, check all read, write, append and readwrite for text files
+- BUG FIX: since version R3, exclude channels causes crash
+
+251126 - v7.4.8.beta.R3
 - Added: show buffers in the map view
 - Added: add surface micro storage in display map list
 - BUG FIX: small bug fix in unsat flow between layers in G&A

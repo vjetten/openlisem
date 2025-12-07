@@ -2449,7 +2449,7 @@ void TWorld::InitShade(void)
         for (int i = 0; i < 9; i++) {
             mat[i] = DEM->Drc;
         }
-        if (r > 0 && r < _nrRows-1 && c > 0 && c < _nrCols-1) {
+        if ((r > 0 && r < _nrRows-1) && (c > 0 && c < _nrCols-1)) {
             if(!pcr::isMV(LDD->data[r-1][c-1]))
                 mat[0] = DEM->data[r-1][c-1];
             if(!pcr::isMV(LDD->data[r-1][c  ]))
@@ -2479,8 +2479,7 @@ void TWorld::InitShade(void)
         double z_factor = 2.0;
         double Slope_rad = atan( z_factor * sqrt ( dx*dx+dy*dy) );
         double Aspect_rad = 0;
-        if( dx != 0)
-        {
+        if( dx != 0) {
             Aspect_rad = atan2(dy, -dx);
             if (Aspect_rad < 0)
                 Aspect_rad = 2*M_PI + Aspect_rad;

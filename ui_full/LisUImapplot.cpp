@@ -679,8 +679,17 @@ void lisemqt::showOutpointsVector(bool yes)
 //---------------------------------------------------------------------------
 void lisemqt::showChannelVector(bool yes)
 {
-    if (!checkIncludeChannel->isChecked())
+    if (!checkIncludeChannel->isChecked()) {
+        if (!rivers.isEmpty() && rivers.length() > 0) {
+            for (int i = 0; i < rivers.length(); i++)
+                rivers[i]->detach();
+            if (culverts.length() > 0 && !culverts.isEmpty()) {
+                for (int i = 0; i < culverts.length(); i++)
+                    culverts[i]->detach();
+            }
+        }
         return;
+    }
 
     if(rivers.isEmpty())
         return;
@@ -699,16 +708,18 @@ void lisemqt::showChannelVector(bool yes)
             rivers[i]->setAxes(QwtAxis::XBottom, QwtAxis::YLeft);
         }
 
-        QPen pen2;
-        pen2.setWidth(spinChannelSize->value()+1);
-        pen2.setColor(QColor("#FFFFFF"));
-        pen2.setCosmetic(true);
+        if (culverts.length() > 0 && !culverts.isEmpty()) {
+            QPen pen2;
+            pen2.setWidth(spinChannelSize->value()+1);
+            pen2.setColor(QColor("#FFFFFF"));
+            pen2.setCosmetic(true);
 
-        // culverts get white channel color
-        for (int i = 0; i < culverts.length(); i++) {
-            culverts[i]->setPen(pen2);
-            culverts[i]->attach( MPlot );
-            culverts[i]->setAxes(QwtAxis::XBottom, QwtAxis::YLeft);
+            // culverts get white channel color
+            for (int i = 0; i < culverts.length(); i++) {
+                culverts[i]->setPen(pen2);
+                culverts[i]->attach( MPlot );
+                culverts[i]->setAxes(QwtAxis::XBottom, QwtAxis::YLeft);
+            }
         }
 
         // int dxi = spinCulvertSize->value();
@@ -744,6 +755,7 @@ void lisemqt::initChannelVectorandOutlet()
 {
     if (!startplot)
         return;
+
     spinChannelSize->setEnabled(checkIncludeChannel->isChecked());
     label_137->setEnabled(checkIncludeChannel->isChecked());
     if (checkIncludeChannel->isChecked()) {
@@ -754,8 +766,8 @@ void lisemqt::initChannelVectorandOutlet()
         QVector <double> X;
         QVector <double> Y;
 
-        int _dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-        int _dy[10] = {0, -1,-1,-1,  0, 0, 0,  1, 1, 1};
+        int ddx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+        int ddy[10] = {0, -1,-1,-1,  0, 0, 0,  1, 1, 1};
 
         double xend, yend;
         double dx = op.channelMap->cellSize();
@@ -763,6 +775,7 @@ void lisemqt::initChannelVectorandOutlet()
         double cy = op.channelMap->north()-_nrRows*dx;
         double cx = op.channelMap->west();
 
+        // this is the ordered network
         for(long i_ =  0; i_ < op.lddch_.size(); i_++) {
 
             int r = _nrRows-op.lddch_[i_].r-1;
@@ -775,8 +788,8 @@ void lisemqt::initChannelVectorandOutlet()
                 Y << yend;
                 X << xend;
             }
-            Y << yend + _dy[ldd]*dx;
-            X << xend + _dx[ldd]*dx;
+            Y << yend + ddy[ldd]*dx;
+            X << xend + ddx[ldd]*dx;
 
             if (i_ < op.lddch_.size()-1 && op.lddch_[i_+1].nr == 0) {
                 Xa.push_back(X);
@@ -799,49 +812,58 @@ void lisemqt::initChannelVectorandOutlet()
         // culvert parts of channel network
         if (checkChannelCulverts->isChecked()) {
             bool first = true;
-            int count = 0;
             for(long i_ =  0; i_ < op.lddch_.size(); i_++) {
 
                 if(op.lddch_[i_].ldd < 0) {
                     int r,c,ldd;
 
-                    if (first) {
-                        r = _nrRows-op.lddch_[i_].r-1;
-                        c = op.lddch_[i_].c;
-                        xend = cx+c*dx + 0.5*dx;
-                        yend = cy+r*dx + 0.5*dx;
-                        Y << yend;
-                        X << xend;
-                        first = false;
-                    }
+                    // current culvert cell in coordinates
                     r = _nrRows-op.lddch_[i_].r-1;
                     c = op.lddch_[i_].c;
-                    xend = cx+c*dx + 0.5*dx;
-                    yend = cy+r*dx + 0.5*dx;
-                    Y << yend;
-                    X << xend;
-                    count++;
+                    xend = cx+c*dx;
+                    yend = cy+r*dx;
 
-                    if (i_ < op.lddch_.size() -1 && (op.lddch_[i_+1].ldd > 0)) {
-                        if (count == 1) {
-                            ldd = std::abs(op.lddch_[i_].ldd);
-                            Y << yend + _dy[ldd]*dx;
-                            X << xend + _dx[ldd]*dx;
-                        }
-                        Xc.push_back(X);
-                        Yc.push_back(Y);
+                    if (first) {
                         X.clear();
                         Y.clear();
+                        Y << yend;
+                        X << xend;
+                        //start X and Y
+                        first = false;
+                    }
+                    // next cell does not have to be next in de branch but can be another branch because of order
+                    bool last = false;
+                    bool samebranch = true;
+                    if (i_ < op.lddch_.size()-1) {
+                        // next ldd < 0 but far away, end = true
+                        if  (op.lddch_[i_+1].ldd < 0) {
+                            int rd = _nrRows-op.lddch_[i_+1].r-1;
+                            int cd = op.lddch_[i_+1].c;
+                            if (abs(c - cd) > 1 || abs(r - rd) > 1) {
+                                last = true;
+                                samebranch = false;
+                            }
+                        } else {
+                            // next ldd is positive so stop
+                            last = true;
+                        }
+                    }
+
+                    // add the next culvert cell
+                    if (samebranch) {
+                        ldd = std::abs(op.lddch_[i_].ldd);
+                        Y << yend + ddy[ldd]*dx;
+                        X << xend + ddx[ldd]*dx;
+                    }
+
+                    // stop and copy to Xc, Yc, reset first
+                    if (last) {
+                        Xc.push_back(X);
+                        Yc.push_back(Y);
                         first = true;
-                        count = 0;
                     }
                 }
             }
-
-            Xc.push_back(X);
-            Yc.push_back(Y);
-            X.clear();
-            Y.clear();
 
             for (int i = 0; i < Xc.length(); i++) {
                 QwtPlotCurve *culvert = new QwtPlotCurve();

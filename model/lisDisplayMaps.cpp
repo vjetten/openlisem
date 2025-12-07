@@ -62,24 +62,30 @@ void TWorld::setupDisplayMaps()
     if (SwitchImage)
         op.Image = new cTRGBMap();
 
-    op.channelMap->MakeMap(LDD, 0);
+    if(SwitchIncludeChannel)
+        op.channelMap->MakeMap(LDD, 0);
     op.baseMap->MakeMap(LDD, 0);
     op.baseMapDEM->MakeMap(LDD, 0);
     op.outletMap->MakeMap(LDD, 0);
-    op.roadMap->MakeMap(LDD, 0);
-    op.houseMap->MakeMap(LDD, 0);
-    op.hardsurfaceMap->MakeMap(LDD, 0);
-    op.bufferMap->MakeMap(LDD, 0);
+    if (SwitchRoadsystem)
+        op.roadMap->MakeMap(LDD, 0);
+    if (SwitchHouses)
+        op.houseMap->MakeMap(LDD, 0);
+    if(SwitchHardsurface)
+        op.hardsurfaceMap->MakeMap(LDD, 0);
+    if(SwitchBuffers)
+        op.bufferMap->MakeMap(LDD, 0);
 
     // fill with data
-
     copy(*op.baseMap, *ShadeBW);
     copy(*op.baseMapDEM, *DEM);
 
     if(SwitchImage)
       op.Image = RGB_Image;
 
-    copy(*op.channelMap, *LDDChannel);
+    if(SwitchIncludeChannel)
+        copy(*op.channelMap, *LDDChannel);
+
     copy(*op.outletMap, *PointMap);
 
     if (SwitchRoadsystem) {
@@ -92,10 +98,10 @@ void TWorld::setupDisplayMaps()
       }}
     }
     if (SwitchHouses)
-    copy(*op.houseMap, *HouseCover);
+        copy(*op.houseMap, *HouseCover);
 
     if(SwitchHardsurface)
-    copy(*op.hardsurfaceMap,*HardSurface);
+        copy(*op.hardsurfaceMap,*HardSurface);
 
     if(SwitchBuffers) {
         FOR_ROW_COL_MV_L {
@@ -335,9 +341,7 @@ void TWorld::GetComboMaps()
     }
 
 
-    if(SwitchIncludeChannel)
-    {
-
+    if(SwitchIncludeChannel) {
         cl = 0;
         if (QUnits == 0)
             AddComboMap(0,"Channel Discharge","l/s",ChannelQn,LegendMap[cl],Legend[cl],true,false,1000.0, 1.0);

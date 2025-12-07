@@ -212,7 +212,7 @@ void lisemqt::on_toolButton_help(int page)
     if (page == HELPADVANCED    ) filename = ":/help8.html";
 
     QFile file(filename);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         ErrorString = "Cannot open the file: "+filename;
         throw 1;
     }

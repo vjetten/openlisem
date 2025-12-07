@@ -303,7 +303,7 @@ void TWorld::ReportTotalSeries(void)
         SwitchWriteHeaders = false;
         QFile fout(newname1);
         if (!fout.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            ErrorString = "Cannot open the result file: "+totalSeriesFileName;
+            ErrorString = "Cannot write the file: "+totalSeriesFileName;
             throw 1;
         }
         QTextStream out(&fout);
@@ -354,7 +354,7 @@ void TWorld::ReportTotalSeries(void)
 
     QFile fout(newname1);
     if (!fout.open(QIODevice::Append | QIODevice::Text)) {
-        ErrorString = "Cannot open the result file: "+totalSeriesFileName;
+        ErrorString = "Cannot append to the file: "+totalSeriesFileName;
         throw 1;
     }
 
@@ -669,7 +669,7 @@ void TWorld::ReportTimeseriesCSV(void)
 
             QFile fout(newname1);
             if (!fout.open(QIODevice::WriteOnly | QIODevice::Text)) {
-                ErrorString = "Cannot open the result file: "+newname1;
+                ErrorString = "Cannot write the file: "+newname1;
                 throw 1;
             }
             QTextStream out(&fout);
@@ -736,7 +736,7 @@ void TWorld::ReportTimeseriesCSV(void)
         newname1 = fi.path() + "/" + fi.baseName() + "_" + crout_[i_].code + "." +  fi.suffix();
         QFile fout(newname1);
         if (!fout.open(QIODevice::Append | QIODevice::Text)) {
-            ErrorString = "Cannot open the result file: "+newname1;
+            ErrorString = "Cannot append to the file: "+newname1;
             throw 1;
         }
         QTextStream out(&fout);
@@ -852,7 +852,7 @@ void TWorld::ReportErosionLandunits(void)
     name = resultDir + totalLandunitFileName;//QFileInfo(totalLandunitFileName).baseName()+"-"+op.timeStartRun+".csv";
     QFile fout(name);
     if (!fout.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        ErrorString = "Cannot open the result file: "+name;
+        ErrorString = "Cannot write the file: "+name;
         throw 1;
     }
     QTextStream out(&fout);
