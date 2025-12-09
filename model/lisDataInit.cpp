@@ -459,6 +459,9 @@ void TWorld::InitMeteoInput(void)
 void TWorld::InitLULCInput(void)
 {
     //===== surface =====
+
+    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
+
     N = ReadMap(LDD,getvaluename("manning"));
     checkMap(*LDD, *N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
     calcValue(*N, nCalibration, MUL);
@@ -651,13 +654,15 @@ void TWorld::calcSoilPhysics(cTMap *Ksat, cTMap *lambda, cTMap *thfc, cTMap *thr
 //---------------------------------------------------------------------------
 void TWorld::InitSoilInput(void)
 {
+    if (InfilMethod == INFIL_NONE)
+        return;
+
     // safeguard for deleting, set to null pointer
     SwatreSoilModel = nullptr;
     SwatreSoilModelCrust = nullptr;
     SwatreSoilModelCompact = nullptr;
     SwatreSoilModelGrass = nullptr;
 
-    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
     ThetaI1a = NewMap(0); // used for screen output
     ThetaI2a = NewMap(0); // for output, average soil layer 2
 
@@ -698,6 +703,7 @@ void TWorld::InitSoilInput(void)
             }
         }}
     }
+
     //## infiltration data
     if(InfilMethod != INFIL_SWATRE)
     {

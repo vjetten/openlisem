@@ -38,6 +38,7 @@ profile node setup:
     dz = (endComp[i-1] - endComp[i]) is negative layer thickness
     z = 0.5*(dz[i-1]+dz[i]) is negative centre of compartment, nodes
     disnod = z[i]-z[i-1] is negative distance between centres, nodes
+    NOTE: Independent of individuual soil profiles table depths!!!
 
      -------   surface    -       - z[0]-
         o                  |dz[0] -      | disnod[0]
@@ -71,7 +72,7 @@ void TWorld::ReadSwatreInputNew(void)
     swatreProfileDef.clear();
     swatreProfileNr.clear();
 
-    QFile file(SwatreTableName); // table name has full path
+    QFile file(SwatreTableName); // table name has full path (profile.inp)
 
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);
@@ -83,13 +84,13 @@ void TWorld::ReadSwatreInputNew(void)
             if (!line.trimmed().isEmpty()) {
                 swatreProfileDef.append(line);
             } else {
-                swatreProfileDef.append("###");
+                swatreProfileDef.append("###"); // replace empty lines "###" for parsing
             }
         }
 
         file.close();
     } else {
-        Error(QString("SWATRE: Can't open profile definition file %1").arg(/*SwatreTableDir +*/SwatreTableName));
+        Error(QString("SWATRE: Can't open profile definition file %1").arg(SwatreTableName));
         throw 1;
     }
 
@@ -136,7 +137,7 @@ void TWorld::ReadSwatreInputNew(void)
     zone->z[0]= zone->dz[0]*0.5;
     zone->disnod[0] = zone->z[0];
     zone->rootz[0] = 0;
-    double rootmax = -ROOTMAX;
+    double rootmax = -ROOTMAX; // 60 cm fixed independent of crop
     double sum = 0;
     for (int i = 1; i < zone->nrNodes; i++) {
         zone->dz[i]= (zone->endComp[i-1]-zone->endComp[i]);
@@ -244,12 +245,12 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
     p->horizon = (const HORIZON **)malloc(sizeof(HORIZON *) * z->nrNodes); // array of pointers to horizon
     p->zone = z; // also pointer to zone ninfo
     for (int i = 0; i < z->nrNodes; i++)
-        p->KsatCal << 1.0; // create ksat cal 1,2,3 for each horizon
+        p->KsatCal << 1.0; // create ksat cal 1,2,3 for each horizon, initialize to 1.0
 
     int i = 0;
     int hornr = 0;
     while (i != z->nrNodes) {
-        pos++; // move one line to the horizon table name
+        pos++; // move one line to read the horizon table name
 
         tableName = swatreProfileDef[pos];
         if (!QFileInfo(SwatreTableDir + tableName).exists())
@@ -278,7 +279,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
             if (hornr == 2)  p->KsatCal.replace(i, ksat2Calibration);
             if (hornr > 2)  p->KsatCal.replace(i, ksat3Calibration);
 
-            //qDebug() << i << hornr <<  p->horizon[i]->name;
+            //qDebug() << i << hornr <<  p->horizon[i]->name << z->endComp[i] << z->z[i] << z->disnod[i] << z->dz[i];
             i++;
         }
 

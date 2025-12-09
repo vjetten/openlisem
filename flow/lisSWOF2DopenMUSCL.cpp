@@ -609,7 +609,8 @@ void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v)
         // mass balance, hll_....v[0] is the height
 
         // momentum balance for cells with water
-        if(hn > he_ca) {
+
+        if(hn > he_ca) { // && qAbs(hn-h->Drc) > 1e-6
             // SWOF solution, delzc1 = 0 when not MUSCL
             double qxn = h->Drc*u->Drc - tx*(hllx21_1->Drc + gflowx->Drc) - ty*hlly21_2->Drc;
             double qyn = h->Drc*v->Drc - tx*hllx21_2->Drc - ty*(hlly21_1->Drc + gflowy->Drc);
@@ -634,8 +635,8 @@ void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v)
         } else {
             // hn < ha
             hn = h->Drc; // if no fluxes then also no change in h
-            Un = 0;
-            Vn = 0;
+            Un = u->Drc;
+            Vn = v->Drc;
         }
 
         // komt niet meer voor
