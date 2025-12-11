@@ -212,7 +212,7 @@ void lisemqt::CheckVersion()
 {
     QString latestVersion = getLatestVersionFromGitHub();
     if (!latestVersion.isEmpty() && isNewVersionAvailable(latestVersion)) {
-
+qDebug() << "download" << latestVersion;
 #ifdef Q_OS_WIN
         downloadPatch(latestVersion);
 #elif defined(Q_OS_LINUX)

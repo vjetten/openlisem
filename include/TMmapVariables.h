@@ -287,6 +287,7 @@ cTMap
 *ChannelWH,                  //!<
 *ChannelPerimeter,
 *ChannelWidthB,
+
 //*ChannelCos,
 //*ChannelWHExtended,                  //!<
 //*ChannelVolExtended,                  //!<

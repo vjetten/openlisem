@@ -495,6 +495,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
 
 
             //left and right hand side of c and c-1 (x and x1)
+            //dz_x1 = (Z - z_x1);
             if (bc1) {
                 h_x1r = qMax(0.0, hx1r - qMax(0.0,  dz_x1 + fb_x1)); //rechts van c-1
                 h_xl  = qMax(0.0, hxl  - qMax(0.0, -dz_x1 + fb_x1)); //links van het midden
@@ -514,7 +515,8 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             }
             hll_x1 = F_Riemann(h_x1r,ux1r,vx1r, h_xl,uxl,vxl); // c-1 (x1 right) and c (x1 left)
 
-            //right and left hand side of c and c+1 (x and x2)
+            //right and left hand side of c and c+1 (x and x2), from left tp right, but not Z:
+            //dz_x2 = (z_x2 - Z);
             if (bc2) {
                 h_xr  = qMax(0.0, hxr  - qMax(0.0,  dz_x2 + fb_x2));
                 h_x2l = qMax(0.0, hx2l - qMax(0.0, -dz_x2 + fb_x2));

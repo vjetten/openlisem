@@ -59,7 +59,7 @@ void TWorld:: ChannelFlowandErosion()
 
         ChannelSedimentFlow();          // kin wave for sediment and substances
 
-    // restore _dt
+        // restore _dt
     // _dt = _dt_user;
 
 }
@@ -447,3 +447,4 @@ void TWorld::correctMassBalanceCH(double sum1, cTMap *M)
         }}
     }
 }
+
