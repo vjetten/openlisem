@@ -576,11 +576,11 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             // so h_xl-hxl is the difference in height between the boundary of the cell and the mid of the cell
             gflowx->Drc = GRAV*0.5*( (h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr) + delzcx*(hxl+hxr) ); // delzcx = 0 if not muscl
             gflowy->Drc = GRAV*0.5*( (h_yu-hyu)*(h_yu+hyu) + (hyd-h_yd)*(hyd+h_yd) + delzcy*(hyu+hyd) );
-            hllx12_0->Drc = hll_x1.v[0] - hll_x2.v[0];
-            hlly12_0->Drc = hll_y1.v[0] - hll_y2.v[0];
-            hllx21_1->Drc = hll_x2.v[1] - hll_x1.v[1];
+            hllx12_0->Drc = hll_x1.v[0] - hll_x2.v[0];  // left - right
+            hlly12_0->Drc = hll_y1.v[0] - hll_y2.v[0];  // up - down
+            hllx21_1->Drc = hll_x2.v[1] - hll_x1.v[1];  // right - left
             hllx21_2->Drc = hll_x2.v[2] - hll_x1.v[2];
-            hlly21_1->Drc = hll_y2.v[1] - hll_y1.v[1];
+            hlly21_1->Drc = hll_y2.v[1] - hll_y1.v[1];  // down - up
             hlly21_2->Drc = hll_y2.v[2] - hll_y1.v[2];
         }
     }} // all cells done
@@ -608,11 +608,10 @@ void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v)
         double ty = dt/dy;
 
         double hn = qMax(0.0, h->Drc + tx*(hllx12_0->Drc) + ty*(hlly12_0->Drc));
-        // mass balance, hll_....v[0] is the height
+        // mass balance, hll_....v[0] is the  Mass flux per meter (m2/s) (in - out)*tx in x and y directions = height (m)
 
         // momentum balance for cells with water
-
-        if(hn > he_ca) { // && qAbs(hn-h->Drc) > 1e-6
+        if(hn > he_ca) {
             // SWOF solution, delzc1 = 0 when not MUSCL
             double qxn = h->Drc*u->Drc - tx*(hllx21_1->Drc + gflowx->Drc) - ty*hlly21_2->Drc;
             double qyn = h->Drc*v->Drc - tx*hllx21_2->Drc - ty*(hlly21_1->Drc + gflowy->Drc);
