@@ -348,7 +348,7 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>0</y>
+                <y>-211</y>
                 <width>1013</width>
                 <height>819</height>
                </rect>
@@ -386,7 +386,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>3</number>
+                  <number>9</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -7861,7 +7861,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Perimeter overland flow as width w [ ], or (w+2h) [v] (backward compatibility)</string>
+                            <string>Perimeter overland flow as (width+2height, backward compatibility) </string>
                            </property>
                           </widget>
                          </item>

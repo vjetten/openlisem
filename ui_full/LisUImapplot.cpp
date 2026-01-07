@@ -820,8 +820,8 @@ void lisemqt::initChannelVectorandOutlet()
                     // current culvert cell in coordinates
                     r = _nrRows-op.lddch_[i_].r-1;
                     c = op.lddch_[i_].c;
-                    xend = cx+c*dx;
-                    yend = cy+r*dx;
+                    xend = cx+c*dx + 0.5*dx;
+                    yend = cy+r*dx + 0.5*dx;
 
                     if (first) {
                         X.clear();
