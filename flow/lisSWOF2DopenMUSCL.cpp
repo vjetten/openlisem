@@ -119,7 +119,9 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         }
 
         if (Switch2DDiagonalFlow) {
-            SWOFDiagonalFlowNew(dt_req_min, h, u, v);
+            //SWOFDiagonalFlowLDD(dt_req_min, z, h, u, v);
+            SWOFDiagonalFlow(dt_req_min, z, h, u, v);
+
         }
 
         timesum += dt_req_min;
@@ -162,12 +164,12 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
     double factor = exp(-0.005*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
     double factor2 = factor;//pow(factor,0.667); // manning reduction V=h^2/3
 
-   // Fill(*tmd,0);
+    Fill(*tmd,0);
     // map edges are zero, avoid domain touching the edges
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        //if (h->Drc > he_ca)
-        //     tmd->Drc = 1;
+        if (h->Drc > he_ca)
+            tmd->Drc = 1;
 
         if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
         if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;

@@ -37,7 +37,8 @@
 //---------------------------------------------------------------------------
 
 // force flow when a diagonal solution exists and a DEM blockage is present
-void TWorld::SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
+// runs from inside swof loop because of min dt
+void TWorld::SWOFDiagonalFlowLDD(double dt_req_min, cTMap *z, cTMap *h, cTMap *vx, cTMap *vy)
 {
 
     #pragma omp parallel for num_threads(userCores)
@@ -58,30 +59,40 @@ void TWorld::SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *
         if (h->Drc > F_pitValue) {
             int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
             int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
-            doit = true;
 
             vec4 rec;
             int ldd = dcr_[i_].ldd;
             int rr = r+dy[ldd];
             int cr = c+dx[ldd];
 
-            // h downstream cannot be updated inside parallel loop!
-            // save these values and add later
-            if (h->Drcr < h->Drc) {
+            if (z->Drcr+h->Drcr < z->Drc+h->Drc) {
                 // 1e component: Massa flux per meter ( dus (m3/s)/(m) = m2/s, wat dezelfde berekening is als momentum = h*u)
                 rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->Drcr, vx->Drcr, vy->Drcr);
                 double flux = std::abs(rec.v[0]);
-                double dH = qMin(h->Drc *0.9, flux*dt_req_min/_dx);
+                double dH = qMin(h->Drc*0.5, flux*dt_req_min/_dx);
+                double Hldd = z->Drcr+h->Drcr;
+                double H = z->Drc+h->Drc;
+                int cnt = 0;
+                // if movning water causes an imbalance
+                if (Hldd+dH > H-dH) {
+                    while (Hldd+dH > H-dH && cnt < 100) {
+                        dH -= 0.01;
+                        cnt++;
+                    }
+                }
 
                 h->Drc -= dH;
+                h->Drc = qMax(0.0,h->Drc);
                 tmc->Drcr += dH;
 
+                doit = true;
+
                 if (SwitchErosion) {
-                    double dS = qMin(0.9*SSFlood->Drc, dH*CHAdjDX->Drc*SSCFlood->Drc);
+                    double dS = qMin(0.5*SSFlood->Drc, dH*CHAdjDX->Drc*SSCFlood->Drc);
                     SSFlood->Drc -= dS;
                     tma->Drcr += dS;
                     if (SwitchUse2Phase) {
-                        double dBL = qMin(0.9*BLFlood->Drc, dH*CHAdjDX->Drc*BLCFlood->Drc);
+                        double dBL = qMin(0.5*BLFlood->Drc, dH*CHAdjDX->Drc*BLCFlood->Drc);
                         BLFlood->Drc -= dBL;
                         tmb->Drcr += dBL;
                     }
@@ -109,75 +120,155 @@ void TWorld::SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *
 }
 
 //-------------------------------------------------------------------------------------------------
-//OBSOLETE
 // force flow when a diagonal solution exists and a DEM blockage is present
-void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy)
+    // check in diagonal direction, not with ldd
+void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *z, cTMap *h, cTMap *vx, cTMap *vy)
 {
-#pragma omp parallel for num_threads(userCores)
+
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         tma->Drc = 0;
         tmb->Drc = 0;
         tmc->Drc = 0;
+        tmd->Drc = 0;
     }}
 
-bool doit = false;
+    bool doit = false;
 
-#pragma omp parallel for num_threads(userCores)
-for(long i_= 0; i_ < dcr_.size(); i_++) {
+    #pragma omp parallel for num_threads(userCores)
+    for(long i_= 0; i_ < dcr_.size(); i_++) {
 
-    int r = dcr_[i_].r;
-    int c = dcr_[i_].c;
+        int r = dcr_[i_].r;
+        int c = dcr_[i_].c;
 
-    if (h->Drc > F_pitValue) {
-        int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
-        int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
-        doit = true;
+        if (h->Drc > F_pitValue) {
+            int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
+            int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
 
-        vec4 rec;
-        int ldd = dcr_[i_].ldd;
-        int rr = r+dy[ldd];
-        int cr = c+dx[ldd];
+            double H = z->Drc+h->Drc;
+            int rr, cr, k, j;
 
-        // h downstream cannot be updated inside parallel loop!
-        // save these values and add later
-        if (h->Drcr < h->Drc) {
-            // 1e component: Massa flux per meter ( dus (m3/s)/(m) = m2/s, wat dezelfde berekening is als momentum = h*u)
-            rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->Drcr, vx->Drcr, vy->Drcr);
-            double flux = std::abs(rec.v[0]);
-            double dH = qMin(h->Drc *0.9, flux*dt_req_min/_dx);
+            // hydraulic potential in X and Y directions
+            j = 2;
+            rr = r+dy[j];
+            cr = c+dx[j];
+            double H2 = z->Drcr+h->Drcr;
+            j = 4;
+            rr = r+dy[j];
+            cr = c+dx[j];
+            double H4 = z->Drcr+h->Drcr;
+            j = 6;
+            rr = r+dy[j];
+            cr = c+dx[j];
+            double H6 = z->Drcr+h->Drcr;
+            j = 8;
+            rr = r+dy[j];
+            cr = c+dx[j];
+            double H8 = z->Drcr+h->Drcr;
 
-            h->Drc -= dH;
-            //h->Drcr += dH;
-            tmc->Drcr += dH;
-            //Qdiag->Drc = flux;
+            // if a pit then check the diagonals
+            if (H < H2 && H < H4 && H < H6 && H < H8) {
+                j = 1;
+                rr = r+dy[j];
+                cr = c+dx[j];
+                double H1 = z->Drcr+h->Drcr;
+                j = 3;
+                rr = r+dy[j];
+                cr = c+dx[j];
+                double H3 = z->Drcr+h->Drcr;
+                j = 7;
+                rr = r+dy[j];
+                cr = c+dx[j];
+                double H7 = z->Drcr+h->Drcr;
+                j = 7;
+                rr = r+dy[j];
+                cr = c+dx[j];
+                double H9 = z->Drcr+h->Drcr;
 
-            if (SwitchErosion) {
-                double dS = qMin(0.9*SSFlood->Drc, dH*CHAdjDX->Drc*SSCFlood->Drc);
-                SSFlood->Drc -= dS;
-                //SSFlood->Drcr += dS;
-                tma->Drcr += dS;
-                if (SwitchUse2Phase) {
-                    double dBL = qMin(0.9*BLFlood->Drc, dH*CHAdjDX->Drc*BLCFlood->Drc);
-                    BLFlood->Drc -= dBL;
-                    tmb->Drcr += dBL;
+                double dH1 = H-H1;
+                double dH3 = H-H3;
+                double dH7 = H-H7;
+                double dH9 = H-H9;
+
+                int k = 0;
+                int dHfin = 0;
+                if (dH1 > 0) {
+                    dHfin = dH1;
+                    k = 1;
+                }
+                if (dH3 > dHfin) {
+                    dHfin = dH3;
+                    k = 3;
+                }
+                if (dH7 > dHfin) {
+                    dHfin = dH7;
+                    k = 7;
+                }
+                if (dH9 > dHfin) {
+                    dHfin = dH9;
+                    k = 9;
                 }
             }
+            // a diagonal solution is found
+            if (k > 0) {
+                doit = true;
+
+                vec4 rec;
+                int rr = r+dy[k];
+                int cr = c+dx[k];
+                rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->Drcr, vx->Drcr, vy->Drcr);
+                double flux = std::abs(rec.v[0]);
+                double dH = qMin(h->Drc*0.5, flux*dt_req_min/_dx);
+                double Hdown = z->Drcr+h->Drcr;
+                //double H = z->Drc+h->Drc;
+                int cnt = 0;
+                // if movning water causes an imbalance
+                if (Hdown+dH > H-dH) {
+                    while (Hdown+dH > H-dH && cnt < 100) {
+                        dH -= 0.01;
+                        cnt++;
+                    }
+                }
+
+//                h->Drc -= dH;
+//                h->Drc = qMax(0.0,h->Drc);
+                tma->Drc = -dH;
+                tmb->Drcr = dH;
+
+                if (SwitchErosion) {
+                    // just do suspended
+                    double dS = qMin(0.5*SSFlood->Drc, dH*CHAdjDX->Drc*SSCFlood->Drc);
+                    //SSFlood->Drc -= dS;
+                    tmc->Drc = -dS;
+                    tmd->Drcr = dS;
+                    // if (SwitchUse2Phase) {
+                    //     double dBL = qMin(0.5*BLFlood->Drc, dH*CHAdjDX->Drc*BLCFlood->Drc);
+                    //     BLFlood->Drc -= dBL;
+                    //     tmb->Drcr += dBL;
+                    // }
+                }
+            } // found
+        } // pit value
+    } // LOOP
+
+    if (doit) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            h->Drc += tma->Drc;
+            h->Drc += tmb->Drc;
+            h->Drc = qMax(0.0, h->Drc);
+        }}
+
+        if (SwitchErosion) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                SSFlood->Drc += tmc->Drc;
+                SSFlood->Drc += tmd->Drc;
+                // if (SwitchUse2Phase)
+                //     BLFlood->Drc += tmb->Drc;
+            }}
         }
     }
-}
-
-if (doit) {
-#pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (SwitchErosion) {
-            SSFlood->Drc += tma->Drc;
-            if (SwitchUse2Phase)
-                BLFlood->Drc += tmb->Drc;
-        }
-        h->Drc += tmc->Drc;
-    }}
-}
-
 }
 //---------------------------------------------------------------------------
 /**
@@ -193,15 +284,17 @@ if (doit) {
  * Use of flux limiters, together with an appropriate high resolution scheme, make the solutions
  * total variation diminishing (TVD).
  */
+
+// note, using something else then minmod slows down the simulation very much. no idea why
 double TWorld::limiter(double a, double b)
 {
     double eps = 1.e-12;
 
     if (F_fluxLimiter == (int)MINMOD) {
-        if (a >= 0 && b >= 0)
+        if (a > 0 && b > 0)
             return qMin(a, b);
         else
-            if (a <= 0 && b <= 0)
+            if (a < 0 && b < 0)
                 return qMax(a, b);
             else
                 return 0.;
@@ -265,8 +358,8 @@ vec4 TWorld::F_HLL4(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
             c2 = qMax(u_L+sqrt_grav_h_L, u_R+sqrt_grav_h_R); // as u+sqrt(grav_h) >= u-sqrt(grav_h)
         }
 
-        //cfl is the velocity to calculate the real cfl=max(fabs(c1),fabs(c2))*tx with tx=dt/dx
-        if (fabs(c1) < EPSILON && fabs(c2) < EPSILON) {
+        //cfl is the velocity to calculate the real cfl=max(qFabs(c1),qFabs(c2))*tx with tx=dt/dx
+        if (qFabs(c1) < EPSILON && qFabs(c2) < EPSILON) {
             //dry state
             f1 = 0.;
             f2 = 0.;
@@ -278,7 +371,7 @@ vec4 TWorld::F_HLL4(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
                 f1 = q_L;
                 f2 = q_L*u_L+grav_2h_L;
                 f3 = q_L*v_L;
-                cfl = c2; //max(fabs(c1),fabs(c2))=c2>0
+                cfl = c2; //max(qFabs(c1),qFabs(c2))=c2>0
             }
             else
                 if (c2 <= -EPSILON) {
@@ -286,7 +379,7 @@ vec4 TWorld::F_HLL4(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
                     f1 = q_R;
                     f2 = q_R*u_R+grav_2h_R;
                     f3 = q_R*v_R;
-                    cfl = fabs(c1); //max(fabs(c1),fabs(c2))=fabs(c1)
+                    cfl = qFabs(c1); //max(qFabs(c1),qFabs(c2))=qFabs(c1)
                 } else {
                     //subcritical flow
                     double c_star = (c1*h_R *(u_R - c2) - c2*h_L *(u_L - c1))/(h_R *(u_R - c2) - h_L *(u_L - c1));
@@ -298,7 +391,7 @@ vec4 TWorld::F_HLL4(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
                     } else {
                         f3 = f1*v_R;
                     }
-                    cfl = qMax(fabs(c1), fabs(c2));
+                    cfl = qMax(qFabs(c1), qFabs(c2));
                 }
     }
     hll.v[0] = f1;
@@ -342,7 +435,7 @@ vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
         double tmp = 1./(c2-c1);
         double t1 = (qMin(c2,0.) - qMin(c1,0.))*tmp;
         double t2 = 1. - t1;
-        double t3 = (c2*fabs(c1) - c1*fabs(c2))*0.5*tmp;
+        double t3 = (c2*qFabs(c1) - c1*qFabs(c2))*0.5*tmp;
         double c_star = (c1*h_R *(u_R - c2) - c2*h_L *(u_L - c1))/(h_R *(u_R - c2) - h_L *(u_L - c1)) ;
 
         f1 = t1*q_R+t2*q_L-t3*(h_R-h_L);
@@ -352,7 +445,7 @@ vec4 TWorld::F_HLL3(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
         }else{
             f3=f1*v_R;
         }
-        cfl = qMax(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition max(fabs(c1),fabs(c2))*tx with tx=dt/dx
+        cfl = qMax(qFabs(c1),qFabs(c2)); //cfl is the velocity to compute the cfl condition max(qFabs(c1),qFabs(c2))*tx with tx=dt/dx
     }
     hll.v[0] = f1;
     hll.v[1] = f2;
@@ -384,12 +477,12 @@ vec4 TWorld::F_HLL2(double h_L,double u_L,double v_L,double h_R,double u_R,doubl
         double tmp = 1./(c2-c1);
         double t1 = (qMin(c2,0.)-qMin(c1,0.))*tmp;
         double t2 = 1.-t1;
-        double t3 = (c2*fabs(c1)-c1*fabs(c2))*0.5*tmp;
+        double t3 = (c2*qFabs(c1)-c1*qFabs(c2))*0.5*tmp;
 
         f1 = t1*q_R+t2*q_L-t3*(h_R-h_L);
         f2 = t1*(q_R*u_R+grav_h_R*h_R*0.5)+t2*(q_L*u_L+grav_h_L*h_L*0.5)-t3*(q_R-q_L);
         f3 = t1*q_R*v_R+t2*q_L*v_L-t3*(h_R*v_R-h_L*v_L);
-        cfl = qMax(fabs(c1),fabs(c2)); //cfl is the velocity to compute the cfl condition max(fabs(c1),fabs(c2))*tx with tx=dt/dx
+        cfl = qMax(qFabs(c1),qFabs(c2)); //cfl is the velocity to compute the cfl condition max(qFabs(c1),qFabs(c2))*tx with tx=dt/dx
     }
     hll.v[0] = f1;
     hll.v[1] = f2;
@@ -419,28 +512,28 @@ vec4 TWorld::F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double
         double c1 = qMin(u_L-sqrt(grav_h_L),u_R-sqrt(grav_h_R));
         double c2 = qMax(u_L+sqrt(grav_h_L),u_R+sqrt(grav_h_R));
 
-        //cfl is the velocity to calculate the real cfl=qMax(fabs(c1),fabs(c2))*tx with tx=dt/dx
-        if (fabs(c1)<EPSILON && fabs(c2)<EPSILON){              //dry state
+        //cfl is the velocity to calculate the real cfl=qMax(qFabs(c1),qFabs(c2))*tx with tx=dt/dx
+        if (qFabs(c1)<EPSILON && qFabs(c2)<EPSILON){              //dry state
             f1=0.;
             f2=0.;
             f3=0.;
-            cfl=0.; //qMax(fabs(c1),fabs(c2))=0
+            cfl=0.; //qMax(qFabs(c1),qFabs(c2))=0
         }else if (c1>=EPSILON){ //supercritical flow, from left to right : we have qMax(abs(c1),abs(c2))=c2>0
             f1=q_L;   //flux
             f2=q_L*u_L+halfL;  //flux*velocity + 0.5*(wave velocity squared)
             f3=q_L*v_L; //flux *velocity
-            cfl=c2; //qMax(fabs(c1),fabs(c2))=c2>0
+            cfl=c2; //qMax(qFabs(c1),qFabs(c2))=c2>0
         }else if (c2<=-EPSILON){ //supercritical flow, from right to left : we have qMax(abs(c1),abs(c2))=-c1>0
             f1=q_R;
             f2=q_R*u_R+halfR;
             f3=q_R*v_R;
-            cfl=fabs(c1); //qMax(fabs(c1),fabs(c2))=fabs(c1)
+            cfl=qFabs(c1); //qMax(qFabs(c1),qFabs(c2))=qFabs(c1)
         }else{ //subcritical flow
             double tmp = 1./(c2-c1);
             f1=(c2*q_L-c1*q_R)*tmp + c1*c2*(h_R-h_L)*tmp;
             f2=(c2*(q_L*u_L+halfL) - c1*(q_R*u_R+halfR))*tmp + c1*c2*(q_R-q_L)*tmp;
             f3=(c2*(q_L*v_L)-c1*(q_R*v_R))*tmp + c1*c2*(h_R*v_R-h_L*v_L)*tmp;
-            cfl=qMax(fabs(c1),fabs(c2));
+            cfl=qMax(qFabs(c1),qFabs(c2));
         }
     }
     hll.v[0] = f1;
@@ -464,7 +557,7 @@ vec4 TWorld::F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,do
         f3 = 0.;
         cfl = 0.;
     }else{
-        cfl = qMax(fabs(u_L)+sqrt(GRAV*h_L), fabs(u_R)+sqrt(GRAV*h_R));
+        cfl = qMax(qFabs(u_L)+sqrt(GRAV*h_L), qFabs(u_R)+sqrt(GRAV*h_R));
         double q_R = u_R*h_R;
         double q_L = u_L*h_L;
         f1 = ((q_L+q_R) - cfl*(h_R-h_L))*0.5;
@@ -529,27 +622,27 @@ vec3 TWorld::F_VFRoe(double h_L,double u_L,double h_R,double u_R)
             //supercritical flow from the left to the right
             f1 = h_L*u_L;
             f2 = h_L*u_L*u_L + GRAV_DEM*h_L*h_L;
-            cfl = qMax(fabs(u_L)+cL,fabs(u_R)+cR)*tx;
+            cfl = qMax(qFabs(u_L)+cL,qFabs(u_R)+cR)*tx;
         }
         else
             if (lamb2 <= 0.0){
                 //supercritical flow from the right to the left
                 f1 = h_R*u_R;
                 f2 = h_R*u_R*u_R + GRAV_DEM*h_R*h_R;
-                cfl = qMax(fabs(u_L)+cL,fabs(u_R)+cR)*tx;
+                cfl = qMax(qFabs(u_L)+cL,qFabs(u_R)+cR)*tx;
             } else {
                 //subcritical flow
                 double lambmax=0.;
                 double ustar=0.;
                 double hstar=0.;
 
-                lambmax = qMax(fabs(lamb1),fabs(lamb2));
+                lambmax = qMax(qFabs(lamb1),qFabs(lamb2));
                 ustar = (u_L+u_R)/2.0-(cR-cL);
                 double tmp = (cR+cL)/2.0-(u_R-u_L)/4.0;
                 hstar = tmp*tmp/GRAV;
                 f1 = hstar*ustar;
                 f2 = hstar*ustar*ustar + GRAV_DEM*hstar*hstar;
-                cfl = qMax(lambmax,qMax(fabs(u_L)+cL,fabs(u_R)+cR))*tx;
+                cfl = qMax(lambmax,qMax(qFabs(u_L)+cL,qFabs(u_R)+cR))*tx;
             }
     res.v[0] = f1;
     res.v[1] = f2;
@@ -613,7 +706,7 @@ void TWorld::correctMassBalanceSed(double sum1, cTMap *M, double th)
             sum2 += M->Drc;
     }}
     // total and cells active for M
-    double Mcorr = fabs(sum2) > 0 ? (1.0+(sum1 - sum2)/sum2) : 1.0;
+    double Mcorr = qFabs(sum2) > 0 ? (1.0+(sum1 - sum2)/sum2) : 1.0;
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {

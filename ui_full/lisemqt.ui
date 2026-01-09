@@ -8225,7 +8225,7 @@
                             <number>1</number>
                            </property>
                            <property name="maximum">
-                            <number>3</number>
+                            <number>5</number>
                            </property>
                            <property name="value">
                             <number>3</number>

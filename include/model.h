@@ -1057,8 +1057,8 @@ public:
     void OverlandFlow2Ddyn(void);
     void updateWHandHmx(void);
     void Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v);
-    void SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);  //OBSOLETE
-    void SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
+    void SWOFDiagonalFlow(double dt_req_min, cTMap *z, cTMap *h, cTMap *vx, cTMap *vy);
+    void SWOFDiagonalFlowLDD(double dt_req_min, cTMap *z,cTMap *h, cTMap *vx, cTMap *vy);
     // <= 2D flow
 
     // <= groundwater
@@ -1230,6 +1230,7 @@ int showc;
     void ReportTimeseriesPCR(void);
     void ReportTimeseriesCSV(void);
     void ReportTotalSeries(void);
+    void PrepareReportMaps(void);
     void ReportMaps(void);
     void ReportMapSeries(void);
     void ReportTotalsNew(void);

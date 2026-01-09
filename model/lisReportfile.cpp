@@ -47,6 +47,9 @@ void TWorld::reportToFile(void)
     ReportTotalSeries();
     // report catchment averages per timestep
 
+    PrepareReportMaps();
+    // calc some maps for on screen
+
     // spatial output, maps and mapseries
     // savemaptodisk reacts to printinterval
     if(savemaptodisk) {

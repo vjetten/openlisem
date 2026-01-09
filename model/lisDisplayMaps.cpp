@@ -322,8 +322,6 @@ void TWorld::GetComboMaps()
     // }
     cl = 1;
     AddComboMap(0,"Overland flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.001); //VH
-  //  cl = 6;
-  //  AddComboMap(0,"timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     //AddComboMap(0,"boundary","-",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
 
     AddComboMap(0,"Cumulative overland flow","m3",Qm3total,LegendMap[0],Legend[0],false,false,1.0, 1.0);//0.001);
@@ -339,7 +337,8 @@ void TWorld::GetComboMaps()
         cl = 0;
         AddComboMap(0,"Flood Hazard Index [WH(V+0.5)]","-",FHI,LegendMap[0],Legend[0],true,false,1.0, 0.001);
     }
-
+    cl = 6;
+    AddComboMap(0,"Internal flood timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
 
     if(SwitchIncludeChannel) {
         cl = 0;

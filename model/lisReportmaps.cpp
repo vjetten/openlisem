@@ -30,15 +30,9 @@
 
 #define QUNIT (QUnits == 1 ? 1.0 : 1000)
 
-//---------------------------------------------------------------------------
-/// Report maps for totals and mapseries (like report in PCRaster)
-/// output filenames are fixed, cannot be changed by the user
-/// outputnames that start with "out" are series
-void TWorld::ReportMaps(void)
+
+void TWorld::PrepareReportMaps(void)
 {
-    if(SwitchInfiltration && InfilMethod != INFIL_SWATRE) {
-        avgTheta();
-    }
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         COMBO_V->Drc = V->Drc < 1e-5 ? 0 : V->Drc;
@@ -82,8 +76,14 @@ void TWorld::ReportMaps(void)
     if(SwitchInfiltration && InfilMethod != INFIL_SWATRE) {
         avgTheta();
     }
+}
 
-
+//---------------------------------------------------------------------------
+/// Report maps for totals and mapseries (like report in PCRaster)
+/// output filenames are fixed, cannot be changed by the user
+/// outputnames that start with "out" are series
+void TWorld::ReportMaps(void)
+{
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         tm->Drc = (RainCumFlat->Drc)*1000.0;// + SnowmeltCum->Drc*DX->Drc/_dx) * 1000.0; // m to mm
