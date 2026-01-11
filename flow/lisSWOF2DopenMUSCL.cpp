@@ -48,13 +48,12 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     double dt_req_min = dt_max;
     sumh = getMass(h);
 
-    //F_MaxIter = 10000;
-    Fill(*tmd,0);
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (h->Drc > F_minWH)
-            tmd->Drc = 1; // flag which cells have to be calculated
-    }}
+    // Fill(*tmd,0);
+    // #pragma omp parallel for num_threads(userCores)
+    // FOR_ROW_COL_MV_L {
+    //     if (h->Drc > F_minWH)
+    //         tmd->Drc = 1; // flag which cells have to be calculated
+    // }}
 
     do {
 
@@ -92,7 +91,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
                 dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
 
-            } while (dt1 > dt_req_min && step < 5);
+            } while (dt1 > dt_req_min && step < 2);
 
             doSWOFStV(dt_req_min, h, u, v);
 
@@ -114,14 +113,15 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             }}
         } // MUSCL
 
+  //      correctMassBalance(sumh, h);
+
         if (SwitchErosion && !SwitchErosionOutsideLoop) {
             SWOFSediment(dt_req_min, h, FlowWidth, u,v);
         }
 
         if (Switch2DDiagonalFlow) {
-            //SWOFDiagonalFlowLDD(dt_req_min, z, h, u, v);
-            SWOFDiagonalFlow(dt_req_min, z, h, u, v);
-
+            SWOFDiagonalFlowLDD(dt_req_min, z, h, u, v);
+          //  SWOFDiagonalFlow(dt_req_min, z, h, u, v);
         }
 
         timesum += dt_req_min;
@@ -131,17 +131,23 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         if(count > F_MaxIter)
         stop = true;
 
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            tmd->Drc = 0;
-            if (h->Drc > F_minWH && qSqrt(u->Drc*u->Drc+v->Drc*v->Drc) > F_minWH)
-                tmd->Drc = 1;
-        }}
+        // #pragma omp parallel for num_threads(userCores)
+        // FOR_ROW_COL_MV_L {
+        //     tmd->Drc = 0;
+        //     if (h->Drc > F_minWH && qSqrt(u->Drc*u->Drc+v->Drc*v->Drc) > F_minWH)
+        //         tmd->Drc = 1;
+        // }}
 
     } while (!stop);
 
     // small mass balance corrections within 2d flow
+    //     FOR_ROW_COL_MV_L {
+    //         tmshow->Drc = h->Drc;
+    //     }}
     correctMassBalance(sumh, h);
+    // FOR_ROW_COL_MV_L {
+    //     tmshow->Drc -= h->Drc;
+    // }}
 
     if (SwitchErosion && SwitchErosionOutsideLoop) {
         SWOFSediment(_dt, h, FlowWidth, u,v);
@@ -168,8 +174,12 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
     // map edges are zero, avoid domain touching the edges
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if (h->Drc > he_ca)
+        // if water include
+        if (h->Drc > F_minWH)
             tmd->Drc = 1;
+        // if water but momentum is very low do not include
+        // if (qSqrt(v->Drc*v->Drc+u->Drc*u->Drc)*h->Drc < F_minWH && h->Drc > 0.1)
+        //     tmd->Drc = 0;
 
         if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
         if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;

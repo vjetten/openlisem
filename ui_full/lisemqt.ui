@@ -348,7 +348,7 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>-211</y>
+                <y>0</y>
                 <width>1013</width>
                 <height>819</height>
                </rect>
@@ -8192,7 +8192,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Riemann solver: 1-Rusanov; 2-HLL; 3-HLL2; </string>
+                            <string>Riemann solver: 1-Rusanov; 2-5: Harten-Lax-van Leer solutions</string>
                            </property>
                            <property name="alignment">
                             <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>

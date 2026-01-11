@@ -46,6 +46,8 @@ void TWorld::SWOFDiagonalFlowLDD(double dt_req_min, cTMap *z, cTMap *h, cTMap *v
         tma->Drc = 0;
         tmb->Drc = 0;
         tmc->Drc = 0;
+        tmd->Drc = 0;
+        tmshow->Drc = 0;
     }}
 
     bool doit = false;
@@ -55,47 +57,72 @@ void TWorld::SWOFDiagonalFlowLDD(double dt_req_min, cTMap *z, cTMap *h, cTMap *v
 
         int r = dcr_[i_].r;
         int c = dcr_[i_].c;
+        vec4 rec;
 
         if (h->Drc > F_pitValue) {
             int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1,  0,  1};
             int dy[10] = {0,  1, 1, 1,  0, 0, 0, -1, -1, -1};
 
-            vec4 rec;
-            int ldd = dcr_[i_].ldd;
-            int rr = r+dy[ldd];
-            int cr = c+dx[ldd];
+            double H = z->Drc+h->Drc;
+            int rr, cr, j;
 
-            if (z->Drcr+h->Drcr < z->Drc+h->Drc) {
+            // hydraulic potential in X and Y directions
+            j = 2;
+            rr = r+dy[j];
+            cr = c+dx[j];
+            double H2 = z->Drcr+h->Drcr;
+            j = 4;
+            rr = r+dy[j];
+            cr = c+dx[j];
+            double H4 = z->Drcr+h->Drcr;
+            j = 6;
+            rr = r+dy[j];
+            cr = c+dx[j];
+            double H6 = z->Drcr+h->Drcr;
+            j = 8;
+            rr = r+dy[j];
+            cr = c+dx[j];
+            double H8 = z->Drcr+h->Drcr;
+
+            int ldd = dcr_[i_].ldd;
+            rr = r+dy[ldd];
+            cr = c+dx[ldd];
+            double Hldd = z->Drcr+h->Drcr;
+
+            // if a pit then check the diagonals
+            if (H <= H2 && H <= H4 && H <= H6 && H <= H8 && H > Hldd) {
                 // 1e component: Massa flux per meter ( dus (m3/s)/(m) = m2/s, wat dezelfde berekening is als momentum = h*u)
                 rec = F_Riemann(h->Drc, vx->Drc, vy->Drc, h->Drcr, vx->Drcr, vy->Drcr);
                 double flux = std::abs(rec.v[0]);
                 double dH = qMin(h->Drc*0.5, flux*dt_req_min/_dx);
-                double Hldd = z->Drcr+h->Drcr;
-                double H = z->Drc+h->Drc;
                 int cnt = 0;
                 // if movning water causes an imbalance
                 if (Hldd+dH > H-dH) {
-                    while (Hldd+dH > H-dH && cnt < 100) {
-                        dH -= 0.01;
+                    while (Hldd+dH > H-dH && dH > 0 && cnt < 100) {
+                        dH -= 0.001;
                         cnt++;
                     }
                 }
+                dH = qMax(0.0, dH);
 
-                h->Drc -= dH;
-                h->Drc = qMax(0.0,h->Drc);
-                tmc->Drcr += dH;
+                //h->Drc -= dH;
+                //h->Drc = qMax(0.0,h->Drc);
+                tma->Drc = -dH;
+                tmb->Drcr = dH;
+                tmshow->Drcr = dH;
 
                 doit = true;
 
                 if (SwitchErosion) {
                     double dS = qMin(0.5*SSFlood->Drc, dH*CHAdjDX->Drc*SSCFlood->Drc);
-                    SSFlood->Drc -= dS;
-                    tma->Drcr += dS;
-                    if (SwitchUse2Phase) {
-                        double dBL = qMin(0.5*BLFlood->Drc, dH*CHAdjDX->Drc*BLCFlood->Drc);
-                        BLFlood->Drc -= dBL;
-                        tmb->Drcr += dBL;
-                    }
+                    //SSFlood->Drc -= dS;
+                    tmc->Drc = -dS;
+                    tmd->Drcr = dS;
+                    // if (SwitchUse2Phase) {
+                    //     double dBL = qMin(0.5*BLFlood->Drc, dH*CHAdjDX->Drc*BLCFlood->Drc);
+                    //     BLFlood->Drc -= dBL;
+                    //     tmb->Drcr += dBL;
+                    // }
                 }
             }
         }
@@ -105,15 +132,19 @@ void TWorld::SWOFDiagonalFlowLDD(double dt_req_min, cTMap *z, cTMap *h, cTMap *v
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            h->Drc += tmc->Drc;
+            h->Drc += tma->Drc;
+            h->Drc += tmb->Drc;
+            h->Drc = qMax(0.0, h->Drc);
         }}
 
         if (SwitchErosion) {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                SSFlood->Drc += tma->Drc;
-                if (SwitchUse2Phase)
-                    BLFlood->Drc += tmb->Drc;
+                SSFlood->Drc -= tmc->Drc;
+                SSFlood->Drc += tmd->Drc;
+                SSFlood->Drc = qMax(0.0, SSFlood->Drc );
+                // if (SwitchUse2Phase)
+                //     BLFlood->Drc += tmb->Drc;
             }}
         }
     }
@@ -167,7 +198,8 @@ void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *z, cTMap *h, cTMap *vx, 
             double H8 = z->Drcr+h->Drcr;
 
             // if a pit then check the diagonals
-            if (H < H2 && H < H4 && H < H6 && H < H8) {
+            k = 0;
+            if (H <= H2 && H <= H4 && H <= H6 && H <= H8) {
                 j = 1;
                 rr = r+dy[j];
                 cr = c+dx[j];
@@ -190,7 +222,6 @@ void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *z, cTMap *h, cTMap *vx, 
                 double dH7 = H-H7;
                 double dH9 = H-H9;
 
-                int k = 0;
                 int dHfin = 0;
                 if (dH1 > 0) {
                     dHfin = dH1;
@@ -234,6 +265,7 @@ void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *z, cTMap *h, cTMap *vx, 
 //                h->Drc = qMax(0.0,h->Drc);
                 tma->Drc = -dH;
                 tmb->Drcr = dH;
+                tmshow->Drcr = dH;
 
                 if (SwitchErosion) {
                     // just do suspended
@@ -250,7 +282,8 @@ void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *z, cTMap *h, cTMap *vx, 
             } // found
         } // pit value
     } // LOOP
-
+if (doit)
+    qDebug() << "diag" << doit;
     if (doit) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
@@ -658,7 +691,7 @@ double TWorld::getMass(cTMap *M)
     double sum2 = 0;
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if(M->Drc > 0)
+        if(M->Drc > he_ca)
             sum2 += M->Drc*CHAdjDX->Drc;
     }}
 return sum2;
@@ -679,18 +712,23 @@ double TWorld::getMassSed(cTMap *M, double th)
 void TWorld::correctMassBalance(double sum1, cTMap *M)
 {
     double sum2 = 0;
-
+    double cnt = 0;
     #pragma omp parallel for reduction(+:sum2) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if(M->Drc > 0)
+        if(M->Drc > 0) {
             sum2 += M->Drc*CHAdjDX->Drc;
+ //           cnt += 1.0;
+        }
     }}
 
     double Mcorr = sum2 > 0 ? (1.0+(sum1 - sum2)/sum2) : 1.0;
+
+    //double Mcorr = (sum1-sum2)/cnt;
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        if(M->Drc > 0) {
+        if(M->Drc > he_ca) {
             M->Drc = M->Drc*Mcorr;            // <- distribution weighted to h
+            //M->Drc = M->Drc+Mcorr;            // <- distribution weighted to h
             M->Drc = qMax(M->Drc , 0.0);
         }
     }}
