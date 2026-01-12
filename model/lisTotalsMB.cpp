@@ -409,8 +409,11 @@ void TWorld::TotalsSediment(void)
             DETSplashCum->Drc += DETSplash->Drc;
             DETFlowCum->Drc += DETFlow->Drc;
             DEPCum->Drc += DEP->Drc;
+
+            // set to zero for next loop
+            DEP->Drc = 0;
+            DETFlow->Drc = 0;
         }}
-        // DEP is set to 0 each timestep
         // for total soil loss calculation: TotalSoillossMap
 
         //outflow from domain/channel
@@ -515,7 +518,6 @@ void TWorld::TotalsSediment(void)
             // set to zero for next loop
             DepFlood->Drc = 0;
             BLDetFlood->Drc = 0;
-
             SSDetFlood->Drc = 0;
 
         }}
@@ -633,6 +635,6 @@ void TWorld::MassBalance()
     // pesticides
     if (SwitchPest) {
         MassPest(PMtotI, PMerr, PMtot, PMserr, PMwerr);
-    }    
+    }
 }
 //---------------------------------------------------------------------------

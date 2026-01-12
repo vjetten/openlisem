@@ -1138,6 +1138,9 @@ public:
     double rillfactor;
     double GetSV(double d);
     void SplashDetachment();
+    void SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *u,cTMap *v,
+                                   cTMap *SS_, cTMap *SSC_, cTMap *SSTC_, cTMap *SSDet_, cTMap *Dep_, cTMap *SSVs_);
+
     double MaxConcentration(double watvol, double sedvol);
     void ChannelFlowDetachmentNew();
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);
@@ -1149,8 +1152,6 @@ public:
     void SWOFSedimentSetConcentration(int r, int c, double h, double w);
     void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap *v, cTMap * _SS,cTMap * _SSC);
     void SWOFSedimentFlowInterpolation(double dt, cTMap * h, cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentDetSS(double dt, cTMap *h, cTMap *w, cTMap *u,cTMap *v,
-                                   cTMap *SS_, cTMap *SSC_, cTMap *SSTC_, cTMap *SSDet_, cTMap *Dep_, cTMap *SSVs_);
     void SWOFSedimentDetBL(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
     void SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);

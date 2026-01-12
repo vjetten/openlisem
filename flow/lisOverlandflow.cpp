@@ -59,19 +59,24 @@ void TWorld::OverlandFlow(void)
 
         if (SwitchErosion) {
 
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L  {
-                if (SwitchPest)
+            if (SwitchPest) {
+                #pragma omp parallel for num_threads(userCores)
+                FOR_ROW_COL_MV_L  {
                     SedAfterSplash->Drc = Sed->Drc; //for pesticide detachment
+                }}
+            }
+            Fill(*tma,0);
+            //cell_FlowDetachment(); // obsolete
 
-                cell_FlowDetachment(); // kine wave based flow detachment
-
-                if (SwitchPest)
-                    SedMassIn->Drc = Sed->Drc; // for pesticide kin wave
-            }}
+            SedimentDetachmentSS(_dt, WHrunoff, ChannelAdj, V, tma, Sed, Conc, TC, DETFlow, DEP, SettlingVelocitySS);
+            // full flowwidth is used, but adjusted fractions for roads, houses etc
 
             if (SwitchPest) {
-                PesticideFlowDetachment(rhoPest);
+                #pragma omp parallel for num_threads(userCores)
+                FOR_ROW_COL_MV_L  {
+                    SedMassIn->Drc = Sed->Drc; // for pesticide kin wave
+                    PesticideFlowDetachment(rhoPest);
+                }}
             }
         }
     }
