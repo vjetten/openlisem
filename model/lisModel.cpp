@@ -65,7 +65,8 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
 
         if (SwitchPest) {
             QFile efout(resultDir+errorPestFileName);
-            efout.open(QIODevice::WriteOnly | QIODevice::Text);
+            if (!efout.open(QIODevice::WriteOnly | QIODevice::Text))
+                return;
             QTextStream eout(&efout);
             eout << "#pesticide mass balance error (%)\n";
             if (SwitchErosion) eout << "7\n";
@@ -95,7 +96,8 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
 
         if (SwitchPest) {
             QFile efout(resultDir+errorPestFileName);
-            efout.open(QIODevice::Append | QIODevice::Text);
+            if (!efout.open(QIODevice::Append | QIODevice::Text))
+                return;
             QTextStream eout(&efout);
             if (SwitchErosion) {
                 eout << " " << runstep << " " << MB << " " << MBs << " " << PMerr << " " << PMserr << " " << PMwerr << " " << op.t << "\n";
@@ -356,7 +358,6 @@ void TWorld::DoModel()
                     else
                         _dt =_dt_user;
                 }
-            qDebug() << _dt;
             }
             savemaptodisk = false;
             // printstep determines report frequency in #define report(...)

@@ -278,6 +278,7 @@ typedef struct UNIT_LIST {
 //---------------------------------------------------------------------------
 /// vec4 used for HLL
 typedef struct vec4 { Real v[4]; } vec4;
+typedef struct vec3 { Real v[3]; } vec3;
 
 //---------------------------------------------------------------------------
 /// Structure to store rain station values of rainfile mapnames
@@ -860,7 +861,9 @@ public:
     void InitGroundwater(void);
     void InitFlood(void);
     void InitMeteoInput(void);
-    void InitScreenChanNetwork();
+    void InitScreenChanNetwork(void);
+    void InitPesticide(void);
+
     void CorrectDEM(cTMap *h, cTMap * g);
     void DiagonalFlowDEM();
     void calcSoilPhysics(cTMap *Ksat, cTMap *lambda, cTMap *thfc, cTMap *thr,
@@ -912,6 +915,9 @@ public:
                          double Pji1, double alpha, double dx, double dt);
     void PesticideFlowDetachment(double rho);
     double PesticideEnrichmentRatio(double Emax, double S, double beta);
+
+    void PesticideFlow2D(void);
+
     // <= pesticide
 
     // 1D hydro processes
@@ -1012,6 +1018,7 @@ public:
     double psi_rel(double r, double theta);
 
     // => 1D flow on network
+
     void FindStationaryBaseFlow();
     void ChannelFlow();
     void ChannelBaseflow();
@@ -1059,12 +1066,13 @@ public:
     vec4 F_HLL(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_Rusanov(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
     vec4 F_Riemann(double h_L,double u_L,double v_L,double h_R,double u_R,double v_R);
+    vec3 F_VFRoe(double h_L,double u_L,double h_R,double u_R);
 
     void OverlandFlow2Ddyn(void);
     void updateWHandHmx(void);
     void Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v);
-    void SWOFDiagonalFlow(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);  //OBSOLETE
-    void SWOFDiagonalFlowNew(double dt_req_min, cTMap *h, cTMap *vx, cTMap *vy);
+    void SWOFDiagonalFlow(double dt_req_min, cTMap *z, cTMap *h, cTMap *vx, cTMap *vy);
+    void SWOFDiagonalFlowLDD(double dt_req_min, cTMap *z,cTMap *h, cTMap *vx, cTMap *vy);
     // <= 2D flow
 
     // <= groundwater
@@ -1125,7 +1133,6 @@ public:
     QVector <LDD_COORIN> MakeLinkedList(cTMap *_LDD);
     double itercount;
     // <= kinematic
-
 
     // => sediment stuff
     double rillfactor;
@@ -1216,6 +1223,7 @@ int showc;
     void ReportTimeseriesPCR(void);
     void ReportTimeseriesCSV(void);
     void ReportTotalSeries(void);
+    void PrepareReportMaps(void);
     void ReportMaps(void);
     void ReportMapSeries(void);
     void ReportTotalsNew(void);

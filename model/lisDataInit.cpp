@@ -54,6 +54,9 @@ void TWorld::GetInputData(void)
     InitErosion();
     //extended sediment stuff
 
+    InitPesticide();
+    // pesticide stuff
+
     InitChannel();
     //## read and initialize all channel maps and variables
 
@@ -181,7 +184,6 @@ void TWorld::InitParameters(void)
         F_MaxIter = getvalueint("Flood max iterations");
         F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
         F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
-        F_scheme = qMin(3,F_scheme);
         F_minWH = getvaluedouble("Minimum WH and V flow");   //HLL HLL2 Rusanov
         if (F_minWH == 0) F_minWH = he_ca;
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
@@ -459,6 +461,9 @@ void TWorld::InitMeteoInput(void)
 void TWorld::InitLULCInput(void)
 {
     //===== surface =====
+
+    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
+
     N = ReadMap(LDD,getvaluename("manning"));
     checkMap(*LDD, *N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
     calcValue(*N, nCalibration, MUL);
@@ -651,13 +656,15 @@ void TWorld::calcSoilPhysics(cTMap *Ksat, cTMap *lambda, cTMap *thfc, cTMap *thr
 //---------------------------------------------------------------------------
 void TWorld::InitSoilInput(void)
 {
+    if (InfilMethod == INFIL_NONE)
+        return;
+
     // safeguard for deleting, set to null pointer
     SwatreSoilModel = nullptr;
     SwatreSoilModelCrust = nullptr;
     SwatreSoilModelCompact = nullptr;
     SwatreSoilModelGrass = nullptr;
 
-    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
     ThetaI1a = NewMap(0); // used for screen output
     ThetaI2a = NewMap(0); // for output, average soil layer 2
 
@@ -698,6 +705,7 @@ void TWorld::InitSoilInput(void)
             }
         }}
     }
+
     //## infiltration data
     if(InfilMethod != INFIL_SWATRE)
     {
@@ -1940,68 +1948,6 @@ void TWorld::IntializeData(void)
     SedMassIn = NewMap(0);
     SedAfterSplash = NewMap(0);
 
-    if(SwitchPest){
-        // get constants from runfile
-        KdPest = getvaluedouble("Kd pesticide");
-        KfilmPest = getvaluedouble("Kfilm pesticide");
-        KfilmPest = KfilmPest / 1000; // mm sec-1 to m sec-1
-        ERbetaPest = getvaluedouble("ERbeta pesticide");
-        KrPest = getvaluedouble("Kr pesticide");
-        KrPest = KrPest / 60; // min-1 to sec-1
-        ERmaxPest = getvaluedouble("ERmax pesticide");
-        rhoPest = getvaluedouble("Rho mixing layer");
-        PestName = getvaluestring("Pesticide name");
-
-        // load maps
-        PCms = ReadMap(LDD,getvaluename("pcmixsoil"));
-        PCmw = ReadMap(LDD,getvaluename("pcmixwat"));
-        zm = ReadMap(LDD,getvaluename("pestmixdep"));
-        zs = ReadMap(LDD,getvaluename("pestsoildep1"));
-        PCs = ReadMap(LDD,getvaluename("pcsoil1"));
-
-        //Maps for pesticide_MC
-        PMmw = NewMap(0);
-        PMms = NewMap(0);
-        PMrw = NewMap(0);
-        PMsoil = NewMap(0);
-        PCrw = NewMap(0);
-        PQrw = NewMap(0);
-        Qpw = NewMap(0);
-        PMinf = NewMap(0);
-        pmwdet = NewMap(0);
-        pmwdep = NewMap(0);
-        WVji1 = NewMap(0);
-        SpinKW = NewMap(0);
-        QpinKW = NewMap(0);
-        Theta_mix = NewMap(0);
-        totalDPlossmap = NewMap(0);
-        test_map = NewMap(0.0);
-        if (SwitchErosion) {
-            PQrs = NewMap(0);
-            PCrs = NewMap(0);
-            PMrs = NewMap(0);
-            Qps = NewMap(0);
-            pmsdet = NewMap(0);
-            pmsdep = NewMap(0);
-            PMsplash = NewMap(0);
-            PMflow = NewMap(0);
-            PMdep = NewMap(0);
-            totalPPlossmap = NewMap(0);
-        }
-
-        // total masses
-        PestOutW = 0;
-        Pestinf = 0;
-        PMtot = 0;
-        PMerr = 0;
-        PMtotI = 0;
-        PMwerr = 0;
-        PMserr = 0;
-        PQrw_dt = 0;
-        PQrs_dt = 0;
-        PestOutS = 0;
-
-    }
 }
 //---------------------------------------------------------------------------
 //TODO: are all switches and options initialised here?
@@ -2144,7 +2090,7 @@ void TWorld::IntializeOptions(void)
     SwitchSedtrap = false;
     SwitchGridRetention = false;
     SwitchGrassStrip = false;
-    
+
     SwitchPest = false;
     SwitchReportPest = false;
 
@@ -2522,7 +2468,7 @@ void TWorld::InitShade(void)
         for (int i = 0; i < 9; i++) {
             mat[i] = DEM->Drc;
         }
-        if (r > 0 && r < _nrRows-1 && c > 0 && c < _nrCols-1) {
+        if ((r > 0 && r < _nrRows-1) && (c > 0 && c < _nrCols-1)) {
             if(!pcr::isMV(LDD->data[r-1][c-1]))
                 mat[0] = DEM->data[r-1][c-1];
             if(!pcr::isMV(LDD->data[r-1][c  ]))
@@ -2552,8 +2498,7 @@ void TWorld::InitShade(void)
         double z_factor = 2.0;
         double Slope_rad = atan( z_factor * sqrt ( dx*dx+dy*dy) );
         double Aspect_rad = 0;
-        if( dx != 0)
-        {
+        if( dx != 0) {
             Aspect_rad = atan2(dy, -dx);
             if (Aspect_rad < 0)
                 Aspect_rad = 2*M_PI + Aspect_rad;
@@ -2588,7 +2533,7 @@ void TWorld::InitShade(void)
 }
 //---------------------------------------------------------------------------
 // for drawing onscreen
-void TWorld::InitScreenChanNetwork()
+void TWorld::InitScreenChanNetwork(void)
 {
     op.EndPointX.clear();
     op.EndPointY.clear();
@@ -2842,3 +2787,72 @@ void TWorld::InitNewSoilProfile()
     }}
 
 }
+    //---------------------------------------------------------------------------
+    void TWorld::InitPesticide(void)
+    {
+        if(!SwitchPest)
+            return;
+
+        // get constants from runfile
+        KdPest = getvaluedouble("Kd pesticide");
+        KfilmPest = getvaluedouble("Kfilm pesticide");
+        KfilmPest = KfilmPest / 1000; // mm sec-1 to m sec-1
+        ERbetaPest = getvaluedouble("ERbeta pesticide");
+        KrPest = getvaluedouble("Kr pesticide");
+        KrPest = KrPest / 60; // min-1 to sec-1
+        ERmaxPest = getvaluedouble("ERmax pesticide");
+        rhoPest = getvaluedouble("Rho mixing layer");
+        PestName = getvaluestring("Pesticide name");
+
+        // load maps
+        PCms = ReadMap(LDD,getvaluename("pcmixsoil"));
+        PCmw = ReadMap(LDD,getvaluename("pcmixwat"));
+        zm = ReadMap(LDD,getvaluename("pestmixdep"));
+        zs = ReadMap(LDD,getvaluename("pestsoildep1"));
+        PCs = ReadMap(LDD,getvaluename("pcsoil1"));
+
+        //Maps for pesticide_MC
+        ThetaPest = NewMap(0);
+
+        PMmw = NewMap(0);
+        PMms = NewMap(0);
+        PMrw = NewMap(0);
+        PMsoil = NewMap(0);
+        PCrw = NewMap(0);
+        PQrw = NewMap(0);
+        Qpw = NewMap(0);
+        PMinf = NewMap(0);
+        pmwdet = NewMap(0);
+        pmwdep = NewMap(0);
+        WVji1 = NewMap(0);
+        SpinKW = NewMap(0);
+        QpinKW = NewMap(0);
+        Theta_mix = NewMap(0);
+        totalDPlossmap = NewMap(0);
+        test_map = NewMap(0.0);
+        if (SwitchErosion) {
+            PQrs = NewMap(0);
+            PCrs = NewMap(0);
+            PMrs = NewMap(0);
+            Qps = NewMap(0);
+            pmsdet = NewMap(0);
+            pmsdep = NewMap(0);
+            PMsplash = NewMap(0);
+            PMflow = NewMap(0);
+            PMdep = NewMap(0);
+            totalPPlossmap = NewMap(0);
+        }
+
+        // total masses
+        PestOutW = 0;
+        Pestinf = 0;
+        PMtot = 0;
+        PMerr = 0;
+        PMtotI = 0;
+        PMwerr = 0;
+        PMserr = 0;
+        PQrw_dt = 0;
+        PQrs_dt = 0;
+        PestOutS = 0;
+    }
+

@@ -62,24 +62,30 @@ void TWorld::setupDisplayMaps()
     if (SwitchImage)
         op.Image = new cTRGBMap();
 
-    op.channelMap->MakeMap(LDD, 0);
+    if(SwitchIncludeChannel)
+        op.channelMap->MakeMap(LDD, 0);
     op.baseMap->MakeMap(LDD, 0);
     op.baseMapDEM->MakeMap(LDD, 0);
     op.outletMap->MakeMap(LDD, 0);
-    op.roadMap->MakeMap(LDD, 0);
-    op.houseMap->MakeMap(LDD, 0);
-    op.hardsurfaceMap->MakeMap(LDD, 0);
-    op.bufferMap->MakeMap(LDD, 0);
+    if (SwitchRoadsystem)
+        op.roadMap->MakeMap(LDD, 0);
+    if (SwitchHouses)
+        op.houseMap->MakeMap(LDD, 0);
+    if(SwitchHardsurface)
+        op.hardsurfaceMap->MakeMap(LDD, 0);
+    if(SwitchBuffers)
+        op.bufferMap->MakeMap(LDD, 0);
 
     // fill with data
-
     copy(*op.baseMap, *ShadeBW);
     copy(*op.baseMapDEM, *DEM);
 
     if(SwitchImage)
       op.Image = RGB_Image;
 
-    copy(*op.channelMap, *LDDChannel);
+    if(SwitchIncludeChannel)
+        copy(*op.channelMap, *LDDChannel);
+
     copy(*op.outletMap, *PointMap);
 
     if (SwitchRoadsystem) {
@@ -92,10 +98,10 @@ void TWorld::setupDisplayMaps()
       }}
     }
     if (SwitchHouses)
-    copy(*op.houseMap, *HouseCover);
+        copy(*op.houseMap, *HouseCover);
 
     if(SwitchHardsurface)
-    copy(*op.hardsurfaceMap,*HardSurface);
+        copy(*op.hardsurfaceMap,*HardSurface);
 
     if(SwitchBuffers) {
         FOR_ROW_COL_MV_L {
@@ -304,6 +310,7 @@ void TWorld::GetComboMaps()
     cl = 2;
     AddComboMap(0,"Water Height","m",hmxWH,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
     AddComboMap(0,"Micro storage","m",WHstore,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+    AddComboMap(0,"Diagonal","m",tmshow,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
  //   AddComboMap(0,"Water inflow","m3",ChannelQSide,LegendMap[cl],Legend[cl],true,false,1.0,1.0);
 //    if (Switch2DDiagonalFlow)
 //       AddComboMap(0,"Diagonal Discharge","l/s",Qdiag,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
@@ -316,8 +323,6 @@ void TWorld::GetComboMaps()
     // }
     cl = 1;
     AddComboMap(0,"Overland flow Momentum","m2/s",VH,LegendMap[cl],Legend[cl],false,false,1.0, 0.001); //VH
-  //  cl = 6;
-  //  AddComboMap(0,"timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
     //AddComboMap(0,"boundary","-",K2DOutlets,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
 
     AddComboMap(0,"Cumulative overland flow","m3",Qm3total,LegendMap[0],Legend[0],false,false,1.0, 1.0);//0.001);
@@ -333,11 +338,10 @@ void TWorld::GetComboMaps()
         cl = 0;
         AddComboMap(0,"Flood Hazard Index [WH(V+0.5)]","-",FHI,LegendMap[0],Legend[0],true,false,1.0, 0.001);
     }
+    cl = 6;
+    AddComboMap(0,"Internal flood timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
 
-
-    if(SwitchIncludeChannel)
-    {
-
+    if(SwitchIncludeChannel) {
         cl = 0;
         if (QUnits == 0)
             AddComboMap(0,"Channel Discharge","l/s",ChannelQn,LegendMap[cl],Legend[cl],true,false,1000.0, 1.0);

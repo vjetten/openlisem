@@ -48,130 +48,108 @@ void TWorld::InfilSwatre()
         if (SwitchSwatreDry && WH->Drc == 0 && Rain->Drc == 0)
             continue;
 
-        //else {
-            // int tid = omp_get_thread_num();
-            // NODES& local = threadBuffers[tid];
+        double tilevol = 0;
+        double theta = 0;
+        double perc = 0;
+        double WHorig;
+        if (FloodDomain->Drc == 0)
+            WHorig = WH->Drc;
+        else
+            WHorig = hmx->Drc;
 
-            // Reset all vectors to zero before use
-            // local.theta.fill(0.0);
-            // local.kavg.fill(0.0);
-            // local.k.fill(0.0);
-            // local.C.fill(0.0);
-            // local.thetaPrev.fill(0.0);
-            // local.h.fill(0.0);
-            // local.hPrev.fill(0.0);
-            // local.dz.fill(0.0);
-            // local.disZ.fill(0.0);
-            // local.S.fill(0.0);
-            // local.thoma.fill(0.0);
-            // local.thomb.fill(0.0);
-            // local.thomc.fill(0.0);
-            // local.thomf.fill(0.0);
-            // local.beta.fill(0.0);
+        SwatreSoilModel->pixel[i_].wh = WHorig;    // WH is in m, convert to cm
+        SwatreSoilModel->pixel[i_].tiledrain = 0;
 
-            double tilevol = 0;
-            double theta = 0;
-            double perc = 0;
-            double WHorig;
-            if (FloodDomain->Drc == 0)
-                WHorig = WH->Drc;
-            else
-                WHorig = hmx->Drc;
+        ComputeForPixel(i_, SwatreSoilModel);//, local);
 
-            SwatreSoilModel->pixel[i_].wh = WHorig;    // WH is in m, convert to cm
-            SwatreSoilModel->pixel[i_].tiledrain = 0;
+        double WHN = SwatreSoilModel->pixel[i_].wh;
 
-            ComputeForPixel(i_, SwatreSoilModel);//, local);
+        theta = SwatreSoilModel->pixel[i_].thetaroot;
+        perc = SwatreSoilModel->pixel[i_].percolation;
 
-            double WHN = SwatreSoilModel->pixel[i_].wh;
+        if (SwitchIncludeTile)
+            tilevol = SwatreSoilModel->pixel[i_].tiledrain;  // is already in m3
 
-            theta = SwatreSoilModel->pixel[i_].thetaroot;
-            perc = SwatreSoilModel->pixel[i_].percolation;
-
-            if (SwitchIncludeTile)
-                tilevol = SwatreSoilModel->pixel[i_].tiledrain;  // is already in m3
-
-            //TODO test infil swatre for crusts and compaction
-            if (SwitchInfilCrust) {
-                if (SwitchDynamicCrusting && ProfileIDCrust->Drc > 0) {
-                    CrustFraction->Drc = qMin(1.0, CrustFraction0->Drc + (1.0-exp(-0.2*qMax(0.0, RainCumCrust->Drc*1000))));
-                }
-
-                if (ProfileIDCrust->Drc > 0 && CrustFraction->Drc > 0) {
-                    SwatreSoilModelCrust->pixel[i_].wh = WHorig;    // WH is in m, convert to cm
-                    SwatreSoilModelCrust->pixel[i_].tiledrain = 0;
-
-                    ComputeForPixel(i_, SwatreSoilModelCrust);
-
-                    double WHcrust = SwatreSoilModelCrust->pixel[i_].wh;
-                    WHN = WHcrust*CrustFraction->Drc + WHN*(1-CrustFraction->Drc);
-                    // weighed average
-
-                    theta = SwatreSoilModelCrust->pixel[i_].thetaroot*CrustFraction->Drc + theta*(1-CrustFraction->Drc);
-                    perc = SwatreSoilModelCrust->pixel[i_].percolation*CrustFraction->Drc + perc*(1-CrustFraction->Drc);
-
-                    if (SwitchIncludeTile) {
-                        tilevol = CrustFraction->Drc*SwatreSoilModelCrust->pixel[i_].tiledrain + tilevol*(1-CrustFraction->Drc);
-                    }
-                }
+        //TODO test infil swatre for crusts and compaction
+        if (SwitchInfilCrust) {
+            if (SwitchDynamicCrusting && ProfileIDCrust->Drc > 0) {
+                CrustFraction->Drc = qMin(1.0, CrustFraction0->Drc + (1.0-exp(-0.2*qMax(0.0, RainCumCrust->Drc*1000))));
             }
 
-            if (SwitchInfilCompact) {
-                if (ProfileIDCompact->Drc > 0 &&  CompactFraction->Drc > 0) {
+            if (ProfileIDCrust->Drc > 0 && CrustFraction->Drc > 0) {
+                SwatreSoilModelCrust->pixel[i_].wh = WHorig;    // WH is in m, convert to cm
+                SwatreSoilModelCrust->pixel[i_].tiledrain = 0;
 
-                    SwatreSoilModelCompact->pixel[i_].wh = WHorig;    // WH is in m, convert to cm
-                    SwatreSoilModelCompact->pixel[i_].tiledrain = 0;
+                ComputeForPixel(i_, SwatreSoilModelCrust);
 
-                    ComputeForPixel(i_, SwatreSoilModelCompact);
+                double WHcrust = SwatreSoilModelCrust->pixel[i_].wh;
+                WHN = WHcrust*CrustFraction->Drc + WHN*(1-CrustFraction->Drc);
+                // weighed average
 
-                    double WHcompact = SwatreSoilModelCompact->pixel[i_].wh;
-                    WHN = WHcompact*CompactFraction->Drc + WHN*(1-CompactFraction->Drc);
-                    // weighted average
-                    theta = SwatreSoilModelCompact->pixel[i_].thetaroot*CrustFraction->Drc + theta*(1-CrustFraction->Drc);
-                    perc = SwatreSoilModelCompact->pixel[i_].percolation*CrustFraction->Drc + perc*(1-CrustFraction->Drc);
-                    if (SwitchIncludeTile) {
-                        tilevol = CompactFraction->Drc*SwatreSoilModelCompact->pixel[i_].tiledrain + tilevol*(1-CompactFraction->Drc);
-                    }
+                theta = SwatreSoilModelCrust->pixel[i_].thetaroot*CrustFraction->Drc + theta*(1-CrustFraction->Drc);
+                perc = SwatreSoilModelCrust->pixel[i_].percolation*CrustFraction->Drc + perc*(1-CrustFraction->Drc);
+
+                if (SwitchIncludeTile) {
+                    tilevol = CrustFraction->Drc*SwatreSoilModelCrust->pixel[i_].tiledrain + tilevol*(1-CrustFraction->Drc);
                 }
             }
+        }
 
-            if (SwitchGrassStrip) {
-                if (ProfileIDGrass->Drc > 0 &&  GrassFraction->Drc > 0) {
-                    SwatreSoilModelGrass->pixel[i_].wh = WHorig;    // WH is in m, convert to cm
-                    SwatreSoilModelGrass->pixel[i_].tiledrain = 0;
+        if (SwitchInfilCompact) {
+            if (ProfileIDCompact->Drc > 0 &&  CompactFraction->Drc > 0) {
 
-                    ComputeForPixel(i_, SwatreSoilModelGrass);
+                SwatreSoilModelCompact->pixel[i_].wh = WHorig;    // WH is in m, convert to cm
+                SwatreSoilModelCompact->pixel[i_].tiledrain = 0;
 
-                    double WHgrass = SwatreSoilModelGrass->pixel[i_].wh;
-                    WHN = WHgrass*GrassFraction->Drc + WHN*(1-GrassFraction->Drc);
-                    theta = SwatreSoilModelGrass->pixel[i_].thetaroot*CrustFraction->Drc + theta*(1-CrustFraction->Drc);
-                    perc = SwatreSoilModelGrass->pixel[i_].percolation*CrustFraction->Drc + perc*(1-CrustFraction->Drc);
-                    if (SwitchIncludeTile) {
-                        tilevol = GrassFraction->Drc*SwatreSoilModelGrass->pixel[i_].tiledrain + tilevol*(1-GrassFraction->Drc);
-                    }
+                ComputeForPixel(i_, SwatreSoilModelCompact);
+
+                double WHcompact = SwatreSoilModelCompact->pixel[i_].wh;
+                WHN = WHcompact*CompactFraction->Drc + WHN*(1-CompactFraction->Drc);
+                // weighted average
+                theta = SwatreSoilModelCompact->pixel[i_].thetaroot*CrustFraction->Drc + theta*(1-CrustFraction->Drc);
+                perc = SwatreSoilModelCompact->pixel[i_].percolation*CrustFraction->Drc + perc*(1-CrustFraction->Drc);
+                if (SwitchIncludeTile) {
+                    tilevol = CompactFraction->Drc*SwatreSoilModelCompact->pixel[i_].tiledrain + tilevol*(1-CompactFraction->Drc);
                 }
             }
+        }
 
-            if (FloodDomain->Drc == 0)
-                WH->Drc = WHN;
-            else
-                hmx->Drc = WHN;
-            hmxWH->Drc = /*hmx->Drc+*/  WH->Drc;
+        if (SwitchGrassStrip) {
+            if (ProfileIDGrass->Drc > 0 &&  GrassFraction->Drc > 0) {
+                SwatreSoilModelGrass->pixel[i_].wh = WHorig;    // WH is in m, convert to cm
+                SwatreSoilModelGrass->pixel[i_].tiledrain = 0;
 
-            WaterVolall->Drc = hmxWH->Drc*CHAdjDX->Drc;
+                ComputeForPixel(i_, SwatreSoilModelGrass);
 
-            InfilVol->Drc = (WHorig - WHN) * FlowWidth->Drc * DX->Drc;
-     //       if (WHorig - WHN < 0)
-     //           qDebug() << r << c << WHorig << WHN << (WHorig - WHN) << fractionImperm->Drc << FlowWidth->Drc;
-    //        InfilVol->Drc = qMax(0.0, WHorig - WHN) * FlowWidth->Drc * DX->Drc;
-            // use flowwidth because impermeable is done separately
-
-            ThetaI1a->Drc = theta;
-            Perc->Drc = perc/_dt; //from m to m/sec
-            if (SwitchIncludeTile) {
-                TileWaterVolSoil->Drc = tilevol;
+                double WHgrass = SwatreSoilModelGrass->pixel[i_].wh;
+                WHN = WHgrass*GrassFraction->Drc + WHN*(1-GrassFraction->Drc);
+                theta = SwatreSoilModelGrass->pixel[i_].thetaroot*CrustFraction->Drc + theta*(1-CrustFraction->Drc);
+                perc = SwatreSoilModelGrass->pixel[i_].percolation*CrustFraction->Drc + perc*(1-CrustFraction->Drc);
+                if (SwitchIncludeTile) {
+                    tilevol = GrassFraction->Drc*SwatreSoilModelGrass->pixel[i_].tiledrain + tilevol*(1-GrassFraction->Drc);
+                }
             }
-  //      }
+        }
+
+        if (FloodDomain->Drc == 0)
+            WH->Drc = WHN;
+        else
+            hmx->Drc = WHN;
+        hmxWH->Drc = /*hmx->Drc+*/  WH->Drc;
+
+        WaterVolall->Drc = hmxWH->Drc*CHAdjDX->Drc;
+
+        InfilVol->Drc = (WHorig - WHN) * FlowWidth->Drc * DX->Drc;
+
+        ThetaI1a->Drc = theta;
+
+        if(SwitchPest)
+            ThetaPest->Drc = theta; // is now entire root zone
+
+        Perc->Drc = perc/_dt; //from m to m/sec
+        if (SwitchIncludeTile) {
+            TileWaterVolSoil->Drc = tilevol;
+        }
 
     }}
 

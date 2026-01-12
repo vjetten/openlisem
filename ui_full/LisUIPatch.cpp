@@ -54,7 +54,7 @@ void lisemqt::downloadPatch(QString latestVersion)
         // Create a file to save the patch
         QFile *file = new QFile(filePath);
         if (!file->open(QIODevice::WriteOnly)) {
-            qDebug() << "Error: Unable to open file for writing.";
+            qDebug() << "Error: Unable to open patch file.";
             delete file;
             return;
         }
@@ -212,7 +212,7 @@ void lisemqt::CheckVersion()
 {
     QString latestVersion = getLatestVersionFromGitHub();
     if (!latestVersion.isEmpty() && isNewVersionAvailable(latestVersion)) {
-
+qDebug() << "download" << latestVersion;
 #ifdef Q_OS_WIN
         downloadPatch(latestVersion);
 #elif defined(Q_OS_LINUX)

@@ -72,7 +72,7 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMser
        }
     }}
 
-    PestOutW += PQrw_dt; 
+    PestOutW += PQrw_dt;
     Pestinf += mapTotal(*PMinf);
     //PestPerc += mapTotal(*PMperc);
     double PMerosion {0.0};
@@ -153,10 +153,14 @@ double TWorld::MassPestInitial(void)
 
 void TWorld::PesticideCellDynamics(void)
 {
+    if (!SwitchInfiltration)
+        return;
+
     double rho = rhoPest;     //kg m-3
     double Kd = KdPest;       // -
     double Kfilm = KfilmPest; // m sec-1
     double kr = KrPest;       // sec-1
+
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
        double mda_ex {0.0};        // mg - exchange mixing layer
@@ -169,7 +173,11 @@ void TWorld::PesticideCellDynamics(void)
        double mass_s {0.0};        // kg - mass sediment in mixing layer
 
        // assume the mixing layer is saturated during infiltration or runoff.
-       Theta_mix->Drc = ThetaS1->Drc;
+       if (InfilMethod == INFIL_SWATRE)
+           Theta_mix->Drc = ThetaPest->Drc;
+       else
+           Theta_mix->Drc = Thetaeff->Drc; // was thetas1; why porosity and not actual theta
+       //LET OP HIER STOND THETAS1 !!!
 
        //infiltration from runoff through mixing layer to deeper soil
        PMinf->Drc = 0.0; //does not need to be a map...
@@ -252,7 +260,7 @@ void TWorld::PesticideCellDynamics(void)
        // if the water volume in a cell is too small, we cannot assume a film
        // over the full surface of the cell. This would overestimate mixing
        // mass transfer. When water height is smaller than 'WH_lim' we assume the
-       // surface area for mass transfer decreases.      
+       // surface area for mass transfer decreases.
        if (WH->Drc > 1e-4) {
            PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
            if (WH->Drc < WH_lim && Rainc->Drc < 1e-8) {
@@ -298,8 +306,182 @@ void TWorld::PesticideFlow1D(void) {
     double rho = rhoPest;     //kg m-3
 
     //runoff
-    KinematicPestDissolved(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw,
-                        PMrw);
+    KinematicPestDissolved(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw, PMrw);
+
+    //erosion
+    if(SwitchErosion){
+        KinematicPestAdsorbed(crlinkedldd_, LDD, Qsn, PQrs, DX, Alpha, SedMassIn,
+                              Qs, Qps, PMrs);
+    }
+    // calculate new concentration
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L{
+        double volmw {0.0};         // L - volume of water in mixing layer
+        double massms {0.0};        // kg - mass of sediment in mixing layer
+        if (WaterVolall->Drc > 0.0)
+            PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
+        else
+            PCrw->Drc = 0.0;
+        // L = m * m * m * -- * 1000
+        volmw = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
+        PCmw->Drc = PMmw->Drc / volmw; //
+
+        // kg = m * m * m * kg m_3 * --
+        massms = zm->Drc * DX->Drc * SoilWidthDX->Drc * rho;
+        //mg kg-1 = mg / kg
+        PCms->Drc = PMms->Drc / massms;
+    }}
+}
+
+//---------------------------------------------------------------------------
+/**
+* @fn double TWorld::KinematicPestDissolved(double perc, double soildep,
+*               double lw, double zm, double dx, double swdx, double pcmw)
+* @brief explicit kinematic wave for dissolved pesticides
+*/
+
+void TWorld::KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
+               cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
+               cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, cTMap *_PMW)
+{
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        _Qpwn->Drc = 0;
+        QpinKW->Drc = 0;
+    }}
+
+// loop over ldd
+    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
+    {
+        int r = _crlinked_[i_].r;
+        int c = _crlinked_[i_].c;
+
+        double Qpin {0};        //mg sec-1
+
+        for (int i = 1; i <= 9; i++)
+        {
+            if (i != 5) {
+                int ldd = 0;
+                int rr = r+dy[i];
+                int cr = c+dx[i];
+
+                if (INSIDE(rr, cr) && !pcr::isMV(_LDD->Drcr)) {
+                    ldd = (int) _LDD->Drcr;
+                    // if the cells flow into
+                    if (FLOWS_TO(ldd, rr,cr,r,c)) {
+                        Qpin += _Qpwn->Drcr;
+                    }
+                }
+            }
+        }
+        QpinKW->Drc = Qpin;
+
+        if (Qn->Drc + QinKW->Drc >= MIN_FLUX) { // more than 1 ml - what is best definition of runoff?
+            // calculate concentration for new outflux
+            PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000); // use watervolall and not watervolin for concentration
+
+            _Qpw->Drc = _Q->Drc * 1000 * PCrw->Drc;
+            // use explicit backwards method from Chow
+            _Qpwn->Drc = ChowSubstance(_Qn->Drc, QinKW->Drc, _Q->Drc, QpinKW->Drc, _Qpw->Drc,
+                                        _Alpha->Drc, _DX->Drc, _dt); //mg/sec
+            _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc + PMrw->Drc / _dt);
+        } //runoff occurs
+            //substract discharge
+            //mg = mg - (mg sec-1 * sec)
+        PMrw->Drc = std::max(0.0, PMrw->Drc - (_Qpwn->Drc * _dt) + (QpinKW->Drc * _dt));
+    }//end ldd loop
+}
+
+//---------------------------------------------------------------------------
+/**
+* @fn double TWorld::KinematicPestAdsorbed(double perc, double soildep,
+*               double lw, double zm, double dx, double swdx, double pcmw)
+* @brief Calculate adsorbed pesticide mass transported with runoff sediment
+*/
+
+void TWorld::KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
+                             cTMap *_LDD, cTMap *_Qn, cTMap *_Qpsn, cTMap *_DX,
+                             cTMap *_Alpha, cTMap *_Sed, cTMap *_Q, cTMap *_Qps,
+                                   cTMap *_PMS)
+{
+    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        _Qpsn->Drc = 0;
+        SpinKW->Drc = 0;
+    }}
+
+    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
+    {
+        int r = _crlinked_[i_].r;
+        int c = _crlinked_[i_].c;
+
+        double Spin {0.0}; //mg sec-1
+
+        for (int i = 1; i <= 9; i++)
+        {
+            if (i != 5) {
+                int ldd = 0;
+                int rr = r+dy[i];
+                int cr = c+dx[i];
+
+                if (INSIDE(rr, cr) && !pcr::isMV(_LDD->Drcr)) {
+                    ldd = (int) _LDD->Drcr;
+                    // if the cells flow into
+                    if (FLOWS_TO(ldd, rr,cr,r,c)) {
+                        Spin += _Qpsn->Drcr;
+                    }
+                }
+            }
+        }
+        SpinKW->Drc = Spin;
+
+        if (_Sed->Drc > 0 | SinKW->Drc > 0.0) { //
+            if (Qn->Drc >= MIN_FLUX) {
+    //        // - simple extrapolation
+    //        double totpests = std::max(0.0, PMrs->Drc + (SpinKW->Drc * _dt));
+    //        double totsed = _Sed->Drc + (SinKW->Drc * _dt);
+    //        _Qpsn->Drc = std::min(totpests/_dt,
+    //                                  _Qsn->Drc * (totpests / totsed));
+
+            // Chow applied for concentration of adsorbed in water!
+            // Instead of the adsorbed concentration of pesticides in the sediment
+            // mg/kg we use the concentration in suspended sediment multiplied by
+            // the suspended sediment concentration - resulting in the adsorbed
+            // pesticide concentration in the runoff water. This is suitable to be
+            // solved with the explicit Chow equation. And takes flow speed into
+            // acount when reditributing the adsorbed pesticide. The 'simple extrapolation
+            // above does not do that and causes extreme concentration peaks at the
+            // rising limb of the discharge.
+            // mg sec-1 = m3 sec -1 * (mg m-3)
+            _Qps->Drc = Q->Drc * (PMrs->Drc / WaterVolall->Drc);
+            // use explicit backwards method from Chow
+            _Qpsn->Drc = ChowSubstance(_Qn->Drc, QinKW->Drc, _Q->Drc, SpinKW->Drc, _Qps->Drc,
+                                     _Alpha->Drc, _DX->Drc, _dt); //mg/sec
+            _Qpsn->Drc = std::min(_Qpsn->Drc, SpinKW->Drc + _PMS->Drc / _dt);
+            }
+        } // erosion occurs
+        // can move outside ldd loop to parralel section
+        // mg = mg sec-1 * sec
+        PMrs->Drc = std::max(0.0, PMrs->Drc - (_Qpsn->Drc * _dt)
+                                      + (SpinKW->Drc * _dt));
+        PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0; // divide by Sed after kin wave
+        // 0,001 g
+    }// end ldd loop
+}
+
+void TWorld::PesticideFlow2D(void) {
+
+    //double Kfilm = KfilmPest; // m sec-1
+    double rho = rhoPest;     //kg m-3
+
+    //runoff
+    KinematicPestDissolved(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw, PMrw);
 
     //erosion
     if(SwitchErosion){
@@ -325,148 +507,6 @@ void TWorld::PesticideFlow1D(void) {
     }}
 }
 
-//---------------------------------------------------------------------------
-/**
-* @fn double TWorld::KinematicPestDissolved(double perc, double soildep,
-*               double lw, double zm, double dx, double swdx, double pcmw)
-* @brief explicit kinematic wave for dissolved pesticides
-*/
-
-void TWorld::KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
-               cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
-               cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, cTMap *_PMW)
-{
-    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        _Qpwn->Drc = 0;
-        QpinKW->Drc = 0;
-    }}
-
-// loop over ldd
-for(long i_ =  0; i_ < _crlinked_.size(); i_++)
-{
-    int r = _crlinked_[i_].r;
-    int c = _crlinked_[i_].c;
-
-    double Qpin {0};        //mg sec-1
-
-    for (int i = 1; i <= 9; i++)
-    {
-        if (i != 5) {
-            int ldd = 0;
-            int rr = r+dy[i];
-            int cr = c+dx[i];
-
-            if (INSIDE(rr, cr) && !pcr::isMV(_LDD->Drcr)) {
-                ldd = (int) _LDD->Drcr;
-                // if the cells flow into
-                if (FLOWS_TO(ldd, rr,cr,r,c)) {
-                    Qpin += _Qpwn->Drcr;
-                }
-            }
-        }
-    }
-    QpinKW->Drc = Qpin;
-
-    if (Qn->Drc + QinKW->Drc >= MIN_FLUX) { // more than 1 ml - what is best definition of runoff?
-        // calculate concentration for new outflux
-        PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000); // use watervolall and not watervolin for concentration
-
-        _Qpw->Drc = _Q->Drc * 1000 * PCrw->Drc;
-        // use explicit backwards method from Chow
-        _Qpwn->Drc = ChowSubstance(_Qn->Drc, QinKW->Drc, _Q->Drc, QpinKW->Drc, _Qpw->Drc,
-                                    _Alpha->Drc, _DX->Drc, _dt); //mg/sec
-        _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc + PMrw->Drc / _dt);
-       } //runoff occurs
-    //substract discharge
-    //mg = mg - (mg sec-1 * sec)
-    PMrw->Drc = std::max(0.0, PMrw->Drc - (_Qpwn->Drc * _dt)
-                                  + (QpinKW->Drc * _dt));
-    }//end ldd loop
-}
-
-//---------------------------------------------------------------------------
-/**
-* @fn double TWorld::KinematicPestAdsorbed(double perc, double soildep,
-*               double lw, double zm, double dx, double swdx, double pcmw)
-* @brief Calculate adsorbed pesticide mass transported with runoff sediment
-*/
-
-void TWorld::KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
-                             cTMap *_LDD, cTMap *_Qn, cTMap *_Qpsn, cTMap *_DX,
-                             cTMap *_Alpha, cTMap *_Sed, cTMap *_Q, cTMap *_Qps,
-                                   cTMap *_PMS)
-{
-    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
-    int dy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        _Qpsn->Drc = 0;
-        SpinKW->Drc = 0;
-    }}
-
-for(long i_ =  0; i_ < _crlinked_.size(); i_++)
-{
-    int r = _crlinked_[i_].r;
-    int c = _crlinked_[i_].c;
-
-    double Spin {0.0}; //mg sec-1
-
-    for (int i = 1; i <= 9; i++)
-    {
-        if (i != 5) {
-            int ldd = 0;
-            int rr = r+dy[i];
-            int cr = c+dx[i];
-
-            if (INSIDE(rr, cr) && !pcr::isMV(_LDD->Drcr)) {
-                ldd = (int) _LDD->Drcr;
-                // if the cells flow into
-                if (FLOWS_TO(ldd, rr,cr,r,c)) {
-                    Spin += _Qpsn->Drcr;
-                }
-            }
-        }
-    }
-    SpinKW->Drc = Spin;
-
-    if (_Sed->Drc > 0 | SinKW->Drc > 0.0) { //
-        if (Qn->Drc >= MIN_FLUX) {
-//        // - simple extrapolation
-//        double totpests = std::max(0.0, PMrs->Drc + (SpinKW->Drc * _dt));
-//        double totsed = _Sed->Drc + (SinKW->Drc * _dt);
-//        _Qpsn->Drc = std::min(totpests/_dt,
-//                                  _Qsn->Drc * (totpests / totsed));
-
-        // Chow applied for concentration of adsorbed in water!
-        // Instead of the adsorbed concentration of pesticides in the sediment
-        // mg/kg we use the concentration in suspended sediment multiplied by
-        // the suspended sediment concentration - resulting in the adsorbed
-        // pesticide concentration in the runoff water. This is suitable to be
-        // solved with the explicit Chow equation. And takes flow speed into
-        // acount when reditributing the adsorbed pesticide. The 'simple extrapolation
-        // above does not do that and causes extreme concentration peaks at the
-        // rising limb of the discharge.
-        // mg sec-1 = m3 sec -1 * (mg m-3)
-        _Qps->Drc = Q->Drc * (PMrs->Drc / WaterVolall->Drc);
-        // use explicit backwards method from Chow
-        _Qpsn->Drc = ChowSubstance(_Qn->Drc, QinKW->Drc, _Q->Drc, SpinKW->Drc, _Qps->Drc,
-                                 _Alpha->Drc, _DX->Drc, _dt); //mg/sec
-        _Qpsn->Drc = std::min(_Qpsn->Drc, SpinKW->Drc + _PMS->Drc / _dt);
-        }
-        } // erosion occurs
-    // can move outside ldd loop to parralel section
-    // mg = mg sec-1 * sec
-    PMrs->Drc = std::max(0.0, PMrs->Drc - (_Qpsn->Drc * _dt)
-                                  + (SpinKW->Drc * _dt));
-    PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0; // divide by Sed after kin wave
-    // 0,001 g
-    }// end ldd loop
-}
 
 //---------------------------------------------------------------------------
 /**

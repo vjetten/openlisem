@@ -55,30 +55,32 @@ void TWorld::OverlandFlow(void)
             ToChannelAlt();
         else
             ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
-
-     //   CalcVelDisch();
-        // overland flow velocity, discharge and alpha
-        // V is needed in erosion
+        //TODO pesticide to channel
 
         if (SwitchErosion) {
+
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L  {
-                SedAfterSplash->Drc = Sed->Drc; //for pesticide detachment
-            cell_FlowDetachment();
-            // kine wave based flow detachment
-                SedMassIn->Drc = Sed->Drc; // for pesticide kin wave
+                if (SwitchPest)
+                    SedAfterSplash->Drc = Sed->Drc; //for pesticide detachment
+
+                cell_FlowDetachment(); // kine wave based flow detachment
+
+                if (SwitchPest)
+                    SedMassIn->Drc = Sed->Drc; // for pesticide kin wave
             }}
-        if (SwitchPest) {
-            PesticideFlowDetachment(rhoPest);
-        }
-        }
 
-        OverlandFlow1D();   // kinematic wave of water and sediment
-
-        if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
-            ChannelFlood();
-            // st venant channel 2D flooding from channel, only for kyn wave
+            if (SwitchPest) {
+                PesticideFlowDetachment(rhoPest);
+            }
         }
+    }
+
+    OverlandFlow1D();   // kinematic wave of water and sediment
+
+    if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
+        ChannelFlood();
+        // st venant channel 2D flooding from channel, only for kyn wave
     }
 }
 
@@ -361,7 +363,7 @@ void TWorld::OverlandFlow1D(void)
         // } else {
             KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed, tma);
         //}
-        
+
         FOR_ROW_COL_MV_L {
             if (Sed->Drc > MAXCONC * WaterVolall->Drc) {
                 double ss = Sed->Drc;

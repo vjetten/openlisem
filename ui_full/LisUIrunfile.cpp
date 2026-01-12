@@ -104,7 +104,6 @@ void lisemqt::ParseInputData()
     // aux vars
     bool setETmaps = false;
     bool setRainmaps = false;
-    QString orgMapsDir;
 
     QLocale loc = QLocale::system(); // current locale
     QString pnt = loc.decimalPoint();
@@ -485,9 +484,11 @@ void lisemqt::ParseInputData()
     E_WorkDir = QFileInfo(E_runFileList->currentText()).dir().absolutePath();
     QDir dir(E_WorkDir);
     if (dir.cdUp())
-        E_WorkDir = dir.absolutePath();
-    // workdir is now parent of runfile directory, no "/" at the end
+        E_WorkDir = dir.absolutePath() + "/";
+    QDir::setCurrent(E_WorkDir);
+    currentDir = E_WorkDir;
 
+    // workdir is now parent of runfile directory, no "/" at the end
     //QString daystart, minstart, dayend, minend;
     for (j = 0; j < nrnamelist; j++)
     {
@@ -511,9 +512,9 @@ void lisemqt::ParseInputData()
 
         // input output dirs and file names
         if (p1.compare("Map Directory")==0) {
-            orgMapsDir = p;
             E_MapDir->setText(findDir(p, false, false));
         }
+
         if (p1.compare("Result Directory")==0) {
             E_ResultDir->setText(findDir(p, true, false));
         }
@@ -526,12 +527,9 @@ void lisemqt::ParseInputData()
 
         if (radioRainFile->isChecked()) {
             if (p1.compare("Rainfall Directory")==0) {
-                QString hoi = findCommonRoot(p, orgMapsDir);
                 RainFileDir = findDir(p, false, false);
-              //  qDebug() << "raindir" << RainFileDir;
                 if (RainFileDir.isEmpty())
                     RainFileDir = CheckDir(p, false);
-              //  qDebug() << "raindir2" << RainFileDir;
             }
             if (p1.compare("Rainfall file")==0) RainFileName = p;
         }
@@ -664,7 +662,7 @@ void lisemqt::ParseInputData()
         E_ETName->setText(ETFileDir + ETFileName);
         if (!QFileInfo(E_ETName->text()).exists() && !E_ETName->text().isEmpty())
         {
-            ETFileDir = QString(E_WorkDir + "rain/");
+            ETFileDir = QString(E_WorkDir+"rain/");
             E_ETName->setText(ETFileDir + ETFileName);
         }
 
@@ -759,68 +757,41 @@ void lisemqt::ParseInputData()
 
 }
 //---------------------------------------------------------------------------
-QString lisemqt::findCommonRoot(QString p,QString pR)
+QString lisemqt::findCommonRoot(QString a, QString b)
 {
-    QString path = QDir::fromNativeSeparators(p);
-    QString pathR = QDir::fromNativeSeparators(pR);
-    // replace windows separators if there are any
+    QString pa = QDir::fromNativeSeparators(QDir(a).absolutePath());
+    QString pb = QDir::fromNativeSeparators(QDir(b).absolutePath());
 
-    QStringList pathS = path.split('/', Qt::SkipEmptyParts);
-    QStringList pathRS = pathR.split('/', Qt::SkipEmptyParts);
-    int minSize = qMin(pathS.size(), pathRS.size());
-    QStringList common;
-    for (int i = 0; i < minSize; ++i) {
-        if (pathS[i] == pathRS[i])
-           common << pathRS[i];
-        else
-           break;
-    }
-    QString root;
-    if (pathR.startsWith('/'))
-        root = '/';
-    root = root + common.join('/');
-    //qDebug() << "common" << root;
+    QString driveA, driveB;
 
-    /*
-    QString rootName = QDir(E_WorkDir).dirName();
-    // E_WorkDir is the parent of the dir with the runfile
-    // it does not end with '/'
-    //the rootName is the last dir in that path, so the parent off the runfile dir
-    // qDebug() << rootName;
-
-    //if the path name is relative path: ../maps/ or ./maps/ or maps/ or maps
-    // but not "/maps"
-    if (QDir::isRelativePath(path)) {
-        QDir::setCurrent(E_WorkDir);
-        // lisem now runs in workdir
-        path = QDir(path).absolutePath() + '/';
-    }
-
-    // if it still does not exist or a linux path starting with '/'
-    // assume the specified path under the parent of the run file
-    // find the root in path
-    if (!QDir(path).exists() || path.startsWith('/')) {
-        int idx = p.indexOf(rootName);
-        if (idx != -1)
-            path = QFileInfo(E_WorkDir).absolutePath() + '/'+ p.mid(idx);
-        if (!path.endsWith('/'))
-            path = path + '/';
-    }
-
-    // if it still does not exist then tough luck
-    if (!QDir(path).exists()) {
-        if (makeit)
-            QDir(path).mkpath(path);
-        else {
-            if (warn)
-                QMessageBox::warning(this,"openLISEM",QString("The following directory does not exist:\n%1\nUsing the work directory, check your pathnames").arg(path));
-            path.clear();
+    auto splitDrive = [](const QString &p, QString &drive) {
+        if (p.size() >= 2 && p[1] == ':') {
+            drive = p.left(2);                      // "C:"
+            return p.mid(2).split('/', Qt::SkipEmptyParts);
         }
+        drive.clear();
+        return p.split('/', Qt::SkipEmptyParts);
+    };
+
+    QStringList la = splitDrive(pa, driveA);
+    QStringList lb = splitDrive(pb, driveB);
+
+    QStringList out;
+    if (!driveA.isEmpty() && driveA == driveB) out << driveA;
+
+    int n = qMin(la.size(), lb.size());
+    for (int i = 0; i < n; ++i) {
+        if (la[i] != lb[i]) break;
+        out << la[i];
     }
 
-    return path;
-    */
-    return "";
+    QString root;
+    if (!out.isEmpty() && out[0].endsWith(':'))
+        root = out[0] + "/" + out.mid(1).join('/');
+    else
+        root = "/" + out.join('/');
+
+    return root;//QDir::toNativeSeparators(root);
 }
 //---------------------------------------------------------------------------
 QString lisemqt::findDir(QString p,bool makeit, bool warn)
@@ -829,12 +800,6 @@ QString lisemqt::findDir(QString p,bool makeit, bool warn)
             //p.replace('\\','/');
     // replace windows separators if there are any
 
-    QString rootName = QDir(E_WorkDir).dirName();
-    // E_WorkDir is the parent of the dir with the runfile
-    // it does not end with '/'
-    //the rootName is the last dir in that path, so the parent off the runfile dir
-    // qDebug() << rootName;
-
     //if the path name is relative path: ../maps/ or ./maps/ or maps/ or maps
     // but not "/maps"
     if (QDir::isRelativePath(path)) {
@@ -843,15 +808,13 @@ QString lisemqt::findDir(QString p,bool makeit, bool warn)
         path = QDir(path).absolutePath() + '/';
     }
 
+    QString commonRoot = findCommonRoot(path, E_WorkDir);
+
     // if it still does not exist or a linux path starting with '/'
     // assume the specified path under the parent of the run file
     // find the root in path
     if (!QDir(path).exists() || path.startsWith('/')) {
-        int idx = p.indexOf(rootName);
-        if (idx != -1)
-            path = QFileInfo(E_WorkDir).absolutePath() + '/'+ p.mid(idx);
-        if (!path.endsWith('/'))
-            path = path + '/';
+        path = commonRoot;
     }
 
     // if it still does not exist then tough luck
@@ -861,16 +824,16 @@ QString lisemqt::findDir(QString p,bool makeit, bool warn)
         else {
             if (warn)
                 QMessageBox::warning(this,"openLISEM",QString("The following directory does not exist:\n%1\nUsing the work directory, check your pathnames").arg(path));
-            path.clear();
+            //path.clear();
+            path = E_WorkDir;
         }
     }
-
+qDebug() << "finddir" << path;
     return path;
 }
 //---------------------------------------------------------------------------
 QString lisemqt::CheckDir(QString p, bool makeit)
 {
-    /* TODO mulitplatform: fromNativeSeparators etc*/
     QString path;
     if (p.isEmpty() || p == "/")
         return(p);
@@ -1288,8 +1251,8 @@ void lisemqt::updateModelData()
     //get all actual mapnames from the mapList structure
     fillNamelistMapnames(true);
 
-    currentDir = E_WorkDir;
-    QDir::setCurrent(currentDir);
+    // currentDir = E_WorkDir;  // moved to where E_Workdir is made
+    // QDir::setCurrent(currentDir);
 
     // if (mencoderDir.isEmpty() || !QFileInfo(mencoderDir).exists())
     //     mencoderDir = qApp->applicationDirPath() + "\\mencoder.exe";
@@ -1297,9 +1260,6 @@ void lisemqt::updateModelData()
     if (saveRunFileOnce) {
         savefile(op.runfilename);
         saveRunFileOnce = false;
-//        QMessageBox::warning(this,"openLISEM",QString("The run file has changed: ") +
-//            QString("obsolete options are removed and missing options use default values. ") +
-//            QString("The new run files has your choices where applicable."));
 
         QMessageBox msg;
         msg.setText("The run file has changed: \nobsolete options are removed and missing options use default values. \nThe new run files has your choices where applicable.");

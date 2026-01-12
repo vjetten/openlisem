@@ -178,6 +178,7 @@ cTMap
 *SettlingVelocityBL,           //!< settling velocity according to Stokes [m/s]
 
 // Pesticides
+*ThetaPest,
 *PMmw,                      //!< Map with mass of pesticides in soil part of mixing zone [mg]
 *PMms,                      //!< Map with mass of pesticides in soil part of mixing zone [mg]
 *PMrw,                      //!< mass of pesticide in runoff water [mg]
@@ -324,6 +325,7 @@ cTMap
 *ChannelWH,                  //!<
 *ChannelPerimeter,
 *ChannelWidthB,
+
 //*ChannelCos,
 //*ChannelWHExtended,                  //!<
 //*ChannelVolExtended,                  //!<
