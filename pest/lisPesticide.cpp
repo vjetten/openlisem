@@ -304,7 +304,7 @@ void TWorld::PesticideCellDynamics(void)
 void TWorld::PesticideFlow1D(void) {
 
     //double Kfilm = KfilmPest; // m sec-1
-    double rho = rhoPest;     //kg m-3
+    //double rho = rhoPest;     //kg m-3
 
     //runoff
     KinematicPestDissolved(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw, PMrw);
@@ -328,7 +328,7 @@ void TWorld::PesticideFlow1D(void) {
         PCmw->Drc = PMmw->Drc / volmw; //
 
         // kg = m * m * m * kg m_3 * --
-        massms = zm->Drc * DX->Drc * SoilWidthDX->Drc * rho;
+        massms = zm->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest;
         //mg kg-1 = mg / kg
         PCms->Drc = PMms->Drc / massms;
     }}

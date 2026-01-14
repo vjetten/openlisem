@@ -69,7 +69,6 @@ functions: \n
 
 void TWorld::SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
 {
-
     SedimentDetachmentSS(dt, h, w , u, v, SSFlood, SSCFlood, SSTCFlood, SSDetFlood, DepFlood, SettlingVelocitySS);
     // suspended detachment (SS), same generic function as for 1D
 
@@ -98,9 +97,41 @@ void TWorld::SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
     }
 
     if (SwitchPest) {
-//      SWOFSedimentFlowInterpolation(dt, h,u,v, SSPest, SSCPest);
-//      SWOFSedimentDiffusion(dt, h,u,v, SSPest, SSCPest);
-    // pesticide suspended flow
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            double vol = CHAdjDX->Drc*h->Drc + MicroStoreVol->Drc;
+            PCrw->Drc = vol > 1e-9 ? PMrw->Drc/(vol*1000) : 0.0;
+            //note: PCrs is done in flow detahcment
+        }}
+
+        SWOFSedimentFlowInterpolation(dt, h,u,v, PMrw, PCrw, SSDepthFlood);
+        // dissolved pest distribution between cells
+        SWOFSedimentFlowInterpolation(dt, h,u,v, PMrs, PCrs, SSDepthFlood);
+        // absorbed pest distribution between cells
+        if (SwitchIncludeDiffusion) {
+            SWOFSedimentDiffusion(dt, h,u,v, PMrw, PCrw);
+            SWOFSedimentDiffusion(dt, h,u,v, PMrs, PCrs);
+        }
+
+        // calculate new concentration
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L{
+            double volmw {0.0};         // L - volume of water in mixing layer
+            double massms {0.0};        // kg - mass of sediment in mixing layer
+            double vol = CHAdjDX->Drc*h->Drc + MicroStoreVol->Drc;
+            if (vol > 0.0)
+                PCrw->Drc = PMrw->Drc / (vol * 1000);
+            else
+                PCrw->Drc = 0.0;
+            // L = m * m * m * -- * 1000
+            volmw = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
+            PCmw->Drc = PMmw->Drc / volmw; //
+
+            // kg = m * m * m * kg m_3 * --
+            massms = zm->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest;
+            //mg kg-1 = mg / kg
+            PCms->Drc = PMms->Drc / massms;
+        }}
     }
 
 }
@@ -274,11 +305,11 @@ void TWorld::SWOFSedimentFlowInterpolation(double dt, cTMap *h, cTMap *u,cTMap *
                 int cr = c+(int)xn*dx[i];
 
                 // distance we want is equal to: 1 - distance from the advected location to the neighbouring cell
-                double wdx = ((double)1.0) - fabs( xn * ((double)dx[i]) - dsx);
-                double wdy = ((double)1.0) - fabs( yn * ((double)dy[i]) - dsy);
+                double wdx = 1.0 - qFabs( xn * ((double)dx[i]) - dsx);
+                double wdy = 1.0 - qFabs( yn * ((double)dy[i]) - dsy);
 
                 //the distribution is inverly proportional to the squared distance
-                double weight = fabs(wdx) * fabs(wdy);
+                double weight = qFabs(wdx) * qFabs(wdy);
 
                 if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr)) {
                     if(h->Drcr > he_ca) {

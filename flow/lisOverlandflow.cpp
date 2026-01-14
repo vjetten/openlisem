@@ -124,6 +124,8 @@ void TWorld::OverlandFlow2Ddyn(void)
 
     FloodMaxandTiming();
 
+
+
 }
 //--------------------------------------------------------------------------------------------
 // ToChannel is ONLY called with KIN or KINDYN
@@ -313,20 +315,7 @@ void TWorld::OverlandFlow1D(void)
     }}
 
     // route water
-     // if (SwitchLinkedList) {
-        // #pragma omp parallel for num_threads(userCores)
-        // FOR_ROW_COL_MV_L {
-        //     pcr::setMV(Qn->Drc);
-        //     QinKW->Drc = 0;
-        // }}
-
-        // FOR_ROW_COL_LDD5 {
-        //     Kinematic(r,c, LDD, Q, Qn,  Alpha, DX, tma, tma);
-        //     // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
-        // }}
-     // } else {
-        KinematicExplicit(crlinkedldd_, Q, Qn, Alpha,DX, tma, tma);
-    //}
+    KinematicExplicit(crlinkedldd_, Q, Qn, Alpha,DX, tma, tma);
 
     //convert calculated Qn back to WH and volume for next loop
     #pragma omp parallel for num_threads(userCores)
@@ -352,17 +341,7 @@ void TWorld::OverlandFlow1D(void)
 
     if (SwitchErosion)
     {
-        // if (SwitchLinkedList) {
-        //     #pragma omp parallel for num_threads(userCores)
-        //     FOR_ROW_COL_MV_L {
-        //         pcr::setMV(Qsn->Drc);//Qsn->setAllMV();
-        //     }}
-        //     FOR_ROW_COL_LDD5 {
-        //         routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
-        //     }}
-        // } else {
-            KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed, tma);
-        //}
+        KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed, tma);
 
         FOR_ROW_COL_MV_L {
             if (Sed->Drc > MAXCONC * WaterVolall->Drc) {
@@ -372,5 +351,10 @@ void TWorld::OverlandFlow1D(void)
                 DEP->Drc -= ds;
             }
         }}
+    }
+
+    if (SwitchPest) {
+        //this function takes care of dissolved and sorbed kinematic wave
+        PesticideFlow1D();
     }
 }
