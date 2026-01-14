@@ -179,8 +179,8 @@ cTMap
 
 // Pesticides
 *ThetaPest,
-*PMmw,                      //!< Map with mass of pesticides in soil part of mixing zone [mg]
-*PMms,                      //!< Map with mass of pesticides in soil part of mixing zone [mg]
+*PMmw,                      //!< Mass of pesticides in water part of mixing zone [mg]
+*PMms,                      //!< Mass of pesticides in soil part of mixing zone [mg]
 *PMrw,                      //!< mass of pesticide in runoff water [mg]
 *PMrs,                      //!< mass of pesticide in runoff sediment [mg]
 *PMsoil,                    //!< mass of pesticide in the soil layer without mixing zone [mg]

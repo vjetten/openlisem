@@ -587,7 +587,7 @@ void TWorld::HydrologyProcesses()
 
         if (SwitchPest) {
             // update concentration of pesticides after rainfall (mg/L)
-            if (WH->Drc > 0.0) {
+            if (WH->Drc > he_ca) {
                 PCrw->Drc = PMrw->Drc / (WH->Drc * FlowWidth->Drc * DX->Drc * 1000);
             }
         }

@@ -73,6 +73,9 @@ void TWorld::SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
     SedimentDetachmentSS(dt, h, w , u, v, SSFlood, SSCFlood, SSTCFlood, SSDetFlood, DepFlood, SettlingVelocitySS);
     // suspended detachment (SS), same generic function as for 1D
 
+    if (SwitchPest)
+        PesticideFlowDetachmentSS(SSDetFlood, DepFlood, SSFlood);
+
     if (SwitchUse2Phase) {
         SWOFSedimentDetBL(dt, h, w , u, v);
     } else {

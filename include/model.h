@@ -912,7 +912,9 @@ public:
     void PesticideSplashDetachment();
     double ChowSubstance(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
                          double Pji1, double alpha, double dx, double dt);
-    void PesticideFlowDetachment(double rho);
+    void PesticideFlowDetachment();
+    void PesticideFlowDetachmentSS(cTMap *Df_, cTMap *Dep_, cTMap *Sed_);
+
     double PesticideEnrichmentRatio(double Emax, double S, double beta);
 
     void PesticideFlow2D(void);

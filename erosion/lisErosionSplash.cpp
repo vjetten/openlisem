@@ -139,7 +139,9 @@ void TWorld::SplashDetachment()
                     Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
                 }
             }
-
+            if (SwitchPest) {
+                SedAfterSplash->Drc = Sed->Drc; //needed for pesticide detachment
+            }
             DETSplash->Drc = DETSplash_;
             // IN KG/CELL
         }
