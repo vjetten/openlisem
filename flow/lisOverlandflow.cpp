@@ -59,15 +59,16 @@ void TWorld::OverlandFlow(void)
 
         if (SwitchErosion) {
 
+            // why, why not Sed?
             if (SwitchPest) {
                 #pragma omp parallel for num_threads(userCores)
                 FOR_ROW_COL_MV_L  {
                     SedAfterSplash->Drc = Sed->Drc; //for pesticide detachment
                 }}
             }
+
             Fill(*tma,0);
             //cell_FlowDetachment(); // obsolete
-
             SedimentDetachmentSS(_dt, WHrunoff, ChannelAdj, V, tma, Sed, Conc, TC, DETFlow, DEP, SettlingVelocitySS);
             // full flowwidth is used, but adjusted fractions for roads, houses etc
 

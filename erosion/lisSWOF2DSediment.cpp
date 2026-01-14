@@ -69,46 +69,37 @@ functions: \n
 
 void TWorld::SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
 {
-//???? what
-    /*
-    FOR_ROW_COL_MV_L {
-        double factor = 1.0;
-        u->Drc = u->Drc * factor;
-        v->Drc = v->Drc * factor;
-    }}
-*/
 
     SedimentDetachmentSS(dt, h, w , u, v, SSFlood, SSCFlood, SSTCFlood, SSDetFlood, DepFlood, SettlingVelocitySS);
-    // same generic function as for 1D
+    // suspended detachment (SS), same generic function as for 1D
 
-    // suspended detachment
-    if (SwitchUse2Phase)
+    if (SwitchUse2Phase) {
         SWOFSedimentDetBL(dt, h, w , u, v);
-    //bedload detachment
+    } else {
+        copy(*SSDepthFlood, *h);
+    }
 
-    SWOFSedimentFlowInterpolation(dt, h,u,v, SSFlood, SSCFlood);
+    SWOFSedimentFlowInterpolation(dt, h,u,v, SSFlood, SSCFlood, SSDepthFlood);
     // susponded matter flow, advection
-
-    if (SwitchUse2Phase)
-       SWOFSedimentFlowInterpolation(dt, h,u,v, BLFlood, BLCFlood);
-    // Include Bedload
-
- //   if (SwitchPest)
-//      SWOFSedimentFlowInterpolation(dt, h,u,v, SSPest, SSCPest);
-    // pesticide suspended flow
 
     if (SwitchIncludeDiffusion) {
         SWOFSedimentDiffusion(dt, h,u,v, SSFlood, SSCFlood);
- //       if (SwitchPest)
- //          SWOFSedimentDiffusion(dt, h,u,v, SSPest, SSCPest);
     }
 
-    // if switch do pest diffusion
+    SedimentSetConcentration(h, SSFlood, SSCFlood, SSDepthFlood);
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        SWOFSedimentSetConcentration(r,c,h->Drc, ChannelAdj->Drc);
-    }}
+    //bedload detachment and movement
+    if (SwitchUse2Phase) {
+        SWOFSedimentFlowInterpolation(dt, h,u,v, BLFlood, BLCFlood, BLDepthFlood);
+        SedimentSetConcentration(h, BLFlood, BLCFlood, BLDepthFlood);
+    }
+
+    if (SwitchPest) {
+//      SWOFSedimentFlowInterpolation(dt, h,u,v, SSPest, SSCPest);
+//      SWOFSedimentDiffusion(dt, h,u,v, SSPest, SSCPest);
+    // pesticide suspended flow
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -234,7 +225,7 @@ void TWorld::SWOFSedimentDiffusion(double dt, cTMap *h,cTMap *u,cTMap *v, cTMap 
  * @return void
  */
 
-void TWorld::SWOFSedimentFlowInterpolation(double dt, cTMap *h, cTMap *u,cTMap *v,cTMap *_SS, cTMap *_SSC)
+void TWorld::SWOFSedimentFlowInterpolation(double dt, cTMap *h, cTMap *u,cTMap *v,cTMap *_SS, cTMap *_SSC, cTMap *_SSD)
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -257,12 +248,12 @@ void TWorld::SWOFSedimentFlowInterpolation(double dt, cTMap *h, cTMap *u,cTMap *
         double velocity = sqrt(u_*u_ + v_*v_);
 
         if(velocity > he_ca && h->Drc > he_ca) {
-           // double courant = this->courant_factorSed; // why *0.1
+            // double courant = this->courant_factorSed;
 
-            double dss = dt*velocity*ChannelAdj->Drc *SSDepthFlood->Drc * _SSC->Drc;
+            double dss = dt*velocity*ChannelAdj->Drc * _SSD->Drc * _SSC->Drc;
             // s*m/s*m*m*kg/m3 = kg
             if(dss > courant_factorSed * _SS->Drc)
-                dss = courant_factorSed *  _SS->Drc; // equals courant factor but not more than 0.2
+               dss = courant_factorSed * _SS->Drc; // equals courant factor but not more than 0.2
 
             //should not travel more distance than cell size
             double dsx = xn*qMin(fabs(u_)/velocity,1.0);
@@ -372,6 +363,19 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, double h, double w)
 }
 
 
+void TWorld::SedimentSetConcentration(cTMap *h, cTMap *SS_, cTMap *SSC_, cTMap *SSD_)
+{
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if(h->Drc > he_ca) {
+            double vol = CHAdjDX->Drc*SSD_->Drc;
+            SSC_->Drc = MaxConcentration(vol, SS_->Drc);
+        }
+        else
+            SSC_->Drc = 0;
+    }}
+}
+
 //--------------------------------------------------------------------------------------------
 /**
  * @fn void TWorld::SWOFSedimentLayerDepth(double dt, int r,int c)
@@ -387,12 +391,6 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, double h, double w)
  */
 void TWorld::SWOFSedimentLayerDepth(int r , int c, double h, double velocity)
 {
-    if (!SwitchUse2Phase) {
-        //BLDepthFlood->Drc = 0;
-        SSDepthFlood->Drc = h;
-        return;
-    }
-
     double ps = 2650;
     double pw = 1000;
     double factor = 0.5;
@@ -448,15 +446,11 @@ void TWorld::SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *u,cTMap 
 
         double velocity = qSqrt(u->Drc *u->Drc + v->Drc * v->Drc);
 
-
         double wf = w->Drc;
         double hf = h->Drc;
 
-        SWOFSedimentLayerDepth(r, c, hf, velocity);
-        //creates BLDepth and SSDepth, or if 1 layer ssdepth = h and bldepth = 0
-
         SSTC_->Drc = calcTCSuspended(r, c, 1, FS_SS_Method, hf, wf, velocity, 1);
-        sswatervol = wf*DX->Drc * SSDepthFlood->Drc;
+        sswatervol = hf*wf*DX->Drc;
 
         double deposition = 0;
         double detachment = 0;

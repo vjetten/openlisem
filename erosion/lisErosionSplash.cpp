@@ -27,7 +27,7 @@
 
 
 //---------------------------------------------------------------------------
-void TWorld::cell_SplashDetachment()
+void TWorld::SplashDetachment()
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L  {

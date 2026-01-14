@@ -22,6 +22,10 @@
 **
 *************************************************************************/
 
+
+// THESE FUNCTIONS ARE OBSOLETE
+
+
 /*!
   \file lisErosion.cpp
   \brief Flow and splash detachment functions for slopes and channels

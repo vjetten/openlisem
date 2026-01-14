@@ -54,7 +54,7 @@ void TWorld::GetInputData(void)
     InitErosion();
     //extended sediment stuff
 
-    InitPesticide();
+    InitPesticides();
     // pesticide stuff
 
     InitChannel();
@@ -2788,7 +2788,7 @@ void TWorld::InitNewSoilProfile()
 
 }
     //---------------------------------------------------------------------------
-    void TWorld::InitPesticide(void)
+    void TWorld::InitPesticides(void)
     {
         if(!SwitchPest)
             return;
@@ -2829,7 +2829,6 @@ void TWorld::InitNewSoilProfile()
         QpinKW = NewMap(0);
         Theta_mix = NewMap(0);
         totalDPlossmap = NewMap(0);
-        test_map = NewMap(0.0);
         if (SwitchErosion) {
             PQrs = NewMap(0);
             PCrs = NewMap(0);

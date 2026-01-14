@@ -862,7 +862,7 @@ public:
     void InitFlood(void);
     void InitMeteoInput(void);
     void InitScreenChanNetwork(void);
-    void InitPesticide(void);
+    void InitPesticides(void);
 
     void CorrectDEM(cTMap *h, cTMap * g);
     void DiagonalFlowDEM();
@@ -871,8 +871,7 @@ public:
     // <= initiatlisation
 
 
-    //int GrainSizeDistributionType;
-
+    int GrainSizeDistributionType;
     double LogNormalDist(double d50,double sigma, double d); // not used
     double DetachMaterial(int r,int c, int d,bool channel,bool flood,bool bl, double detachment); //not used
 
@@ -980,9 +979,12 @@ public:
     void cell_Tiledrain2(int r, int c);
     void cell_Channelinfow1(int r, int c);
     void cell_Channelinfow2(int r, int c);
+
     void cell_SplashDetachment();
-    void cell_FlowDetachment();
-    void cell_FlowDetachmentContinuous();
+
+    void cell_FlowDetachment(); // obsolete
+    void cell_FlowDetachmentContinuous(); // obsolete, never used
+
     void cell_ETa(int r, int c);
     double getETaFactor();
     double ETafactor;
@@ -1009,7 +1011,7 @@ public:
     void ToTiledrain();
     // <= OF
 
-    //SWMM pipe flow
+    //SWMM pipe flow, NOT USED
     void PipeFlowSWMM();
     double getAfromS(DRAIN_PROP *dr, double s);
     int findroot_Newton(DRAIN_PROP *dr, double x1, double x2);
@@ -1034,6 +1036,7 @@ public:
     void chanHandPRect(int r, int c);
     void chanHandPTrap(int r, int c);
     void chanHandPTria(int r, int c);
+
     // tiles/stormdrains
     void TileFlow(void);
     void TileFlowSWMM(void);
@@ -1098,10 +1101,9 @@ public:
     // <= extend channel
 
     void InitFlowBarriers(void);
-    //double DEMFB(int r, int c, int rd, int cd, bool addwh);
-    double FB(int r, int c, int rd, int cd);
     void SetFlowBarriers();
     void GetFlowBarrierData(QString name);
+    double FB(int r, int c, int rd, int cd);
     double FBW(double h, int r, int c, int dr, int dc);
 
     double courant_factor;
@@ -1150,8 +1152,9 @@ public:
     double calcTCBedload(int r,int c, int _d, int method, double h, double w, double U, int type);
     void SWOFSedimentCheckZero(int r, int c, cTMap * h);
     void SWOFSedimentSetConcentration(int r, int c, double h, double w);
+    void SedimentSetConcentration(cTMap *h, cTMap *SSC_, cTMap *SS_, cTMap *SSD_);
     void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap *v, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentFlowInterpolation(double dt, cTMap * h, cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
+    void SWOFSedimentFlowInterpolation(double dt, cTMap * h, cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC, cTMap *_SSD);
     void SWOFSedimentDetBL(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
     void SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);

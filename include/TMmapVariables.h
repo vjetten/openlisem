@@ -211,7 +211,6 @@ cTMap
 *PMdep,                     //!< mass deposited sorbed pesticide [mg]
 *totalPPlossmap,             //!< total loss of PP pesticide [mg/m2]
 *totalDPlossmap,             //!< total loss of DP pesticide [mg/m2]
-*test_map,
 
 
 // infiltration

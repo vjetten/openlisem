@@ -441,7 +441,7 @@ void TWorld::KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
         }
         SpinKW->Drc = Spin;
 
-        if (_Sed->Drc > 0 | SinKW->Drc > 0.0) { //
+        if (_Sed->Drc > 0 | SinKW->Drc > 0.0) {
             if (Qn->Drc >= MIN_FLUX) {
     //        // - simple extrapolation
     //        double totpests = std::max(0.0, PMrs->Drc + (SpinKW->Drc * _dt));
@@ -468,8 +468,7 @@ void TWorld::KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
         } // erosion occurs
         // can move outside ldd loop to parralel section
         // mg = mg sec-1 * sec
-        PMrs->Drc = std::max(0.0, PMrs->Drc - (_Qpsn->Drc * _dt)
-                                      + (SpinKW->Drc * _dt));
+        PMrs->Drc = std::max(0.0, PMrs->Drc - (_Qpsn->Drc * _dt) + (SpinKW->Drc * _dt));
         PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0; // divide by Sed after kin wave
         // 0,001 g
     }// end ldd loop
@@ -598,7 +597,8 @@ double TWorld::ChowSubstance(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
 * @brief Calculate mass exchange by erosion and deposition with soil
 */
 
-void TWorld::PesticideFlowDetachment(double rho) {
+void TWorld::PesticideFlowDetachment(double rho)
+{
     double Emax = ERmaxPest;
     double beta = ERbetaPest;
 

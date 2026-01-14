@@ -634,7 +634,7 @@ void TWorld::HydrologyProcesses()
     }}
 
     if (SwitchErosion) {
-        cell_SplashDetachment();
+        SplashDetachment();
             // if (SwitchSlopeStability)
             //     cell_SlopeStability(r, c);
     }
