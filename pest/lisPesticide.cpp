@@ -156,8 +156,8 @@ void TWorld::PesticideCellDynamics(void)
     if (!SwitchInfiltration)
         return;
 
-    double rho = rhoPest;     //kg m-3
-    double Kd = KdPest;       // -
+    //double rho = rhoPest;     //kg m-3
+   //double Kd = KdPest;       // -
     double Kfilm = KfilmPest; // m sec-1
     double kr = KrPest;       // sec-1
 
@@ -172,9 +172,9 @@ void TWorld::PesticideCellDynamics(void)
        double vol_w {0.0};         // l - volume water in mixing layer
        double mass_s {0.0};        // kg - mass sediment in mixing layer
 
-       // assume the mixing layer is saturated during infiltration or runoff.
+       // assume the mixing layer is saturated during infiltration or runoff. WHY?
        if (InfilMethod == INFIL_SWATRE)
-           Theta_mix->Drc = ThetaPest->Drc; // is nu wortel diep[te, moet minder zijn, bijv eerste 4 lagen?
+           Theta_mix->Drc = ThetaPest->Drc; // is nu wortel diepte, moet minder zijn, fix: zm
        else
            Theta_mix->Drc = Thetaeff->Drc; // was thetas1; why porosity and not actual theta
        //LET OP HIER STOND THETAS1 !!!
@@ -190,22 +190,25 @@ void TWorld::PesticideCellDynamics(void)
        }
 
        // update mass after percolation and infiltration
-       mrw_inf > PMrw->Drc ? mrw_inf = PMrw->Drc : mrw_inf;
-       PMinf->Drc > PMmw->Drc ? PMinf->Drc = PMmw->Drc : PMinf->Drc;
+       mrw_inf = qMin(mrw_inf, PMrw->Drc);
+       PMinf->Drc = qMin(PMinf->Drc, PMmw->Drc);
+       //mrw_inf > PMrw->Drc ? mrw_inf = PMrw->Drc : mrw_inf;
+       //PMinf->Drc > PMmw->Drc ? PMinf->Drc = PMmw->Drc : PMinf->Drc;
        // mg = mg - mg - mg
-       PMmw->Drc = std::max(0.0, PMmw->Drc - PMinf->Drc + mrw_inf);
-
-       PMrw->Drc = std::max(0.0, PMrw->Drc - mrw_inf);
+       PMmw->Drc = qMax(0.0, PMmw->Drc - PMinf->Drc + mrw_inf);
+       PMrw->Drc = qMax(0.0, PMrw->Drc - mrw_inf);
 
        pmwdep->Drc -= mrw_inf;
        // L = m * m * m * [-] * 1000
        vol_w = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
+       // volume water in mixing layer in soil, zm is user defined
+
        // update PCmw before partitioning
        PCmw->Drc = PMmw->Drc / vol_w;
 
        // partitioning between sorbed and dissolved in mixing layer
        // kg = m * m * m * kg m-3
-       mass_s = zm->Drc * DX->Drc * SoilWidthDX->Drc * rho;
+       mass_s = zm->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest;
        // for now the assumption is made that the resulting unit of
        // Kr * (Kd * PCmw->Drc - PCms->Drc) is mg * kg-1 * sec-1
        // this holds if 1L water = 1kg
@@ -215,24 +218,23 @@ void TWorld::PesticideCellDynamics(void)
 
        // calculate equilibrium mass division
        mda_tot = PMmw->Drc + PMms->Drc;
-       eql_diss = mda_tot / (1 + (Kd / vol_w * mass_s));
+       eql_diss = mda_tot / (1 + (KdPest / vol_w * mass_s));
        eql_ads = mda_tot - eql_diss;
        // mda_ex can not be larger than m_diff
        m_diff = eql_ads - PMms->Drc;
        // kinetic sorption (kr > 0)
        if (kr > 0) {
-           mda_ex = kr * (Kd * PCmw->Drc - PCms->Drc) * _dt
-                    * mass_s;
-        mda_ex = std::abs(mda_ex) > std::abs(m_diff) ? m_diff : mda_ex;
+           mda_ex = kr * (KdPest * PCmw->Drc - PCms->Drc) * _dt * mass_s;
+           mda_ex = std::abs(mda_ex) > std::abs(m_diff) ? m_diff : mda_ex;
        } else {
-        // equilibrium sorption (kr input = -1)
-        mda_ex = m_diff;
+           // equilibrium sorption (kr input = -1)
+           mda_ex = m_diff;
        }
 
        //update masses
-       PMmw->Drc = std::max(0.0, PMmw->Drc - mda_ex);
+       PMmw->Drc = qMax(0.0, PMmw->Drc - mda_ex);
        // mg = mg + mg
-       PMms->Drc = std::max(0.0, PMms->Drc + mda_ex);
+       PMms->Drc = qMax(0.0, PMms->Drc + mda_ex);
        // update PCmw before lateral transport
        PCmw->Drc = PMmw->Drc / vol_w;
        PCms->Drc = PMms->Drc / mass_s;
@@ -261,6 +263,7 @@ void TWorld::PesticideCellDynamics(void)
        // over the full surface of the cell. This would overestimate mixing
        // mass transfer. When water height is smaller than 'WH_lim' we assume the
        // surface area for mass transfer decreases.
+// TODO: THE WET AREA IS KNOWN related to roughness! see splash
        if (WH->Drc > 1e-4) {
            PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
            if (WH->Drc < WH_lim && Rainc->Drc < 1e-8) {
@@ -270,22 +273,21 @@ void TWorld::PesticideCellDynamics(void)
        // positive adds to runoff.
        // mg = ((m sec-1 (mg m-3)) m2 * sec
            if (PCmw->Drc > PCrw->Drc) {
-            mwrm_ex = (Kfilm * (PCmw->Drc - PCrw->Drc) * 1000) * A_mix * _dt;
+               mwrm_ex = (Kfilm * (PCmw->Drc - PCrw->Drc) * 1000) * A_mix * _dt;
 
-            double c_eql {0.0};
-            double eql_mw {0.0};
-            // equilibrium check
-            // calculate equilibrium mass division
-            c_eql = (PMmw->Drc + PMrw->Drc) / (vol_w + WaterVolall->Drc*1000);
-            eql_mw = c_eql * vol_w; // mass in mixing layer at equilibrium
-            // mwrm_ex can not be larger than m_diff
-            m_diff = PMmw->Drc - eql_mw;
-            mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
+               double c_eql {0.0};
+               double eql_mw {0.0};
+               // equilibrium check
+               // calculate equilibrium mass division
+               c_eql = (PMmw->Drc + PMrw->Drc) / (vol_w + WaterVolall->Drc*1000);
+               eql_mw = c_eql * vol_w; // mass in mixing layer at equilibrium
+               // mwrm_ex can not be larger than m_diff
+               m_diff = PMmw->Drc - eql_mw;
+               mwrm_ex = std::abs(mwrm_ex) > std::abs(m_diff) ? m_diff : mwrm_ex;
            }
        }
        // mass balance
        mwrm_ex > 0 ? pmwdet->Drc += mwrm_ex : pmwdep->Drc += mwrm_ex;
-       //test_map->Drc = mwrm_ex;
 
        PMmw->Drc = std::max(0.0, PMmw->Drc - mwrm_ex);
        PMrw->Drc = std::max(0.0, PMrw->Drc + mwrm_ex);

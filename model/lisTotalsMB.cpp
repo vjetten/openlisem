@@ -529,31 +529,23 @@ void TWorld::TotalsSediment(void)
 
     }
 
-
-
-
     //=====***** PESTICIDES *****====//
     if (SwitchPest)
     {
         double factor = 1 / (_dx * _dx);
         // from mg/cell to mg/m2
-         #pragma omp parallel for num_threads(userCores)
-         FOR_ROW_COL_MV_L
-         {
-        totalDPlossmap->Drc = pmwdet->Drc + pmwdep->Drc * factor;
-         }}
-
-     if (SwitchErosion)
-     {
         #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L
-        {
-         totalPPlossmap->Drc = pmsdet->Drc + pmsdep->Drc * factor;
+        FOR_ROW_COL_MV_L {
+            totalDPlossmap->Drc = pmwdet->Drc + pmwdep->Drc * factor;
         }}
 
-     }
+        if (SwitchErosion) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                totalPPlossmap->Drc = pmsdet->Drc + pmsdep->Drc * factor;
+            }}
 
-
+        }
     }
 
 }

@@ -1156,8 +1156,9 @@ public:
     void SWOFSedimentSetConcentration(int r, int c, double h, double w);
     void SedimentSetConcentration(cTMap *h, cTMap *SSC_, cTMap *SS_, cTMap *SSD_);
     void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap *v, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentFlowInterpolation(double dt, cTMap * h, cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC, cTMap *_SSD);
-    void SWOFSedimentDetBL(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
+    void SedimentFlowInterpolation(double dt, cTMap * h, cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC, cTMap *_SSD);
+    void SedimentFlowInterpolationNew(double dt, cTMap * h, cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC, cTMap *_SSD);
+    void SedimentDetachmentBL(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
     void SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);
     void correctMassBalance(double sum1, cTMap *M);
