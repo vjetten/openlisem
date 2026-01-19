@@ -89,13 +89,13 @@ void TWorld::setupDisplayMaps()
     copy(*op.outletMap, *PointMap);
 
     if (SwitchRoadsystem) {
-      FOR_ROW_COL_MV_L {
-        if (RoadWidthDX->Drc > 0.2*_dx)
-          op.roadMap->Drc = RoadWidthDX->Drc;
-        else
-          op.roadMap->Drc = 0;
-        //copy(*op.roadMap, *RoadWidthDX);
-      }}
+       copy(*op.roadMap, *RoadWidthDX);
+     //   FOR_ROW_COL_MV_L {
+     //   if (RoadWidthDX->Drc > 0.05*_dx)
+     //     op.roadMap->Drc = RoadWidthDX->Drc;
+     //   else
+     //     op.roadMap->Drc = 0;
+     // }}
     }
     if (SwitchHouses)
         copy(*op.houseMap, *HouseCover);

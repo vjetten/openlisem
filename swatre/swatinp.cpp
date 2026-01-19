@@ -368,7 +368,7 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
             Error(QString("matrix head not increasing in table %1 at h = %2.").arg(fileName).arg(l->hydro[H_COL][i]));
         if (l->hydro[THETA_COL][i+1] <= l->hydro[THETA_COL][i])
             Error(QString("moisture content not increasing in table %1 at theta = %2.").arg(fileName).arg(l->hydro[THETA_COL][i]));
-        if (l->hydro[K_COL][i+1] < l->hydro[K_COL][i])
+        if ((l->hydro[K_COL][i+1] < l->hydro[K_COL][i]) && (l->hydro[K_COL][i+1] > 0 && l->hydro[K_COL][i] > 0))
             Error(QString("Hydraulic conductivity not increasing in table %1 at K = %2.").arg(fileName).arg(l->hydro[K_COL][i]));
     }
 
