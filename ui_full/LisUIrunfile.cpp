@@ -479,8 +479,9 @@ void lisemqt::ParseInputData()
 
     setFloodTab(true);  //TODO: check
 
-    // set vthe workdir to th e parent of the runfile dir
+    // set the workdir to the parent of the runfile dir
     E_WorkDir = QFileInfo(E_runFileList->currentText()).dir().absolutePath();
+
     QDir dir(E_WorkDir);
     if (dir.cdUp())
         E_WorkDir = dir.absolutePath() + "/";
@@ -787,47 +788,64 @@ QString lisemqt::findCommonRoot(QString a, QString b)
     QString root;
     if (!out.isEmpty() && out[0].endsWith(':'))
         root = out[0] + "/" + out.mid(1).join('/');
-    else
+    else if (!out.isEmpty())  // FIX: Check if out is not empty
         root = "/" + out.join('/');
+    else
+        root = "";  // FIX: Return empty string if no common root found
+
+    if (! root.endsWith('/') && !root.isEmpty())  // FIX: Add trailing slash
+        root += '/';
 
     return root;//QDir::toNativeSeparators(root);
 }
 //---------------------------------------------------------------------------
-QString lisemqt::findDir(QString p,bool makeit, bool warn)
+QString lisemqt::findDir(QString p, bool makeit, bool warn)
 {
-    QString path = QDir(p).fromNativeSeparators(p);
-            //p.replace('\\','/');
+    QString path = QDir:: fromNativeSeparators(p);
     // replace windows separators if there are any
 
-    //if the path name is relative path: ../maps/ or ./maps/ or maps/ or maps
+    // if the path name is relative path:  ../maps/ or ./maps/ or maps/ or maps
     // but not "/maps"
-    if (QDir::isRelativePath(path)) {
-        QDir::setCurrent(E_WorkDir);
+    if (QDir:: isRelativePath(path)) {
+        QDir:: setCurrent(E_WorkDir);
         // lisem now runs in workdir
         path = QDir(path).absolutePath() + '/';
     }
 
+    // If path already exists, just return it (solved bug on Linux 2026-0)1
+    if (QDir(path).exists()) {
+        if (! path.endsWith('/'))
+            path = path + '/';
+        //qDebug() << "finddir (exists)" << path;
+        return path;
+    }
+
+    // Path doesn't exist - try to find it using common root
     QString commonRoot = findCommonRoot(path, E_WorkDir);
 
-    // if it still does not exist or a linux path starting with '/'
-    // assume the specified path under the parent of the run file
-    // find the root in path
-    if (!QDir(path).exists() || path.startsWith('/')) {
+    if (! commonRoot.isEmpty() && QDir(commonRoot).exists()) {
         path = commonRoot;
+    } else {
+        // Fallback to work directory
+        path = E_WorkDir;
     }
 
     // if it still does not exist then tough luck
-    if (!QDir(path).exists()) {
+    if (! QDir(path).exists()) {
         if (makeit)
             QDir(path).mkpath(path);
         else {
             if (warn)
-                QMessageBox::warning(this,"openLISEM",QString("The following directory does not exist:\n%1\nUsing the work directory, check your pathnames").arg(path));
-            //path.clear();
+                QMessageBox::warning(this, "openLISEM",
+                                     QString("The following directory does not exist:\n%1\nUsing the work directory, check your pathnames").arg(path));
             path = E_WorkDir;
         }
     }
-qDebug() << "finddir" << path;
+
+    if (! path.endsWith('/'))
+        path = path + '/';
+
+    qDebug() << "finddir" << path;
     return path;
 }
 //---------------------------------------------------------------------------
