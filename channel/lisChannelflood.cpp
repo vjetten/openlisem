@@ -202,6 +202,7 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
                 case SHAPECIRC : chanHandPCirc(r,c); break; // this is always a culvert!
                 case SHAPETRAP : chanHandPTrap(r,c); break;
                 case SHAPETRIA : chanHandPTria(r,c); break;
+                case SHAPEFREE : chanHandPRect(r,c); break;
             }
 
             double dCHh = ChannelWH->Drc-ChannelDepth->Drc;
@@ -279,6 +280,7 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
                 case SHAPECIRC : chanHandPCirc(r,c); break; // this is always a culvert!
                 case SHAPETRAP : chanHandPTrap(r,c); break;
                 case SHAPETRIA : chanHandPTria(r,c); break;
+                case SHAPEFREE : chanHandPRect(r,c); break;
             }
             // update surface water height
             _h->Drc = qMax(0.0, WaterVolall->Drc-MicroStoreVol->Drc) / area_surface;

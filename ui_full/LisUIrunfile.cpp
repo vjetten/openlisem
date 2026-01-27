@@ -827,7 +827,7 @@ QString lisemqt::findDir(QString p,bool makeit, bool warn)
             path = E_WorkDir;
         }
     }
-qDebug() << "finddir" << path;
+//qDebug() << "finddir" << path;
     return path;
 }
 //---------------------------------------------------------------------------
@@ -851,7 +851,7 @@ QString lisemqt::CheckDir(QString p, bool makeit)
             path.clear();
         }
     }
-//qDebug() << "checkdir2" << p << path;
+//qDebug() << "checkdir" << p << path;
     return path;
 }
 //---------------------------------------------------------------------------

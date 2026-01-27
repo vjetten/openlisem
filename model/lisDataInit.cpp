@@ -1137,6 +1137,7 @@ void TWorld::InitChannel(void)
     FOR_ROW_COL_MV_CHL {
         double perim;
         switch (crch_[i_].shape) {
+            case SHAPEFREE :
             case SHAPERECT : ChannelMaxArea->Drc = ChannelWidth->Drc*ChannelDepth->Drc; // or ChannelWidth ?
                 perim = ChannelWidth->Drc*2*ChannelDepth->Drc;
                 break;

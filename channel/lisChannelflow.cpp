@@ -72,6 +72,7 @@ void TWorld::ChannelVelocityandDischarge()
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
         switch (crch_[i_].shape) {
+            case SHAPEFREE :
             case SHAPERECT : ChannelPerimeter->Drc = ChannelWidthO->Drc+2*ChannelWH->Drc;
                 ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelDX->Drc*ChannelWidthO->Drc);
                 // use real perimeter for velocity, not chanHandPRect(r,c,Area);
@@ -190,6 +191,7 @@ void TWorld::ChannelRainandInfil(void)
                     case SHAPECIRC : chanHandPCirc(r,c); break;
                     case SHAPETRAP : chanHandPTrap(r,c); break;
                     case SHAPETRIA : chanHandPTria(r,c); break;
+                    case SHAPEFREE : chanHandPRect(r,c); break;
                 }
                 ChannelInfM3->Drc = ChannelPerimeter->Drc * ChannelKsat->Drc * _dt/3600000.0 * ChannelDX->Drc;
                 // infiltration over entire perimeter !
@@ -324,6 +326,7 @@ void TWorld::ChannelFlow(void)
             case SHAPECIRC : chanHandPCirc(r,c); break; // this is always a culvert!
             case SHAPETRAP : chanHandPTrap(r,c); break;
             case SHAPETRIA : chanHandPTria(r,c); break;
+            case SHAPEFREE : chanHandPRect(r,c); break;
         }
         double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
         ChannelV->Drc = qMin(_CHMaxV, (Area > 1e-12 ? ChannelQn->Drc/Area : 0.0));

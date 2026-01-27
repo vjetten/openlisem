@@ -492,6 +492,7 @@ private slots:
     void worldShow();
     void worldDone(const QString &results);
     void worldDebug(const QString &results);
+    void worldScreenShot();
 
     void on_check2DDiagonalFlow_toggled(bool checked);
 

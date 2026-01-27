@@ -215,6 +215,7 @@ void lisemqt::runmodel()
     connect(W, &TWorld::done, this, &lisemqt::worldDone);
     connect(W, &TWorld::debug, this, &lisemqt::worldDebug);
     connect(W, &TWorld::timedb, this, &lisemqt::worldDebug);
+    connect(W, &TWorld::ScreenShot, this, &lisemqt::worldScreenShot);
     //connections to trigger messages and model stop from the interface
     // e.g. if the world emits done, the worldDone is called to stop the model
 
@@ -246,10 +247,9 @@ void lisemqt::runmodel()
 
     op.timeStartRun = QDateTime().currentDateTime().toString("yyMMdd-hhmm");
     if (op.explanation != "empty" ) {
-        op.timeStartRun = op.explanation;
+        op.timeStartRun = op.explanation; // use the user-output dir string instead of the timestamp
         checkAddDatetime->setChecked(true);
     }
-
 
     if (checkAddDatetime->isChecked()) {
         screenShotDir = E_ResultDir->text() + QString("res"+op.timeStartRun+"/");
@@ -403,6 +403,19 @@ void lisemqt::worldDone(const QString &results)
     // if (op.doBatchmode) {
     //     close();
     // }
+}
+//---------------------------------------------------------------------------
+void lisemqt::worldScreenShot()
+{
+    W->mutex.lock();
+    W->mu_condition.wakeAll();
+    W->mutex.unlock();
+
+    tabWidget->setCurrentIndex(2);
+    tabWidget_out->setCurrentIndex(0);
+    shootSingleScreen(0);
+    tabWidget_out->setCurrentIndex(1);
+    shootSingleScreen(0);
 }
 //---------------------------------------------------------------------------
 // this function is linked to the debug signal emitted from the model world

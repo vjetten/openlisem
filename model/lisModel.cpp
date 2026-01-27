@@ -388,11 +388,8 @@ void TWorld::DoModel()
             if (!noInterface) {
                 emit show(); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
                 mutex.lock();
-                //qDebug() << "Model thread waiting at" << QTime::currentTime();
                 mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
-                //qDebug() << "Model thread resumed at" << QTime::currentTime();
                 mutex.unlock();
-
             }
 
             //saveMBerror2file(false); //saveMBerror
@@ -438,8 +435,13 @@ void TWorld::DoModel()
             emit done("Finished");
         }
 
-        if (op.doBatchmode)
-        {
+        if (op.doBatchmode) {
+            if (!noInterface) {
+                mutex.lock();
+                emit ScreenShot();
+                mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
+                mutex.unlock();
+            }
             // delete all maps
             qDeleteAll(maplistCTMap.begin(),maplistCTMap.end());
             maplistCTMap.clear();
