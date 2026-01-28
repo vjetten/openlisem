@@ -16,6 +16,12 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
 
+260128 - v7.4.8.beta.R5-R7
+- Changed: channel culvert type 5 is underground continuation of the channel, free flow, not cicular
+- Changed: Only channel diameter is changed with calibration culvert, so only type 2
+- Fixed: folder path finding in Windows and Linux, to be chnaged to comething morre stable
+
+
 251207 - v7.4.8.beta.R1-R4
 - Added: show buffers in the map view
 - Added: add surface micro storage in display map list

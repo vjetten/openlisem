@@ -386,7 +386,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>9</number>
+                  <number>8</number>
                  </property>
                  <property name="iconSize">
                   <size>

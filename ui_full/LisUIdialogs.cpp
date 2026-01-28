@@ -811,6 +811,9 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int index)
     groupAdvRichards->setEnabled(true);//index == 3);
     spinSoilLayers->setEnabled(index > 0);
     label_153->setEnabled(index > 0);
+    label_calth->setEnabled(index > 0);
+    E_CalibrateTheta->setEnabled(index > 0);
+    E_CalibratePsi->setEnabled(index == 0);
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_toolButton_version_clicked()
