@@ -110,12 +110,26 @@ int main(int argc, char *argv[])
     op.calhydro.clear();
     op.calflow.clear();
     op.caleros.clear();
-    if (!calhydro.isEmpty())
-        op.calhydro = calhydro.split(";");
-    if (!calflow.isEmpty())
-        op.calflow = calflow.split(";");
-    if (!caleros.isEmpty())
-        op.caleros = caleros.split(";");
+
+
+    if (!calhydro.isEmpty()) {
+        if (!calhydro.contains(";"))
+            syntax = true;
+        else
+            op.calhydro = calhydro.split(";");
+    }
+    if (!calflow.isEmpty()) {
+        if (!calflow.contains(";"))
+            syntax = true;
+        else
+            op.calflow = calflow.split(";");
+    }
+    if (!caleros.isEmpty()) {
+        if (!caleros.contains(";"))
+            syntax = true;
+        else
+            op.caleros = caleros.split(";");
+    }
 
     if (noInterface || syntax) {
         #ifdef Q_OS_WIN
@@ -128,12 +142,12 @@ int main(int argc, char *argv[])
         #endif
 
         QTextStream consoleout(stdout); // text to console
-
+        //<<   "-f = create the result directory it does not exist. \n"
         if (syntax) {
             consoleout << "syntax:\nlisem [-ni] [-f] -r runfile \n"
-                       <<   "-f = create the result directory it does not exist. \n"
                        <<   "-ni = no graphical user interface, uses runfile directly.\n"
                        <<   "-r runfile = Give the full path tot he runfile.\n\n"
+                       <<   "-S <output Dir name> = name of the folder UNDER the result folder, if it does not exist it will be created"
                        <<   "-calH 1;1;1;1;1;1;1 = 7 calibration factors for hydrology, seperated by ;. Look in the interface to see the factors"
                        <<   "-calF 1;1;1;1;1 = 5 calibration factors for flow, seperated by ;. Look in the interface to see the factors"
                        <<   "-calE 1;1;1;1;1 = 5 calibration factors for erosion, seperated by ;. Look in the interface to see the factors";
@@ -160,7 +174,7 @@ int main(int argc, char *argv[])
 
             op.runfilename = runFileName;
             op.doBatchmode = true;
-            op.forceResDir = forceRes;
+            op.forceResDir = true;//forceRes;
 
             //TWorld *W = new TWorld(); // pointer is not deleted so mem leak, declare directly
             TWorld W;

@@ -646,7 +646,7 @@ void TWorld::calcSoilPhysics(cTMap *Ksat, cTMap *lambda, cTMap *thfc, cTMap *thr
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        psi->Drc = qMax(psi->Drc, psiae->Drc);
+        //psi->Drc = qMax(psi->Drc, psiae->Drc); // MC - switch off, this will force to high psi values in case of user defined input.
         psi->Drc *= 0.01*calpsi;
         psiae->Drc *= 0.01;
         Ksat->Drc *= calk;
@@ -1140,6 +1140,7 @@ void TWorld::InitChannel(void)
     FOR_ROW_COL_MV_CHL {
         double perim;
         switch (crch_[i_].shape) {
+            case SHAPEFREE :
             case SHAPERECT : ChannelMaxArea->Drc = ChannelWidth->Drc*ChannelDepth->Drc; // or ChannelWidth ?
                 perim = ChannelWidth->Drc*2*ChannelDepth->Drc;
                 break;

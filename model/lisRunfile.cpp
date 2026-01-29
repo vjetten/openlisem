@@ -55,7 +55,7 @@ QString TWorld::getvaluename(QString vname)
                 QFileInfo info(inputDir + s + QString(".001"));
 
                 if (!info.exists()) {
-                    ErrorString = "Filename not found for map \"<I>"+runnamelist[i].name + "\" - " + info.fileName();
+                    ErrorString = "Filename not found for map \"<I>"+runnamelist[i].name + "\" - " + info.fileName(); //inputDir;
                     throw 1;
                 } else {
                     return inputDir + info.baseName();
@@ -395,12 +395,19 @@ void TWorld::ParseRunfileData(void)
         SwitchEventbased = false;
 
     SwitchResultDatetime = getvalueint("Result datetime") == 1;
-    SwitchOutputTimestamp = SwitchResultDatetime;//getvalueint("Add timestamp") == 1;
+    SwitchOutputTimestamp = SwitchResultDatetime;
 
     if (SwitchResultDatetime) {
         QDir(resultDir).mkpath(QString("res"+op.timeStartRun+"/"));
         resultDir = resultDir + QString("res"+op.timeStartRun+"/");
     }
+
+    // // use user defined result path when running in batchmode
+    // if (op.forceResDir && op.doBatchmode && !op.explanation.isEmpty()) {
+    //     QDir(resultDir).mkpath(QString("res"+op.explanation+"/"));
+    //     resultDir = resultDir + QString("res"+op.explanation+"/");
+    //     op.timeStartRun = op.explanation;
+    // }
 
     InfilMethod = getvalueint("Infil Method");
     if (InfilMethod == INFIL_GREENAMPT2) InfilMethod = INFIL_GREENAMPT;
@@ -427,7 +434,7 @@ void TWorld::ParseRunfileData(void)
             }
         }
 
-        qDebug() <<SwitchChannelInfil<<SwitchChannelBaseflowStationary<<SwitchChannelBaseflowMap;
+        //qDebug() <<SwitchChannelInfil<<SwitchChannelBaseflowStationary<<SwitchChannelBaseflowMap;
     }
 
     if (SwitchGWflow) {
