@@ -6841,7 +6841,7 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string>Culvert diameter </string>
+                         <string>Culvert diameter (of circular culverts only, type 2)</string>
                         </property>
                        </widget>
                       </item>

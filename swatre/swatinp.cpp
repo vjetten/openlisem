@@ -53,7 +53,7 @@ profile node setup:
 #include "lerror.h"
 #include "model.h"
 
-#define LIST_INC	10
+#define LIST_INC	20
 
 #define ROOTMAX 60  // rootzone depth
 
@@ -172,8 +172,6 @@ void TWorld::ReadSwatreInputNew(void)
     }
     sizeProfileList = nrProfileList;
 
-    //qDebug() << "nr profiles" << nrProfileList << checkList.count();
-
     if (nrProfileList == 0)
         Error(QString("SWATRE: no profiles read from %1").arg(SwatreTableName));
 
@@ -181,27 +179,31 @@ void TWorld::ReadSwatreInputNew(void)
     swatreProfileNr.clear();
     for (int i = 0; i < checkList.count(); i++)
         swatreProfileNr << checkList[i].toInt();
-    std::sort(swatreProfileNr.begin(), swatreProfileNr.end());
+   // std::sort(swatreProfileNr.begin(), swatreProfileNr.end());
+    // DO NOT SORT! IT BREAKS THE LINK BETWEEN THIS LIST AND THE MAP
 
     for (int i = 0; i < swatreProfileNr.count()-1; i++)
     {
+       // qDebug() << swatreProfileNr[i];
         if (swatreProfileNr[i] == swatreProfileNr[i+1])
             DEBUG(QString("Warning SWATRE: profile id %1 defined more than once").arg(swatreProfileNr[i+1]));
     }
 
-  //   profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1)); // why realloc instead of malloc?
-    //profileList = (PROFILE **)malloc(sizeof(PROFILE *)*(nrProfileList+1));
     // profile list is a list of pointers to PROFILE
     profileList = new PROFILE*[nrProfileList + 1];
 
     nrProfileList = 0;
+   // qDebug() << swatreProfileDef.count();
     for (int i = zone->nrNodes+1; i < swatreProfileDef.count(); i++) {
         if (swatreProfileDef[i].contains("###")) {
+            // start of a new profilel
             i++;
+        //    qDebug() << swatreProfileDef[i];
             profileList[nrProfileList] = ReadProfileDefinitionNew(i, zone);
             // creates a profile and gives the pointer to profilelist
             // i is the place in the StrinList where a profile starts
             nrProfileList++;
+         //   qDebug() << "nrProfileList" << nrProfileList;
         }
     }
 
@@ -230,20 +232,18 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
     QString tableName;
     double endHor = 0, endHorPrev = 0;
     PROFILE *p;
-    HORIZON *h;
+    HORIZON *hor;
     bool ok;
 
     p = new PROFILE;
 
     p->profileId = swatreProfileDef[pos].toInt(&ok, 10);
-    //qDebug() <<  pos << p->profileId;
+
     if (!ok)
         Error(QString("SWATRE: read error: error in profile id %1 definition").arg(p->profileId));
 
-   // qDebug() << pos << "readprofdefnew" << p->profileId;
-
     p->horizon = (const HORIZON **)malloc(sizeof(HORIZON *) * z->nrNodes); // array of pointers to horizon
-    p->zone = z; // also pointer to zone ninfo
+    p->zone = z; // also pointer to zone info
     for (int i = 0; i < z->nrNodes; i++)
         p->KsatCal << 1.0; // create ksat cal 1,2,3 for each horizon, initialize to 1.0
 
@@ -259,7 +259,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
 
         endHorPrev = endHor;
         pos++; // move one line to read the horizon depth endhor in cm
-        hornr++;
+        hornr++; // increase horizon number
 
         endHor = swatreProfileDef[pos].toDouble(&ok);
         if (!ok)
@@ -268,18 +268,20 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
             Error(QString("SWATRE: Error in profile definition nr %1, depth horizons does not increase").arg(p->profileId));
 
         // read the horizon and the luts for each node
-        h = ReadHorizonNew(SwatreTableDir, tableName);
+        hor = ReadHorizonNew(SwatreTableDir, tableName);
 
         // copy horizon info to all nodes of this horizon
         // add the proper calibration factor (ksat1 cal for hor 1, ksat2cal for hor 2 adn the rest hor 3)
-        while (i < z->nrNodes && z->endComp[i] <= endHor ) {
-            p->horizon[i] = h;
+        while (i < z->nrNodes && z->endComp[i] <= endHor) {
+
+            p->horizon[i] = hor;
 
             if (hornr == 1) p->KsatCal.replace(i, ksatCalibration);
             if (hornr == 2)  p->KsatCal.replace(i, ksat2Calibration);
             if (hornr > 2)  p->KsatCal.replace(i, ksat3Calibration);
 
-            //qDebug() << i << hornr <<  p->horizon[i]->name << z->endComp[i] << z->z[i] << z->disnod[i] << z->dz[i];
+         //   qDebug() << i << p->profileId << p->horizon[i]->name << z->endComp[i] << endHor;
+                        //hornr << p->profileId << p->horizon[i]->name << z->endComp[i] << z->z[i] << z->disnod[i] << z->dz[i];
             i++;
         }
 
@@ -287,6 +289,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
         //     Error(QString("SWATRE: Compartment does not end on depth '%1' (found in profile nr %2 for horizon %3)")
         //           .arg(endHor).arg(p->profileId).arg(tableName));
         //? what does this error mean exactly, horizons do not have to end exacvtly on nodes
+
     }
 
     return(p);
@@ -297,6 +300,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
 // copy horizon info to all nodes of this horizon
 HORIZON * TWorld::ReadHorizonNew(QString tablePath, QString tableName)
 {
+    //qDebug() << "ReadHorizonNew" << nrHorizonList;
     // look if it's already loaded
     for(int i = 0; i < nrHorizonList; i++)
         if (tableName == horizonList[i]->name)

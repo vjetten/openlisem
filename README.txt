@@ -17,16 +17,18 @@ NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, 
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
 
 260128 - v7.4.8.beta.R5-R7
-- Changed: channel culvert type 5 is underground continuation of the channel, free flow, not cicular
+- TODO: time of hydrographs on screen and in files is 1 day wrong!
+- Changed: channel culvert type 5 is underground continuation of the channel with width and depth, not cicular, free flow kin wave
 - Changed: Only channel diameter is changed with calibration culvert, so only type 2
-- Fixed: folder path finding in Windows and Linux, to be chnaged to comething morre stable
-
+- Changed: slightly better diagonal flow (if chosen)
+  BUG-FIX: Swatre profile list was sometimes wrong
+- BUG-FIX: folder path finding in Windows and Linux, to be changed to comething more stable
 
 251207 - v7.4.8.beta.R1-R4
 - Added: show buffers in the map view
 - Added: add surface micro storage in display map list
 - Added: 3-layer Green and Ampt infiltration and redistribution: EXPERIMENTAL
-- Changed: outpoints and outlets arre always visible in map display, also without channel
+- Changed: outpoints and outlets are always visible in map display, also without channel
 - BUG FIX: culverts were not drawn correctly
 - BUG FIX: channels were drawn on screen even if not selected
 - BUG FIX: redistribution infiltrated water with  Green and Ampt, and is only active after infiltration stops

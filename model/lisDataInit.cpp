@@ -1069,11 +1069,11 @@ void TWorld::InitChannel(void)
                 break;
             }
             if (pcr::isMV(ChannelN->Drc) || ChannelN->Drc <= 0) {
-                re = r; ce = c; S = "Channel Manning";;
+                re = r; ce = c; S = "Channel Manning";
                 break;
             }
             if (pcr::isMV(ChannelSide->Drc) || ChannelSide->Drc < 0) {
-                re = r; ce = c; S = "Channel Side angle";;
+                re = r; ce = c; S = "Channel Side angle";
                 break;
             }
         }

@@ -30,14 +30,6 @@
 //---------------------------------------------------------------------------
 void TWorld::InfilSwatre()
 {
-    // int numThreads = omp_get_max_threads();
-    // QVector<NODES> threadBuffers;
-    // threadBuffers.reserve(numThreads);
-
-    // for (int i = 0; i < numThreads; ++i) {
-    //     threadBuffers.append(NODES(MAX_NODES+3));
-    // }
-
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         InfilVol->Drc = 0;
@@ -80,7 +72,6 @@ void TWorld::InfilSwatre()
 
             SwatreSoilModel->pixel[i_].wh = WHorig;    // WH is in m, convert to cm
             SwatreSoilModel->pixel[i_].tiledrain = 0;
-
             ComputeForPixel(i_, SwatreSoilModel);//, local);
 
             double WHN = SwatreSoilModel->pixel[i_].wh;
@@ -194,8 +185,13 @@ void TWorld::InfilSwatre()
                 } else {
 
                     //   qDebug() << r << c << i << SwatreSoilModel->pixel[i_].profile->horizon[i]->name;
-                    tma->Drc = 10*86400/24.0*FindValue(0, SwatreSoilModel->pixel[i_].profile->horizon[i], H_COL, K_COL);
-                    tmb->Drc = FindValue(0, SwatreSoilModel->pixel[i_].profile->horizon[i], H_COL, THETA_COL);
+                    tma->Drc = 10*86400/24.0*FindValue(0.0, SwatreSoilModel->pixel[i_].profile->horizon[i], H_COL, K_COL);
+                    // tables are in cm/sec * 86400 sec/day/34 = hour * 10 = mm/h
+                    tmb->Drc = FindValue(0.0, SwatreSoilModel->pixel[i_].profile->horizon[i], H_COL, THETA_COL);
+
+                //   if(ProfileID->Drc == 100)
+                //        qDebug() << i << tma->Drc << tmb->Drc << SwatreSoilModel->pixel[i_].profile->profileId << SwatreSoilModel->pixel[i_].profile->horizon[i]->name;
+                  //  qDebug() << i << ProfileID->Drc << SwatreSoilModel->pixel[i_].profile->profileId << SwatreSoilModel->pixel[i_].profile->horizon[i]->name;
                 }
             }}
             report(*tma, ksname);

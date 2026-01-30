@@ -197,6 +197,9 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
         h[j] = pixel->h[j];
         dz[j] = p->zone->dz[j];
         disZ[j] = p->zone->disnod[j];
+        // if (p->profileId == 100) {
+        //     qDebug() << p->horizon[j]->name;
+        // }
     }
 
     if (SwitchIncludeET && WH <= 0) {
@@ -221,17 +224,12 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
             // moisture content from H
         }
 
-        // do calibration after dens and OM calculations
         for (int j = 0; j < nN; j++) {
              k[j] *= p->KsatCal[j];
         }
 
         // average K for 1st to n-1 node, top node is done below
         // original swatre artithmetric mean, Vauclin nin Belmans says geometric mean!
-        // for(int j = 1; j < nN; j++) {
-        //     kavg[j] = (k[j]+k[j-1])/2.0;
-        //     //kavg[j] = sqrt(k[j]*k[j-1]);
-        // }
         switch (KavgType) {
             case 0: for(int j = 1; j < nN; j++) { kavg[j] = Aavg(k[j],k[j-1]);} break;
             case 1: for(int j = 1; j < nN; j++) { kavg[j] = Savg(k[j],k[j-1]);} break;
@@ -253,7 +251,6 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
 
         kavg[0] = sqrt(Ksat * k[0]);
         kavg[0] *= (1.0-impfrac);
-
         // adjust kavg[0] for roads and houses, impermeable fraction
         // max possible always geometric mean
         // geometric avg of ksat and k[0] => is used for max possible
