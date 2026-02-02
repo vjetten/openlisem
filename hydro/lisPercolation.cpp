@@ -300,10 +300,11 @@ void TWorld::cell_Redistribution1(int r, int c)
     // not more than fits into SoilDep1-Lw
     Percolation = qMin(store, Percolation);
 
-    moisture = (pore-thetar)*Lw_ - Percolation;
+    moisture = qMax(0.0, Lw_ * (pore - thetar) - Percolation);
     //  now we have the correct Percolation, adjust theta and Lw_
-    Lw_ = qMax(0.0,moisture/(pore-thetar));
-    theta = qMin(pore, theta + Percolation/(SoilDep1-Lw_));
+    Lw_ = moisture/(pore-thetar);
+    // new Lw_
+    theta = qBound(thetar, theta + Percolation/(SoilDep1-Lw_), pore);
 
     Thetaeff->Drc = theta;
     Lw->Drc = Lw_;
