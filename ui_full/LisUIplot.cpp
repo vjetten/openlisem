@@ -306,18 +306,29 @@ void lisemqt::initPlot()
 void lisemqt::showPlot()
 {
     if (!checkEventBased->isChecked())
-        HPlot->setAxisScale(axisXB, op.BeginTime/1440, op.EndTime/1440);
+        HPlot->setAxisScale(axisXB, op.BeginTime/1440 + 1, op.EndTime/1440 + 1);
     else
         HPlot->setAxisScale(axisXB, op.BeginTime, op.EndTime);
+
 
     int index = OutletIndices.indexOf(this->outletpoint);
     QGraph->setSamples(op.Time,*op.OutletQ[index]);
     PGraph->setSamples(op.Time,op.Pmm);
 
-    if (flowboundary)
+    if (flowboundary && index == 0) {
         QbGraph->setSamples(op.Time,op.Qbound);
-    if(tileanddrains)
+        QbGraph->attach(HPlot);
+    } else {
+        QbGraph->detach();
+    }
+    if(tileanddrains && index == 0) {
         QtileGraph->setSamples(op.Time,op.Qtile);
+        QtileGraph->attach(HPlot);
+    } else {
+//        QtileGraph->setSamples(op.Time,op.Qtile);
+        QtileGraph->detach();
+    }
+
     // if (checkWaterUserIn->isChecked())
     //     QbGraph->setSamples(op.Time,*op.Wavein[index]);
 
@@ -475,9 +486,9 @@ void lisemqt::showOutputData()
     // peak time
     label_QPfrac->setText(format.arg(QString::number((op.RainTotmm > 0 ? qMax(0.0,op.Qtotmm-op.BaseFlowTotmm)/op.RainTotmm*100 : 0),'f',dig)));
     if (checkEventBased->isChecked())
-        label_ppeaktime->setText(format.arg(QString::number(op.RainpeakTime-op.BeginTime,'f',2)));
+        label_ppeaktime->setText(format.arg(QString::number(op.RainpeakTime-op.BeginTime,'f',4)));
     else
-        label_ppeaktime->setText(format.arg(QString::number(op.RainpeakTime,'f',2)));
+        label_ppeaktime->setText(format.arg(QString::number(op.RainpeakTime/86400+1,'f',4)));
     // mass balance
     label_MB->setText(QString::number(op.MB,'e',dig));
     if (op.MB > 0)
@@ -496,7 +507,10 @@ void lisemqt::showOutputData()
         label_qpeaksub->setText(format.arg(QString::number(vv,'f',3)));
     }
 
-    label_qpeaktime->setText(format.arg(QString::number(op.OutletQpeaktime.at(j),'f',2)));
+ //   if (checkEventBased->isChecked())
+        label_qpeaktime->setText(format.arg(QString::number(op.OutletQpeaktime.at(j),'f',4)));
+ //   else
+   //     label_qpeaktime->setText(format.arg(QString::number(op.OutletQpeaktime.at(j),'f',2)));
     if (op.OutletQtot.at(j) < 1e6)
         label_qtotm3sub->setText(format.arg(QString::number(op.OutletQtot.at(j),'f',2)));
     else

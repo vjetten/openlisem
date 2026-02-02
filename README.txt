@@ -4,7 +4,7 @@ The model can be downloaded from:
 https://github.com/vjetten/openlisem/releases/tag/lisem_bin
 
 ============
-Date: 251207
+Date: 260201
 ============
 
 This software is under the copyright model GPLv3 (distributed with the model) and subject to additional disclaimers.
@@ -16,13 +16,15 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
 
-260128 - v7.4.8.beta.R5-R7
+260201 - v7.4.8.beta.R5-R7
 - TODO: time of hydrographs on screen and in files is 1 day wrong!
 - Changed: channel culvert type 5 is underground continuation of the channel with width and depth, not cicular, free flow kin wave
 - Changed: Only channel diameter is changed with calibration culvert, so only type 2
 - Changed: slightly better diagonal flow (if chosen)
-  BUG-FIX: Swatre profile list was sometimes wrong
+- Changed: pressure before culvert not considered anymore due to mass balance errors
+- BUG-FIX: Swatre profile list was sometimes wrong
 - BUG-FIX: folder path finding in Windows and Linux, to be changed to comething more stable
+- BUG-FIX: Display and reporting of discharge graphs showed one day less (calculations were good)
 
 251207 - v7.4.8.beta.R1-R4
 - Added: show buffers in the map view

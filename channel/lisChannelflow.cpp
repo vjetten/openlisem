@@ -295,9 +295,8 @@ void TWorld::ChannelFlow(void)
         int rr = r+dy[ldd];
         if (!pcr::isMV(LDDChannel->Drcr) && ChannelCulvert->Drcr > 0 && ChannelCulvert->Drcr < 5) {
             ChannelQn->Drc = qMin(ChannelQn->Drc, tma->Drcr);
-            //ChannelQn->Drc = qMin(ChannelQn->Drc, ChannelMaxQ->Drcr);
 
-            // adjust discharge and max discharge when pressure of water is more than diameter
+            /* adjust discharge and max discharge when pressure of water is more than diameter
             if (extrapressure && ChannelWH->Drc > ChannelDiameter->Drcr) {
                 double dh = ChannelWH->Drc-ChannelDiameter->Drcr;
                 double f = 8*GRAV*ChannelN->Drcr*ChannelN->Drcr/pow(ChannelDiameter->Drcr/2.0,0.3333);
@@ -311,6 +310,7 @@ void TWorld::ChannelFlow(void)
                 tmb->Drcr = ChannelMaxArea->Drcr/std::pow(tma->Drcr, 0.6);
                 // adjust maxalpha for downstream cells
             }
+            */
         }
 
     }

@@ -211,10 +211,14 @@ void TWorld::DoModel()
             op.BeginTime = BeginTime/60; // for graph drawing in min
             op.EndTime = EndTime/60;
         } else {
-            BeginTime = (btd*1440+btm)*60; //for running in sec
-            EndTime = (etd*1440+etm)*60;   //in sec
+            BeginTime = ((btd)*1440+btm)*60; //for running in sec
+            EndTime = ((etd)*1440+etm)*60;   //in sec
             op.BeginTime = BeginTime/60;// for graph drawing in min
             op.EndTime = EndTime/60;
+        }
+        if (EndTime < BeginTime + 60) {
+            ErrorString = "End time must be > Begin time + 1 minute.";
+            throw 1;
         }
 
         //get all maps

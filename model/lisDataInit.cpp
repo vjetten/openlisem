@@ -976,7 +976,6 @@ void TWorld::InitChannel(void)
     ChannelWH = NewMap(0);
     ChannelWidthB = NewMap(0);
     ChannelPerimeter = NewMap(0);
-    //ChannelCos = NewMap(0);
 
     ChannelAlpha = NewMap(0);//
     ChannelDX = NewMap(0); //!!!!!!!!!!!!!!!! dit moet DX zijn anders massabalans fout? of nu niet meer?
@@ -1087,8 +1086,6 @@ void TWorld::InitChannel(void)
         ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
        // ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc)); // same as DX else mass balance problems
 
-        //ChannelCos->Drc = cos(atan(ChannelSide->Drc));
-
         ChannelWidthO->Drc = ChannelWidth->Drc;
 
         if (ChannelWidth->Drc > 0.95* _dx) {
@@ -1122,6 +1119,11 @@ void TWorld::InitChannel(void)
                 crch_[i_].culvert = true;
                 crch_[i_].shape = (int) ChannelCulvert->Drc;
                 ChannelDiameter->Drc = CulvertCalibration*ChannelDiameter->Drc;
+
+                if (ChannelCulvert->Drc == 2) {
+                    ChannelN->Drc = 0.013;
+                }
+
             } else {
                 ChannelN->Drc *= ChnCalibration;
             }
@@ -1156,7 +1158,7 @@ void TWorld::InitChannel(void)
 
         // used for confined flow
         if (ChannelCulvert->Drc > 0 && ChannelCulvert->Drc < 5) {
-            ChannelMaxQ->Drc = std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
+            ChannelMaxQ->Drc = 0.1;//std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
             ChannelMaxAlpha->Drc = ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, 0.6);
         } else {
             ChannelMaxQ->Drc = 0;
