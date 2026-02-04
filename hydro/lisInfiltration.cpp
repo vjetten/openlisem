@@ -395,7 +395,7 @@ double TWorld::IncreaseInfiltrationDepthNew2(double fact_in, int r, int c)
             fact_out = fact_in; // everything fitted
     }
 
-    Lw->Drc = qBound(0, Lnew, SoilDep2); // should not be necessary, may hide errors!
+    Lw->Drc = qBound(0.0, Lnew, SoilDep2); // should not be necessary, may hide errors!
     return qBound(0.0, fact_out, fact_in);
 }
 //---------------------------------------------------------------------------
