@@ -321,18 +321,18 @@ void lisemqt::stopmodel()
 //---------------------------------------------------------------------------
 void lisemqt::worldShow()
 {
-    if (checkET->isChecked()) {
-        progressBar->setMaximum(100);
-        int p = (int) (op.time-op.BeginTime)/(op.EndTime-op.BeginTime) * 100;
+  //  if (checkET->isChecked()) {
+        progressBar->setMaximum(10000);
+        int p = (int) (op.time-op.BeginTime)/(op.EndTime-op.BeginTime) * 10000;
         //(op.time/(op.EndTime-op.BeginTime) * op.maxstep);
         progressBar->setValue(p);
-    } else {
-        progressBar->setMaximum(op.maxstep);
-        progressBar->setValue(op.runstep);
-    }
+ //   } else {
+  //      progressBar->setMaximum(op.maxstep);
+  //      progressBar->setValue(op.runstep);
+  //  }
 
-    progressBar->setMaximum((int) op.maxtime*10);
-    progressBar->setValue((int) op.t*10);
+  //  progressBar->setMaximum((int) op.maxtime*10);
+  //  progressBar->setValue((int) op.t*10);
 
     startPlots(); // called once using bool startplot
 
