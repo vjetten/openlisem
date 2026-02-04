@@ -373,16 +373,16 @@ void TWorld::cell_Soilwater(long i_)
             }
             */
             switch (KavgType) {
-                case 0: for(int j = 1; j < nNodes; j++){ K1[j] = Aavg(K[j],K[j-1]);} break;
-                case 1: for(int j = 1; j < nNodes; j++){ K1[j] = Savg(K[j],K[j-1]);} break;
-                case 2: for(int j = 1; j < nNodes; j++){ K1[j] = Havg(K[j],K[j-1],s.dz[j],s.dz[j-1]); }break;
-                case 3: for(int j = 1; j < nNodes; j++){ K1[j] = Mavg(K[j],K[j-1]);} break;
+                case 0: for(int j = 1; j < nNodes; j++){ K1[j] = ARITHavg(K[j],K[j-1]);} break;
+                case 1: for(int j = 1; j < nNodes; j++){ K1[j] = SQRTavg(K[j],K[j-1]);} break;
+                case 2: for(int j = 1; j < nNodes; j++){ K1[j] = HARMavg(K[j],K[j-1],s.dz[j],s.dz[j-1]); }break;
+                case 3: for(int j = 1; j < nNodes; j++){ K1[j] = MINavg(K[j],K[j-1]);} break;
             }
             switch (KavgType) {
-                case 0: for(int j = 0; j < nNodes-1; j++){ K2[j] = Aavg(K[j],K[j+1]);} break;
-                case 1: for(int j = 0; j < nNodes-1; j++){ K2[j] = Savg(K[j],K[j+1]);} break;
-                case 2: for(int j = 0; j < nNodes-1; j++){ K2[j] = Havg(K[j],K[j+1],s.dz[j],s.dz[j+1]); }break;
-                case 3: for(int j = 0; j < nNodes-1; j++){ K2[j] = Mavg(K[j],K[j+1]);} break;
+                case 0: for(int j = 0; j < nNodes-1; j++){ K2[j] = ARITHavg(K[j],K[j+1]);} break;
+                case 1: for(int j = 0; j < nNodes-1; j++){ K2[j] = SQRTavg(K[j],K[j+1]);} break;
+                case 2: for(int j = 0; j < nNodes-1; j++){ K2[j] = HARMavg(K[j],K[j+1],s.dz[j],s.dz[j+1]); }break;
+                case 3: for(int j = 0; j < nNodes-1; j++){ K2[j] = MINavg(K[j],K[j+1]);} break;
             }
             K1[0] = K2[0];
             K2[nN] = K1[nN];
@@ -685,10 +685,10 @@ void TWorld::cell_SWATRECalc(long i_)
            //     qDebug()<<j << Hnew[j] << C1[j];
 
             switch (KavgType) {
-                case 0: kavg[j] = Aavg(K[j],K[j-1]);break;
-                case 1: kavg[j] = Savg(K[j],K[j-1]);break;
-                case 2: kavg[j] = Havg(K[j],K[j-1],1.0,1.0);break;
-                case 3: kavg[j] = Mavg(K[j],K[j-1]);break;
+                case 0: kavg[j] = ARITHavg(K[j],K[j-1]);break;
+                case 1: kavg[j] = SQRTavg(K[j],K[j-1]);break;
+                case 2: kavg[j] = HARMavg(K[j],K[j-1],1.0,1.0);break;
+                case 3: kavg[j] = MINavg(K[j],K[j-1]);break;
             }
         }
         kavg[0] = kavg[1];
@@ -709,7 +709,7 @@ void TWorld::cell_SWATRECalc(long i_)
             qbot = kavg[nN]*(Hnew[nN]-Hnew[nN-1])/s.dz[nN] - kavg[nN];
 
         // 1st check flux aginst max Darcy flux
-        double qmax = -Savg(s.Ks[0],K[0])*((Hnew[0]-WH1) / s.dz[0] + 1);
+        double qmax = -SQRTavg(s.Ks[0],K[0])*((Hnew[0]-WH1) / s.dz[0] + 1);
         //qtop = -kavg[0] * ((h[0] - pond)/DistNode(p)[0] + 1);
 
         s.ponded = false;

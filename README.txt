@@ -16,28 +16,25 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
 
-260201 - v7.4.8.beta.R5-R7
-- TODO: time of hydrographs on screen and in files is 1 day wrong!
-- Changed: channel culvert type 5 is underground continuation of the channel with width and depth, not cicular, free flow kin wave
-- Changed: Only channel diameter is changed with calibration culvert, so only type 2
-- Changed: slightly better diagonal flow (if chosen)
-- Changed: pressure before culvert not considered anymore due to mass balance errors
-- BUG-FIX: Swatre profile list was sometimes wrong
-- BUG-FIX: folder path finding in Windows and Linux, to be changed to comething more stable
-- BUG-FIX: Display and reporting of discharge graphs showed one day less (calculations were good)
-
-251207 - v7.4.8.beta.R1-R4
+260201 - v7.4.9
 - Added: show buffers in the map view
 - Added: add surface micro storage in display map list
 - Added: 3-layer Green and Ampt infiltration and redistribution: EXPERIMENTAL
+- Changed: Green and Ampt infil average Ksat was calculated with harmonic mean, now optional in advanced settings and default on arithmetric average
+- Changed: Peak time of rainfall and discharge now in mmin since start of run
+- Changed: channel culvert type 5 is underground continuation of the channel with width and depth, not cicular, free flow kin wave
+- Changed: Only circular channel diameter is changed with calibration factor culvert, so only type 2
+- Changed: slightly better diagonal flow (optional)
+- Changed: pressure before culvert not considered anymore due to mass balance errors
 - Changed: outpoints and outlets are always visible in map display, also without channel
-- BUG FIX: culverts were not drawn correctly
+- BUG-FIX: folder path finding in Windows and Linux, to be changed to something more stable
+- BUG-FIX: Display and reporting of discharge graphs showed one day less (calculations were good)
+- BUG FIX: culverts were not drawn correctly on GUI map
 - BUG FIX: channels were drawn on screen even if not selected
 - BUG FIX: redistribution infiltrated water with  Green and Ampt, and is only active after infiltration stops
 - BUG FIX: restored depth wetting front map in interface display
 - BUG FIX: SWATRE user defined minimum timestep condition was not added inside the time loop in SWATRE
-- BUG FIX: since version R3, check all read, write, append and readwrite for text files
-- BUG FIX: since version R3, exclude channels causes crash
+- BUG-FIX: SWATRE profile list was sometimes wrong
 
 251104 - v7.4.7.beta.R9
 - BUG-FIX: skipping steps for writing maps did not work properly.

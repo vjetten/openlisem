@@ -180,7 +180,7 @@ void TWorld::reportToUI(void)
     op.RainTotmm = RainTotmm;// + SnowTotmm;
     op.ETaTotmm = ETaTotmm;
     op.GWlevel = GWlevel;
-    op.RainpeakTime = RainpeakTime;
+    op.RainpeakTime = RainpeakTime/60 - op.BeginTime;
     op.Rainpeak = Rainpeak;
 
     op.InfilTotmm = InfilTotmm;
@@ -288,10 +288,10 @@ void TWorld::reportToUI(void)
         double q = op.OutletQ.at(j)->last();  //at(op.OutletQ.at(j)->length()-1); // this point last in list
         if(p < q) {
             op.OutletQpeak.replace(j,q);
-            if (SwitchEventbased)
+     //       if (SwitchEventbased)
                 op.OutletQpeaktime.replace(j,time/60-op.BeginTime);
-            else
-                op.OutletQpeaktime.replace(j,time/86400+1);
+       //     else
+         //       op.OutletQpeaktime.replace(j,time/86400+1);
            // qDebug() << op.OutletQpeaktime << p << q;
         }
     }
@@ -497,12 +497,10 @@ void TWorld::ReportTotalsNew(void)
         out << "\"Average soil loss (kg/ha):\"," << (op.SoilLossTot*1000.0)/(op.CatchmentArea/10000.0)<< "\n";
         out << "\n";
     }
-    for(int i = 1; i< op.OutletQpeak.length();i++)
-    {
+    for(int i = 1; i< op.OutletQpeak.length();i++) {
         out << "\"Peak discharge for outlet " + QString::number(i) +" (l/s):\"," << op.OutletQpeak.at(i)<< "\n";
     }
-    for(int i = 1; i< op.OutletQpeak.length();i++)
-    {
+    for(int i = 1; i< op.OutletQpeak.length();i++) {
         out << "\"Peak time discharge for outlet " + QString::number(i) +" (min):\"," << op.OutletQpeaktime.at(i)<< "\n";
     }
     fp.flush();

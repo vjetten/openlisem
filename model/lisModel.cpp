@@ -535,7 +535,7 @@ void TWorld::HydrologyProcesses()
 
         if (SwitchIncludeET)
             cell_ETa(r,c);
-        // interception and soil surface evap, also ET from Green and Ampt, not SWATRE
+        // interception and soil surface evap, also ET from Green and Ampt, *not* SWATRE, to be merged later
 
         // floododmain is used if kinwave + overflow to separate WH runoiff from 2D hmx flood
         if (FloodDomain->Drc > 0) {
@@ -562,25 +562,34 @@ void TWorld::HydrologyProcesses()
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 cell_InfilMethods(r, c);
+                // infiltrate wetting front in 1, 2 or 3 layers
 
                 if (SwitchThreeLayer) {
-                    cell_RedistributionUnsat(r, c);
-                    cell_Redistribution3(r, c);
+                    cell_RedistributionUnsat(r, c); // unsat flow between layers
+                    // do not do redistribution if infil process is still active??
+                    // avoiunds fluctuations
+                    if (WH->Drc < he_ca)
+                        cell_Redistribution3(r, c); // flow from wetting front into underlying unsat layer
                 } else {
                     if (SwitchTwoLayer) {
                         cell_RedistributionUnsat(r, c);
-                        cell_Redistribution2(r, c);
+                        // do not do redistribution if infil process is still active??
+                        // avoinds fluctuations around soildept1
+                        if (WH->Drc < he_ca)
+                            cell_Redistribution2(r, c);
                         cell_Tiledrain2(r,c);
                         //cell_Channelinfow2(r, c);
                     } else {
-                        cell_Redistribution1(r, c);
+                        // do not do redistribution if infil process is still active??
+                        if (WH->Drc < he_ca)
+                            cell_Redistribution1(r, c);
                         cell_Tiledrain1(r,c);
                         //cell_Channelinfow1(r, c);
                     }
                 }
 
                 if (!SwitchImpermeable)
-                    Perc->Drc = cell_Percolation(r, c, 1.0);
+                    Perc->Drc = cell_Percolation(r, c, 1.0); // factor 1.0 is relate to groundwater
            }}
         }
 

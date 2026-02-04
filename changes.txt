@@ -6,12 +6,13 @@ see Readme.txt for a complete list
 - Added: show buffers in the map view
 - Added: add surface micro storage in display map list
 - Added: 3-layer Green and Ampt infiltration and redistribution: EXPERIMENTAL
+- Changed: Peak time of rainfall and discharge now in mmin since start of run
 - Changed: channel culvert type 5 is underground continuation of the channel with width and depth, not cicular, free flow kin wave
-- Changed: Only channel diameter is changed with calibration culvert, so only type 2
+- Changed: Only circular channel diameter is changed with calibration factor culvert, so only type 2
 - Changed: slightly better diagonal flow (optional)
 - Changed: pressure before culvert not considered anymore due to mass balance errors
 - Changed: outpoints and outlets are always visible in map display, also without channel
-- BUG-FIX: folder path finding in Windows and Linux, to be changed to comething more stable
+- BUG-FIX: folder path finding in Windows and Linux, to be changed to something more stable
 - BUG-FIX: Display and reporting of discharge graphs showed one day less (calculations were good)
 - BUG FIX: culverts were not drawn correctly on GUI map
 - BUG FIX: channels were drawn on screen even if not selected

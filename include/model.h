@@ -76,11 +76,10 @@
 #define SHAPETRIA 4
 #define SHAPEFREE 5
 
-#define Aavg(a,b)  (0.5*(a+b))
-#define Savg(a,b)  sqrt(a*b)
-#define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
-#define Mavg(a,b)  qMin(a,b)
-#define SQR(a) ((a)*(a))
+#define ARITHavg(a,b)  (0.5*(a+b))
+#define SQRTavg(a,b)  sqrt(a*b)
+#define HARMavg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
+#define MINavg(a,b)  qMin(a,b)
 
 #define DEBUG(s) emit debug(QString(s))
 #define TIMEDB(s) emit timedb(QString(s))

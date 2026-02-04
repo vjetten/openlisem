@@ -409,7 +409,7 @@ void TWorld::InitMeteoInput(void)
     RainTot = 0;
     RainTotmm = 0;
     Rainpeak = 0;
-    RainpeakTime = 0;
+    RainpeakTime = BeginTime;
     RainstartTime = -1;
     rainStarted = false;
     ETStarted = false;
@@ -1158,7 +1158,7 @@ void TWorld::InitChannel(void)
 
         // used for confined flow
         if (ChannelCulvert->Drc > 0 && ChannelCulvert->Drc < 5) {
-            ChannelMaxQ->Drc = 0.1;//std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
+            ChannelMaxQ->Drc = 0.1*CulvertCalibration;//std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
             ChannelMaxAlpha->Drc = ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, 0.6);
         } else {
             ChannelMaxQ->Drc = 0;

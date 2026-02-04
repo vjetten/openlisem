@@ -57,7 +57,7 @@ void TWorld::TotalsHydro(void)
         rainfall = RainAvgmm/catchmentAreaFlatMM;
         RainTot += ptot*_dx*_dx; // in m3
 
-        oldrainpeak  = Rainpeak;
+        oldrainpeak = Rainpeak;
         Rainpeak = qMax(Rainpeak, rainfall);
         if (oldrainpeak  < Rainpeak)
             RainpeakTime = time;
