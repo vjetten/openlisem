@@ -54,7 +54,7 @@ void TWorld::GroundwaterFlow(void)
     // add recharge and subtract deep percolation
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        Perc->Drc = cell_Percolation(r, c, GW_recharge); // in m
+        Perc->Drc = cell_PercolationMulti(r, c, GW_recharge); // in m
         GWrecharge->Drc = Perc->Drc * CHAdjDX->Drc; // m3
 
         GWdeep->Drc = GW_deep * CHAdjDX->Drc;

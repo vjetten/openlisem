@@ -589,7 +589,8 @@ void TWorld::HydrologyProcesses()
                 }
 
                 if (!SwitchImpermeable)
-                    Perc->Drc = cell_Percolation(r, c, 1.0); // factor 1.0 is relate to groundwater
+                    Perc->Drc = cell_PercolationMulti(r, c, 1.0);
+                // factor 1.0 is relate to groundwater recharge
            }}
         }
 
