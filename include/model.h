@@ -938,7 +938,6 @@ public:
     // => TODO: SOAP infil model, swatre works better for now
     void cell_Soilwater(long i_); //SOAP
     double calcSinkterm(long i_,  double WH, double *S);
-    void calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S);
    // void calcSinktermSWATRE(PIXEL_INFO *pixel, QVector<double> h, QVector<double> S);
     double getDayLength(double time);
     void VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
@@ -950,38 +949,49 @@ public:
     // => vertical hydro processes, OMP
     void GridCell();
     void HydrologyProcesses();
+
+    // surface
     void cell_Interception(int r, int c);
     void cell_SurfaceStorage(int r, int c);
-    void cell_InfilMethods(int r, int c);
-    void cell_SWATRECalc(long i_); // not used, too complex
-    double cell_Percolation(int r, int c, double factor);
-    double cell_PercolationMulti(int r, int c, double factor);
-    void cell_Redistribution0(int r, int c);
-    void cell_Redistribution1(int r, int c);
-    void cell_Redistribution2(int r, int c);
-    void cell_Redistribution3(int r, int c);
-    void adjustLWTheta(int r, int c, double SoilDepAbove, cTMap *Ksat, cTMap *pore, cTMap *theta, cTMap *thetar, cTMap *FC, cTMap *SoilDep, cTMap *lambda);
-    void cell_RedistributionUnsat(int r, int c);
-    void cell_Tiledrain1(int r, int c);
-    void cell_Tiledrain2(int r, int c);
-    void cell_Channelinfow1(int r, int c);
-    void cell_Channelinfow2(int r, int c);
-    void cell_SplashDetachment();
-    void cell_FlowDetachment();
-    void cell_FlowDetachmentContinuous();
+    void InfilEffectiveKsat();
+    void InfilDynamicCrusting();
+
+    // evap
     void cell_ETa(int r, int c);
     double getETaFactor();
     double ETafactor;
     double ETafactorTot;
     double longdt;
-    void InfilEffectiveKsat();
-    void InfilDynamicCrusting();
+    void calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S);
+
+    // infil, soil water
     void InfilSwatre();
     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
     double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);
     double IncreaseInfiltrationDepthNew2(double fact_, int r, int c);
     double IncreaseInfiltrationDepthNew3(double fact_, int r, int c);
+    void cell_InfilMethods(int r, int c);
+    double cell_PercolationMulti(int r, int c, double factor);
+    void adjustLWTheta(int r, int c, double SoilDepAbove, cTMap *Ksat, cTMap *pore, cTMap *theta, cTMap *thetar, cTMap *FC, cTMap *SoilDep, cTMap *lambda);
+    void cell_Redistribution1(int r, int c);
+    void cell_Redistribution2(int r, int c);
+    void cell_Redistribution3(int r, int c);
+    void cell_RedistributionUnsat(int r, int c);
+    void cell_Tiledrain1(int r, int c);
+    void cell_Tiledrain2(int r, int c);
     void avgTheta();
+
+    // erosion per cell
+    void cell_SplashDetachment();
+    void cell_FlowDetachment();
+    void cell_FlowDetachmentContinuous(); //not used, experimental
+
+    // not used:
+    void cell_SWATRECalc(long i_); // not used, too complex
+    double cell_Percolation(int r, int c, double factor);  //not used
+    void cell_Channelinfow1(int r, int c); // not used
+    void cell_Channelinfow2(int r, int c); // not used
+
     // <= vertical processes
 
     // => 1D and 2D overlandflow

@@ -565,26 +565,37 @@ void TWorld::HydrologyProcesses()
                 // infiltrate wetting front in 1, 2 or 3 layers
 
                 if (SwitchThreeLayer) {
-                    cell_RedistributionUnsat(r, c); // unsat flow between layers
-                    // do not do redistribution if infil process is still active??
-                    // avoiunds fluctuations
-                    if (WH->Drc < he_ca)
-                        cell_Redistribution3(r, c); // flow from wetting front into underlying unsat layer
+                    cell_RedistributionUnsat(r, c);
+                    // unsat flow between layers 1 and 2
+                    cell_Redistribution3(r, c);
+                    // flow from wetting front into underlying unsat layer
+                    // adjusts wetting front Lw and theta underneath
+                    // only if Lw is progressed a minimum of 10 cm in a layer to avoid flutuations
+
+                    // assumed no tiledrain as deep as layer 3!
                 } else {
                     if (SwitchTwoLayer) {
                         cell_RedistributionUnsat(r, c);
-                        // do not do redistribution if infil process is still active??
-                        // avoinds fluctuations around soildept1
-                        if (WH->Drc < he_ca)
-                            cell_Redistribution2(r, c);
+                        // unsat flow between layers 1 and 2, and 2 and 3
+                        cell_Redistribution2(r, c);
+                        // flow from wetting front into underlying unsat layer
+                        // adjusts wetting front Lw and theta underneath
+                        // only if Lw is progressed a minimum of 10 cm in a layer to avoid flutuations
                         cell_Tiledrain2(r,c);
+                        // water into tiles if present in layer 2
+
                         //cell_Channelinfow2(r, c);
+                        // side inflow in channel cells not used
                     } else {
-                        // do not do redistribution if infil process is still active??
-                        if (WH->Drc < he_ca)
-                            cell_Redistribution1(r, c);
+                        cell_Redistribution1(r, c);
+                        // flow from wetting front into underlying unsat layer
+                        // adjusts wetting front Lw and theta underneath
+                        // only if Lw is progressed a minimum of 10 cm in a layer to avoid flutuations
                         cell_Tiledrain1(r,c);
+                        // water into tiles if present in layer 1
+
                         //cell_Channelinfow1(r, c);
+                        // side inflow in channel cells not used
                     }
                 }
 
@@ -611,6 +622,7 @@ void TWorld::HydrologyProcesses()
             // if (SwitchSlopeStability)
             //     cell_SlopeStability(r, c);
     }
+
     //MoistureContent();
     // double soiltot2 = SoilWaterMass();
     // if (InfilMethod != INFIL_SOAP)
