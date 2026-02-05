@@ -218,7 +218,7 @@ void TWorld::cell_Redistribution1(int r, int c)
 
     double Lwmin = qMin(0.1,SoilDepth1->Drc/10);
     // only redistribute if the Lw is advanced a bit into the layer to avoid spurious fluctuations
-    if (Lw_ > Lwmin ) {
+    if (Lw->Drc > Lwmin ) {
 
         adjustLWTheta(r, c, 0.0, Ksateff, Poreeff, Thetaeff, ThetaR1, ThetaFC1, SoilDepth1, lambda1);
         // function calculates how much water flows from wetting zone to underlying unsat zone and adjusts Lw and Theta
