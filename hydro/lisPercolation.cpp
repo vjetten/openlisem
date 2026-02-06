@@ -817,7 +817,7 @@ double TWorld::cell_Percolation(int r, int c, double factor)
             Lw->Drc = Lw_;
             return(Percolation);
         }
-    }
+    }    */
     return(0);
-    */
+
 }

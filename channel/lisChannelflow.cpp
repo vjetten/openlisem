@@ -86,6 +86,9 @@ void TWorld::ChannelVelocityandDischarge()
         ChannelV->Drc = qMin(_CHMaxV,std::pow(Radius, 2.0/3.0)*qSqrt(ChannelGrad->Drc)/ChannelN->Drc);
         ChannelQ->Drc = ChannelV->Drc * Area;
         //ChannelAlpha->Drc = ChannelQ->Drc/std::pow(Area, 0.6);
+        // if (crch_[i_].shape == SHAPECIRC) {
+        //     ChannelBeta->Drc = ChannelQ->Drc > 1e-6 ? qSqrt(Area)/qSqrt(ChannelQ->Drc) : 0.6;
+        // }
         ChannelAlpha->Drc = pow(ChannelN->Drc/qSqrt(ChannelGrad->Drc) * pow(ChannelPerimeter->Drc, 2.0/3.0),0.6);  // no difference
 
     }}
@@ -233,6 +236,8 @@ void TWorld::ChannelRainandInfil(void)
     }
 }
 //---------------------------------------------------------------------------
+// NOTE for shapes: https://www.hec.usace.army.mil/confluence/hmsdocs/hmstrm/transform/kinematic-wave-transform-model
+// in these eq, alpha is 1/alpha in lisem, beta = 1/m
 void TWorld::ChannelFlow(void)
 {
     int dy[10] = {0,1,1,1,0,0,0,-1,-1,-1};

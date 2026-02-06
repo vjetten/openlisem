@@ -4,7 +4,7 @@ The model can be downloaded from:
 https://github.com/vjetten/openlisem/releases/tag/lisem_bin
 
 ============
-Date: 260201
+Date: 260205
 ============
 
 This software is under the copyright model GPLv3 (distributed with the model) and subject to additional disclaimers.
@@ -16,14 +16,14 @@ NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
 
-260201 - v7.4.9
+260205 - v7.4.9
 - Added: show buffers in the map view
 - Added: add surface micro storage in display map list
-- Added: 3-layer Green and Ampt infiltration and redistribution: EXPERIMENTAL
-- Changed: Green and Ampt infil average Ksat was calculated with harmonic mean, now optional in advanced settings and default on arithmetric average
-- Changed: Peak time of rainfall and discharge now in mmin since start of run
-- Changed: channel culvert type 5 is underground continuation of the channel with width and depth, not cicular, free flow kin wave
-- Changed: Only circular channel diameter is changed with calibration factor culvert, so only type 2
+- Added: 3-layer Green and Ampt infiltration and redistribution (not tested!)
+- Added: user defined culvert max discharge in m3/s (chanmaxq.map)
+- Changed: Peak time of rainfall and discharge now in min since start of the run, in all output
+- Changed: channel culvert type 5 is an underground channel with width and depth (not cicular), free flow kin wave, but no contact to the surface..
+- Changed: The calibration factor for culvert size only affects, culvert type 2
 - Changed: slightly better diagonal flow (optional)
 - Changed: pressure before culvert not considered anymore due to mass balance errors
 - Changed: outpoints and outlets are always visible in map display, also without channel

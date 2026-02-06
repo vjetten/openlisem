@@ -978,6 +978,7 @@ void TWorld::InitChannel(void)
     ChannelPerimeter = NewMap(0);
 
     ChannelAlpha = NewMap(0);//
+    //ChannelBeta = NewMap(0.6);//
     ChannelDX = NewMap(0); //!!!!!!!!!!!!!!!! dit moet DX zijn anders massabalans fout? of nu niet meer?
     ChannelInfilVol = NewMap(0);
 
@@ -1105,7 +1106,7 @@ void TWorld::InitChannel(void)
     }}
 
     // Culverts and channel shapes
-    ChannelMaxQ = NewMap(0);
+    ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
     ChannelMaxAlpha = NewMap(0);
     ChannelMaxArea = NewMap(0);
     if (SwitchCulverts) {
@@ -1120,9 +1121,10 @@ void TWorld::InitChannel(void)
                 crch_[i_].shape = (int) ChannelCulvert->Drc;
                 ChannelDiameter->Drc = CulvertCalibration*ChannelDiameter->Drc;
 
-                if (ChannelCulvert->Drc == 2) {
-                    ChannelN->Drc = 0.013;
-                }
+                // if (ChannelCulvert->Drc == 2) {
+                //     ChannelN->Drc = 0.013;
+                // }
+                // user responsibility
 
             } else {
                 ChannelN->Drc *= ChnCalibration;
@@ -1158,12 +1160,11 @@ void TWorld::InitChannel(void)
 
         // used for confined flow
         if (ChannelCulvert->Drc > 0 && ChannelCulvert->Drc < 5) {
-            ChannelMaxQ->Drc = 0.1*CulvertCalibration;//std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
-            ChannelMaxAlpha->Drc = ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, 0.6);
-        } else {
-            ChannelMaxQ->Drc = 0;
-            ChannelMaxAlpha->Drc= 0;
+            if (ChannelMaxQ->Drc == 0)
+                ChannelMaxQ->Drc = std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
         }
+        double beta = ChannelMaxQ->Drc > 0 ? qSqrt(ChannelMaxArea->Drc)/qSqrt(ChannelMaxQ->Drc) : 0.6;
+        ChannelMaxAlpha->Drc = ChannelMaxQ->Drc > 0 ? ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, beta) : 0.0;
     }}
 
     // infiltration
