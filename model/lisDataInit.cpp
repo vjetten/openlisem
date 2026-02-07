@@ -1163,8 +1163,8 @@ void TWorld::InitChannel(void)
             if (ChannelMaxQ->Drc == 0)
                 ChannelMaxQ->Drc = std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
         }
-        double beta = ChannelMaxQ->Drc > 0 ? qSqrt(ChannelMaxArea->Drc)/qSqrt(ChannelMaxQ->Drc) : 0.6;
-        ChannelMaxAlpha->Drc = ChannelMaxQ->Drc > 0 ? ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, beta) : 0.0;
+
+        ChannelMaxAlpha->Drc = ChannelMaxQ->Drc > 0 ? ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, 0.6) : 0.0;
     }}
 
     // infiltration
