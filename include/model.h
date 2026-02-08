@@ -68,7 +68,7 @@
 #define EPSILON 1e-10
 
 #define BETArect 0.6
-#define BETAcirc 0.6
+#define BETAcirc 0.8
 
 #define SHAPERECT 1
 #define SHAPECIRC 2
