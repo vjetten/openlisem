@@ -1140,20 +1140,25 @@ void TWorld::InitChannel(void)
 
     FOR_ROW_COL_MV_CHL {
         double perim;
+        double beta = BETArect;
         switch (crch_[i_].shape) {
             case SHAPEFREE :
             case SHAPERECT : ChannelMaxArea->Drc = ChannelWidth->Drc*ChannelDepth->Drc; // or ChannelWidth ?
                 perim = ChannelWidth->Drc*2*ChannelDepth->Drc;
+                beta = 1.0/(1.0+2.0/3.0*ChannelWidth->Drc/perim);
                 break;
             case SHAPECIRC : ChannelMaxArea->Drc = M_PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;//pi r^2
                 perim = M_PI*ChannelDiameter->Drc;
+                beta = BETAcirc;
            //     qDebug() << r << c << perim;
                 break;
             case SHAPETRAP : ChannelMaxArea->Drc = 0.5*(ChannelWidthB->Drc + ChannelWidth->Drc)*ChannelDepth->Drc;
                 perim = ChannelWidthB->Drc+2*ChannelDepth->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+                beta = BETAtrap;
                 break;
             case SHAPETRIA : ChannelMaxArea->Drc = 0.5*ChannelWidth->Drc*ChannelDepth->Drc;
                 perim = 2*ChannelDepth->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+                beta = BETAtria;
                 break;
             //SHAPEFREE is simply covered free flow, so it is a culvert but not confined
         }
@@ -1164,7 +1169,7 @@ void TWorld::InitChannel(void)
                 ChannelMaxQ->Drc = std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
         }
 
-        ChannelMaxAlpha->Drc = ChannelMaxQ->Drc > 0 ? ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, 0.6) : 0.0;
+        ChannelMaxAlpha->Drc = ChannelMaxQ->Drc > 0 ? ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, beta) : 0.0;
     }}
 
     // infiltration

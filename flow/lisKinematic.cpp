@@ -142,7 +142,7 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
  * @return new water discharge
  *
  */
-double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT, double deltaX, double Qm, double Am)
+double TWorld::IterateToQnew(double Qin, double Qold, double alpha, double beta, double deltaT, double deltaX, double Qm, double Am)
 {
     double  ab_pQ, deltaTX, C;  //auxillary vars
     int   count;
@@ -150,8 +150,6 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     double fQkx = 1.0; //function
     double dfQkx;  //derivative
     const double _epsilon = 1e-12;
-    const double beta = 0.6;
-    //double q = 0; //sink term, not used
 
     //NOTE Qm is maximum Q in pipes/culverts, Am is max Alpha with max Q, values are -1 if not used
 
@@ -221,7 +219,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
         }
         QinKW->Drc = Qin;
 
-        _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
+        _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, BETArect, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
         int ldd = fabs(_crlinked_.at(i_).ldd); // negative is a culvert
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
@@ -393,7 +391,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
             itercount = 0;
             //double f = ((int) _LDD->data[rowNr][colNr] % 2 == 1) ? 1.414214 : 1.0;
             _Qn->data[rowNr][colNr] =
-                    IterateToQnew(Qin, _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr],
+                    IterateToQnew(Qin, _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], BETArect, _dt, _DX->data[rowNr][colNr],
                                   _Qmax->data[rowNr][colNr], _Amax->data[rowNr][colNr] );
 
             int ldd = static_cast <int>(_LDD->data[rowNr][colNr]);
