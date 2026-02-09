@@ -471,6 +471,7 @@ public:
         SwitchFlowBarriers,
         SwitchBuffers,
         SwitchCulverts,
+        SwitchConstantBeta,
         SwitchLitter,
 
         // output

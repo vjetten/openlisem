@@ -1040,8 +1040,7 @@ void lisemqt::resetTabInfiltration()
 void lisemqt::resetTabChannel()
 {
     checkChannelCulverts->setChecked(false);
-    //checkChannelInfil->setChecked(false);
-    //checkStationaryBaseflow->setChecked(false);
+    checkChannelConstantBeta->setChecked(true);
     E_BaseflowMethod->setCurrentIndex(0);
 
     E_CalibrateChTor->setValue(1.0);

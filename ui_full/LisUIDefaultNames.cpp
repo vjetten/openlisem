@@ -453,6 +453,8 @@ void lisemqt::defaultRunFile()
     // namelist[i++].name = QString("Stationary baseflow as map");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel culverts");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Channel beta constant");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include GW flow");
     namelist[i].value = QString("0");

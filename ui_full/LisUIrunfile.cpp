@@ -259,6 +259,7 @@ void lisemqt::ParseInputData()
       //  if (p1.compare("Include stationary baseflow")==0)    checkStationaryBaseflow->setChecked(check);
         //if (p1.compare("Stationary baseflow as map")==0)     checkStationaryBaseflowMap->setChecked(check);
         if (p1.compare("Include channel culverts")==0)       checkChannelCulverts->setChecked(check);
+        if (p1.compare("Channel beta constant")==0)          checkChannelConstantBeta->setChecked(check);
         if (p1.compare("Include channel inflow")==0)         checkDischargeUser->setChecked(check);
         if (p1.compare("Include water height inflow")==0)    checkWaterUserIn->setChecked(check);
         if (p1.compare("Include GW flow")==0)                checkGWflow->setChecked(check);
@@ -997,6 +998,7 @@ void lisemqt::updateModelData()
      //   if (p1.compare("Include stationary baseflow")==0)    namelist[j].value.setNum((int)checkStationaryBaseflow->isChecked());
       //  if (p1.compare("Stationary baseflow as map")==0)     namelist[j].value.setNum((int)checkStationaryBaseflowMap->isChecked());
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
+        if (p1.compare("Channel beta constant")==0)          namelist[j].value.setNum((int)checkChannelConstantBeta->isChecked());
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkDischargeUser->isChecked());
         if (p1.compare("Include water height inflow")==0)    namelist[j].value.setNum((int)checkWaterUserIn->isChecked());
 

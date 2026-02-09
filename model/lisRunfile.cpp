@@ -272,6 +272,7 @@ void TWorld::ParseRunfileData(void)
       //  if (p1.compare("Stationary baseflow as map")==0)        SwitchChannelBaseflowMap  = iii == 1;
 
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
+        if (p1.compare("Channel beta constant")==0)             SwitchConstantBeta  = iii == 1;
         if (p1.compare("Include channel inflow")==0)            SwitchDischargeUser  = iii == 1;
         if (p1.compare("Include water height inflow")==0)       SwitchWaveUser  = iii == 1;
         if (p1.compare("Include GW flow")==0)                   SwitchGWflow  = iii == 1;

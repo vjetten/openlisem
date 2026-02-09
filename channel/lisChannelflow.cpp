@@ -77,7 +77,8 @@ void TWorld::ChannelVelocityandDischarge()
             case SHAPERECT : ChannelPerimeter->Drc = ChannelWidthO->Drc+2*ChannelWH->Drc;
                 // use real perimeter for velocity, not chanHandPRect(r,c,Area);
                 ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelDX->Drc*ChannelWidthO->Drc);
-                beta = 1.0/(1.0+2.0/3.0*ChannelWidthO->Drc/ChannelPerimeter->Drc);
+                if (!SwitchConstantBeta)
+                    beta = 1.0/(1.0+2.0/3.0*ChannelWidthO->Drc/ChannelPerimeter->Drc);
                 break;
             case SHAPECIRC : beta = BETAcirc; chanHandPCirc(r,c); break; // this is always a culvert!
             case SHAPETRAP : beta = BETAtrap; chanHandPTrap(r,c); break;
@@ -87,10 +88,6 @@ void TWorld::ChannelVelocityandDischarge()
         double Radius = (ChannelPerimeter->Drc > 1e-6 ? Area/ChannelPerimeter->Drc : 0);
         ChannelV->Drc = qMin(_CHMaxV,std::pow(Radius, 2.0/3.0)*qSqrt(ChannelGrad->Drc)/ChannelN->Drc);
         ChannelQ->Drc = ChannelV->Drc * Area;
-        //ChannelAlpha->Drc = ChannelQ->Drc/std::pow(Area, 0.6);
-        // if (crch_[i_].shape == SHAPECIRC) {
-        //     ChannelBeta->Drc = ChannelQ->Drc > 1e-6 ? qSqrt(Area)/qSqrt(ChannelQ->Drc) : 0.6;
-        // }
         ChannelAlpha->Drc = pow(ChannelN->Drc/qSqrt(ChannelGrad->Drc) * pow(ChannelPerimeter->Drc, 2.0/3.0),beta);  // no difference
 
     }}
@@ -293,7 +290,7 @@ void TWorld::ChannelFlow(void)
         double beta = BETArect;
         switch ((int)ChannelCulvert->Drc) {
             case SHAPEFREE :
-            case SHAPERECT : beta = 1.0/(1.0+2.0/3.0*ChannelWidth->Drc/ChannelPerimeter->Drc);
+            case SHAPERECT : beta = SwitchConstantBeta ? BETArect : beta = 1.0/(1.0+2.0/3.0*ChannelWidth->Drc/ChannelPerimeter->Drc);
             case SHAPECIRC : beta = BETAcirc; break;
             case SHAPETRAP : beta = BETAtrap; break;
             case SHAPETRIA : beta = BETAtria; break;
