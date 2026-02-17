@@ -1148,7 +1148,7 @@ void lisemqt::resetTabAdvanced()
     //checkErosionInsideLoop->setChecked(true);
     //checkKinWaveChannel->setChecked(false);
     //E_ChannelKinWaveDt->setValue(10.0);
-    nrUserCores->setValue(0);
+    nrUserCores->setValue(qFloor(omp_get_max_threads()/2));
     checkChanMaxVelocity->setChecked(true);
     checkChannel2DflowConnect->setChecked(false);
 }
