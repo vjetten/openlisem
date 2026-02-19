@@ -483,11 +483,10 @@ void TWorld::ClearComboMaps()
 void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList<double> ColorMap, QList<QString> Colors,
                          bool log,bool symcol, double scale, double step)
 {
-    op.ComboLists.append(listn);
+    op.ComboLists.append(listn); // 0 = water, 1 = erosion
     op.ComboMaps.append(map);
-    // copy pointer or make a map and copy content
-    //op.ComboMapsSafe.append(new cTMap());
-    //op.ComboMapsSafe.at(op.ComboMapsSafe.length()-1)->MakeMap(LDD,0.0);
+    // copy pointer DANGEROUS, the map can be chnaged while displaying
+
 
     op.ComboColorMap.append(ColorMap);
     op.ComboColors.append(Colors);

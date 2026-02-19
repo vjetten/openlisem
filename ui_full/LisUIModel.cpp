@@ -354,8 +354,7 @@ void lisemqt::worldShow()
     startplot = false; //if not set to false all the above are done eahc time
 
     showMap(); // show map with selected data
-    // the op structure uses POINTERS to maps. These maps are being used in the thread loop
-    // so the action must be locked by mutex, to ensure only one trhead can access the data
+    // the op structure uses POINTERS to maps. so that is dangerous
 
     if (doShootScreens)
         shootMultipleScreens();

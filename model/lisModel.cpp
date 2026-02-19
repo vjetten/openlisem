@@ -390,7 +390,10 @@ void TWorld::DoModel()
             // because showing is done outside the Thread in the GUI, a mutex.lock() is needed
             // mu_condition gives a wakeAll() signal at the end of the display in showWorld()
             if (!noInterface) {
-                emit show(); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
+                emit show();
+                //not LOCKING is potentially dangerous, but locking is slow
+                // the data to be displayed is a pointer to the data being chnaged by the model
+
                 // mutex.lock();
                 // mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
                 // mutex.unlock();
