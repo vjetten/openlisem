@@ -391,9 +391,9 @@ void TWorld::DoModel()
             // mu_condition gives a wakeAll() signal at the end of the display in showWorld()
             if (!noInterface) {
                 emit show(); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
-                mutex.lock();
-                mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
-                mutex.unlock();
+                // mutex.lock();
+                // mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
+                // mutex.unlock();
             }
 
             //saveMBerror2file(false); //saveMBerror

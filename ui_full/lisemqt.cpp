@@ -601,13 +601,13 @@ void lisemqt::SetToolBar()
 
     showAllAct = new QAction(QIcon(":/2X/noscreen.png"), "&no output to screen", this);
     showAllAct->setCheckable(true);
-    connect(showAllAct, SIGNAL(triggered()), this, SLOT(setOutputScreen()));
-    toolBar->addAction(showAllAct);
+  //  connect(showAllAct, SIGNAL(triggered()), this, SLOT(setOutputScreen()));
+  //  toolBar->addAction(showAllAct);
 
     showInfoAct = new QAction(QIcon(":/2X/noinfo.png"), "&no info under cursor", this);
     showInfoAct->setCheckable(true);
-    connect(showInfoAct, SIGNAL(triggered(bool)), this, SLOT(setOutputInfo(bool)));
-    toolBar->addAction(showInfoAct);
+ //   connect(showInfoAct, SIGNAL(triggered(bool)), this, SLOT(setOutputInfo(bool)));
+ //   toolBar->addAction(showInfoAct);
 
     toolBar->addSeparator();
 

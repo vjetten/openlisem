@@ -321,56 +321,51 @@ void lisemqt::stopmodel()
 //---------------------------------------------------------------------------
 void lisemqt::worldShow()
 {
-  //  if (checkET->isChecked()) {
-        progressBar->setMaximum(10000);
-        int p = (int) (op.time-op.BeginTime)/(op.EndTime-op.BeginTime) * 10000;
-        //(op.time/(op.EndTime-op.BeginTime) * op.maxstep);
-        progressBar->setValue(p);
- //   } else {
-  //      progressBar->setMaximum(op.maxstep);
-  //      progressBar->setValue(op.runstep);
-  //  }
+    progressBar->setMaximum(50000);
+    int p = qRound((op.time-op.BeginTime)/(op.EndTime-op.BeginTime) * 50000);
+    //(op.time/(op.EndTime-op.BeginTime) * op.maxstep);
+    progressBar->setValue(p);
 
-  //  progressBar->setMaximum((int) op.maxtime*10);
-  //  progressBar->setValue((int) op.t*10);
+    startPlots(); //once
 
-    startPlots(); // called once using bool startplot
+    showOutputData(); // show output data, labels
 
-    showOutputData(); // show output data of totals as minimumfeedback
+    // noOutput reacts to screen button, no update display of graphs and maps.
+    // OVERKILL now set to true all the time.
+   // if (!W->noOutput) {
+    showPlot(); // show main plot for point X
 
-    if (!W->noOutput) {
-        showPlot(); // show main plot for point X
+    showBaseMap(); // show shaded relief base map, only once, set startplot to false
 
-        showBaseMap(); // show shaded relief base map, only once, set startplot to false
+    getOutletMap();
 
-        getOutletMap();
+    initChannelVectorandOutlet(); // make channel vectors once
 
-        initChannelVectorandOutlet(); // make channel vectors once
+    showRoadMap(); // show road map
 
-        showRoadMap(); // show road map
+    showHouseMap(); // show building structures map
 
-        showHouseMap(); // show building structures map
+    showHardSurfaceMap(); // show parking lots etc
 
-        showHardSurfaceMap(); // show parking lots etc
+    showBufferMap(); // show building structures map
 
-        showBufferMap(); // show building structures map
+    showImageMap();
 
-        showImageMap();
+    startplot = false; //if not set to false all the above are done eahc time
 
-        startplot = false; //if not set to false all the above are done eahc time
+    showMap(); // show map with selected data
+    // the op structure uses POINTERS to maps. These maps are being used in the thread loop
+    // so the action must be locked by mutex, to ensure only one trhead can access the data
 
-        showMap(); // show map with selected data
-        // the op structure uses POINTERS to maps. These maps are being used in the thread loop
-        // so the action must be locked by mutex, to ensure only one trhead can access the data
-
-        if (doShootScreens)
-            shootMultipleScreens();
-    }
+    if (doShootScreens)
+        shootMultipleScreens();
+    //}
 
     //qDebug() << "GUI thread waking up model thread at" << QTime::currentTime();
-    W->mutex.lock();
-    W->mu_condition.wakeAll();
-    W->mutex.unlock();
+    // not necessary:
+    // W->mutex.lock();
+    // W->mu_condition.wakeAll();
+    // W->mutex.unlock();
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldDone(const QString &results)
