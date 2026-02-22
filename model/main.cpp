@@ -180,9 +180,9 @@ int main(int argc, char *argv[])
             TWorld W;
 
             // deal with different digit symbols dot or comma
-            W.loc = QLocale::system(); // current locale
-            W.loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
-            QLocale::setDefault(W.loc);
+            // W.loc = QLocale::system(); // current locale
+            // W.loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
+            // QLocale::setDefault(W.loc);
 
             W.stopRequested = false;
             W.waitRequested = false;

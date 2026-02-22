@@ -361,10 +361,9 @@ void lisemqt::worldShow()
     //}
 
     //qDebug() << "GUI thread waking up model thread at" << QTime::currentTime();
-    // not necessary:
-    // W->mutex.lock();
-    // W->mu_condition.wakeAll();
-    // W->mutex.unlock();
+    W->mutex.lock();
+    W->mu_condition.wakeAll();
+    W->mutex.unlock();
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldDone(const QString &results)

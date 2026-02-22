@@ -81,25 +81,7 @@ void TWorld::GetInputData(void)
 
 }
 //---------------------------------------------------------------------------
-//     SmaxCalibration = getvaluedouble("Smax calibration");
-//     RRCalibration = getvaluedouble("RR calibration");
-//     ksatCalibration = getvaluedouble("Ksat calibration");
-//     ksat2Calibration = getvaluedouble("Ksat2 calibration");
-//     ksat3Calibration = getvaluedouble("Ksat3 calibration");
-//     thetaCalibration = getvaluedouble("Theta calibration");
-//     psiCalibration = getvaluedouble("Psi calibration");
-
-//     nCalibration = getvaluedouble("N calibration");
-//     ChnCalibration = getvaluedouble("Culvert size calibration");
-//     ChKsatCalibration = getvaluedouble("Channel Ksat calibration");
-//     WaveCalibration = getvaluedouble("Boundary water level calibration");
-//     CulvertCalibration = getvaluedouble("Culvert size calibration");
-
-//     ASCalibration = getvaluedouble("Aggregate stability calibration");
-//     COHCalibration = getvaluedouble("Cohesion calibration");
-//     gsizeCalibrationD50 = getvaluedouble("Grain Size calibration D50");
-//     gsizeCalibrationD90 = getvaluedouble("Grain Size calibration D90");
-//     COHCHCalibration = getvaluedouble("Cohesion Channel calibration");
+// these should be in lisurun! not sure why not
 void TWorld::InitParameters(void)
 {
     PBiasCorrection = getvaluedouble("Rainfall Bias Correction");
@@ -1119,7 +1101,7 @@ void TWorld::InitChannel(void)
             if (ChannelCulvert->Drc > 0) {
                 crch_[i_].culvert = true;
                 crch_[i_].shape = (int) ChannelCulvert->Drc;
-                ChannelDiameter->Drc = CulvertCalibration*ChannelDiameter->Drc;
+                //ChannelDiameter->Drc = CulvertCalibration*ChannelDiameter->Drc;
 
                 // if (ChannelCulvert->Drc == 2) {
                 //     ChannelN->Drc = 0.013;
@@ -1167,6 +1149,8 @@ void TWorld::InitChannel(void)
         if (ChannelCulvert->Drc > 0 && ChannelCulvert->Drc < 5) {
             if (ChannelMaxQ->Drc == 0)
                 ChannelMaxQ->Drc = std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
+
+            ChannelMaxQ->Drc *= CulvertCalibration;
         }
 
         ChannelMaxAlpha->Drc = ChannelMaxQ->Drc > 0 ? ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, beta) : 0.0;

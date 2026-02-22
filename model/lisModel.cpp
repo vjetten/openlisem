@@ -394,9 +394,9 @@ void TWorld::DoModel()
                 //not LOCKING is potentially dangerous, but locking is slow
                 // the data to be displayed is a pointer to the data being chnaged by the model
 
-                // mutex.lock();
-                // mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
-                // mutex.unlock();
+                mutex.lock();
+                mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
+                mutex.unlock();
             }
 
             //saveMBerror2file(false); //saveMBerror

@@ -185,7 +185,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>5</number>
+                  <number>8</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -6607,7 +6607,7 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string>Culvert diameter (of circular culverts only, type 2)</string>
+                         <string>Culvert max dicharge (of circular culverts only, type 2)</string>
                         </property>
                        </widget>
                       </item>
