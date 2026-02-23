@@ -1132,7 +1132,6 @@ void TWorld::InitChannel(void)
             case SHAPECIRC : ChannelMaxArea->Drc = M_PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;//pi r^2
                 perim = M_PI*ChannelDiameter->Drc;
                 beta = BETAcirc;
-           //     qDebug() << r << c << perim;
                 break;
             case SHAPETRAP : ChannelMaxArea->Drc = 0.5*(ChannelWidthB->Drc + ChannelWidth->Drc)*ChannelDepth->Drc;
                 perim = ChannelWidthB->Drc+2*ChannelDepth->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
@@ -1145,12 +1144,38 @@ void TWorld::InitChannel(void)
             //SHAPEFREE is simply covered free flow, so it is a culvert but not confined
         }
 
-        // used for confined flow
+        // culverts are always confined, so there must be a maxQ
         if (ChannelCulvert->Drc > 0 && ChannelCulvert->Drc < 5) {
+            double sqrtGrad = qSqrt(ChannelGrad->Drc);
+            double maxq = qPow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrtGrad/ChannelN->Drc;
+            // maxq calculated from gradient, manning hydraulic radius
             if (ChannelMaxQ->Drc == 0)
-                ChannelMaxQ->Drc = std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
-
-            ChannelMaxQ->Drc *= CulvertCalibration;
+                // no maxq was provided than calculated
+                ChannelMaxQ->Drc = maxq;
+            else {
+                double scale = qPow(ChannelMaxQ->Drc/maxq, 3.0/8.0);
+                // adjust diameter if channelMaxQ is different from the manning calculated
+                if (ChannelCulvert->Drc == SHAPECIRC) {
+                    ChannelDiameter->Drc *= scale;
+                    ChannelMaxArea->Drc = ChannelDiameter->Drc*M_PI;
+                }
+                if (ChannelCulvert->Drc == SHAPERECT) {
+                    ChannelWidth->Drc *= scale;
+                    ChannelDepth->Drc *= scale;
+                    ChannelMaxArea->Drc = ChannelWidth->Drc*ChannelDepth->Drc;
+                }
+                if (ChannelCulvert->Drc == SHAPETRIA) {
+                    ChannelWidth->Drc *= scale;
+                    ChannelDepth->Drc *= scale;
+                    ChannelMaxArea->Drc = 0.5*ChannelWidth->Drc*ChannelDepth->Drc;
+                }
+                if (ChannelCulvert->Drc == SHAPETRAP) {
+                    ChannelWidth->Drc *= scale;
+                    ChannelWidthB->Drc *= scale;
+                    ChannelDepth->Drc *= scale;
+                    ChannelMaxArea->Drc = 0.5*(ChannelWidthB->Drc + ChannelWidth->Drc)*ChannelDepth->Drc;
+                }
+            }
         }
 
         ChannelMaxAlpha->Drc = ChannelMaxQ->Drc > 0 ? ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, beta) : 0.0;
@@ -2287,7 +2312,7 @@ void TWorld::FindStationaryBaseFlow()
                                     double FW = ChannelWidth->Drc;
                                     P = FW + 2.0*h;
                                     A = FW*h;
-                                    F = qMax(0.0, 1.0 - q/(sqrt(ChannelGrad->Drc)/ChannelN->Drc*A*pow(A/P,2.0/3.0)));
+                                    F = qMax(0.0, 1.0 - q/(qSqrt(ChannelGrad->Drc)/ChannelN->Drc*A*pow(A/P,2.0/3.0)));
                                     dF = (5.0*FW+6.0*h)/(3.0*h*P);
                                     h1 = h - F/dF;
                                     // function divided by derivative

@@ -80,11 +80,9 @@ QString TWorld::getvaluename(QString vname)
 double TWorld::getvaluedouble(QString vname)
 {
     for (int i = 0; i < nrrunnamelist; i++) {
-        if(vname.toUpper() == runnamelist[i].name.toUpper())
-        {
-            QString s = runnamelist[i].value;
-
-            return loc.toDouble(s);//runnamelist[i].value.toDouble();
+        if(vname.toUpper() == runnamelist[i].name.toUpper()) {
+            return QLocale::c().toDouble(runnamelist[i].value);
+            //runnamelist[i].value.toDouble();
         }
     }
 
@@ -210,9 +208,10 @@ void TWorld::ParseRunfileData(void)
     // do all switches (checkbox options) first
     for (j = 0; j < nrrunnamelist; j++)
     {
-        int iii = runnamelist[j].value.toInt();
         QString p1 = runnamelist[j].name;
         QString p = runnamelist[j].value;
+        double valc = QLocale::c().toDouble(p);
+        int iii = QLocale::c().toInt(p);
 
         if (p1.compare("Map Directory")==0) {
             inputDir=CheckDir(p);
@@ -237,9 +236,9 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Event based")==0)              SwitchEventbased = iii == 1;
         if (p1.compare("Use Rainfall maps")==0)        SwitchRainfallSatellite = iii == 1;
         if (p1.compare("Daily ET")==0)                 SwitchDailyET = iii == 1;
-        if (p1.compare("ET latitude")==0)              ETlatitude = p.toDouble();
-       // if (p1.compare("ET start day")==0)             ETstartday = p.toDouble();
-        if (p1.compare("long timestep")==0)            longdt = p.toDouble();
+        if (p1.compare("ET latitude")==0)              ETlatitude = valc;
+       // if (p1.compare("ET start day")==0)             ETstartday = p.valc;
+        if (p1.compare("long timestep")==0)            longdt = valc;
         if (p1.compare("Rainfall ID interpolation")==0)SwitchIDinterpolation = iii == 1;
         if (p1.compare("Include ET")==0)               SwitchIncludeET = iii == 1;
         if (p1.compare("Use ET maps")==0)              SwitchETSatellite = iii == 1;
@@ -304,9 +303,12 @@ void TWorld::ParseRunfileData(void)
             param = p.split(";",Qt::SkipEmptyParts);
             if (param[0].toInt() == 1)
                 KEequationType = KE_EXPFUNCTION;
-            KEParamater_a1 = param[1].toDouble();
-            KEParamater_b1 = param[2].toDouble();
-            KEParamater_c1 = param[3].toDouble();
+            // KEParamater_a1 = param[1].toDouble();
+            // KEParamater_b1 = param[2].toDouble();
+            // KEParamater_c1 = param[3].toDouble();
+            KEParamater_a1 = QLocale::c().toDouble(param[1]);
+            KEParamater_b1 = QLocale::c().toDouble(param[2]);
+            KEParamater_c1 = QLocale::c().toDouble(param[3]);
         }
         if (p1.compare("KE parameters EQ2")==0)
         {
@@ -314,8 +316,10 @@ void TWorld::ParseRunfileData(void)
             param = p.split(";",Qt::SkipEmptyParts);
             if (param[0].toInt() == 1)
                 KEequationType = KE_LOGFUNCTION;
-            KEParamater_a2 = param[1].toDouble();
-            KEParamater_b2 = param[2].toDouble();
+            // KEParamater_a2 = param[1].toDouble();
+            // KEParamater_b2 = param[2].toDouble();
+            KEParamater_a2 = QLocale::c().toDouble(param[1]);
+            KEParamater_b2 = QLocale::c().toDouble(param[2]);
         }
         if (p1.compare("KE parameters EQ3")==0)
         {
@@ -323,8 +327,11 @@ void TWorld::ParseRunfileData(void)
             param = p.split(";",Qt::SkipEmptyParts);
             if (param[0].toInt() == 1)
                 KEequationType = KE_POWERFUNCTION;
-            KEParamater_a3 = param[1].toDouble();
-            KEParamater_b3 = param[2].toDouble();
+            // KEParamater_a3 = param[1].toDouble();
+            // KEParamater_b3 = param[2].toDouble();
+            KEParamater_a3 = QLocale::c().toDouble(param[1]);
+            KEParamater_b3 = QLocale::c().toDouble(param[2]);
+
         }
         if (p1.compare("KE time based")==0) SwitchKETimebased = iii == 1;
 

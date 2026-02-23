@@ -179,10 +179,7 @@ int main(int argc, char *argv[])
             //TWorld *W = new TWorld(); // pointer is not deleted so mem leak, declare directly
             TWorld W;
 
-            // deal with different digit symbols dot or comma
-            // W.loc = QLocale::system(); // current locale
-            // W.loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
-            // QLocale::setDefault(W.loc);
+            QLocale::setDefault(QLocale::c()); // enforce dor instead of comma
 
             W.stopRequested = false;
             W.waitRequested = false;
@@ -195,23 +192,31 @@ int main(int argc, char *argv[])
         }
     } else {
         // Use QApplication for GUI mode
+
+        QLocale::setDefault(QLocale::c()); // enforce dor instead of comma
+
         QApplication app(argc, argv);
         app.setStyle(QStyleFactory::create("Fusion"));
 
+        lisemqt iface(0, doBatch, forceRes, runFileName);
+        iface.setWindowTitle(VERSION);
+        iface.show();
+        return app.exec();
+
         // select between a standard run with GUI or a run with GUI based on a specified runfile from the command line
-        if (argc <= 1) {
-            lisemqt iface;
-            iface.setWindowTitle(VERSION);
-            iface.show();
-            return app.exec();
-        } else {
-            if (!runFileName.isEmpty()) {
-                lisemqt iface(0, doBatch, forceRes, runFileName);
-                iface.setWindowTitle(VERSION);
-                iface.show();
-                return app.exec();
-            }
-        }
+        // if (argc <= 1) {
+        //     lisemqt iface;
+        //     iface.setWindowTitle(VERSION);
+        //     iface.show();
+        //     return app.exec();
+        // } else {
+        //     if (!runFileName.isEmpty()) {
+        //         lisemqt iface(0, doBatch, forceRes, runFileName);
+        //         iface.setWindowTitle(VERSION);
+        //         iface.show();
+        //         return app.exec();
+        //     }
+        // }
     }
     return 0;
 }

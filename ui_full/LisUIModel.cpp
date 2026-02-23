@@ -220,9 +220,9 @@ void lisemqt::runmodel()
     // e.g. if the world emits done, the worldDone is called to stop the model
 
     // dealing with digit separator comma or dot
-    W->loc = QLocale::system(); // current locale
-    W->loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
-    QLocale::setDefault(W->loc);
+    // W->loc = QLocale::system(); // current locale
+    // W->loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
+    // QLocale::setDefault(W->loc);
 
     // make a thread to run the world in
     worldThread = new QThread();

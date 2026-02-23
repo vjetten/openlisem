@@ -385,7 +385,7 @@ public:
     explicit TWorld(QObject *parent = nullptr);
     ~TWorld();
 
-    QLocale loc;
+    //QLocale loc;
 
     /// copy of overall rows and columns, set in initmask
     int _nrRows;

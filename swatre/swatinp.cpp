@@ -362,9 +362,9 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
             l->Rows--;
             break; // sometimes table ends with a non empty line with some char code
         }
-        l->hydro[THETA_COL].append(SL[THETA_COL].toDouble());
-        l->hydro[H_COL].append(SL[H_COL].toDouble());
-        l->hydro[K_COL].append(SL[K_COL].toDouble()/86400.0); // cm/day to cm/sec
+        l->hydro[THETA_COL].append(QLocale::c().toDouble(SL[THETA_COL]));
+        l->hydro[H_COL].append(QLocale::c().toDouble(SL[H_COL]));
+        l->hydro[K_COL].append(QLocale::c().toDouble(SL[K_COL])/86400.0); // cm/day to cm/sec
     }
 
     for (int i = 0; i < l->Rows-1; i++) {

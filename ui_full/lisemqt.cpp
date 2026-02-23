@@ -137,29 +137,33 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
 
         int i = 0;
         if (op.calhydro.size() > 0) {
-            E_CalibrateSmax->setValue(op.calhydro[i].toDouble()); i++;
-            E_CalibrateRR->setValue(op.calhydro[i].toDouble()); i++;
-            E_CalibrateKsat->setValue(op.calhydro[i].toDouble()); i++;
-            E_CalibrateKsat2->setValue(op.calhydro[i].toDouble()); i++;
-            E_CalibrateKsat3->setValue(op.calhydro[i].toDouble()); i++;
-            E_CalibrateTheta->setValue(op.calhydro[i].toDouble()); i++;
-            E_CalibratePsi->setValue(op.calhydro[i].toDouble());
+            int i = 0;
+            double valc = QLocale::c().toDouble(op.calhydro[i]);
+            E_CalibrateSmax->setValue(valc); i++;
+            E_CalibrateRR->setValue(valc); i++;
+            E_CalibrateKsat->setValue(valc); i++;
+            E_CalibrateKsat2->setValue(valc); i++;
+            E_CalibrateKsat3->setValue(valc); i++;
+            E_CalibrateTheta->setValue(valc); i++;
+            E_CalibratePsi->setValue(valc);
         }
         if (op.calflow.size() > 0) {
-            i = 0;
-            E_CalibrateN->setValue(op.calflow[i].toDouble()); i++;
-            E_CalibrateChN->setValue(op.calflow[i].toDouble()); i++;
-            E_CalibrateChKsat->setValue(op.calflow[i].toDouble()); i++;
-            E_CalibrateWave->setValue(op.calflow[i].toDouble()); i++;
-            E_CalibrateCulvert->setValue(op.calflow[i].toDouble()); i++;
+            int i = 0;
+            double valc = QLocale::c().toDouble(op.calflow[i]);
+            E_CalibrateN->setValue(valc); i++;
+            E_CalibrateChN->setValue(valc); i++;
+            E_CalibrateChKsat->setValue(valc); i++;
+            E_CalibrateWave->setValue(valc); i++;
+            E_CalibrateCulvert->setValue(valc); i++;
         }
         if (op.caleros.size() > 0) {
-            i = 0;
-            E_CalibrateAS->setValue(op.caleros[i].toDouble()); i++;
-            E_CalibrateCOH->setValue(op.caleros[i].toDouble()); i++;
-            E_CalibrateD50->setValue(op.caleros[i].toDouble()); i++;
-            E_CalibrateD90->setValue(op.caleros[i].toDouble()); i++;
-            E_CalibrateCHCOH->setValue(op.caleros[i].toDouble()); i++;
+            int i = 0;
+            double valc = QLocale::c().toDouble(op.caleros[i]);
+            E_CalibrateAS->setValue(valc); i++;
+            E_CalibrateCOH->setValue(valc); i++;
+            E_CalibrateD50->setValue(valc); i++;
+            E_CalibrateD90->setValue(valc); i++;
+            E_CalibrateCHCOH->setValue(valc); i++;
         }
         stopAct->setChecked(false);
         runAct->setChecked(true);
