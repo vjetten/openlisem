@@ -74,6 +74,9 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         // do MUSCL (optional), Riemann etc, get back smallest dt
         // in the original code this is split in reconstruction/MUSCL and maincalcflux
 
+        if (dt_req_min == -1)
+            return(0);
+
         doSWOFStV(dt_req_min, h, u, v);
         // Saint-Venant calculations for new h, u, v
         // called maincalcscheme in fullSWOF
@@ -172,11 +175,14 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
 
     Fill(*tmd,0);
     // map edges are zero, avoid domain touching the edges
+    bool foundone = false;
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         // if water include
-        if (h->Drc > F_minWH)
+        if (h->Drc > F_minWH) {
             tmd->Drc = 1;
+            foundone = true;
+        }
         // if water but momentum is very low do not include
         // if (qSqrt(v->Drc*v->Drc+u->Drc*u->Drc)*h->Drc < F_minWH && h->Drc > 0.1)
         //     tmd->Drc = 0;
@@ -191,9 +197,11 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
         if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
             tmd->Drc = 0;
     }}
+if (!foundone)
+return(-1);
 
     //do all flow and state calculations
-    #pragma omp parallel for num_threads(userCores)
+   // #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (tmd->Drc == 1) {
             double dx = _dx; // do not do channeladj because the channelflood function does this already

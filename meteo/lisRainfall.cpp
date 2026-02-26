@@ -369,7 +369,7 @@ void TWorld::GetRainfallStationData(QString name)
         {
             bool ok = false;
 
-            rl.intensity << SL[i].toDouble(&ok);
+            rl.intensity << QLocale::c().toDouble(SL[i],&ok);//SL[i].toDouble(&ok);
             if (!ok) {
                 ErrorString = QString("Rainfall at time %1 has unreadable value: %2.").arg(SL[0]).arg(SL[i]);
                 throw 1;
@@ -514,6 +514,7 @@ void TWorld::GetRainfallMapfromStations(double currenttime)
     if (rainStarted && RainstartTime == -1)
         RainstartTime = time;
 
+
 }
 //---------------------------------------------------------------------------
 // get record with current time in seconds and give back map
@@ -645,10 +646,10 @@ double TWorld::getTimefromString(QString sss)
 
     QStringList DHM = sss.split(QRegularExpression(":"));
     if (DHM.count() == 2) {
-        day = DHM.at(0).toDouble(&ok);
-        min = DHM.at(1).toDouble(&ok);
+        day = QLocale::c().toDouble(DHM[0],&ok); //DHM.at(0).toDouble(&ok);
+        min = QLocale::c().toDouble(DHM[1],&ok); //DHM.at(1).toDouble(&ok);
     } else
-        min = sss.toDouble(&ok); // if no ":" char assume everything is minutes
+        min = QLocale::c().toDouble(sss,&ok); //sss.toDouble(&ok); // if no ":" char assume everything is minutes
 
     if (!ok) {
         ErrorString = QString("Unreadable value in time series record: %1").arg(sss);

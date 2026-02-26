@@ -395,10 +395,10 @@ void TWorld::ChannelFlood(void)
 
     ToFlood();
 
-    if (SwitchChannel2DflowConnect)
+ //   if (SwitchChannel2DflowConnect)
         ChannelOverflowAlt(hmxrunoff, V);
-    else
-        ChannelOverflow(hmxrunoff, V);
+//    else
+  //      ChannelOverflow(hmxrunoff, V);
     // determine overflow water => hmx
     // hmx is flood water, WH is overlandflow, WHrunoff etc
 

@@ -80,12 +80,12 @@ void TWorld::OverlandFlow2Ddyn(void)
     double dtOF = 0;
 
     // NOTE: only broad crested weir works with different channel shapes!
-    if (SwitchChannel2DflowConnect)
+ //   if (SwitchChannel2DflowConnect)
         ChannelOverflowAlt(WHrunoff, V);
 
-    else
+ //   else
         // obsolete this is only for a rectangular channel
-        ChannelOverflow(WHrunoff, V);
+    //    ChannelOverflow(WHrunoff, V);
 
     // after this new ChannelHW and WHrunoff, and Susp sediment values ChannelSSSed and SSFlood->Drc
 
