@@ -118,15 +118,7 @@ void lisemqt::ParseInputData()
 
         // deal with dot or comma as decimal
         int iii = QLocale::c().toInt(p);
-        double valc = QLocale::c().toDouble(p,&ok);
-        // if (!ok && pnt == ',') {
-        //     QString p2 = p.replace(",",".");
-        //     valc = p2.toDouble();
-        // }
-        // if (!ok && pnt == '.') {
-        //     QString p2 = p.replace(",",".");
-        //     valc = p2.toDouble();
-        // }
+        double valc = toDOUBLE(p,&ok);
 
         bool check = iii == 1;
         // skip section headers
@@ -312,9 +304,9 @@ void lisemqt::ParseInputData()
                 param <<  "28.3" << "0.52" << "0.042";
             }
             radioButtonKE1->setChecked(QLocale::c().toInt(param[0]));
-            spinKEparameterA1->setValue(QLocale::c().toDouble(param[1]));
-            spinKEparameterB1->setValue(QLocale::c().toDouble(param[2]));
-            spinKEparameterC1->setValue(QLocale::c().toDouble(param[3]));
+            spinKEparameterA1->setValue(toDOUBLE(param[1]));
+            spinKEparameterB1->setValue(toDOUBLE(param[2]));
+            spinKEparameterC1->setValue(toDOUBLE(param[3]));
         }
         if (p1.compare("KE parameters EQ2")==0) {
             QStringList param;
@@ -327,8 +319,8 @@ void lisemqt::ParseInputData()
                 param <<  "8.95" << "8.44";
             }
             radioButtonKE2->setChecked(QLocale::c().toInt(param[0]));
-            spinKEparameterA2->setValue(QLocale::c().toDouble(param[1]));
-            spinKEparameterB2->setValue(QLocale::c().toDouble(param[2]));
+            spinKEparameterA2->setValue(toDOUBLE(param[1]));
+            spinKEparameterB2->setValue(toDOUBLE(param[2]));
         }
         if (p1.compare("KE parameters EQ3")==0) {
             QStringList param;
@@ -341,8 +333,8 @@ void lisemqt::ParseInputData()
                 param <<  "7.6" << "0.22";
             }
             radioButtonKE3->setChecked(QLocale::c().toInt(param[0]));
-            spinKEparameterA3->setValue(QLocale::c().toDouble(param[1]));
-            spinKEparameterB3->setValue(QLocale::c().toDouble(param[2]));
+            spinKEparameterA3->setValue(toDOUBLE(param[1]));
+            spinKEparameterB3->setValue(toDOUBLE(param[2]));
         }
         if (p1.compare("KE time based")==0)           //  if (p1.compare("Use material depth")==0)              checkMaterialDepth->setChecked(check);
         if (p1.compare("No detachment boundary")==0)          checkNoSedBoundary->setChecked(check);
@@ -958,7 +950,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Swatre table directory")==0)         namelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
         if (p1.compare("Swatre profile file")==0)            namelist[j].value = E_SwatreTableName->text();//SwatreTableName;
         if (p1.compare("SWATRE internal minimum timestep")==0) {
-            swatreDT = qMin(QLocale::c().toDouble(E_Timestep->text()), E_SWATREDtsec->value());
+            swatreDT = qMin(toDOUBLE(E_Timestep->text()), E_SWATREDtsec->value());
             namelist[j].value.setNum(swatreDT,'g',6);
         }
 

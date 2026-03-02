@@ -137,7 +137,7 @@ void TWorld::GetUserDischargeData(QString name)
         {
             bool ok = false;
 
-            rl.Qin << QLocale::c().toDouble(SL[i],&ok);//SL[i].toDouble(&ok);
+            rl.Qin << toDOUBLE(SL[i],&ok); //SL[i].toDouble(&ok);
 
             if (!ok) {
                 ErrorString = QString("Discharge records at time %1 has an unreadable value: %2.").arg(SL[0]).arg(SL[i]);
@@ -286,7 +286,7 @@ void TWorld::GetWHboundaryData(QString name)
         // rainfall values in this row
         bool ok = false;
 
-        rl.WH = QLocale::c().toDouble(SL[1],&ok);//SL[1].toDouble(&ok);
+        rl.WH = toDOUBLE(SL[1],&ok);//SL[1].toDouble(&ok);
         if (!ok) {
             ErrorString = QString("Boundary water level record at time %1 has an unreadable value: %2.").arg(SL[0]).arg(SL[1]);
             throw 1;

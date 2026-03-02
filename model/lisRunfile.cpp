@@ -81,7 +81,7 @@ double TWorld::getvaluedouble(QString vname)
 {
     for (int i = 0; i < nrrunnamelist; i++) {
         if(vname.toUpper() == runnamelist[i].name.toUpper()) {
-            return QLocale::c().toDouble(runnamelist[i].value);
+            return toDOUBLE(runnamelist[i].value);
             //runnamelist[i].value.toDouble();
         }
     }
@@ -210,7 +210,7 @@ void TWorld::ParseRunfileData(void)
     {
         QString p1 = runnamelist[j].name;
         QString p = runnamelist[j].value;
-        double valc = QLocale::c().toDouble(p);
+        double valc = toDOUBLE(p);
         int iii = QLocale::c().toInt(p);
 
         if (p1.compare("Map Directory")==0) {
@@ -306,9 +306,9 @@ void TWorld::ParseRunfileData(void)
             // KEParamater_a1 = param[1].toDouble();
             // KEParamater_b1 = param[2].toDouble();
             // KEParamater_c1 = param[3].toDouble();
-            KEParamater_a1 = QLocale::c().toDouble(param[1]);
-            KEParamater_b1 = QLocale::c().toDouble(param[2]);
-            KEParamater_c1 = QLocale::c().toDouble(param[3]);
+            KEParamater_a1 = toDOUBLE(param[1]);
+            KEParamater_b1 = toDOUBLE(param[2]);
+            KEParamater_c1 = toDOUBLE(param[3]);
         }
         if (p1.compare("KE parameters EQ2")==0)
         {
@@ -318,8 +318,8 @@ void TWorld::ParseRunfileData(void)
                 KEequationType = KE_LOGFUNCTION;
             // KEParamater_a2 = param[1].toDouble();
             // KEParamater_b2 = param[2].toDouble();
-            KEParamater_a2 = QLocale::c().toDouble(param[1]);
-            KEParamater_b2 = QLocale::c().toDouble(param[2]);
+            KEParamater_a2 = toDOUBLE(param[1]);
+            KEParamater_b2 = toDOUBLE(param[2]);
         }
         if (p1.compare("KE parameters EQ3")==0)
         {
@@ -329,8 +329,8 @@ void TWorld::ParseRunfileData(void)
                 KEequationType = KE_POWERFUNCTION;
             // KEParamater_a3 = param[1].toDouble();
             // KEParamater_b3 = param[2].toDouble();
-            KEParamater_a3 = QLocale::c().toDouble(param[1]);
-            KEParamater_b3 = QLocale::c().toDouble(param[2]);
+            KEParamater_a3 = toDOUBLE(param[1]);
+            KEParamater_b3 = toDOUBLE(param[2]);
 
         }
         if (p1.compare("KE time based")==0) SwitchKETimebased = iii == 1;

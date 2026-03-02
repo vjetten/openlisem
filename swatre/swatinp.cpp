@@ -127,7 +127,8 @@ void TWorld::ReadSwatreInputNew(void)
 
     int pos = 2;
     for (int i = 0; i < zone->nrNodes; i++) {
-        zone->endComp[i] = swatreProfileDef[i+pos].toDouble(&ok);
+        bool ok;
+        zone->endComp[i] = toDOUBLE(swatreProfileDef[i+pos],&ok);//swatreProfileDef[i+pos].toDouble(&ok);
         if (!ok)
             Error(QString("SWATRE: Can't read compartment end of node %1").arg(i+pos));
         if (zone->endComp[i] <= 0)
@@ -357,14 +358,20 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
         QStringList SL = list[i].split(QRegularExpression("\\s+"),Qt::SkipEmptyParts);
 
         bool ok;
-        SL[0].toDouble(&ok);
+        double v = toDOUBLE(SL[0],&ok);
         if (!ok || SL.count() < 3) {
             l->Rows--;
             break; // sometimes table ends with a non empty line with some char code
         }
-        l->hydro[THETA_COL].append(QLocale::c().toDouble(SL[THETA_COL]));
-        l->hydro[H_COL].append(QLocale::c().toDouble(SL[H_COL]));
-        l->hydro[K_COL].append(QLocale::c().toDouble(SL[K_COL])/86400.0); // cm/day to cm/sec
+        l->hydro[THETA_COL].append(toDOUBLE(SL[THETA_COL], &ok));
+        if (!ok)
+            Error(QString("Cannot read theta in table %1.").arg(fileName));
+        l->hydro[H_COL].append(toDOUBLE(SL[H_COL], &ok));
+        if (!ok)
+            Error(QString("Cannot read h in table %1.").arg(fileName));
+        l->hydro[K_COL].append(toDOUBLE(SL[K_COL], &ok)/86400.0); // cm/day to cm/sec
+        if (!ok)
+            Error(QString("Cannot read K in table %1.").arg(fileName));
     }
 
     for (int i = 0; i < l->Rows-1; i++) {

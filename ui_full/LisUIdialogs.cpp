@@ -843,7 +843,7 @@ void lisemqt::on_checksatImage_toggled(bool checked)
 void lisemqt::on_E_Timestep_editingFinished()
 {
     bool ok;
-    double value = E_Timestep->text().toDouble(&ok);
+    double value = toDOUBLE(E_Timestep->text(), &ok);
     if (ok) {
         // Format to "005.0" style with leading zeros and one decimal place
         QString formattedValue = QString::asprintf("%05.1f", value);

@@ -54,6 +54,8 @@
 
 #define SHOWDEBUG (showr == 270 && showc == 318)
 
+#define toDOUBLE QLocale::c().toDouble
+
 //#define PI 3.14159265
 
 #define HMIN 1e-6

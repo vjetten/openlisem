@@ -127,7 +127,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
             // asume second record is name
         if (SL.count() > 2) {
             bool ok;
-            double v = SL[2].toDouble(&ok);
+            double v = toDOUBLE(SL[2],&ok);//SL[2].toDouble(&ok);
             if (ok)
                 rl.calib = v;
         }
@@ -369,7 +369,7 @@ void TWorld::GetRainfallStationData(QString name)
         {
             bool ok = false;
 
-            rl.intensity << QLocale::c().toDouble(SL[i],&ok);//SL[i].toDouble(&ok);
+            rl.intensity << toDOUBLE(SL[i],&ok);//SL[i].toDouble(&ok);
             if (!ok) {
                 ErrorString = QString("Rainfall at time %1 has unreadable value: %2.").arg(SL[0]).arg(SL[i]);
                 throw 1;
@@ -646,10 +646,10 @@ double TWorld::getTimefromString(QString sss)
 
     QStringList DHM = sss.split(QRegularExpression(":"));
     if (DHM.count() == 2) {
-        day = QLocale::c().toDouble(DHM[0],&ok); //DHM.at(0).toDouble(&ok);
-        min = QLocale::c().toDouble(DHM[1],&ok); //DHM.at(1).toDouble(&ok);
+        day = toDOUBLE(DHM[0],&ok); //DHM.at(0).toDouble(&ok);
+        min = toDOUBLE(DHM[1],&ok); //DHM.at(1).toDouble(&ok);
     } else
-        min = QLocale::c().toDouble(sss,&ok); //sss.toDouble(&ok); // if no ":" char assume everything is minutes
+        min = toDOUBLE(sss,&ok); //sss.toDouble(&ok); // if no ":" char assume everything is minutes
 
     if (!ok) {
         ErrorString = QString("Unreadable value in time series record: %1").arg(sss);

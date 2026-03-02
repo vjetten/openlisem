@@ -1,9 +1,10 @@
 Latest fixes and changes:
 =========================
 260222 - v7.5.0.R1.beta
-- BUG-FIX: Windows region decimal dot and comma in
+- BUG-FIX: deal with Windows region: if decimals are comma they are always translated to dot
 - BUG-FIX: Culverts: adjust maxarea to user defined maxq if provided, else calculate max Q form dimensions
-- Changed: calibration factor from culvert diameter to culvert max Q
+- BUG-FIX: fixed errors in reading of user defined discharge data
+- Changed: calibration factor from culvert diameter to calibration of culvert max Q
 
 see Readme.txt for a complete list
 260205 - v7.4.9

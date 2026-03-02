@@ -138,7 +138,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
         int i = 0;
         if (op.calhydro.size() > 0) {
             int i = 0;
-            double valc = QLocale::c().toDouble(op.calhydro[i]);
+            double valc = toDOUBLE(op.calhydro[i]);
             E_CalibrateSmax->setValue(valc); i++;
             E_CalibrateRR->setValue(valc); i++;
             E_CalibrateKsat->setValue(valc); i++;
@@ -149,7 +149,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
         }
         if (op.calflow.size() > 0) {
             int i = 0;
-            double valc = QLocale::c().toDouble(op.calflow[i]);
+            double valc = toDOUBLE(op.calflow[i]);
             E_CalibrateN->setValue(valc); i++;
             E_CalibrateChN->setValue(valc); i++;
             E_CalibrateChKsat->setValue(valc); i++;
@@ -158,7 +158,7 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
         }
         if (op.caleros.size() > 0) {
             int i = 0;
-            double valc = QLocale::c().toDouble(op.caleros[i]);
+            double valc = toDOUBLE(op.caleros[i]);
             E_CalibrateAS->setValue(valc); i++;
             E_CalibrateCOH->setValue(valc); i++;
             E_CalibrateD50->setValue(valc); i++;
