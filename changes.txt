@@ -1,9 +1,13 @@
 Latest fixes and changes:
 =========================
-260222 - v7.5.0.R1.beta
-- BUG-FIX: deal with Windows region: if decimals are comma they are always translated to dot
-- BUG-FIX: Culverts: adjust maxarea to user defined maxq if provided, else calculate max Q form dimensions
-- BUG-FIX: fixed errors in reading of user defined discharge data
+260315 - v7.5.0.R2.beta
+- Changed: dynamic crusting for SWATRE, simplified. No more sparate profile map
+- added dynamic crusting rate, default -0.02
+
+260306 - v7.5.0.R1.beta
+- BUG-FIX: Windows region setting: if decimals are comma they are always translated to dot
+- BUG-FIX: Culverts: adjust maxarea to user defined channel max Q if provided, else calculate channel max Q from dimensions
+- BUG-FIX: fixed errors in reading of user-defined discharge data
 - Changed: calibration factor from culvert diameter to calibration of culvert max Q
 
 see Readme.txt for a complete list

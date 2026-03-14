@@ -282,8 +282,7 @@ void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *z, cTMap *h, cTMap *vx, 
             } // found
         } // pit value
     } // LOOP
-if (doit)
-    qDebug() << "diag" << doit;
+
     if (doit) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {

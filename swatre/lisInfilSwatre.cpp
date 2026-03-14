@@ -40,27 +40,6 @@ void TWorld::InfilSwatre()
         if (SwitchSwatreDry && WH->Drc == 0 && Rain->Drc == 0)
             continue;
 
-        //else {
-            // int tid = omp_get_thread_num();
-            // NODES& local = threadBuffers[tid];
-
-            // Reset all vectors to zero before use
-            // local.theta.fill(0.0);
-            // local.kavg.fill(0.0);
-            // local.k.fill(0.0);
-            // local.C.fill(0.0);
-            // local.thetaPrev.fill(0.0);
-            // local.h.fill(0.0);
-            // local.hPrev.fill(0.0);
-            // local.dz.fill(0.0);
-            // local.disZ.fill(0.0);
-            // local.S.fill(0.0);
-            // local.thoma.fill(0.0);
-            // local.thomb.fill(0.0);
-            // local.thomc.fill(0.0);
-            // local.thomf.fill(0.0);
-            // local.beta.fill(0.0);
-
             double tilevol = 0;
             double theta = 0;
             double perc = 0;
@@ -72,7 +51,20 @@ void TWorld::InfilSwatre()
 
             SwatreSoilModel->pixel[i_].wh = WHorig;    // WH is in m, convert to cm
             SwatreSoilModel->pixel[i_].tiledrain = 0;
-            ComputeForPixel(i_, SwatreSoilModel);//, local);
+            SwatreSoilModel->pixel[i_].crustfactor = 1.0; // 0 is impermebale, 1 is full ksat
+            // profileIDCrust is for instance all arable land on silt loams
+            if (SwitchInfilCrust && ProfileIDCrust->Drc > 0) {
+                // increase the crustfraction with rainfall if dynamic crusting
+                // raincumcrust is sum of all rain > 5 mm/h
+                if (SwitchDynamicCrusting)
+                    CrustFraction->Drc = qMin(1.0, CrustFraction0->Drc + (1.0-exp(crustingRate*qMax(0.0, RainCumCrust->Drc*1000))));
+                 else
+                    CrustFraction->Drc = CrustFraction0->Drc;
+
+                SwatreSoilModel->pixel[i_].crustfactor = qMin(0.2, 1.0-CrustFraction->Drc);
+            }
+
+            ComputeForPixel(i_, SwatreSoilModel);
 
             double WHN = SwatreSoilModel->pixel[i_].wh;
 
@@ -81,14 +73,18 @@ void TWorld::InfilSwatre()
 
             if (SwitchIncludeTile)
                 tilevol = SwatreSoilModel->pixel[i_].tiledrain;  // is already in m3
-
+/*
             //TODO test infil swatre for crusts and compaction
-            if (SwitchInfilCrust) {
-                if (SwitchDynamicCrusting && ProfileIDCrust->Drc > 0) {
+            if (WHN > 0 && SwitchInfilCrust) {
+                // increas ethe crustfraction with rainfall if dynamic crusting
+                // profileIDCrust is for instance all arable land on silt loams
+                // raincumcrust is sum of all rain > 5 mm/h
+                if (SwitchDynamicCrusting && ProfileIDCrust->Drc > 0 && CrustFraction->Drc < 1.0) {
                     CrustFraction->Drc = qMin(1.0, CrustFraction0->Drc + (1.0-exp(-0.2*qMax(0.0, RainCumCrust->Drc*1000))));
                 }
 
                 if (ProfileIDCrust->Drc > 0 && CrustFraction->Drc > 0) {
+                    qDebug() <<ProfileIDCrust->Drc << CrustFraction->Drc << WHorig ;
                     SwatreSoilModelCrust->pixel[i_].wh = WHorig;    // WH is in m, convert to cm
                     SwatreSoilModelCrust->pixel[i_].tiledrain = 0;
 
@@ -98,6 +94,7 @@ void TWorld::InfilSwatre()
                     WHN = WHcrust*CrustFraction->Drc + WHN*(1-CrustFraction->Drc);
                     // weighed average
 
+                    qDebug() << WHcrust;
                     theta = SwatreSoilModelCrust->pixel[i_].thetaroot*CrustFraction->Drc + theta*(1-CrustFraction->Drc);
                     perc = SwatreSoilModelCrust->pixel[i_].percolation*CrustFraction->Drc + perc*(1-CrustFraction->Drc);
 
@@ -142,11 +139,12 @@ void TWorld::InfilSwatre()
                     }
                 }
             }
-
+*/
             if (FloodDomain->Drc == 0)
                 WH->Drc = WHN;
             else
                 hmx->Drc = WHN;
+
             hmxWH->Drc = /*hmx->Drc+*/  WH->Drc;
 
             WaterVolall->Drc = hmxWH->Drc*CHAdjDX->Drc;

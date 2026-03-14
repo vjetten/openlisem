@@ -156,7 +156,7 @@ void TWorld::GetUserDischargeData(QString name)
 void TWorld::GetDischargeMapfromStations(double currenttime)
 {
     bool same = false;
-qDebug() << "get data";
+
     // from time t to t+1 the rain is the rain of t
 
     // if time is outside records then use map with zeros
@@ -164,7 +164,7 @@ qDebug() << "get data";
         Fill(*QuserIn, 0);
         return;
     }
-qDebug() << currenttime;
+
     // where are we in the series
     int currentrow;
     auto it = std::lower_bound(dischargetime.begin(), dischargetime.end(), currenttime);
@@ -175,7 +175,7 @@ qDebug() << currenttime;
 
     if (currentrow == currentDischargerow && currentrow > 0)
         same = true;
-qDebug() << currentrow;
+
     // get the next map from file
     if (!same) {
         #pragma omp parallel for num_threads(userCores)

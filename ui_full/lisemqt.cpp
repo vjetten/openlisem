@@ -1155,6 +1155,7 @@ void lisemqt::resetTabAdvanced()
     nrUserCores->setValue(qFloor(omp_get_max_threads()/2));
     checkChanMaxVelocity->setChecked(true);
     checkChannel2DflowConnect->setChecked(false);
+    spinCrustingRate->setValue(-0.05);
 }
 //--------------------------------------------------------------------
 

@@ -124,7 +124,8 @@ void TWorld::InfilDynamicCrusting()
     // recalc ksateff and poreeff
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        CrustFraction->Drc = qMin(1.0, CrustFraction0->Drc + (1.0-exp(-0.2*qMax(0.0, RainCumCrust->Drc*1000))));
+        if (CrustFraction->Drc < 1.0)
+            CrustFraction->Drc = qMin(1.0, CrustFraction0->Drc + (1.0-exp(crustingRate*qMax(0.0, RainCumCrust->Drc*1000))));
         // cumulative rain larger than 5 mm/h
         // exponential crusting proces with cumulative rainfall
         // from no crusting to full crusting at ~ 30 mm,

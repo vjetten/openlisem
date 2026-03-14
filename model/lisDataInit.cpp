@@ -211,7 +211,7 @@ void TWorld::InitParameters(void)
     int cores = omp_get_max_threads();
     if (userCores == 0 || userCores > cores)
         userCores = cores;
-    op.cores = userCores;
+   //op.cores = userCores;
 
 }
 //---------------------------------------------------------------------------
@@ -1088,31 +1088,30 @@ void TWorld::InitChannel(void)
     }}
 
     // Culverts and channel shapes
-    ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
     ChannelMaxAlpha = NewMap(0);
     ChannelMaxArea = NewMap(0);
     if (SwitchCulverts) {
         ChannelCulvert = ReadMap(LDDChannel, getvaluename("chancul"));
         ChannelDiameter = ReadMap(LDDChannel, getvaluename("chandiam"));
+        ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
         cover(*ChannelDiameter, *LDD, 0);
         cover(*ChannelCulvert, *LDD, 0);
 
         FOR_ROW_COL_MV_CHL {
+            // if (ChannelMaxQ->Drc > 0)
+            //     qDebug() <<ChannelMaxQ->Drc;
+            ChannelMaxQ->Drc *= CulvertCalibration;
+            // if (ChannelMaxQ->Drc > 0)
+            //     qDebug() <<ChannelMaxQ->Drc << CulvertCalibration;
             if (ChannelCulvert->Drc > 0) {
                 crch_[i_].culvert = true;
                 crch_[i_].shape = (int) ChannelCulvert->Drc;
-                //ChannelDiameter->Drc = CulvertCalibration*ChannelDiameter->Drc;
-
-                // if (ChannelCulvert->Drc == 2) {
-                //     ChannelN->Drc = 0.013;
-                // }
-                // user responsibility
-
             } else {
                 ChannelN->Drc *= ChnCalibration;
             }
         }}
     } else {
+        ChannelMaxQ = NewMap(0);
         ChannelDiameter = NewMap(0);
         ChannelCulvert = NewMap(0);
         FOR_ROW_COL_MV_CHL {
@@ -1130,6 +1129,7 @@ void TWorld::InitChannel(void)
                 beta = 1.0/(1.0+2.0/3.0*ChannelWidth->Drc/perim);
                 break;
             case SHAPECIRC : ChannelMaxArea->Drc = M_PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;//pi r^2
+                crch_[i_].culvert = true; // ciruclar channel is always a culvert
                 perim = M_PI*ChannelDiameter->Drc;
                 beta = BETAcirc;
                 break;
@@ -1151,7 +1151,7 @@ void TWorld::InitChannel(void)
             // maxq calculated from gradient, manning hydraulic radius
             if (ChannelMaxQ->Drc == 0)
                 // no maxq was provided than calculated
-                ChannelMaxQ->Drc = maxq;
+                ChannelMaxQ->Drc = maxq * CulvertCalibration;
             else {
                 double scale = qPow(ChannelMaxQ->Drc/maxq, 3.0/8.0);
                 // adjust diameter if channelMaxQ is different from the manning calculated
@@ -1176,9 +1176,16 @@ void TWorld::InitChannel(void)
                     ChannelMaxArea->Drc = 0.5*(ChannelWidthB->Drc + ChannelWidth->Drc)*ChannelDepth->Drc;
                 }
             }
-        }
 
+        } /*else {
+            ChannelMaxAlpha->Drc = 0;
+            ChannelMaxQ->Drc = 0;
+            ChannelMaxArea->Drc = 0;
+        }*/
+        // if (ChannelMaxQ->Drc > 0)
+        //     qDebug() << "a " << ChannelMaxQ->Drc;
         ChannelMaxAlpha->Drc = ChannelMaxQ->Drc > 0 ? ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, beta) : 0.0;
+        //ChannelMaxAlpha->Drc = ChannelMaxQ->Drc > 0 ? ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, beta) : 0.0;
     }}
 
     // infiltration
@@ -1927,21 +1934,21 @@ void TWorld::IntializeData(void)
         if (SwatreSoilModel == nullptr)
             throw 3;
 
-        if (SwitchInfilCrust) {
-            SwatreSoilModelCrust = InitSwatre(ProfileIDCrust);
-            if (SwatreSoilModelCrust == nullptr)
-                throw 3;
-        }
-        if (SwitchInfilCompact) {
-            SwatreSoilModelCompact = InitSwatre(ProfileIDCompact);
-            if (SwatreSoilModelCompact == nullptr)
-                throw 3;
-        }
-        if (SwitchGrassStrip) {
-            SwatreSoilModelGrass = InitSwatre(ProfileIDGrass);
-            if (SwatreSoilModelGrass == nullptr)
-                throw 3;
-        }
+        // if (SwitchInfilCrust) {
+        //     SwatreSoilModelCrust = InitSwatre(ProfileIDCrust);
+        //     if (SwatreSoilModelCrust == nullptr)
+        //         throw 3;
+        // }
+        // if (SwitchInfilCompact) {
+        //     SwatreSoilModelCompact = InitSwatre(ProfileIDCompact);
+        //     if (SwatreSoilModelCompact == nullptr)
+        //         throw 3;
+        // }
+        // if (SwitchGrassStrip) {
+        //     SwatreSoilModelGrass = InitSwatre(ProfileIDGrass);
+        //     if (SwatreSoilModelGrass == nullptr)
+        //         throw 3;
+        // }
         initSwatreStructure = true;
         // flag: structure is created and can be destroyed in function destroydata
     }

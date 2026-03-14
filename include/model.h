@@ -571,6 +571,7 @@ public:
     int userCores;
     int SwitchSV; //ettling velocity
     double splashb; // splash strength coef b limburg equtions,
+    double crustingRate;
 
     // flow bloundaries
     QList<int> FBid;

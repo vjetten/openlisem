@@ -371,6 +371,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include crusts");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Dynamic crusting");
+    namelist[i].value = QString("-0.05");
+    namelist[i++].name = QString("Crusting dynamic rate");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Impermeable sublayer");
     namelist[i].value = QString("0");

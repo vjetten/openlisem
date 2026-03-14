@@ -174,12 +174,12 @@ void  TWorld::FreeSwatreInfo(void)
     // free pixel_info
     if (SwatreSoilModel != nullptr)
         CloseSwatre(SwatreSoilModel);
-    if (SwatreSoilModelCrust != nullptr)
-        CloseSwatre(SwatreSoilModelCrust);
-    if (SwatreSoilModelCompact != nullptr)
-        CloseSwatre(SwatreSoilModelCompact);
-    if (SwatreSoilModelGrass != nullptr)
-        CloseSwatre(SwatreSoilModelGrass);
+    // if (SwatreSoilModelCrust != nullptr)
+    //     CloseSwatre(SwatreSoilModelCrust);
+    // if (SwatreSoilModelCompact != nullptr)
+    //     CloseSwatre(SwatreSoilModelCompact);
+    // if (SwatreSoilModelGrass != nullptr)
+    //     CloseSwatre(SwatreSoilModelGrass);
 
     initSwatreStructure = false;
 

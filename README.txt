@@ -4,7 +4,7 @@ The model can be downloaded from:
 https://github.com/vjetten/openlisem/releases/tag/lisem_bin
 
 ============
-Date: 260205
+Date: 260314
 ============
 
 This software is under the copyright model GPLv3 (distributed with the model) and subject to additional disclaimers.
@@ -14,7 +14,16 @@ For questions contact v.g.jetten AD utwente.nl
 NOTE: since version 7.4.7.R7 a 4Byte floating point version is maintained that takes up less RAM memory, for very large databases.
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
-NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
+
+260315 - v7.5.0.R2.beta
+- Changed: dynamic crusting for SWATRE, simplified. No more sparate profile map
+- added dynamic crusting rate, default -0.02
+
+260306 - v7.5.0.R1.beta
+- BUG-FIX: Windows region setting: if decimals are comma they are always translated to dot
+- BUG-FIX: Culverts: adjust maxarea to user defined channel max Q if provided, else calculate channel max Q from dimensions
+- BUG-FIX: fixed errors in reading of user-defined discharge data
+- Changed: calibration factor from culvert diameter to calibration of culvert max Q
 
 260205 - v7.4.9
 - Added: show buffers in the map view

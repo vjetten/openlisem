@@ -223,6 +223,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include tile drains")==0)           checkIncludeTiledrains->setChecked(check);
         if (p1.compare("Tile entry suction")==0)            spinTileSuction->setValue(valc);
         if (p1.compare("Swatre dry")==0)                    checkSwatreDry->setChecked(check);
+        if (p1.compare("Crusting dynamic rate")==0)         spinCrustingRate->setValue(valc);
 
         // FLOW
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
@@ -975,7 +976,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include tile drains")==0)           namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
         if (p1.compare("Tile entry suction")==0)            namelist[j].value.setNum(spinTileSuction->value());
         if (p1.compare("Swatre dry")==0)                    namelist[j].value.setNum((int)checkSwatreDry->isChecked());
-
+        if (p1.compare("Crusting dynamic rate")==0)         namelist[j].value.setNum(spinCrustingRate->value());
         //channels
         if (p1.compare("Include main channels")==0)          namelist[j].value.setNum((int)checkIncludeChannel->isChecked());
         if (p1.compare("Channel baseflow method")==0) {

@@ -499,7 +499,7 @@ void TWorld::GetRainfallMapfromStations(double currenttime)
         RainCumInt->Drc += Rainc->Drc;
         // cumulative rainfall corrected for slope, used in interception, in m
         // can be reset to zero when ETa active and canopy dries out
-        if (Rain->Drc * 3600000/_dt > 5.0)
+        if (Rain->Drc > 5.0/3600000*_dt) // > 5 mm/h =5/3600000 *_dt  m per timestep
             RainCumCrust->Drc += Rainc->Drc;
         // cumulative rainfall for crusting larger than 5 mm/h (Boiffin)
 
@@ -599,8 +599,9 @@ void TWorld::GetRainfallMapfromSat(double currenttime)
         // cumulative rainfall
         RainCumInt->Drc += Rainc->Drc;
         // cumulative rainfall corrected for slope, used in interception, can be set to zero
-        RainCumCrust->Drc += Rainc->Drc;
-        // cumulative rainfall corrected for slope, used in Crusting
+        if (Rain->Drc * 3600000/_dt > 5.0)
+            RainCumCrust->Drc += Rainc->Drc;
+        // cumulative rainfall for crusting larger than 5 mm/h (Boiffin)
 
         RainNet->Drc = Rainc->Drc;
         // net rainfall in case of interception

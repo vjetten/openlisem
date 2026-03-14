@@ -296,7 +296,7 @@ void TWorld::ChannelFlow(void)
             case SHAPETRIA : beta = BETAtria; break;
 
         }
-        if (!SwitchCulverts)
+        if (ChannelCulvert->Drc == 0 || ChannelCulvert->Drc == 5) //!SwitchCulverts) //
             ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, beta, _dt, DX->Drc, 0,0);
         else
             ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, beta, _dt, DX->Drc, tma->Drc, tmb->Drc);

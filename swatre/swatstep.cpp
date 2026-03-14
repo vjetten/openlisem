@@ -227,6 +227,10 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
         for (int j = 0; j < nN; j++) {
              k[j] *= p->KsatCal[j];
         }
+        // if (SwitchInfilCrust) {
+        //     k[0] = k[0]*(0.1 + pixel->crustfactor*0.9);
+        //     k[1] = k[1]*(0.1 + pixel->crustfactor*0.9);
+        // }
 
         // average K for 1st to n-1 node, top node is done below
         // original swatre artithmetric mean, Vauclin nin Belmans says geometric mean!
@@ -248,9 +252,10 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
         //     Ksat = pixel->corrKsOA*Ksat + pixel->corrKsOB;
         // if (SwitchDensCorrection)
         //     Ksat = pixel->corrKsDA*Ksat + pixel->corrKsDB;
-
         kavg[0] = sqrt(Ksat * k[0]);
         kavg[0] *= (1.0-impfrac);
+        if (SwitchInfilCrust)
+            kavg[0] = kavg[0] * pixel->crustfactor;
         // adjust kavg[0] for roads and houses, impermeable fraction
         // max possible always geometric mean
         // geometric avg of ksat and k[0] => is used for max possible

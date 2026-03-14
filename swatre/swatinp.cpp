@@ -237,11 +237,10 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
     bool ok;
 
     p = new PROFILE;
-
-    p->profileId = swatreProfileDef[pos].toInt(&ok, 10);
-
+    int prid = swatreProfileDef[pos].toInt(&ok, 10);
     if (!ok)
-        Error(QString("SWATRE: read error: error in profile id %1 definition").arg(p->profileId));
+        Error(QString("SWATRE: read error: error in profile id %1 definition").arg(prid));
+    p->profileId = prid;
 
     p->horizon = (const HORIZON **)malloc(sizeof(HORIZON *) * z->nrNodes); // array of pointers to horizon
     p->zone = z; // also pointer to zone info
