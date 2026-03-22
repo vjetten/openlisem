@@ -339,18 +339,6 @@ void TWorld::DoModel()
 
             runstep++;
 
-            if(stopRequested) {
-                DEBUG("User interrupt... finishing time step");
-                time = EndTime;
-            }
-            mutex.lock();
-            while (waitRequested) {
-                DEBUG("User pause...");
-                mu_condition.wait(&mutex);
-            }
-            mutex.unlock();
-            // check if user wants to quit or pause
-
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
 
             GetETparameters();
@@ -396,6 +384,17 @@ void TWorld::DoModel()
                 }
                 mutex.unlock();
             }
+            mutex.lock();
+            if(stopRequested) {
+                DEBUG("User interrupt... finishing time step");
+                time = EndTime;
+            }
+            while (waitRequested) {
+                DEBUG("User pause...");
+                mu_condition.wait(&mutex);
+            }
+            mutex.unlock();
+            // check if user wants to quit or pause
 
             //saveMBerror2file(false); //saveMBerror
 

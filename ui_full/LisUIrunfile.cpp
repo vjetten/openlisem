@@ -379,7 +379,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use time avg V")==0)                    checkTimeavgV->setChecked(check);
         if (p1.compare("Erosion outside 2D loop")==0)           checkErosionLoop->setChecked(check);
         if (p1.compare("Correct MB with WH")==0)                checkMB_WH->setChecked(check);
-        if (p1.compare("Correct etxreme WH")==0)                checkWHextreme->setChecked(check);
+        if (p1.compare("Correct extreme WH")==0)                checkWHextreme->setChecked(check);
         if (p1.compare("WH extreme threshold")==0)              E_WHextreme->setValue(valc);
         if (p1.compare("Flood max iterations")==0)              E_FloodMaxIter->setValue(iii);
         if (p1.compare("Minimum WH and V flow")==0)             E_minWHVSWOF->setText(p);

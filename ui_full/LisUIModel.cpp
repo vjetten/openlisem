@@ -428,7 +428,6 @@ void lisemqt::worldDone(const QString &results)
     W->mu_condition.wakeAll();
 
     W->mutex.unlock();
-    qDebug() << "stopped";
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldScreenShot()
