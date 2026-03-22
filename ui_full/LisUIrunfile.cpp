@@ -371,6 +371,7 @@ void lisemqt::ParseInputData()
         //ADVANCED
         if (p1.compare("Advanced Options")==0)                  checkAdvancedOptions->setChecked(check);
         if (p1.compare("Nr user Cores")==0)                     nrUserCores->setValue(iii);
+     //   if (p1.compare("Check mutex")==0)                       checkMutex->setChecked(check);
         if (p1.compare("Use linked list")==0)                   checkLinkedList->setChecked(check);
         if (p1.compare("Use Perimeter KW")==0)                  checkPerimeterKW->setChecked(check);
         if (p1.compare("Flooding SWOF flux limiter")==0)        E_FloodFluxLimiter->setValue(iii);
@@ -378,6 +379,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use time avg V")==0)                    checkTimeavgV->setChecked(check);
         if (p1.compare("Erosion outside 2D loop")==0)           checkErosionLoop->setChecked(check);
         if (p1.compare("Correct MB with WH")==0)                checkMB_WH->setChecked(check);
+        if (p1.compare("Correct etxreme WH")==0)                checkWHextreme->setChecked(check);
+        if (p1.compare("WH extreme threshold")==0)              E_WHextreme->setValue(valc);
         if (p1.compare("Flood max iterations")==0)              E_FloodMaxIter->setValue(iii);
         if (p1.compare("Minimum WH and V flow")==0)             E_minWHVSWOF->setText(p);
    //     if (p1.compare("Use Channel Kinwave dt")==0)            checkKinWaveChannel->setChecked(check);
@@ -1032,6 +1035,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Use time avg V")==0)                 namelist[j].value.setNum((int) checkTimeavgV->isChecked());
         if (p1.compare("Erosion outside 2D loop")==0)        namelist[j].value.setNum((int) checkErosionLoop->isChecked());
         if (p1.compare("Correct MB with WH")==0)             namelist[j].value.setNum((int) checkMB_WH->isChecked());
+        if (p1.compare("Correct extreme WH")==0)             namelist[j].value.setNum((int) checkWHextreme->isChecked());
+        if (p1.compare("WH extreme threshold")==0)           namelist[j].value = E_WHextreme->text();
         if (p1.compare("Correct DEM")==0)                    namelist[j].value.setNum((int) checkCorrectDem->isChecked());
         if (p1.compare("Use 2D Diagonal flow")==0)           namelist[j].value.setNum((int) check2DDiagonalFlow->isChecked());
 
@@ -1089,6 +1094,7 @@ void lisemqt::updateModelData()
 
         // miscellaneous
         if (p1.compare("Nr user Cores")==0)                 namelist[j].value.setNum(nrUserCores->value());
+      //  if (p1.compare("Check mutex")==0)                   namelist[j].value.setNum(checkMutex->isChecked() ? 0 : 1);
         if (p1.compare("Timeplot as PCRaster")==0)          namelist[j].value.setNum(checkWritePCRaster->isChecked() ? 0 : 1);
         //if (p1.compare("Report point output separate")==0)  namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
         if (p1.compare("Report digits out")==0)             namelist[j].value = E_DigitsOut->text();

@@ -4,7 +4,7 @@ The model can be downloaded from:
 https://github.com/vjetten/openlisem/releases/tag/lisem_bin
 
 ============
-Date: 260314
+Date: 2603202
 ============
 
 This software is under the copyright model GPLv3 (distributed with the model) and subject to additional disclaimers.
@@ -15,9 +15,13 @@ NOTE: since version 7.4.7.R7 a 4Byte floating point version is maintained that t
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 
-260315 - v7.5.0.R2.beta
-- Changed: dynamic crusting for SWATRE, simplified. No more sparate profile map
-- added dynamic crusting rate, default -0.02
+260322 - v7.5.0.R3.beta
+- Changed: dynamic crusting for SWATRE, simplified. profcrst.map gives the are that will crust (0-1)
+- Added dynamic crusting rate, default -0.02
+- Added spurious water height correction
+- Changed: behaviour of pause/play: pause is wait, play is continue
+- FIXED: bug in model waiting for drawing of maps in UI to finish.
+- FIXED: bug in model waiting for drawing of maps in UI to finish.
 
 260306 - v7.5.0.R1.beta
 - BUG-FIX: Windows region setting: if decimals are comma they are always translated to dot

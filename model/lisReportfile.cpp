@@ -150,7 +150,7 @@ void TWorld::setupHydrographData()
     report to screen, hydrographs */
 void TWorld::reportToUI(void)
 {
-    SwitchCorrectMB_WH = op.SwitchCorrectMB_WH;
+    //SwitchCorrectMB_WH = op.SwitchCorrectMB_WH;
     op.timestep = this->_dt/60.0;
 
     op.t = time_ms.elapsed()*0.001/60.0;

@@ -130,7 +130,7 @@ void lisemqt::deleteWStructures()
 Save the current interface as a temporary run file, read by the model
 Make the model world and run it
 */
-void lisemqt::runmodel()
+void lisemqt::runmodelNew()
 {
     //NOTE op.runfilename is set in function openRunFile()
     if (op.runfilename.isEmpty())
@@ -219,11 +219,6 @@ void lisemqt::runmodel()
     //connections to trigger messages and model stop from the interface
     // e.g. if the world emits done, the worldDone is called to stop the model
 
-    // dealing with digit separator comma or dot
-    // W->loc = QLocale::system(); // current locale
-    // W->loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
-    // QLocale::setDefault(W->loc);
-
     // make a thread to run the world in
     worldThread = new QThread();
     W->moveToThread(worldThread);
@@ -281,28 +276,49 @@ void lisemqt::runmodel()
 
 }
 //---------------------------------------------------------------------------
+void lisemqt::runmodel()
+{
+    // there is a model world, it is paused, continue running
+    if (W && !stoprun) {
+        if (W->waitRequested) {
+            W->mutex.lock();
+            W->waitRequested = false;
+
+            stopAct->setChecked(false);
+            runAct->setChecked(true);
+            pauseAct->setChecked(false);
+
+            W->mu_condition.wakeAll();
+            W->mutex.unlock();
+        }
+    } else {
+        // there is no model world, start it up
+        stopAct->setChecked(false);
+        runAct->setChecked(false);
+        pauseAct->setChecked(false);
+        runmodelNew();
+    }
+}
+//---------------------------------------------------------------------------
 void lisemqt::pausemodel()
 {
-    if(W)
-    {
-        W->waitRequested = !W->waitRequested;
-        if (!W->waitRequested)
-        {
-            runAct->setChecked(true);
-            stopAct->setChecked(false);
-            pauseAct->setChecked(false);
-          //  label_debug->setText("User continue...");
-            W->mu_condition.wakeOne();//wakeAll();
-        }
-        else
-        {
-            stopAct->setChecked(false);
-            runAct->setChecked(false);
-            pauseAct->setChecked(true);
-        }
+    // there is a model, paused it
+    if(W) {
+        W->mutex.lock();
+
+        W->waitRequested = true; // wait the model
+
+        stopAct->setChecked(false);
+        runAct->setChecked(false);
+        pauseAct->setChecked(true);
+
+        W->userCores = nrUserCores->value(); // option to change nr cores!
+qDebug() << W->userCores;
+        W->mutex.unlock();
     }
     else
     {
+        // model is not running so put every button to false and do nothing
         stopAct->setChecked(false);
         runAct->setChecked(false);
         pauseAct->setChecked(false);
@@ -315,12 +331,18 @@ void lisemqt::pausemodel()
 void lisemqt::stopmodel()
 {
     if(W) {
+        W->mutex.lock();
         W->stopRequested = true;
+        W->mutex.unlock();
     }
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldShow()
 {
+    W->mutex.lock();
+
+    // consume data here (or ensure it's already consumed safely)
+
     progressBar->setMaximum(50000);
     int p = qRound((op.time-op.BeginTime)/(op.EndTime-op.BeginTime) * 50000);
     //(op.time/(op.EndTime-op.BeginTime) * op.maxstep);
@@ -360,14 +382,17 @@ void lisemqt::worldShow()
         shootMultipleScreens();
     //}
 
-    //qDebug() << "GUI thread waking up model thread at" << QTime::currentTime();
-    W->mutex.lock();
+    W->readyForGui = false;
     W->mu_condition.wakeAll();
+
     W->mutex.unlock();
+
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldDone(const QString &results)
 {
+    W->mutex.unlock();
+
     label_debug->setText(results);
     if (results.contains("ERROR"))
         QMessageBox::critical(this,QString("openLISEM"), results, QMessageBox::Ok );
@@ -397,24 +422,27 @@ void lisemqt::worldDone(const QString &results)
     toolButton_fileOpen->setEnabled(true);
     toolButton_deleteRun->setEnabled(true);
 
-    // not sure if this is needed?
+    W->stopRequested = false;
+    W->waitRequested = false;
 
-    // if (op.doBatchmode) {
-    //     close();
-    // }
+    W->mu_condition.wakeAll();
+
+    W->mutex.unlock();
+    qDebug() << "stopped";
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldScreenShot()
 {
     W->mutex.lock();
-    W->mu_condition.wakeAll();
-    W->mutex.unlock();
 
     tabWidget->setCurrentIndex(2);
     tabWidget_out->setCurrentIndex(0);
     shootSingleScreen(0);
     tabWidget_out->setCurrentIndex(1);
     shootSingleScreen(0);
+
+    W->mu_condition.wakeAll();
+    W->mutex.unlock();
 }
 //---------------------------------------------------------------------------
 // this function is linked to the debug signal emitted from the model world

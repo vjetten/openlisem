@@ -540,6 +540,7 @@ public:
         SwitchTimeavgV,
         SwitchErosionOutsideLoop,
         SwitchCorrectMB_WH,
+        SwitchCorrectWHextreme,
         SwitchCorrectDEM,
         Switch2DDiagonalFlow,
         SwitchSWOFopen,
@@ -569,9 +570,12 @@ public:
     int ReportDigitsOut;
     int FlowBoundaryType; // open, closed
     int userCores;
+    bool SwitchMutex;
+    bool readyForGui;
     int SwitchSV; //ettling velocity
     double splashb; // splash strength coef b limburg equtions,
     double crustingRate;
+    double WHextreme;
 
     // flow bloundaries
     QList<int> FBid;
@@ -1241,6 +1245,7 @@ int showc;
     void TotalsFlow(void);
     void TotalsSediment(void);
     void MassBalance(void);
+    void Correctheight();
     void reportToUI(void);
     void reportToFile(void);
     void ReportTimeseriesPCR(void);
@@ -1269,7 +1274,7 @@ int showc;
     QWaitCondition mu_condition;
     bool m_waitForGUI = true;
 
-    void stop();
+    //void stop();
 
 protected:
    // void run();

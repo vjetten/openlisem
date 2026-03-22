@@ -157,7 +157,9 @@ void TWorld::InitParameters(void)
     F_pitValue = getvaluedouble("Pit Value");
 
     SwitchCorrectMB_WH = getvalueint("Correct MB with WH") == 1;
-    op.SwitchCorrectMB_WH = SwitchCorrectMB_WH;
+    SwitchCorrectWHextreme = getvalueint("Correct extreme WH") == 1;
+    //op.SwitchCorrectMB_WH = SwitchCorrectMB_WH;
+    WHextreme = getvaluedouble("WH extreme threshold");
 
     if (SwitchAdvancedOptions) {
         F_MaxIter = getvalueint("Flood max iterations");
@@ -1520,35 +1522,47 @@ void TWorld::CorrectDEM(cTMap *h, cTMap * g)
     Fill(*tmb,0);
     FOR_ROW_COL_MV_L {
         double Z = h->Drc;
-        double z_x1 =  c > 0 && !MV(r,c-1)         ? h->data[r][c-1] : Z;
-        double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? h->data[r][c+1] : Z;
-        double z_y1 =  r > 0 && !MV(r-1,c)         ? h->data[r-1][c] : Z;
-        double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? h->data[r+1][c] : Z;
-        double z_x11 =  c > 0 && r > 0 && !MV(r-1,c-1)         ? h->data[r-1][c-1] : Z;
-        double z_x21 =  c > 0 && r < _nrRows-1 && !MV(r+1,c-1) ? h->data[r+1][c-1] : Z;
-        double z_y11 =  r > 0 && c < _nrCols-1 && !MV(r-1,c+1)         ? h->data[r-1][c+1] : Z;
-        double z_y21 =  r < _nrRows-1 && c < _nrCols-1 && !MV(r+1,c+1) ? h->data[r+1][c+1] : Z;
+        double Zmin = Z;
+        if (c > 0 && !MV(r,c-1))         Zmin = qMin(Zmin, h->data[r][c-1]);
+        if (c < _nrCols-1 && !MV(r,c+1)) Zmin = qMin(Zmin, h->data[r][c+1]);
+        if (r > 0 && !MV(r-1,c))         Zmin = qMin(Zmin, h->data[r-1][c]);
+        if (r < _nrRows-1 && !MV(r+1,c)) Zmin = qMin(Zmin, h->data[r+1][c]);
 
-        zmin.clear();
-        zmin << z_x1 << z_x2 << z_y1 << z_y2 << z_x11 << z_y11 << z_x21 << z_y21;
-        std::sort(zmin.begin(), zmin.end());
-        if (Z < zmin.at(0)) {
-           tma->Drc = zmin.at(0);
-        }
+        if (c > 0 && r > 0 && !MV(r-1,c-1))                 Zmin = qMin(Zmin, h->data[r-1][c-1]);
+        if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1))         Zmin = qMin(Zmin, h->data[r+1][c-1]);
+        if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1))         Zmin = qMin(Zmin, h->data[r-1][c+1]);
+        if (r < _nrRows-1 && c < _nrCols-1 && !MV(r+1,c+1)) Zmin = qMin(Zmin, h->data[r+1][c+1]);
+
+        // double z_x1 = c > 0 && !MV(r,c-1)         ? h->data[r][c-1] : Z;
+        // double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? h->data[r][c+1] : Z;
+        // double z_y1 =  r > 0 && !MV(r-1,c)         ? h->data[r-1][c] : Z;
+        // double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? h->data[r+1][c] : Z;
+        // double z_x11 =  c > 0 && r > 0 && !MV(r-1,c-1)         ? h->data[r-1][c-1] : Z;
+        // double z_x21 =  c > 0 && r < _nrRows-1 && !MV(r+1,c-1) ? h->data[r+1][c-1] : Z;
+        // double z_y11 =  r > 0 && c < _nrCols-1 && !MV(r-1,c+1)         ? h->data[r-1][c+1] : Z;
+        // double z_y21 =  r < _nrRows-1 && c < _nrCols-1 && !MV(r+1,c+1) ? h->data[r+1][c+1] : Z;
+
+        // zmin.clear();
+        // zmin << z_x1 << z_x2 << z_y1 << z_y2 << z_x11 << z_y11 << z_x21 << z_y21;
+        // std::sort(zmin.begin(), zmin.end());
+        // if (Z < zmin.at(0)) {
+        //    tma->Drc = zmin.at(0);
+        // }
+        tma->Drc = Zmin;
     }}
     FOR_ROW_COL_MV_L {
         if (tma->Drc > -9999) {
-            tmb->Drc = tma->Drc - h->Drc + 0.001*_dx;
-            h->Drc = tma->Drc-0.001*_dx;
-            g->Drc = 0.001;
+            tmb->Drc = tma->Drc - h->Drc;// + 0.001*_dx;
+            h->Drc = tma->Drc;//-0.001*_dx;
+            g->Drc = 0.005;
         }
     }}
-    //report(*tmb, "demM_PIts.map");
+    report(*tmb, "dem_PITs.map");
 }
 //---------------------------------------------------------------------------
 void TWorld::InitErosion(void)
 {
-//qDebug() << "hoi"; //SwitchSlopeStability ||
+
 //if (SwitchErosion) {
 //        COHCalibration = getvaluedouble("Cohesion calibration");
 //        Cohesion = ReadMap(LDD,getvaluename("coh"));

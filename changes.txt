@@ -1,8 +1,12 @@
 Latest fixes and changes:
 =========================
-260315 - v7.5.0.R2.beta
-- Changed: dynamic crusting for SWATRE, simplified. No more sparate profile map
-- added dynamic crusting rate, default -0.02
+260322 - v7.5.0.R3.beta
+- Changed: dynamic crusting for SWATRE, simplified. profcrst.map gives the are that will crust (0-1)
+- Added dynamic crusting rate, default -0.02
+- Added spurious water height correction
+- Changed: behaviour of pause/play: pause is wait, play is continue
+- FIXED: bug in model waiting for drawing of maps in UI to finish.
+- FIXED: bug in model waiting for drawing of maps in UI to finish.
 
 260306 - v7.5.0.R1.beta
 - BUG-FIX: Windows region setting: if decimals are comma they are always translated to dot

@@ -249,6 +249,7 @@ void lisemqt::setErosionMapOutput(bool doit)
 
 //--------------------------------------------------------------------
 //gives values 0,1,2,4,6,8
+/*
 void lisemqt::on_nrUserCores_valueChanged(int d)
 {
     int cores = cpucores;
@@ -264,6 +265,7 @@ void lisemqt::on_nrUserCores_valueChanged(int d)
     nrUserCores->setValue(cores);
     cpucores = cores;
 }
+*/
 //--------------------------------------------------------------------
 void lisemqt::on_ComboMinSpinBox_valueChanged(double d)
 {
@@ -1152,7 +1154,7 @@ void lisemqt::resetTabAdvanced()
     //checkErosionInsideLoop->setChecked(true);
     //checkKinWaveChannel->setChecked(false);
     //E_ChannelKinWaveDt->setValue(10.0);
-    nrUserCores->setValue(qFloor(omp_get_max_threads()/2));
+    nrUserCores->setValue(0);//qFloor(omp_get_max_threads()/2));
     checkChanMaxVelocity->setChecked(true);
     checkChannel2DflowConnect->setChecked(false);
     spinCrustingRate->setValue(-0.05);

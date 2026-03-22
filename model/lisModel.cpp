@@ -47,11 +47,11 @@ TWorld::~TWorld()
 {
 }
 //---------------------------------------------------------------------------
-void TWorld::stop()
-{
-    QMutexLocker locker(&mutex);
-    stopRequested = true;
-}
+// void TWorld::stop()
+// {
+//     QMutexLocker locker(&mutex);
+//     stopRequested = true;
+// }
 //---------------------------------------------------------------------------
 void TWorld::saveMBerror2file( bool start) //bool doError,
 {
@@ -340,18 +340,15 @@ void TWorld::DoModel()
             runstep++;
 
             if(stopRequested) {
-                mutex.lock();
                 DEBUG("User interrupt... finishing time step");
                 time = EndTime;
-                mutex.unlock();
             }
-
-            if (waitRequested) {
-                mutex.lock();
+            mutex.lock();
+            while (waitRequested) {
                 DEBUG("User pause...");
                 mu_condition.wait(&mutex);
-                mutex.unlock();
             }
+            mutex.unlock();
             // check if user wants to quit or pause
 
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
@@ -390,12 +387,13 @@ void TWorld::DoModel()
             // because showing is done outside the Thread in the GUI, a mutex.lock() is needed
             // mu_condition gives a wakeAll() signal at the end of the display in showWorld()
             if (!noInterface) {
-                emit show();
-                //not LOCKING is potentially dangerous, but locking is slow
-                // the data to be displayed is a pointer to the data being chnaged by the model
-
                 mutex.lock();
-                mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
+                readyForGui = true; // set to false in ui after display and wakeall
+                emit show();
+
+                while (readyForGui) {
+                    mu_condition.wait(&mutex);
+                }
                 mutex.unlock();
             }
 
@@ -439,6 +437,7 @@ void TWorld::DoModel()
 
         if (!noInterface) {
             // wrap up and close the thread
+
             emit done("Finished");
         }
 
@@ -446,7 +445,7 @@ void TWorld::DoModel()
             if (!noInterface) {
                 mutex.lock();
                 emit ScreenShot();
-                mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
+               // mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
                 mutex.unlock();
             }
             // delete all maps

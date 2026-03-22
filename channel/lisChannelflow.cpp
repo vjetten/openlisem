@@ -336,9 +336,15 @@ void TWorld::ChannelFlow(void)
     // calc V and WH back from Qn (original width and depth)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
+
         ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(QinKW->Drc - ChannelQn->Drc);
         ChannelWaterVol->Drc = qMax(0.0, ChannelWaterVol->Drc);
 
+        if(ChannelWaterVol->Drc == 0 && ChannelQn->Drc > 0) {
+            ChannelWaterVol->Drc = ChannelDX->Drc * ChannelAlpha->Drc*qPow(ChannelQn->Drc, BETArect);
+        }
+
+        // calc  channel WH and perimeter
         switch (crch_[i_].shape) {
             case SHAPERECT : chanHandPRect(r,c); break;
             case SHAPECIRC : chanHandPCirc(r,c); break; // this is always a culvert!
@@ -347,8 +353,10 @@ void TWorld::ChannelFlow(void)
             case SHAPEFREE : chanHandPRect(r,c); break;
         }
         double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
-        ChannelV->Drc = qMin(_CHMaxV, (Area > 1e-12 ? ChannelQn->Drc/Area : 0.0));
+        ChannelV->Drc = qMin(_CHMaxV, (Area > 1e-20 ? ChannelQn->Drc/Area : 0.0));
         // erosion is calculated with new V
+    //    if(ChannelV->Drc == 0 && ChannelQn->Drc > 0)
+        //    qDebug() << r<<c<<"Q" << ChannelQn->Drc << Area << ChannelWaterVol->Drc << QinKW->Drc;
 
         // ChannelAlpha->Drc = Area > 1e-6 ? ChannelQn->Drc/std::pow(Area, 0.6) : 0.0;
         // DO NOT recalculate alpha after the kin wave because we need it in erosion kin wave

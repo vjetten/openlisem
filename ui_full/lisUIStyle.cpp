@@ -460,8 +460,8 @@ void lisemqt::setfontSize()
 }
 
 
-void lisemqt::on_checkMB_WH_toggled(bool checked)
-{
-    op.SwitchCorrectMB_WH = checked;
-}
+// void lisemqt::on_checkMB_WH_toggled(bool checked)
+// {
+//     op.SwitchCorrectMB_WH = checked;
+// }
 

@@ -114,7 +114,7 @@ struct output{
     QList<double> comboStep;
 
     bool comboboxset;
-    bool SwitchCorrectMB_WH;
+    //bool SwitchCorrectMB_WH;
 
     QString runfilename;
     QString userAppDir;

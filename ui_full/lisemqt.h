@@ -360,6 +360,8 @@ public:
     void showTextfile(QString name);
     void showTextfileOld(QString name);
 
+    void runmodelNew();
+
 
 public slots:
     // functions linked to actions
@@ -444,7 +446,7 @@ public slots:
 
     void on_E_runFileList_currentIndexChanged(int);
 
-    void on_nrUserCores_valueChanged(int d);
+   // void on_nrUserCores_valueChanged(int d);
     void onImageToggled(bool b);
 
     void on_tabWidget_out_currentChanged(int);
@@ -537,7 +539,7 @@ private slots:
     void on_checkGWflow_toggled(bool checked);
 
 
-    void on_checkMB_WH_toggled(bool checked);
+   // void on_checkMB_WH_toggled(bool checked);
 
     void on_checkRainfall_toggled(bool checked);
 

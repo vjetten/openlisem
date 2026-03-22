@@ -174,34 +174,39 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
     double factor2 = factor;//pow(factor,0.667); // manning reduction V=h^2/3
 
     Fill(*tmd,0);
-    // map edges are zero, avoid domain touching the edges
-    bool foundone = false;
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         // if water include
         if (h->Drc > F_minWH) {
             tmd->Drc = 1;
-            foundone = true;
+
+            if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
+            if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
+            if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
+            if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
+
+            if (c > 0 && r > 0 && !MV(r-1,c-1))
+                tmd->data[r-1][c-1] = 1;
+            if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1))
+                tmd->data[r+1][c+1] = 1;
+            if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1))
+                tmd->data[r-1][c+1] = 1;
+            if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1))
+                tmd->data[r+1][c-1] = 1;
         }
-        // if water but momentum is very low do not include
-        // if (qSqrt(v->Drc*v->Drc+u->Drc*u->Drc)*h->Drc < F_minWH && h->Drc > 0.1)
+
+
+        // map edges are zero, avoid domain touching the edges
+        // ?????????????????
+        // if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
         //     tmd->Drc = 0;
 
-        if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
-        if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
-        if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
-        if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
-
-        if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
-            tmd->Drc = 0;
         if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
             tmd->Drc = 0;
     }}
-if (!foundone)
-return(-1);
 
     //do all flow and state calculations
-   // #pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (tmd->Drc == 1) {
             double dx = _dx; // do not do channeladj because the channelflood function does this already
