@@ -200,6 +200,7 @@ void TWorld::SetFlowBarriers()
         }
 
     }}
+
 }
 
 double TWorld::FBW(double h, int r, int c, int dr, int dc)
@@ -274,50 +275,69 @@ double TWorld::FB(int r, int c, int rd, int cd)
 //---------------------------------------------------------------------------
 void TWorld::InitFlowBarriers(void)
 {
+    if(SwitchFlowBarriers)
+    {
     FlowBarrierN = NewMap(0);
     FlowBarrierW = NewMap(0);
     FlowBarrierS = NewMap(0);
     FlowBarrierE = NewMap(0);
 
-    if(SwitchFlowBarriers)
-    {
-        FlowBarrierNT = NewMap(-1);
-        FlowBarrierWT = NewMap(-1);
-        FlowBarrierST = NewMap(-1);
-        FlowBarrierET = NewMap(-1);
+    // directly read the maps
+    FlowBarrierN = ReadMap(LDD,getvaluename("FlowBarrierN"));
+    FlowBarrierW = ReadMap(LDD,getvaluename("FlowBarrierW"));
+    FlowBarrierS = ReadMap(LDD,getvaluename("FlowBarrierS"));
+    FlowBarrierE = ReadMap(LDD,getvaluename("FlowBarrierE"));
 
-        QString filename = getvaluename("Flow barrier table filename");
+    // make the time maps - maybe switch of later?
+         FlowBarrierNT = NewMap(-1);
+         FlowBarrierWT = NewMap(-1);
+         FlowBarrierST = NewMap(-1);
+         FlowBarrierET = NewMap(-1);
 
-        GetFlowBarrierData(filename);
+    // remove flowbarrier index and .txt from model
 
-        FlowBarrier = ReadMap(LDD,getvaluename("flowbarrierindex"));
-
-
-        for(int i = 0; i < FBid.length(); i++)
-        {
-
-            int index = FBid.at(i);
-            if(index <= 0)
-            {
-                continue;
-            }
-            FOR_ROW_COL_MV
-            {
-
-                if(FlowBarrier->Drc == index)
-                {
-                    FlowBarrierN->Drc = FBHeightN.at(i);
-                    FlowBarrierS->Drc = FBHeightS.at(i);
-                    FlowBarrierE->Drc = FBHeightE.at(i);
-                    FlowBarrierW->Drc = FBHeightW.at(i);
-
-                    FlowBarrierNT->Drc = FBTimeN.at(i);
-                    FlowBarrierST->Drc = FBTimeS.at(i);
-                    FlowBarrierET->Drc = FBTimeE.at(i);
-                    FlowBarrierWT->Drc = FBTimeW.at(i);
-                }
-
-            }
-        }
     }
+
+    // old code not needed anymore
+    // if(SwitchFlowBarriers)
+    // {
+    //     FlowBarrierNT = NewMap(-1);
+    //     FlowBarrierWT = NewMap(-1);
+    //     FlowBarrierST = NewMap(-1);
+    //     FlowBarrierET = NewMap(-1);
+
+    //     QString filename = getvaluename("Flow barrier table filename");
+
+    //     GetFlowBarrierData(filename);
+
+    //     FlowBarrier = ReadMap(LDD,getvaluename("flowbarrierindex"));
+
+
+    //     for(int i = 0; i < FBid.length(); i++)
+    //     {
+
+    //         int index = FBid.at(i);
+    //         if(index <= 0)
+    //         {
+    //             continue;
+    //         }
+    //         FOR_ROW_COL_MV
+    //         {
+
+    //             if(FlowBarrier->Drc == index)
+    //             {
+    //                 FlowBarrierN->Drc = FBHeightN.at(i);
+    //                 FlowBarrierS->Drc = FBHeightS.at(i);
+    //                 FlowBarrierE->Drc = FBHeightE.at(i);
+    //                 FlowBarrierW->Drc = FBHeightW.at(i);
+
+    //                 FlowBarrierNT->Drc = FBTimeN.at(i);
+    //                 FlowBarrierST->Drc = FBTimeS.at(i);
+    //                 FlowBarrierET->Drc = FBTimeE.at(i);
+    //                 FlowBarrierWT->Drc = FBTimeW.at(i);
+    //             }
+
+    //         }
+    //     }
+    // }
 }
