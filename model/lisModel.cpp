@@ -298,7 +298,7 @@ void TWorld::DoModel()
         //bool saveMBerror = true;
         //saveMBerror2file(true); //saveMBerror,
 
-        SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
+        //SetFlowBarriers();     // obsolete for now! update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
 
         _dt_user = _dt;

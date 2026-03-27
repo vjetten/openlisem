@@ -155,7 +155,12 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Ksat Grass;ksatgras.map;Ksat of grassstrips (all models except SWATRE) (mm/h);ksatgras");
     DEFmaps.append("2;Porosity Grass;poregras.map;Porosity of grasstrips (all models except SWATRE) (-);poregras");
     DEFmaps.append("2;Cohesion Grass;cohgras.map;Porosity of grasstrips (all models except SWATRE) (-);cohgras");
-    DEFmaps.append("2;FlowBarrierIndex;flowbarrierindex.map;An index value, indicating which flow barrier properties will be used (-);flowbarrierindex");
+    DEFmaps.append("2;Flow barrier N;flowbarn.map; Height of the north wall (m), rest is 0;fbN");
+    DEFmaps.append("2;Flow barrier E;flowbare.map; Height of the east wall (m), rest is 0;fbE");
+    DEFmaps.append("2;Flow barrier S;flowbars.map; Height of the south wall (m), rest is 0;fbS");
+    DEFmaps.append("2;Flow barrier W;flowbarw.map; Height of the west wall (m), rest is 0;fbW");
+
+    //DEFmaps.append("2;FlowBarrierIndex;flowbarrierindex.map;An index value, indicating which flow barrier properties will be used (-);flowbarrierindex");
 
     DEFmaps.append("0;Storm drains/Tile drains");
     DEFmaps.append("2;LDD;lddtile.map;LDD of tile drain system (must be one system connected to the outlet);lddtile");

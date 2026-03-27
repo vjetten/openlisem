@@ -332,7 +332,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
 
             if (SwitchFlowBarriers) {
                 fb_x1 = bc1 ? qMax(FlowBarrierW->Drc, FlowBarrierE->data[r][c-1]) : FlowBarrierW->Drc;
-                fb_x2 = bc2 ? qMax(FlowBarrierE->Drc, FlowBarrierE->data[r][c+1]) : FlowBarrierE->Drc;
+                fb_x2 = bc2 ? qMax(FlowBarrierE->Drc, FlowBarrierW->data[r][c+1]) : FlowBarrierE->Drc;
                 fb_y1 = br1 ? qMax(FlowBarrierN->Drc, FlowBarrierS->data[r-1][c]) : FlowBarrierN->Drc;
                 fb_y2 = br2 ? qMax(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]) : FlowBarrierS->Drc;
             }
