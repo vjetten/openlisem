@@ -536,14 +536,23 @@ void TWorld::Correctheight()
     FOR_ROW_COL_MV_L {
         if (WHrunoff->Drc > 0)
             tot += 1.0;
+        bool yes = false;
         if (WHrunoff->Drc > WHextreme) {
+            double h1 = !MV(r-1,c) ? WHrunoff->data[r-1][c] : WHrunoff->Drc;
+            double h2 = !MV(r+1,c) ? WHrunoff->data[r+1][c] : WHrunoff->Drc;
+            double h3 = !MV(r,c-1) ? WHrunoff->data[r][c-1] : WHrunoff->Drc;
+            double h4 = !MV(r,c+1) ? WHrunoff->data[r][c+1] : WHrunoff->Drc;
+            if (h1 < 0.5*WHetxreme && h2 < 0.5*WHetxreme && h3 < 0.5*WHetxreme && h4 < 0.5*WHetxreme)
+                yes = true;
+        }
+
+        if (yes) {
             dH += (WHrunoff->Drc - WHextreme); // avg error in m on wet cells
             WHrunoff->Drc = WHextreme;
         }
     }}
     if (tot > 10 && dH > 0) {
         dH /= tot;
-        qDebug() << dH;
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (WHrunoff->Drc > dH) {

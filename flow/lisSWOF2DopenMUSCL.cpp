@@ -185,14 +185,14 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
             if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
 
-            if (c > 0 && r > 0 && !MV(r-1,c-1))
-                tmd->data[r-1][c-1] = 1;
-            if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1))
-                tmd->data[r+1][c+1] = 1;
-            if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1))
-                tmd->data[r-1][c+1] = 1;
-            if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1))
-                tmd->data[r+1][c-1] = 1;
+            // if (c > 0 && r > 0 && !MV(r-1,c-1))
+            //     tmd->data[r-1][c-1] = 1;
+            // if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1))
+            //     tmd->data[r+1][c+1] = 1;
+            // if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1))
+            //     tmd->data[r-1][c+1] = 1;
+            // if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1))
+            //     tmd->data[r+1][c-1] = 1;
         }
 
 

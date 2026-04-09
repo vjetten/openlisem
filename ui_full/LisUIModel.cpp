@@ -283,7 +283,7 @@ void lisemqt::runmodel()
         if (W->waitRequested) {
             W->mutex.lock();
             W->waitRequested = false;
-
+            label_debug->setText("Resuming run...");
             stopAct->setChecked(false);
             runAct->setChecked(true);
             pauseAct->setChecked(false);
@@ -313,7 +313,7 @@ void lisemqt::pausemodel()
         pauseAct->setChecked(true);
 
         W->userCores = nrUserCores->value(); // option to change nr cores!
-qDebug() << W->userCores;
+//qDebug() << W->userCores;
         W->mutex.unlock();
     }
     else

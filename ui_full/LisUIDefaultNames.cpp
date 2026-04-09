@@ -62,9 +62,6 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("0;Surface");
     DEFmaps.append("2;RR;rr.map;Random Roughness (here standard deviation of heights) (cm);rr");
     DEFmaps.append("2;n;n.map;Manning's n (-);manning");
-    DEFmaps.append("2;Stoniness;stonefrc.map;Fraction covered by stones (affects only splash det.) (-);stonefrc");
-    DEFmaps.append("2;Crust;crustfrc.map;Fraction of gridcell covered with Crust (-) (see also ksat crust);crustfrc");
-    DEFmaps.append("2;Compacted;compfrc.map;Fraction of gridcell compacted (e.g. wheeltracks)(-) (see also ksat compacted);compfrc");
 
     DEFmaps.append("0;Infiltration");
     DEFmaps.append("1;Swatre");
@@ -98,12 +95,15 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Depth3;soildep3.map;Layer 3: Depth (mm) to bottom of layer 2;soildep3");
 
     DEFmaps.append("1;Surafce features influencing infiltration");
-    DEFmaps.append("2;Organic Matter;omcorr.map;Organic matter correction increase or decrease (%);OMmap");
-    DEFmaps.append("2;Density Factor;densfact.map;Density factor relative to 1350 kg/m3 (= 1.0, range 0.9 to 1.2);Densmap");
+  //  DEFmaps.append("2;Organic Matter;omcorr.map;Organic matter correction increase or decrease (%);OMmap");
+  //  DEFmaps.append("2;Density Factor;densfact.map;Density factor relative to 1350 kg/m3 (= 1.0, range 0.9 to 1.2);Densmap");
+    DEFmaps.append("2;Crust;crustfrc.map;Fraction of gridcell covered with Crust (-) (see also ksat crust);crustfrc");
     DEFmaps.append("2;Ksat Crust;ksatcrst.map;Ksat of crusts (all models except SWATRE) (mm/h);ksatcrst");
     DEFmaps.append("2;Porosity Crust;porecrst.map;Porosity of crusted areas (all models except SWATRE) (-);porecrst");
+    DEFmaps.append("2;Compacted;compfrc.map;Fraction of gridcell compacted (e.g. wheeltracks)(-) (see also ksat compacted);compfrc");
     DEFmaps.append("2;Ksat Compacted;ksatcomp.map;Ksat of compacted areas (all models except SWATRE) (mm/h);ksatcomp");
     DEFmaps.append("2;Porosity Compact;porecomp.map;Porosity of compacted areas (all models except SWATRE) (-);porecomp");
+    DEFmaps.append("2;Stoniness;stonefrc.map;Fraction covered by stones (affects only splash det.) (-);stonefrc");
 
     DEFmaps.append("0;Channels and Groundwater");
     DEFmaps.append("2;LDD;lddchan.map;LDD of main channel (must be 1 branch connected to the outlet);lddchan");
