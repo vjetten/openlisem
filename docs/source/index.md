@@ -1,6 +1,6 @@
 # Welcome to the OpenLISEM documentation
 
-> 🚧 This documentation is an initial version and many sections still [need attention](about-openlisem/About-OpenLISEM.md#documentation-development)! We moved to Read the Docs in spring 2026
+> 🚧 This documentation is an initial version and many sections still [need attention](about-openlisem/index.md#documentation-development)! We moved to Read the Docs in spring 2026
 
 ***
 
@@ -18,7 +18,7 @@ in all flows
 
 **IMPORTANT**: there are two different versions of LISEM. One is this model -openLISEM- the other is LISEMHazard maintained by Dr. Bastian van de Bout. LISEMHazard can simulate slope stability, mass movement and debrisflows, which openLISEM cannot. The other main difference is that openLISEM is both event based and continuous, while LISEMHazard is event based only. Main model principles are the same but the code is different so the behaviour may not be the same. LISEMHazard can be found here: [https://lisemmodel.com/](https://lisemmodel.com/)
 
-This wiki is designed as a guide for using OpenLISEM. For a first look see the [general introduction](using-openlisem/Introduction.md) and the [quick start](./quick-start/Getting-started.md). In the [manual](./using-openlisem/manual/Manual.md) detailed information is provided to setup the input for a model run. The [theory](./theory/Theory.md) section explains the background and concepts used in OpenLISEM. Many topics in OpenLISEM are covered in three different sections, links between these topics are depicted with an icon: Input = [🔣](https://github.com/vjetten/openlisem/wiki/Input) , Data preparation = [🔨](https://github.com/vjetten/openlisem/wiki/Prepare-Data) and Theory = [📖](https://github.com/vjetten/openlisem/wiki/Theory). We aim to provide some tutorials to apply different functionalities of the model. OpenLISEM is an open source modelling project, and the model and wiki are under continuous [construction](https://github.com/vjetten/openlisem/wiki/About-OpenLISEM)!
+This wiki is designed as a guide for using OpenLISEM. For a first look see the [general introduction](using-openlisem/index.md) and the [quick start](./quick-start/index.md). In the [manual](./using-openlisem/manual/index.md) detailed information is provided to setup the input for a model run. The [theory](./theory/index.md) section explains the background and concepts used in OpenLISEM. Many topics in OpenLISEM are covered in three different sections, links between these topics are depicted with an icon: Input = [🔣](https://github.com/vjetten/openlisem/wiki/Input) , Data preparation = [🔨](https://github.com/vjetten/openlisem/wiki/Prepare-Data) and Theory = [📖](https://github.com/vjetten/openlisem/wiki/Theory). We aim to provide some tutorials to apply different functionalities of the model. OpenLISEM is an open source modelling project, and the model and wiki are under continuous [construction](https://github.com/vjetten/openlisem/wiki/About-OpenLISEM)!
 
 ## OpenLISEM design  
 The model aims to be applicable on a variety of scales, it has been used in projects from very detailed (1 ha in 1m gridcells) to relatively large (5000 km<sup>2</sup> in 200m gridcells). It is mostly used for research that requires 5-20 m gridcells and can be used both in rural and in urban environments.

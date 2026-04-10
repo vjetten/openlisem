@@ -21,7 +21,7 @@ When we simulate a rainfall event with OpenLISEM the order of events can be divi
   <img width="640" height="461" src="../images/order_processes.png">
 </p>
 
-To simulate all these processes OpenLISEM makes use of an input [map database](https://github.com/vjetten/openlisem/wiki/Prepare-Data) and a runfile containing all choices on options of the model run. The figure below shows the layout of the model, with all steps performed during a model run. If you want to use OpenLISEM yourself, we refer to the [quick start](../quick-start/Getting-started.md).
+To simulate all these processes OpenLISEM makes use of an input [map database](https://github.com/vjetten/openlisem/wiki/Prepare-Data) and a runfile containing all choices on options of the model run. The figure below shows the layout of the model, with all steps performed during a model run. If you want to use OpenLISEM yourself, we refer to the [quick start](../quick-start/index.md).
 
 <p align="center">
   <img width="784" height="675" src="../images/Flowchart_OpenLISEM.png">

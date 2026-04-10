@@ -13,7 +13,7 @@ openLISEM (Jetten et al.)
 * 2013 – 2016 – Flooding and 2D flow, urban environments: buildings, storm drains, culverts, rain harvesting (World Bank and UNHabitat projects)
 * 2016 – 2020 – Sediment dynamics in all 2D flows, parallel processing
 * 2020 – 2022 – Continuous modelling, added Evapotranspiration, Groundwater and baseflow, Dams, large scale. 
-* 2022 - 2023 - Disolved and particulate pesticide dynamics in 1D flow (by Reindert Commelin) [🔣 ](https://github.com/vjetten/openlisem/wiki/Pesticide-input) [📖 ](https://github.com/vjetten/openlisem/wiki/Pesticides)
+* 2022 - 2023 - Disolved and particulate pesticide dynamics in 1D flow (by Meindert Commelin) [🔣 ](https://github.com/vjetten/openlisem/wiki/Pesticide-input) [📖 ](https://github.com/vjetten/openlisem/wiki/Pesticides)
 
 LISEM DBASE Generator (Jetten)
 * 2022 - now - Development of a Database generator that creates a complete input dbase 
