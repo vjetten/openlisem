@@ -5,7 +5,7 @@ theme:
   name: readthedocs
 
 nav:
-  - Home: Home.md
+  - Home: index.md
   - Getting started: Getting-started.md
   - Manual: Manual.md
   - Tutorials: Tutorials.md
