@@ -1,6 +1,5 @@
 site_name: OpenLISEM
 docs_dir: source
-site_dir: ../_site   # optional; keeps build output out of docs/
 
 theme:
   name: readthedocs
