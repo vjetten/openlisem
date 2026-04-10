@@ -1,7 +1,7 @@
-OpenLISEM is a further development of the original LISEM model, which was released in 1993, it has a rich [history](https://github.com/vjetten/openlisem/wiki/History) of developments and applications worldwide. The model is designed to simulate runoff and related sediment dynamics in the headwaters and transfer zones of a catchment (see figure below), the model does not perform well when simulating large meandering river systems and deltas, this is mainly because river hydraulics are to simplistic in OpenLISEM.
+OpenLISEM is a further development of the original LISEM model, which was released in 1993, it has a rich [history](../about-openlisem/History.md) of developments and applications worldwide. The model is designed to simulate runoff and related sediment dynamics in the headwaters and transfer zones of a catchment (see figure below), the model does not perform well when simulating large meandering river systems and deltas, this is mainly because river hydraulics are to simplistic in OpenLISEM.
 
 <p align="center">
-  <img width="520" height="340" src="docs/source/images/3Zones_fluvial.jpg">
+  <img width="520" height="340" src="../images/3Zones_fluvial.jpg">
 </p>
 
 _source: Trista L. Thornberry-Ehrlich, Colorado State University._
@@ -18,11 +18,11 @@ When we simulate a rainfall event with OpenLISEM the order of events can be divi
 1. When the precipitation stops and discharge volumes decrease the flood recedes and the flooding water drains into the channel system.
 
 <p align="center">
-  <img width="640" height="461" src="https://github.com/vjetten/openlisem/blob/imgs_wiki/docs/imgs/order_processes.png">
+  <img width="640" height="461" src="../images/order_processes.png">
 </p>
 
-To simulate all these processes OpenLISEM makes use of an input [map database](https://github.com/vjetten/openlisem/wiki/Prepare-Data) and a runfile containing all choices on options of the model run. The figure below shows the layout of the model, with all steps performed during a model run. If you want to use OpenLISEM yourself, we refer to the [quick start](https://github.com/vjetten/openlisem/wiki/Getting-started).
+To simulate all these processes OpenLISEM makes use of an input [map database](https://github.com/vjetten/openlisem/wiki/Prepare-Data) and a runfile containing all choices on options of the model run. The figure below shows the layout of the model, with all steps performed during a model run. If you want to use OpenLISEM yourself, we refer to the [quick start](../quick-start/Getting-started.md).
 
 <p align="center">
-  <img width="784" height="675" src="https://github.com/vjetten/openlisem/blob/imgs_wiki/docs/imgs/Flowchart_OpenLISEM.png">
+  <img width="784" height="675" src="../images/Flowchart_OpenLISEM.png">
 </p>

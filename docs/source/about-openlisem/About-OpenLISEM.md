@@ -13,7 +13,8 @@ benefit. This vision influences the way in which OpenLISEM is available for use.
 ## Maintainers:
 
 - Victor Jetten (@vjetten) : main author, editor and code maintenance.
-- Bastian van den Bout (@bastianvandenbout) : numerical 2D flow
+- Bastian van den Bout (@bastianvandenbout) : numerical 2D flow.
+- Meindert Commelin (@mcommelin) : pesticide transport, documentation and code maintenance.  
 
 ## Development
 The openLISEM model is under continuous development. The model has been developed in c++ combined with the qt UI libraries and the PCRaster Python libraries. The source code is openly available under GNU license, and development is a public process. While the model has undergone extensive testing, it is a large project and bugs and small errors are likely to be present in the code. Any of these can be reported online, or a solution can be presented to the source code directly.
