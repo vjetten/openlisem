@@ -1,7 +1,7 @@
 OpenLISEM is a further development of the original LISEM model, which was released in 1993, it has a rich [history](https://github.com/vjetten/openlisem/wiki/History) of developments and applications worldwide. The model is designed to simulate runoff and related sediment dynamics in the headwaters and transfer zones of a catchment (see figure below), the model does not perform well when simulating large meandering river systems and deltas, this is mainly because river hydraulics are to simplistic in OpenLISEM.
 
 <p align="center">
-  <img width="520" height="340" src="https://github.com/vjetten/openlisem/blob/imgs_wiki/docs/imgs/3Zones_fluvial.jpg">
+  <img width="520" height="340" src="docs/source/images/3Zones_fluvial.jpg">
 </p>
 
 _source: Trista L. Thornberry-Ehrlich, Colorado State University._

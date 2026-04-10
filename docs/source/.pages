@@ -1,3 +1,5 @@
 arrange:
   - index.md
-  - theory/
+  - using-openlisem
+  - theory
+  - about-openlisem

@@ -28,7 +28,7 @@ openLISEM version 6.897 (2023/05/22) is created with:
 - PCRaster lib map functions: (http://pcraster.geo.uu.nl/)
 
 
-## Wiki development
+## Documentation development
 
 The wiki was initially developed in may 2023 with basic input from available documentation of openLISEM. It is under continuous development to stay up to date with the current development of openLISEM.
 

@@ -1,6 +1,6 @@
-# Welcome to the OpenLISEM wiki
+# Welcome to the OpenLISEM documentation
 
-> 🚧 This wiki is an initial version and many sections still [need attention](https://github.com/vjetten/openlisem/wiki/About-OpenLISEM#wiki-development)!
+> 🚧 This documentation is an initial version and many sections still [need attention](about-openlisem/About-OpenLISEM.md#documentation-development)!
 
 ***
 
@@ -28,7 +28,7 @@ OpenLISEM will run with practically any dataset it is given, which is however no
 Emphasis is put on detail: characteristic about the model is the capacity to handle sub-gridcell surface properties (Figure 1). A gridcell can contain a bare soil, crusted/compacted soil, vegetated surface, a road, a building and a channel. These surface characteristics are supplied in separate layers as fractions of the total cell area. The base layer is formed by the soil surface with its hydrological characteristics and the user supplies additional maps that trigger additional hydrological processes in the model. The presence of a vegetation will, for example, result in interception on a part of the gridcell. The presence of a building will result in roof storage and a partly impermeable surface, and a road will have sedimentation but no infiltration or erosion. 
 
 <p align="center">
-  <img width="594" height="345" src="https://github.com/vjetten/openlisem/blob/imgs_wiki/docs/imgs/surface%20fractions.png">
+  <img width="594" height="345" src="images/surface-fractions.png">
 </p>
 
 Most simulations use 2D overland flow in openLISEM, based on the SaintVenant equations for shallow flooding. The numerical solution is a'semi-implicit finite volume solution' (REF). The code is based on the [FULLSWOF](https://arxiv.org/abs/1204.3210) code (Delestre et al. REF). A Riemann solver is used to create mass and momentum continuity between cells. This means that the solution is not iterative, but the smallest timestep is found in the flow domain to solve the St Venant equations and therefore the timestep varies for the flow module. Because the implementation is fully parallel, the model is relatively fast and profits from processors with multiple cores. The flow uses directly DEM information, including terrain features, obstacles such as buildings or dykes, and depressions such as rainwater buffers and small dams. Because the model is originally an erosion model, erosion and sediment dynamics are available in all flows, which makes openLSIEM fairly unique. 
