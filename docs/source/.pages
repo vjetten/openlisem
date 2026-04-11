@@ -1,5 +1,4 @@
-index: index.md
-arrange:
+nav:
   - index.md
   - quick-start
   - using-openlisem

@@ -5,5 +5,13 @@ theme:
   name: readthedocs
 
 plugins:
-  - search
-  - awesome-pages
+    - awesome-pages:
+        filename: .pages
+        collapse_single_pages: false
+        strict: false
+        order: asc
+        sort_type: natural
+        order_by: title
+    - search
+
+

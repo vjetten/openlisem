@@ -1,4 +1,5 @@
-title: Quick start
-index: index.md
-arrange:
-  - index.md
+nav:
+  - setup-&-installation.md
+  - user-interface.md
+  - required-input.md
+  - output-&-results.md
