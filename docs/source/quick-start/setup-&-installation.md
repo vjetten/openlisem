@@ -61,6 +61,6 @@ PCRaster does not have a menu or interface, it can be operated from the command 
 This should again show the help syntax. PCRaster and NutShell are now ready for use! An introduction to using PCRaster and Nutshell can be found [here](../using-openlisem/manual/Introduction-PCRaster-&-Nutshell.md).
 
 <p align="center">
-  <img width="569" height="346" src="../images/NutShell_interface.png">
+  <img width="569" height="346" src="../../images/NutShell_interface.png">
 </p>
 

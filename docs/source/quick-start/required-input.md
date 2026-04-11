@@ -14,11 +14,11 @@ Besides options about functionality, many options about technical parts of the m
 
 The raster format causes openLISEM to need a large data set. For instance a river channel is characterized by its network, shape, width, depth, bed slope, resistance, strength and infiltration rate or stationary baseflow (8 maps). Do not be scared by this!
 
-For information about the preparation of all specific input maps and data we refer to the [manual](https://github.com/vjetten/openlisem/wiki/Manual). There we discuss the preparation of the following input data:
+For information about the preparation of all specific input maps and data we refer to the [manual](../using-openlisem/manual/index.md). There we discuss the preparation of the following input data:
 
-1. Rainfall [🔨 ](https://github.com/vjetten/openlisem/wiki/Prepare-Rainfall) [🔣 ](https://github.com/vjetten/openlisem/wiki/Meteorological-input)
-1. Catchment [🔨](https://github.com/vjetten/openlisem/wiki/Preparing-Topography)
-1. Land use [🔨](https://github.com/vjetten/openlisem/wiki/Prepare-Land-Use)
-1. Soil properties & Infiltration [🔨](https://github.com/vjetten/openlisem/wiki/Prepare-Soil-Properties)
-1. Channels [🔨](https://github.com/vjetten/openlisem/wiki/Prepare-Channels) [🔣 ](https://github.com/vjetten/openlisem/wiki/General-process-options#channels--rivers)
-1. Infrastructure [🔨](https://github.com/vjetten/openlisem/wiki/Prepare-Infrastructure) [🔣 ](https://github.com/vjetten/openlisem/wiki/General-process-options#infrastructure) 
+1. Rainfall [🔨 ](../using-openlisem/manual/Prepare-data/Prepare-Rainfall.md) [🔣 ](../using-openlisem/manual/Input/Meteorological-input.md)
+1. Catchment [🔨](../using-openlisem/manual/Prepare-data/Preparing-Topography.md)
+1. Land use [🔨](../using-openlisem/manual/Prepare-data/Prepare-Land-Use.md)
+1. Soil properties & Infiltration [🔨](../using-openlisem/manual/Prepare-data/Prepare-Soil-Properties.md)
+1. Channels [🔨](../using-openlisem/manual/Prepare-data/Prepare-Channels.md) [🔣 ](../using-openlisem/manual/Input/General-process-options.md#channels--rivers)
+1. Infrastructure [🔨](../using-openlisem/manual/Prepare-data/Prepare-Infrastructure.md) [🔣 ](../using-openlisem/manual/Input/General-process-options.md#infrastructure) 
