@@ -1,18 +1,16 @@
 Latest fixes and changes:
 =========================
-260322 - v7.5.0.R3.beta
-- Changed: dynamic crusting for SWATRE, simplified. profcrst.map gives the are that will crust (0-1)
+260417 - v7.5.0
+- Tagged version WRL project
+- Changed: dynamic crusting for SWATRE, simplified. profcrst.map gives the area that will crust (0-1)
 - Added dynamic crusting rate, default -0.02
-- Added spurious water height correction
-- Changed: behaviour of pause/play: pause is wait, play is continue
-- FIXED: bug in model waiting for drawing of maps in UI to finish.
-- FIXED: bug in model waiting for drawing of maps in UI to finish.
-
-260306 - v7.5.0.R1.beta
-- BUG-FIX: Windows region setting: if decimals are comma they are always translated to dot
-- BUG-FIX: Culverts: adjust maxarea to user defined channel max Q if provided, else calculate channel max Q from dimensions
-- BUG-FIX: fixed errors in reading of user-defined discharge data
+- Added spurious water height correction in advanced (experimental)
 - Changed: calibration factor from culvert diameter to calibration of culvert max Q
+- Changed: behaviour of pause/play: pause is wait, play is continue
+- BUG-FIX: bug in model waiting for drawing of maps in UI to finish.
+- BUG-FIX: Windows region setting: if decimals are comma they are always translated to dot
+- BUG-FIX: Culverts: adjust maxarea to user-defined channel max Q if provided, else calculate channel max Q from dimensions
+- BUG-FIX: fixed errors in reading of user-defined discharge data
 
 see Readme.txt for a complete list
 260205 - v7.4.9

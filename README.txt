@@ -15,6 +15,11 @@ NOTE: since version 7.4.7.R7 a 4Byte floating point version is maintained that t
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 
+260417 - v7.5.0
+- Tagged version WRL project
+- Added a correction in advanced for surious water heigths that sometimes occur due to water piling up behind in front of a culvert. 
+- FIXED: the number of cpu cores could not go to 0 (max cores) in advanced
+
 260322 - v7.5.0.R3.beta
 - Changed: dynamic crusting for SWATRE, simplified. profcrst.map gives the are that will crust (0-1)
 - Added dynamic crusting rate, default -0.02
