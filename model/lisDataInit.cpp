@@ -266,26 +266,29 @@ void TWorld::InitStandardInput(void)
     crlinkedldd_ = MakeLinkedList(LDD);
 
     DEM = ReadMap(LDD, getvaluename("dem"));
-    MBm = NewMap(0);
+    MBm = NewMap(0); // optional, mass balance error used to correct infil and wh in next step
+    DEMmin = 1e20;
+    FOR_ROW_COL_MV_L {
+        DEMmin = qMin(DEM->Drc, DEMmin);
+    }}
+    // some trial at dem correction
+    // Fill(*tma,0);
+    // for(long i_ =  0; i_ < crlinkedldd_.size(); i_++) {
+    //     int r = crlinkedldd_.at(i_).r;
+    //     int c = crlinkedldd_.at(i_).c;
 
+    //     for (int j = -1; j < 2; j++)
+    //         for (int i = -1; i < 2; i++) {
+    //             if ((r+j > 0 && r+j < _nrRows) && (c+i > 0 && c+i < _nrCols)) {
+    //                 if (DEM->Drc < DEM->data[r+j][c+i])
+    //                     tma->Drc = DEM->data[r+j][c+i];
+    //                 else
+    //                     tma->Drc = DEM->Drc;
+    //             }
+    //         }
 
-    Fill(*tma,0);
-    for(long i_ =  0; i_ < crlinkedldd_.size(); i_++) {
-        int r = crlinkedldd_.at(i_).r;
-        int c = crlinkedldd_.at(i_).c;
-
-        for (int j = -1; j < 2; j++)
-            for (int i = -1; i < 2; i++) {
-                if ((r+j > 0 && r+j < _nrRows) && (c+i > 0 && c+i < _nrCols)) {
-                    if (DEM->Drc < DEM->data[r+j][c+i])
-                        tma->Drc = DEM->data[r+j][c+i];
-                    else
-                        tma->Drc = DEM->Drc;
-                }
-            }
-
-    }
-    report(*tma, "demadj.map");
+    // }
+    //report(*tma, "demadj.map");
 
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     //checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");

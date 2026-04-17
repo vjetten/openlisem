@@ -528,36 +528,53 @@ void TWorld::TotalsSediment(void)
     }
 }
 //---------------------------------------------------------------------------
+// NEEDS TESTING
 void TWorld::Correctheight()
 {
     // overland flow
     double dH = 0;
     double tot = 0.0;
     FOR_ROW_COL_MV_L {
-        if (WHrunoff->Drc > 0)
+        tma->Drc  = 0;
+        // count pixels with wh
+        if (WHrunoff->Drc > 0) {
             tot += 1.0;
+            tma->Drc = WHrunoff->Drc + DEM->Drc - DEMmin;
+        }
+        // hydraulic potential
+    }}
+    FOR_ROW_COL_MV_L {
         bool yes = false;
-        if (WHrunoff->Drc > WHextreme) {
-            double h1 = !MV(r-1,c) ? WHrunoff->data[r-1][c] : WHrunoff->Drc;
-            double h2 = !MV(r+1,c) ? WHrunoff->data[r+1][c] : WHrunoff->Drc;
-            double h3 = !MV(r,c-1) ? WHrunoff->data[r][c-1] : WHrunoff->Drc;
-            double h4 = !MV(r,c+1) ? WHrunoff->data[r][c+1] : WHrunoff->Drc;
-            if (h1 < 0.5*WHetxreme && h2 < 0.5*WHetxreme && h3 < 0.5*WHetxreme && h4 < 0.5*WHetxreme)
+
+        // if wh > extreme
+        if (tma->Drc > WHextreme+DEM->Drc - DEMmin) {
+            double h1 = !MV(r-1,c) ? tma->data[r-1][c] : tma->Drc;
+            double h2 = !MV(r+1,c) ? tma->data[r+1][c] : tma->Drc;
+            double h3 = !MV(r,c-1) ? tma->data[r][c-1] : tma->Drc;
+            double h4 = !MV(r,c+1) ? tma->data[r][c+1] : tma->Drc;
+            double factor = 0.5;
+            if (h1 < factor*WHextreme+DEM->Drc-DEMmin &&
+                h2 < factor*WHextreme+DEM->Drc-DEMmin &&
+                h3 < factor*WHextreme+DEM->Drc-DEMmin &&
+                h4 < factor*WHextreme+DEM->Drc-DEMmin)
                 yes = true;
         }
 
         if (yes) {
             dH += (WHrunoff->Drc - WHextreme); // avg error in m on wet cells
             WHrunoff->Drc = WHextreme;
+            WaterVolall->Drc = CHAdjDX->Drc*WHrunoff->Drc + MicroStoreVol->Drc;
+            WH->Drc = WHrunoff->Drc + WHstore->Drc;
         }
     }}
     if (tot > 10 && dH > 0) {
         dH /= tot;
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            if (WHrunoff->Drc > dH) {
+            if (WHrunoff->Drc > 0) {
                 WHrunoff->Drc += dH;
                 WaterVolall->Drc = CHAdjDX->Drc*WHrunoff->Drc + MicroStoreVol->Drc;
+                WH->Drc = WHrunoff->Drc + WHstore->Drc;
             }
         }}
     }
