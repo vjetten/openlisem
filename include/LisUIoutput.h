@@ -41,7 +41,7 @@ struct output{
     long runstep;
     int printstep;
     int maxstep;
-    int cores;
+    //int cores;
 
     QList<int> OutletIndices;
     QList<int> OutletLocationX;
@@ -119,7 +119,7 @@ struct output{
     QList<double> comboStep;
 
     bool comboboxset;
-    bool SwitchCorrectMB_WH;
+    //bool SwitchCorrectMB_WH;
 
     QString runfilename;
     QString userAppDir;

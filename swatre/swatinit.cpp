@@ -40,17 +40,10 @@ functions:
 // read optional Hinit maps
 SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
 {
-   //  int numThreads = omp_get_max_threads();
-   // // QVector<NODES> threadBuffers;
-   //  threadBuffers.reserve(numThreads);
-
-   //  for (int i = 0; i < numThreads; ++i) {
-   //      threadBuffers.append(NODES(MAX_NODES+3));
-   //  }
-
     SOIL_MODEL *s = new SOIL_MODEL;
 
     s->pixel = new PIXEL_INFO[nrValidCells];
+    // the 3D structure with data and pointers to profile
 
     // set initial values
     #pragma omp parallel for num_threads(userCores)
@@ -66,16 +59,13 @@ SOIL_MODEL *TWorld::InitSwatre(cTMap *profileMap)
     }}
 
     // give each pixel a profile
-   // #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         int profilenr = static_cast <int>(profileMap->Drc);
         int profindex = swatreProfileNr.indexOf(profilenr);
-
         if (profilenr > 0)
             s->pixel[i_].profile = profileList[profindex];  // pointer to profile
-
+        // if profilenr = 0, then impermeable and nullptr
     }}
-
 
     // fill the inithead structure of each pixel and set tiledrain depth if any
     for (int k = 0; k < zone->nrNodes; k++) {
@@ -184,12 +174,12 @@ void  TWorld::FreeSwatreInfo(void)
     // free pixel_info
     if (SwatreSoilModel != nullptr)
         CloseSwatre(SwatreSoilModel);
-    if (SwatreSoilModelCrust != nullptr)
-        CloseSwatre(SwatreSoilModelCrust);
-    if (SwatreSoilModelCompact != nullptr)
-        CloseSwatre(SwatreSoilModelCompact);
-    if (SwatreSoilModelGrass != nullptr)
-        CloseSwatre(SwatreSoilModelGrass);
+    // if (SwatreSoilModelCrust != nullptr)
+    //     CloseSwatre(SwatreSoilModelCrust);
+    // if (SwatreSoilModelCompact != nullptr)
+    //     CloseSwatre(SwatreSoilModelCompact);
+    // if (SwatreSoilModelGrass != nullptr)
+    //     CloseSwatre(SwatreSoilModelGrass);
 
     initSwatreStructure = false;
 

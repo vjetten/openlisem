@@ -88,6 +88,10 @@ IF(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL 
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wcast-qual -Wwrite-strings -Wno-sign-conversion -Werror=strict-aliasing -std=c++11 -fpermissive ${OpenMP_CXX_FLAGS}")
     endif(COMPILE_AS_4BYTE)
     IF(UNIX)
+        # Linux-specific performance optimizations
+        # Upgrade from -O2 to -O3 and add CPU-specific optimizations
+        #STRING(REPLACE "-O2" "-O3" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native") #" -ffast-math -funroll-loops")
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread -Wl,-rpath=${ORIGIN}./lib")
     ENDIF()
 ENDIF()

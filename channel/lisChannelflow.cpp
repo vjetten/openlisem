@@ -71,21 +71,24 @@ void TWorld::ChannelVelocityandDischarge()
     // velocity, alpha, Q
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
+        double beta = BETArect;
         switch (crch_[i_].shape) {
+            case SHAPEFREE :
             case SHAPERECT : ChannelPerimeter->Drc = ChannelWidthO->Drc+2*ChannelWH->Drc;
-                ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelDX->Drc*ChannelWidthO->Drc);
                 // use real perimeter for velocity, not chanHandPRect(r,c,Area);
+                ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelDX->Drc*ChannelWidthO->Drc);
+                if (!SwitchConstantBeta)
+                    beta = 1.0/(1.0+2.0/3.0*ChannelWidthO->Drc/ChannelPerimeter->Drc);
                 break;
-            case SHAPECIRC : chanHandPCirc(r,c); break; // this is always a culvert!
-            case SHAPETRAP : chanHandPTrap(r,c); break;
-            case SHAPETRIA : chanHandPTria(r,c); break;
+            case SHAPECIRC : beta = BETAcirc; chanHandPCirc(r,c); break; // this is always a culvert!
+            case SHAPETRAP : beta = BETAtrap; chanHandPTrap(r,c); break;
+            case SHAPETRIA : beta = BETAtria; chanHandPTria(r,c); break;
         }
         double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
         double Radius = (ChannelPerimeter->Drc > 1e-6 ? Area/ChannelPerimeter->Drc : 0);
         ChannelV->Drc = qMin(_CHMaxV,std::pow(Radius, 2.0/3.0)*qSqrt(ChannelGrad->Drc)/ChannelN->Drc);
         ChannelQ->Drc = ChannelV->Drc * Area;
-        //ChannelAlpha->Drc = ChannelQ->Drc/std::pow(Area, 0.6);
-        ChannelAlpha->Drc = pow(ChannelN->Drc/qSqrt(ChannelGrad->Drc) * pow(ChannelPerimeter->Drc, 2.0/3.0),0.6);  // no difference
+        ChannelAlpha->Drc = pow(ChannelN->Drc/qSqrt(ChannelGrad->Drc) * pow(ChannelPerimeter->Drc, 2.0/3.0),beta);  // no difference
 
     }}
 }
@@ -190,6 +193,7 @@ void TWorld::ChannelRainandInfil(void)
                     case SHAPECIRC : chanHandPCirc(r,c); break;
                     case SHAPETRAP : chanHandPTrap(r,c); break;
                     case SHAPETRIA : chanHandPTria(r,c); break;
+                    case SHAPEFREE : chanHandPRect(r,c); break;
                 }
                 ChannelInfM3->Drc = ChannelPerimeter->Drc * ChannelKsat->Drc * _dt/3600000.0 * ChannelDX->Drc;
                 // infiltration over entire perimeter !
@@ -231,6 +235,8 @@ void TWorld::ChannelRainandInfil(void)
     }
 }
 //---------------------------------------------------------------------------
+// NOTE for shapes: https://www.hec.usace.army.mil/confluence/hmsdocs/hmstrm/transform/kinematic-wave-transform-model
+// in these eq, alpha is 1/alpha in lisem, beta = 1/m
 void TWorld::ChannelFlow(void)
 {
     int dy[10] = {0,1,1,1,0,0,0,-1,-1,-1};
@@ -244,6 +250,7 @@ void TWorld::ChannelFlow(void)
         QinKW->Drc = 0; // needed for sediment
         tma->Drc = ChannelMaxQ->Drc;
         tmb->Drc = ChannelMaxAlpha->Drc;
+        tmc->Drc = 0;
     }}
 
     for(long i_ =  0; i_ < crlinkedlddch_.size(); i_++)
@@ -280,10 +287,19 @@ void TWorld::ChannelFlow(void)
         }
         QinKW->Drc = Qin;
 
-        if (!SwitchCulverts)
-            ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, _dt, DX->Drc, 0,0);
+        double beta = BETArect;
+        switch ((int)ChannelCulvert->Drc) {
+            case SHAPEFREE :
+            case SHAPERECT : beta = SwitchConstantBeta ? BETArect : beta = 1.0/(1.0+2.0/3.0*ChannelWidth->Drc/ChannelPerimeter->Drc);
+            case SHAPECIRC : beta = BETAcirc; break;
+            case SHAPETRAP : beta = BETAtrap; break;
+            case SHAPETRIA : beta = BETAtria; break;
+
+        }
+        if (ChannelCulvert->Drc == 0 || ChannelCulvert->Drc == 5) //!SwitchCulverts) //
+            ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, beta, _dt, DX->Drc, 0,0);
         else
-            ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, _dt, DX->Drc, tma->Drc, tmb->Drc);
+            ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, beta, _dt, DX->Drc, tma->Drc, tmb->Drc);
         ChannelQn->Drc = qMin(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
         // no more outflow than there is water
 
@@ -293,21 +309,25 @@ void TWorld::ChannelFlow(void)
         int rr = r+dy[ldd];
         if (!pcr::isMV(LDDChannel->Drcr) && ChannelCulvert->Drcr > 0 && ChannelCulvert->Drcr < 5) {
             ChannelQn->Drc = qMin(ChannelQn->Drc, tma->Drcr);
-            //ChannelQn->Drc = qMin(ChannelQn->Drc, ChannelMaxQ->Drcr);
 
             // adjust discharge and max discharge when pressure of water is more than diameter
-            if (extrapressure && ChannelWH->Drc > ChannelDiameter->Drcr) {
-                double dh = ChannelWH->Drc-ChannelDiameter->Drcr;
-                double f = 8*GRAV*ChannelN->Drcr*ChannelN->Drcr/pow(ChannelDiameter->Drcr/2.0,0.3333);
-                double Qp = 0.6*ChannelMaxArea->Drcr*qSqrt(2*GRAV*dh/(1+f*_dx/ChannelDiameter->Drcr));
-                // additional discharge becvause of pressure
-                // we use one cell _dx but as the culvert gets longer this value should increase
-                ChannelQn->Drc += Qp;
-                // simply add it
-                tma->Drcr += Qp;
+            if (tmc->Drc > 0) {
+                // if we are in the culvert and there is extra discharge, add it to downstream maxQ
+                tma->Drcr += tmc->Drc;
                 // adjust max Q for downstream cells
-                tmb->Drcr = ChannelMaxArea->Drcr/std::pow(tma->Drcr, 0.6);
-                // adjust maxalpha for downstream cells
+                tmb->Drcr = ChannelMaxArea->Drcr/tma->Drcr;
+                // adjust maxalpha for downstream cells, beta is 1.0 for fully submerged, so Q^beta is not necessary
+            }
+
+            if (ChannelWH->Drc > ChannelDiameter->Drcr * 1.1) {
+                double dQ = 0.67 * 2 * GRAV * ChannelWH->Drc-ChannelDiameter->Drcr;
+                // simplified for sharp entry and short pipe. 0.67 = Cd
+                tma->Drcr += dQ;
+                // simply add this to the downstream cell MaxQ as entry
+                tmb->Drcr = ChannelMaxArea->Drcr/tma->Drcr;
+                // adjust maxalpha for downstream cells, beta is 1.0 for fully submerged, so Q^beta is not necessary
+                tmc->Drcr = dQ;
+                // save extra discharge
             }
         }
 
@@ -316,18 +336,27 @@ void TWorld::ChannelFlow(void)
     // calc V and WH back from Qn (original width and depth)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
+
         ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(QinKW->Drc - ChannelQn->Drc);
         ChannelWaterVol->Drc = qMax(0.0, ChannelWaterVol->Drc);
 
+        if(ChannelWaterVol->Drc == 0 && ChannelQn->Drc > 0) {
+            ChannelWaterVol->Drc = ChannelDX->Drc * ChannelAlpha->Drc*qPow(ChannelQn->Drc, BETArect);
+        }
+
+        // calc  channel WH and perimeter
         switch (crch_[i_].shape) {
             case SHAPERECT : chanHandPRect(r,c); break;
             case SHAPECIRC : chanHandPCirc(r,c); break; // this is always a culvert!
             case SHAPETRAP : chanHandPTrap(r,c); break;
             case SHAPETRIA : chanHandPTria(r,c); break;
+            case SHAPEFREE : chanHandPRect(r,c); break;
         }
         double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
-        ChannelV->Drc = qMin(_CHMaxV, (Area > 1e-12 ? ChannelQn->Drc/Area : 0.0));
+        ChannelV->Drc = qMin(_CHMaxV, (Area > 1e-20 ? ChannelQn->Drc/Area : 0.0));
         // erosion is calculated with new V
+    //    if(ChannelV->Drc == 0 && ChannelQn->Drc > 0)
+        //    qDebug() << r<<c<<"Q" << ChannelQn->Drc << Area << ChannelWaterVol->Drc << QinKW->Drc;
 
         // ChannelAlpha->Drc = Area > 1e-6 ? ChannelQn->Drc/std::pow(Area, 0.6) : 0.0;
         // DO NOT recalculate alpha after the kin wave because we need it in erosion kin wave

@@ -42,7 +42,7 @@ class QwtAbstractScaleDrawVJ : public QwtAbstractScaleDraw
 
     virtual QwtText label( double value ) const
     {
-        return QLocale().toString( value, 'f', 2 );
+        return QLocale::c().toString( value, 'f', 2 );
     }
 };
 

@@ -83,7 +83,7 @@ void TWorld::CalcVelDischRectangular()
             Perim = TileWidth->Drc + 2.0*Area/TileWidth->Drc; //(=w+2*h)
             TileQ->Drc = Area*pow(Area/Perim,2.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;;
 //            TileAlpha->Drc  = Area/std::pow(TileQ->Drc, BETArect); // gives nan when tileq = 0
-            TileAlpha->Drc = std::pow(std::pow(Perim, 2.0/3.0)*TileN->Drc/sqrt(TileGrad->Drc), 0.6);
+            TileAlpha->Drc = std::pow(std::pow(Perim, 2.0/3.0)*TileN->Drc/sqrt(TileGrad->Drc), BETArect);
         }
 
     }}
@@ -112,7 +112,7 @@ void TWorld::CalcVelDischCircular()
           else
               TileQ->Drc = std::pow(Area/Perim, 5.0/3.0) * sqrt(TileGrad->Drc)/TileN->Drc;
           TileQ->Drc = qMin(TileQ->Drc, TileMaxQ->Drc);
-          TileAlpha->Drc = std::pow(std::pow(Perim, 2.0/3.0)*TileN->Drc/sqrt(TileGrad->Drc), 0.6);
+          TileAlpha->Drc = std::pow(std::pow(Perim, 2.0/3.0)*TileN->Drc/sqrt(TileGrad->Drc), BETAcirc);
           TileAlpha->Drc = qMin(TileAlpha->Drc, TileMaxAlpha->Drc);
 
           //TileAlpha->Drc  = Area/std::pow(TileQ->Drc, BETAcirc);
@@ -143,9 +143,9 @@ void TWorld::TileFlow(void)
     }
 
     if (SwitchDrainCircular)
-    CalcVelDischCircular();
+        CalcVelDischCircular();
     else
-    CalcVelDischRectangular();
+        CalcVelDischRectangular();
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_TILEL {
@@ -191,7 +191,9 @@ void TWorld::TileFlow(void)
         }
         tmc->Drc = Qin;
 
-        TileQn->Drc = IterateToQnew(Qin, TileQ->Drc, TileAlpha->Drc, _dt, DX->Drc, TileMaxQ->Drc, TileMaxAlpha->Drc);
+        double beta = BETArect;
+        if (SwitchDrainCircular) beta = BETAcirc;
+        TileQn->Drc = IterateToQnew(Qin, TileQ->Drc, TileAlpha->Drc, beta, _dt, DX->Drc, TileMaxQ->Drc, TileMaxAlpha->Drc);
         // if LDDTile->Drc == 5 then block flow - done in LisDataInit.cpp
         TileQn->Drc = qMin(Qin+TileWaterVol->Drc/_dt, TileQn->Drc);
         TileQn->Drc = qMin(TileQn->Drc, TileMaxQ->Drc);

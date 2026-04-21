@@ -811,6 +811,9 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int index)
     groupAdvRichards->setEnabled(true);//index == 3);
     spinSoilLayers->setEnabled(index > 0);
     label_153->setEnabled(index > 0);
+    label_calth->setEnabled(index > 0);
+    E_CalibrateTheta->setEnabled(index > 0);
+    E_CalibratePsi->setEnabled(index == 0);
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_toolButton_version_clicked()
@@ -840,7 +843,7 @@ void lisemqt::on_checksatImage_toggled(bool checked)
 void lisemqt::on_E_Timestep_editingFinished()
 {
     bool ok;
-    double value = E_Timestep->text().toDouble(&ok);
+    double value = toDOUBLE(E_Timestep->text(), &ok);
     if (ok) {
         // Format to "005.0" style with leading zeros and one decimal place
         QString formattedValue = QString::asprintf("%05.1f", value);

@@ -150,7 +150,7 @@ void TWorld::setupHydrographData()
     report to screen, hydrographs */
 void TWorld::reportToUI(void)
 {
-    SwitchCorrectMB_WH = op.SwitchCorrectMB_WH;
+    //SwitchCorrectMB_WH = op.SwitchCorrectMB_WH;
     op.timestep = this->_dt/60.0;
 
     op.t = time_ms.elapsed()*0.001/60.0;
@@ -159,8 +159,8 @@ void TWorld::reportToUI(void)
     if (SwitchEventbased)
         op.Time.append(time/60.0);  // vector of time in min
     else
-        op.Time.append(time/86400.0); // vector of time in days
-    op.maxtime = op.t/runstep * op.maxstep;
+        op.Time.append(time/86400.0+1); // vector of time in days
+
     op._dx = _dx;
     op._llx = _llx;
     op._lly = _lly;
@@ -168,13 +168,19 @@ void TWorld::reportToUI(void)
     op._nrRows = _nrRows;
     op.runstep = runstep;
     op.maxstep = (int) ((EndTime-BeginTime)/_dt_user);
-    //op.EndTime = EndTime/60.0;
+
+    // if(!SwitchIncludeET) {
+    //     op.maxtime = op.t/runstep * op.maxstep;
+    // } else {
+        op.maxtime = op.t / ((time-BeginTime)/(EndTime-BeginTime));
+    // }
+
     op.CatchmentArea = CatchmentArea;
 
     op.RainTotmm = RainTotmm;// + SnowTotmm;
     op.ETaTotmm = ETaTotmm;
     op.GWlevel = GWlevel;
-    op.RainpeakTime = RainpeakTime/60;
+    op.RainpeakTime = RainpeakTime/60 - op.BeginTime;
     op.Rainpeak = Rainpeak;
 
     op.InfilTotmm = InfilTotmm;
@@ -291,14 +297,13 @@ void TWorld::reportToUI(void)
     {
         double p = op.OutletQpeak.at(j);
         double q = op.OutletQ.at(j)->last();  //at(op.OutletQ.at(j)->length()-1); // this point last in list
-
         if(p < q) {
             op.OutletQpeak.replace(j,q);
-            if (SwitchEventbased)
+     //       if (SwitchEventbased)
                 op.OutletQpeaktime.replace(j,time/60-op.BeginTime);
-            else
-                op.OutletQpeaktime.replace(j,time/60);
-           // qDebug() << time << op.BeginTime;
+       //     else
+         //       op.OutletQpeaktime.replace(j,time/86400+1);
+           // qDebug() << op.OutletQpeaktime << p << q;
         }
     }
 }
@@ -522,12 +527,10 @@ void TWorld::ReportTotalsNew(void)
         out << "\"Average soil loss (kg/ha):\"," << (op.SoilLossTot*1000.0)/(op.CatchmentArea/10000.0)<< "\n";
         out << "\n";
     }
-    for(int i = 1; i< op.OutletQpeak.length();i++)
-    {
+    for(int i = 1; i< op.OutletQpeak.length();i++) {
         out << "\"Peak discharge for outlet " + QString::number(i) +" (l/s):\"," << op.OutletQpeak.at(i)<< "\n";
     }
-    for(int i = 1; i< op.OutletQpeak.length();i++)
-    {
+    for(int i = 1; i< op.OutletQpeak.length();i++) {
         out << "\"Peak time discharge for outlet " + QString::number(i) +" (min):\"," << op.OutletQpeaktime.at(i)<< "\n";
     }
     if (SwitchPest) {
@@ -645,7 +648,11 @@ void TWorld::ReportTimeseriesPCR(void)
         out.setRealNumberNotation(QTextStream::FixedNotation);
         out.setRealNumberPrecision(5);
         out << runstep;
-        out << sep << (time/60)/1440.0;
+        //out << sep << (time/60)/1440.0;
+        if (SwitchEventbased)
+            out << sep << (time/60)/1440.0;
+        else
+            out << sep << (time/60)/1440.0 + 1;
 
         out.setRealNumberPrecision(DIG);
         if (SwitchRainfall) out << sep << RainIntavg;
@@ -786,7 +793,10 @@ void TWorld::ReportTimeseriesCSV(void)
         out.setRealNumberNotation(QTextStream::FixedNotation);
         out.setRealNumberPrecision(7);
 
-        out << (time/60)/1440.0;
+        if (SwitchEventbased)
+            out << (time/60)/1440.0;
+        else
+            out << (time/60)/1440.0 + 1;
 
         out.setRealNumberPrecision(DIG);
         if (SwitchRainfall) out << sep << RainIntavg;

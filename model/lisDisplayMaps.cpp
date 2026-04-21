@@ -89,13 +89,13 @@ void TWorld::setupDisplayMaps()
     copy(*op.outletMap, *PointMap);
 
     if (SwitchRoadsystem) {
-      FOR_ROW_COL_MV_L {
-        if (RoadWidthDX->Drc > 0.2*_dx)
-          op.roadMap->Drc = RoadWidthDX->Drc;
-        else
-          op.roadMap->Drc = 0;
-        //copy(*op.roadMap, *RoadWidthDX);
-      }}
+       copy(*op.roadMap, *RoadWidthDX);
+     //   FOR_ROW_COL_MV_L {
+     //   if (RoadWidthDX->Drc > 0.05*_dx)
+     //     op.roadMap->Drc = RoadWidthDX->Drc;
+     //   else
+     //     op.roadMap->Drc = 0;
+     // }}
     }
     if (SwitchHouses)
         copy(*op.houseMap, *HouseCover);
@@ -310,7 +310,7 @@ void TWorld::GetComboMaps()
     cl = 2;
     AddComboMap(0,"Water Height","m",hmxWH,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
     AddComboMap(0,"Micro storage","m",WHstore,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
-    AddComboMap(0,"Diagonal","m",tmshow,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+ //   AddComboMap(0,"Diagonal","m",tmshow,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
  //   AddComboMap(0,"Water inflow","m3",ChannelQSide,LegendMap[cl],Legend[cl],true,false,1.0,1.0);
 //    if (Switch2DDiagonalFlow)
 //       AddComboMap(0,"Diagonal Discharge","l/s",Qdiag,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
@@ -338,8 +338,8 @@ void TWorld::GetComboMaps()
         cl = 0;
         AddComboMap(0,"Flood Hazard Index [WH(V+0.5)]","-",FHI,LegendMap[0],Legend[0],true,false,1.0, 0.001);
     }
-    cl = 6;
-    AddComboMap(0,"Internal flood timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
+  //  cl = 6;
+  //  AddComboMap(0,"Internal flood timestep","s",FloodDT,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
 
     if(SwitchIncludeChannel) {
         cl = 0;
@@ -382,9 +382,9 @@ void TWorld::GetComboMaps()
             AddComboMap(0,"Groundwater level max","m",GWWHmax,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
             //AddComboMap(0,"SD2","m",SoilDepth2,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
         }
-        cl = 6;
-        if (SwitchSlopeStability)
-            AddComboMap(0,"Slope Stability","m",FSlope,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+    //    cl = 6;
+   //     if (SwitchSlopeStability)
+   //         AddComboMap(0,"Slope Stability","m",FSlope,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
 
 
             cl = 3;
@@ -483,11 +483,10 @@ void TWorld::ClearComboMaps()
 void TWorld::AddComboMap(int listn, QString name, QString unit,cTMap * map,QList<double> ColorMap, QList<QString> Colors,
                          bool log,bool symcol, double scale, double step)
 {
-    op.ComboLists.append(listn);
+    op.ComboLists.append(listn); // 0 = water, 1 = erosion
     op.ComboMaps.append(map);
-    // copy pointer or make a map and copy content
-    //op.ComboMapsSafe.append(new cTMap());
-    //op.ComboMapsSafe.at(op.ComboMapsSafe.length()-1)->MakeMap(LDD,0.0);
+    // copy pointer DANGEROUS, the map can be chnaged while displaying
+
 
     op.ComboColorMap.append(ColorMap);
     op.ComboColors.append(Colors);

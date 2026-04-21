@@ -74,6 +74,9 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         // do MUSCL (optional), Riemann etc, get back smallest dt
         // in the original code this is split in reconstruction/MUSCL and maincalcflux
 
+        if (dt_req_min == -1)
+            return(0);
+
         doSWOFStV(dt_req_min, h, u, v);
         // Saint-Venant calculations for new h, u, v
         // called maincalcscheme in fullSWOF
@@ -171,23 +174,33 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
     double factor2 = factor;//pow(factor,0.667); // manning reduction V=h^2/3
 
     Fill(*tmd,0);
-    // map edges are zero, avoid domain touching the edges
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         // if water include
-        if (h->Drc > F_minWH)
+        if (h->Drc > F_minWH) {
             tmd->Drc = 1;
-        // if water but momentum is very low do not include
-        // if (qSqrt(v->Drc*v->Drc+u->Drc*u->Drc)*h->Drc < F_minWH && h->Drc > 0.1)
+
+            if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
+            if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
+            if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
+            if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
+
+            // if (c > 0 && r > 0 && !MV(r-1,c-1))
+            //     tmd->data[r-1][c-1] = 1;
+            // if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1))
+            //     tmd->data[r+1][c+1] = 1;
+            // if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1))
+            //     tmd->data[r-1][c+1] = 1;
+            // if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1))
+            //     tmd->data[r+1][c-1] = 1;
+        }
+
+
+        // map edges are zero, avoid domain touching the edges
+        // ?????????????????
+        // if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
         //     tmd->Drc = 0;
 
-        if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
-        if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
-        if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
-        if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
-
-        if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
-            tmd->Drc = 0;
         if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
             tmd->Drc = 0;
     }}
@@ -319,7 +332,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
 
             if (SwitchFlowBarriers) {
                 fb_x1 = bc1 ? qMax(FlowBarrierW->Drc, FlowBarrierE->data[r][c-1]) : FlowBarrierW->Drc;
-                fb_x2 = bc2 ? qMax(FlowBarrierE->Drc, FlowBarrierE->data[r][c+1]) : FlowBarrierE->Drc;
+                fb_x2 = bc2 ? qMax(FlowBarrierE->Drc, FlowBarrierW->data[r][c+1]) : FlowBarrierE->Drc;
                 fb_y1 = br1 ? qMax(FlowBarrierN->Drc, FlowBarrierS->data[r-1][c]) : FlowBarrierN->Drc;
                 fb_y2 = br2 ? qMax(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]) : FlowBarrierS->Drc;
             }

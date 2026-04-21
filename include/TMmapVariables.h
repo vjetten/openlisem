@@ -325,11 +325,10 @@ cTMap
 *ChannelPerimeter,
 *ChannelWidthB,
 
-//*ChannelCos,
 //*ChannelWHExtended,                  //!<
 //*ChannelVolExtended,                  //!<
 *ChannelWaterVol,            //!<
-//*Channelq,                   //!<
+//*ChannelBeta,                   //!<
 *ChannelAlpha,               //!<
 *ChannelDX,                  //!<
 *ChannelKsat,                //!<

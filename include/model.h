@@ -54,6 +54,8 @@
 
 #define SHOWDEBUG (showr == 270 && showc == 318)
 
+#define toDOUBLE QLocale::c().toDouble
+
 //#define PI 3.14159265
 
 #define HMIN 1e-6
@@ -68,7 +70,9 @@
 #define EPSILON 1e-10
 
 #define BETArect 0.6
-#define BETAcirc 0.6
+#define BETAcirc 0.8
+#define BETAtria 0.75
+#define BETAtrap 0.75
 
 #define SHAPERECT 1
 #define SHAPECIRC 2
@@ -76,11 +80,10 @@
 #define SHAPETRIA 4
 #define SHAPEFREE 5
 
-#define Aavg(a,b)  (0.5*(a+b))
-#define Savg(a,b)  sqrt(a*b)
-#define Havg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
-#define Mavg(a,b)  qMin(a,b)
-#define SQR(a) ((a)*(a))
+#define ARITHavg(a,b)  (0.5*(a+b))
+#define SQRTavg(a,b)  sqrt(a*b)
+#define HARMavg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
+#define MINavg(a,b)  qMin(a,b)
 
 #define DEBUG(s) emit debug(QString(s))
 #define TIMEDB(s) emit timedb(QString(s))
@@ -384,7 +387,7 @@ public:
     explicit TWorld(QObject *parent = nullptr);
     ~TWorld();
 
-    QLocale loc;
+    //QLocale loc;
 
     /// copy of overall rows and columns, set in initmask
     int _nrRows;
@@ -470,6 +473,7 @@ public:
         SwitchFlowBarriers,
         SwitchBuffers,
         SwitchCulverts,
+        SwitchConstantBeta,
         SwitchLitter,
     SwitchPest, SwitchReportPest,
 
@@ -537,6 +541,7 @@ public:
         SwitchTimeavgV,
         SwitchErosionOutsideLoop,
         SwitchCorrectMB_WH,
+        SwitchCorrectWHextreme,
         SwitchCorrectDEM,
         Switch2DDiagonalFlow,
         SwitchSWOFopen,
@@ -566,8 +571,12 @@ public:
     int ReportDigitsOut;
     int FlowBoundaryType; // open, closed
     int userCores;
+    bool SwitchMutex;
+    bool readyForGui;
     int SwitchSV; //ettling velocity
     double splashb; // splash strength coef b limburg equtions,
+    double crustingRate;
+    double WHextreme;
 
     // flow bloundaries
     QList<int> FBid;
@@ -666,7 +675,7 @@ public:
     /// totals for mass balance checks and output
     /// Water totals for mass balance and output (in m3)
     double RetentionVolTotPot, ChanRetentionVolTotPot;
-    double MB, MBeM3, Qtot, Qtot_dt, QTiletot, QTile, IntercTot, IntercETaTot, WaterVolTot, RetentionVolTot,ChanRetentionVolTot,RetentionVolTotmm, WaterVolSoilTileTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
+    double DEMmin, MB, MBeM3, Qtot, Qtot_dt, QTiletot, QTile, IntercTot, IntercETaTot, WaterVolTot, RetentionVolTot,ChanRetentionVolTot,RetentionVolTotmm, WaterVolSoilTileTot, InfilTot, RainTot, SnowTot, theta1tot, theta2tot;
     double SurfStoremm, InfilKWTot,BaseFlowTot,BaseFlowInit, BaseFlowInitmm, BaseFlowTotmm, PeakFlowTotmm, Qfloodout, QfloodoutTot, QuserInTot;
     double QBoundaryTot, floodVolTot, floodVolTotInit, floodVolTotMax, floodAreaMax, floodArea, floodBoundarySedTot, ChannelVolTot, ChannelVolTotmm, WHinitVolTot,StormDrainVolTot;
     double IntercHouseTot, IntercHouseTotmm, IntercLitterTot, IntercLitterTotmm;
@@ -954,7 +963,6 @@ public:
     // => TODO: SOAP infil model, swatre works better for now
     void cell_Soilwater(long i_); //SOAP
     double calcSinkterm(long i_,  double WH, double *S);
-    void calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S);
    // void calcSinktermSWATRE(PIXEL_INFO *pixel, QVector<double> h, QVector<double> S);
     double getDayLength(double time);
     void VanGenuchten(SOIL_LIST s, double Hnew[], double K[], double C1[], bool analytical);
@@ -966,40 +974,72 @@ public:
     // => vertical hydro processes, OMP
     void GridCell();
     void HydrologyProcesses();
+
+    // surface
     void cell_Interception(int r, int c);
     void cell_SurfaceStorage(int r, int c);
+    void InfilEffectiveKsat();
+    void InfilDynamicCrusting();
+
+    // evap
+    void cell_ETa(int r, int c);
+    double getETaFactor();
+    double ETafactor;
+    double ETafactorTot;
+    double longdt;
+    void calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S);
+
+    // infil, soil water
+    void InfilSwatre();
+    void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
+    double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);
+    double IncreaseInfiltrationDepthNew2(double fact_, int r, int c);
+    double IncreaseInfiltrationDepthNew3(double fact_, int r, int c);
     void cell_InfilMethods(int r, int c);
-    void cell_SWATRECalc(long i_); // not used, too complex
-    double cell_Percolation(int r, int c, double factor);
     double cell_PercolationMulti(int r, int c, double factor);
-    void cell_Redistribution0(int r, int c);
+    void adjustLWTheta(int r, int c, double SoilDepAbove, cTMap *Ksat, cTMap *pore, cTMap *theta, cTMap *thetar, cTMap *FC, cTMap *SoilDep, cTMap *lambda);
     void cell_Redistribution1(int r, int c);
     void cell_Redistribution2(int r, int c);
     void cell_Redistribution3(int r, int c);
     void cell_RedistributionUnsat(int r, int c);
     void cell_Tiledrain1(int r, int c);
     void cell_Tiledrain2(int r, int c);
-    void cell_Channelinfow1(int r, int c);
-    void cell_Channelinfow2(int r, int c);
+// <<<<<<< HEAD
+//     void cell_Channelinfow1(int r, int c);
+//     void cell_Channelinfow2(int r, int c);
 
-    void cell_SplashDetachment();
+//     void cell_SplashDetachment();
 
-    void cell_FlowDetachment(); // obsolete
-    void cell_FlowDetachmentContinuous(); // obsolete, never used
+//     void cell_FlowDetachment(); // obsolete
+//     void cell_FlowDetachmentContinuous(); // obsolete, never used
 
-    void cell_ETa(int r, int c);
-    double getETaFactor();
-    double ETafactor;
-    double ETafactorTot;
-    double longdt;
-    void InfilEffectiveKsat();
-    void InfilDynamicCrusting();
-    void InfilSwatre();
-    void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
-    double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);
-    double IncreaseInfiltrationDepthNew2(double fact_, int r, int c);
-    double IncreaseInfiltrationDepthNew3(double fact_, int r, int c);
+//     void cell_ETa(int r, int c);
+//     double getETaFactor();
+//     double ETafactor;
+//     double ETafactorTot;
+//     double longdt;
+//     void InfilEffectiveKsat();
+//     void InfilDynamicCrusting();
+//     void InfilSwatre();
+//     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
+//     double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);
+//     double IncreaseInfiltrationDepthNew2(double fact_, int r, int c);
+//     double IncreaseInfiltrationDepthNew3(double fact_, int r, int c);
     void avgTheta();
+// =======
+
+    // erosion per cell
+    void cell_SplashDetachment();
+    void cell_FlowDetachment();
+    void cell_FlowDetachmentContinuous(); //not used, experimental
+
+    // not used:
+    void cell_SWATRECalc(long i_); // not used, too complex
+    double cell_Percolation(int r, int c, double factor);  //not used
+    void cell_Channelinfow1(int r, int c); // not used
+    void cell_Channelinfow2(int r, int c); // not used
+
+// >>>>>>> main_C
     // <= vertical processes
 
     // => 1D and 2D overlandflow
@@ -1126,7 +1166,7 @@ public:
                                 cTMap *_Alpha, cTMap *_DX, cTMap*_Sed);//,cTMap*_VolStore, cTMap*_SedStore);
     void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
                             cTMap *_Alpha,cTMap *_DX, cTMap *_Sed, cTMap *_Qmax);
-    double IterateToQnew(double Qin, double Qold, double alpha, double deltaT, double deltaX, double Qm, double Am);
+    double IterateToQnew(double Qin, double Qold, double alpha, double beta, double deltaT, double deltaX, double Qm, double Am);
     double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol, double sed);
     double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,double Sji1, double alpha, double dx);
     void upstream(QVector <LDD_COORIN>_crlinked_, cTMap *_Q, cTMap *_Qn);
@@ -1227,6 +1267,7 @@ int showc;
     void TotalsFlow(void);
     void TotalsSediment(void);
     void MassBalance(void);
+    void Correctheight();
     void reportToUI(void);
     void reportToFile(void);
     void ReportTimeseriesPCR(void);
@@ -1256,7 +1297,7 @@ int showc;
     QWaitCondition mu_condition;
     bool m_waitForGUI = true;
 
-    void stop();
+    //void stop();
 
 protected:
    // void run();
@@ -1286,6 +1327,7 @@ signals:
     void debug(const QString &results);
     void timedb(const QString &results);
     void show();
+    void ScreenShot();
     //use the output structure "op" declared in global.h and LisUIoutput.h
 
 public slots:   //note, was private loop but dixygen does not recognize that
