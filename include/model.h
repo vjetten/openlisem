@@ -878,22 +878,17 @@ public:
     void calcSoilPhysics(cTMap *Ksat, cTMap *lambda, cTMap *thfc, cTMap *thr,
                                  cTMap *psi, cTMap *psiae, double calk, double calpsi);
     // <= initiatlisation
-
-
-    int GrainSizeDistributionType;
+    //int GrainSizeDistributionType;
     double LogNormalDist(double d50,double sigma, double d); // not used
     double DetachMaterial(int r,int c, int d,bool channel,bool flood,bool bl, double detachment); //not used
 
     //material that is available for detachment
-    QList<cTMap *> StorageDep_D;
-    QList<cTMap *> Storage_D;
+   // QList<cTMap *> StorageDep_D;
+   // QList<cTMap *> Storage_D;
     cTMap *Storage;
     cTMap *StorageDep;
     cTMap *SedimentMixingDepth;
     cTMap *maxDetachment;
-
-    //QList<cTMap *> RStorageDep_D;
-    //QList<cTMap *> RStorage_D;
     cTMap *RStorage;
     cTMap *RStorageDep;
     cTMap *RSedimentMixingDepth;
@@ -1004,29 +999,9 @@ public:
     void cell_RedistributionUnsat(int r, int c);
     void cell_Tiledrain1(int r, int c);
     void cell_Tiledrain2(int r, int c);
-// <<<<<<< HEAD
-//     void cell_Channelinfow1(int r, int c);
-//     void cell_Channelinfow2(int r, int c);
 
-//     void cell_SplashDetachment();
-
-//     void cell_FlowDetachment(); // obsolete
-//     void cell_FlowDetachmentContinuous(); // obsolete, never used
-
-//     void cell_ETa(int r, int c);
-//     double getETaFactor();
-//     double ETafactor;
-//     double ETafactorTot;
-//     double longdt;
-//     void InfilEffectiveKsat();
-//     void InfilDynamicCrusting();
-//     void InfilSwatre();
-//     void InfilMethods(cTMap *_Ksateff, cTMap *_WH, cTMap *_fpot, cTMap *_fact, cTMap *_L1, cTMap *_L2, cTMap *_FFull);
-//     double IncreaseInfiltrationDepthNew1(double fact_, int r, int c);
-//     double IncreaseInfiltrationDepthNew2(double fact_, int r, int c);
-//     double IncreaseInfiltrationDepthNew3(double fact_, int r, int c);
     void avgTheta();
-// =======
+
 
     // erosion per cell
     void cell_SplashDetachment();
@@ -1039,7 +1014,6 @@ public:
     void cell_Channelinfow1(int r, int c); // not used
     void cell_Channelinfow2(int r, int c); // not used
 
-// >>>>>>> main_C
     // <= vertical processes
 
     // => 1D and 2D overlandflow
