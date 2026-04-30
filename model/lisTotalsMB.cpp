@@ -275,7 +275,7 @@ void TWorld::TotalsFlow(void)
                     ChanRetentionVolTot += ChanRetentionAct->Drc;
             }}
             RetentionVolTotmm += ChanRetentionVolTot*catchmentAreaFlatMM;
-            qDebug() << "chan" << ChanRetentionVolTot << ChanRetentionVolTotPot;
+          //  qDebug() << "chan" << ChanRetentionVolTot << ChanRetentionVolTotPot;
         }
 
     }

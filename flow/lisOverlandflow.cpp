@@ -72,6 +72,9 @@ void TWorld::OverlandFlow(void)
         }
 
         if (SwitchIncludeChannel) {
+
+            OverlandFlow1D();   // routing: kinematic wave of water and sediment
+
             ToChannelBroadWeir();
             // kin wave interaction with channel (FloodDomain = 0)
 
@@ -97,9 +100,9 @@ void TWorld::OverlandFlow(void)
                 //obsolete
             //TODO pesticide to channel
         }
+
     }
 
-    OverlandFlow1D();   // routing: kinematic wave of water and sediment
 
     // if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
     //     ChannelFlood();
@@ -133,25 +136,11 @@ void TWorld::OverlandFlow2Ddyn(void)
         TIMEDB(QString("Average dynamic timestep in flooded cells (dt %1 sec, n %2)").arg(dtOF,6,'f',3).arg(iter_n,4));
         // some screen reporting
 
-        //new flood domain, not used in Dyn Wave?
-        // but used in splash!
-       //  nrFloodedCells = 0;
-       //  FOR_ROW_COL_MV {
-       // //     FloodDomain->Drc = 1;
-       //      if (WHrunoff->Drc > 0) {
-       //          nrFloodedCells += 1.0;
-       //      }
-       //      // else
-       //      //     FloodDomain->Drc = 0;
-       //  }
-
         // calc discharge flux form the last flux in the loop
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
             Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
-            // if (i_ == 5000)
-            //     qDebug() << Qn->Drc << WHrunoff->Drc << Uflood->Drc << Vflood->Drc;
         }}
     }
 

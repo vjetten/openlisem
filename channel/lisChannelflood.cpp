@@ -299,7 +299,7 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
 
             // new equilibrium levels erosion
             if (SwitchErosion) {
-                if (FloodDomain->Drc > 0) {
+                //if (FloodDomain->Drc > 0) {
                     if (tochannel) {
                         double sed = transfer_volume * SSCFlood->Drc;
                         SSFlood->Drc -=sed;
@@ -309,17 +309,17 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
                         ChannelSSSed->Drc -= sed;
                         SSFlood->Drc += sed;
                     }
-                } else {
-                    if (tochannel) {
-                        double sed = transfer_volume * Conc->Drc;
-                        Sed->Drc -=sed;
-                        ChannelSSSed->Drc += sed;
-                    } else {
-                        double sed = transfer_volume * ChannelSSConc->Drc;
-                        ChannelSSSed->Drc -= sed;
-                        Sed->Drc += sed;
-                    }
-                }
+                // } else {
+                //     if (tochannel) {
+                //         double sed = transfer_volume * Conc->Drc;
+                //         Sed->Drc -=sed;
+                //         ChannelSSSed->Drc += sed;
+                //     } else {
+                //         double sed = transfer_volume * ChannelSSConc->Drc;
+                //         ChannelSSSed->Drc -= sed;
+                //         Sed->Drc += sed;
+                //     }
+                // }
 
                 SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drc);
                 SWOFSedimentSetConcentration(r,c, _h->Drc, ChannelAdj->Drc);
