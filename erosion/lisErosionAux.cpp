@@ -76,7 +76,7 @@ double TWorld::GetSV(double d )
 
 //---------------------------------------------------------------------------
 /**
- * @fn double TWorld::calcTCSuspended(int r,int c, int _d, int method,double U, int type)
+ * @fn double TWorld::calcTCSuspended(int r,int c, int method,double U, int type)
  * @brief Calculates suspended layer transport capacity
  *
  * Calculates suspended load sediment transport capacity.
@@ -89,12 +89,12 @@ double TWorld::GetSV(double d )
  * @param type : channel (0) or flood (1) or overland (2)
  */
 
-double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double w, double U, int type)
+double TWorld::calcTCSuspended(int r,int c, int method, double h, double w, double U, int type)
 {
     double R=0, hs=0, S = 0, man = 0.01;
     double d50m;
 
-    if (type == 0) {
+    if (type == SUSPchannel) {
         // river
         d50m = D50CH->Drc/1000000.0;
         hs = ChannelSSDepth->Drc;
@@ -102,17 +102,21 @@ double TWorld::calcTCSuspended(int r,int c, int _d, int method, double h, double
         R = (w*h)/(2*h+w);
         man = ChannelN->Drc;
     } else
-        if (type == 1) {
+        if (type == SUSPflood) {
             // flood
             d50m = D50->Drc/1000000.0;
             hs = SSDepthFlood->Drc;
             S = Grad->Drc;
-            R = (w*h)/(2*h+w);
+            //R = (w*h)/(2*h+w); //?
+            R = h;
+            man = N->Drc;
         } else
-            if (type == 2) {
+            if (type == SUSPrunoff) {
                 // kin wave
                 hs = WHrunoff->Drc;
                 S = Grad->Drc;
+                R = WHrunoff->Drc;
+                man = N->Drc;
             }
 
     //when water height is insignificant, transport capacity is zero

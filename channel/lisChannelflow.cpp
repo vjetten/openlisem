@@ -123,49 +123,52 @@ void TWorld::ChannelBaseflow(void)
 
     // add the baseflow from GW
     if (SwitchGWflow) {
+        if(InfilMethod == INFIL_SWATRE) {
+    //todo
+        } else {
 
-        GroundwaterFlow();
-        // move groundwater, GWout is the flow itself between cells
+            GroundwaterFlow();
+            // is all based on 2 layer G&A !
+            //TODO 3 layer G&A
 
-        cTMap *pore = Poreeff;
-        cTMap *ksat = Ksateff;
-        cTMap *SD = SoilDepth1init;
-        if (SwitchTwoLayer) {
-            pore = ThetaS2;
-            ksat = Ksat2;
-            SD = SoilDepth2init;
-        }
-
-        // in all channel cells
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL {
-            if (SwitchSWATGWflow) {
-                Qbase->Drc = ChannelWidth->Drc/_dx * GWout->Drc;
-            } else {
-                double bedrock = DEM->Drc - SD->Drc;
-                double chanbot = DEM->Drc - ChannelDepth->Drc;
-                bedrock=chanbot;
-                double dH = bedrock + GWWH->Drc - chanbot;
-                if (dH > 0 && GWWH->Drc > 0) {
-                   //Qbase->Drc = qMin(GWVol->Drc, 2.0 * dH/GWWH->Drc * GWout->Drc);
-                //   Qbase->Drc = qMin(GWVol->Drc, 2.0 * fabs(GWout->Drc));
-                   Qbase->Drc = 2*GWout->Drc;
-                   // use the fraction of GWout flow that reaches the channel
+            cTMap *SD = SoilDepth1init;
+            cTMap *pore = Thetaeff;
+            if (SwitchTwoLayer) {
+                SD = SoilDepth2init;
+                pore = ThetaS2;
+            }
+            // in all channel cells
+            // move groundwater, GWout is the flow between cells
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
+                if (SwitchSWATGWflow) {
+                    Qbase->Drc = ChannelWidth->Drc/_dx * GWout->Drc;
+                } else {
+                    double bedrock = DEM->Drc - SD->Drc;
+                    double chanbot = DEM->Drc - ChannelDepth->Drc;
+                    bedrock=chanbot;
+                    double dH = bedrock + GWWH->Drc - chanbot;
+                    if (dH > 0 && GWWH->Drc > 0) {
+                       //Qbase->Drc = qMin(GWVol->Drc, 2.0 * dH/GWWH->Drc * GWout->Drc);
+                    //   Qbase->Drc = qMin(GWVol->Drc, 2.0 * fabs(GWout->Drc));
+                       Qbase->Drc = 2*GWout->Drc;
+                       // use the fraction of GWout flow that reaches the channel
+                    }
                 }
-            }
-           // Qbase->Drc *= 2.0;
+               // Qbase->Drc *= 2.0;
 
-            if (!crch_[i_].culvert) {
-                ChannelWaterVol->Drc += Qbase->Drc;
-                GWVol->Drc = qMax(0.0, GWVol->Drc - Qbase->Drc);
-                GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
-            }
-            // m3 added per timestep, adjust the volume and height, not in culverts
+                if (!crch_[i_].culvert) {
+                    ChannelWaterVol->Drc += Qbase->Drc;
+                    GWVol->Drc = qMax(0.0, GWVol->Drc - Qbase->Drc);
+                    GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
+                }
+                // m3 added per timestep, adjust the volume and height, not in culverts
 
-            // NOTE: flow is always added no matter the conditions! e.g. when GW is below surface - channeldepth!
-            // But that would make channeldepth very sensitive
+                // NOTE: flow is always added no matter the conditions! e.g. when GW is below surface - channeldepth!
+                // But that would make channeldepth very sensitive
 
-        }}
+            }}
+        }
     }
 }
 //---------------------------------------------------------------------------

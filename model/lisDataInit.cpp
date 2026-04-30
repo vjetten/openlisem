@@ -174,9 +174,10 @@ void TWorld::InitParameters(void)
         SwitchLinkedList = false; //getvalueint("Use linked List") == 1;
         SwitchPerimeterKW = getvalueint("Use Perimeter KW") == 1;
         _dtCHkin = _dx/2;//getvaluedouble("Channel Kinwave dt");
-        SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
+        SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1; // is set to true ininterface and disabled
         SwitchChannelWFinflow = false;//getvalueint("Channel WF inflow") == 1;
         SwatrePrecision = getvaluedouble("SWATRE precision");
+        SwitchDepositionLinear = getvalueint("Deposition linear") == 1;
     } else {
         F_MaxIter = 200;
         F_minWH = he_ca;
@@ -188,6 +189,7 @@ void TWorld::InitParameters(void)
         _dtCHkin = _dx/2;
         SwitchChannel2DflowConnect = false;
         SwitchChannelWFinflow = false;
+        SwitchDepositionLinear = true;
 
         nN1_ = 3;
         nN2_ = 3;

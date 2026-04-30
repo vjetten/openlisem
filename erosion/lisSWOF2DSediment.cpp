@@ -69,8 +69,11 @@ functions: \n
 
 void TWorld::SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
 {
-
-    SedimentDetachmentSS(dt, h, w , u, v, SSFlood, SSCFlood, SSTCFlood, SSDetFlood, DepFlood, SettlingVelocitySS);
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        V->Drc = qSqrt(u->Drc*u->Drc + v->Drc*v->Drc);
+    }}
+    SedimentDetachmentSS(dt, h, w , V, SSFlood, SSCFlood, SSTCFlood, SSDetFlood, DepFlood, SettlingVelocitySS, SUSPflood);
     // suspended detachment (SS), same generic function as for 1D
 
     if (SwitchPest)
@@ -589,8 +592,8 @@ void TWorld::SWOFSedimentLayerDepth(int r , int c, double h, double velocity)
 
 //THIS IS NOW THE GENERIC DETACHMENT USED IN 1D and 2D FLOW
 
-void TWorld::SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *u,cTMap *v,
-                               cTMap *SS_, cTMap *SSC_, cTMap *SSTC_, cTMap *SSDet_, cTMap *Dep_, cTMap *SSVs_)
+void TWorld::SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *v,
+                               cTMap *SS_, cTMap *SSC_, cTMap *SSTC_, cTMap *SSDet_, cTMap *Dep_, cTMap *SSVs_, int type)
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -598,12 +601,12 @@ void TWorld::SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *u,cTMap 
 
         double sswatervol = 0;
 
-        double velocity = qSqrt(u->Drc *u->Drc + v->Drc * v->Drc);
+        double velocity = v->Drc;
 
         double wf = w->Drc;
         double hf = h->Drc;
 
-        SSTC_->Drc = calcTCSuspended(r, c, 1, FS_SS_Method, hf, wf, velocity, 1);
+        SSTC_->Drc = calcTCSuspended(r, c, FS_SS_Method, hf, wf, velocity, type);
         sswatervol = hf*wf*DX->Drc;
 
         double deposition = 0;
@@ -631,9 +634,10 @@ void TWorld::SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *u,cTMap 
             //deposition based on settling velocity
             if (minTC < 0) {
                 //NOTE use entire depth h for deposition of SS
-                //TransportFactor = (1-exp(-dt*TSettlingVelocitySS/hf)) * sswatervol;
-                // TODO: exponential decline or direct settling velocity
-                TransportFactor = dt * SSVs_->Drc * wf*DX->Drc;
+                if (SwitchDepositionLinear)
+                    TransportFactor = dt * SSVs_->Drc * wf*DX->Drc;
+                else
+                    TransportFactor = (1-exp(-dt*SSVs_->Drc/hf)) * sswatervol;
 
                 deposition  = qMax(TransportFactor*minTC, -SS);
 

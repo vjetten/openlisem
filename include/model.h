@@ -80,6 +80,10 @@
 #define SHAPETRIA 4
 #define SHAPEFREE 5
 
+#define SUSPchannel 0
+#define SUSPflood   1
+#define SUSPrunoff  2
+
 #define ARITHavg(a,b)  (0.5*(a+b))
 #define SQRTavg(a,b)  sqrt(a*b)
 #define HARMavg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
@@ -475,7 +479,9 @@ public:
         SwitchCulverts,
         SwitchConstantBeta,
         SwitchLitter,
-    SwitchPest, SwitchReportPest,
+        SwitchPest,
+        SwitchReportPest,
+        SwitchDepositionLinear,
 
         // output
         //SwitchOutputTimeUser,
@@ -1021,8 +1027,8 @@ public:
     void CalcVelDisch();
     void OverlandFlow1D(void);
     void OverlandFlow2D();
-    void ToChannel();
-    void ToChannelAlt();
+    void ToChannel(); // obsolete
+    void ToChannelBroadWeir();
     void ToFlood();
     void ToTiledrain();
     // <= OF
@@ -1047,7 +1053,7 @@ public:
     double pipeThetafroma(int r, int c, double a);
     void ChannelFlood(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V);
-    void ChannelOverflowAlt(cTMap *_h, cTMap *_V);
+    void ChannelOverflowBroadWeir(cTMap *_h, cTMap *_V);
     void chanHandPCirc(int r, int c);
     void chanHandPRect(int r, int c);
     void chanHandPTrap(int r, int c);
@@ -1156,15 +1162,15 @@ public:
     double rillfactor;
     double GetSV(double d);
     void SplashDetachment();
-    void SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *u,cTMap *v,
-                                   cTMap *SS_, cTMap *SSC_, cTMap *SSTC_, cTMap *SSDet_, cTMap *Dep_, cTMap *SSVs_);
+    void SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *v,
+                                   cTMap *SS_, cTMap *SSC_, cTMap *SSTC_, cTMap *SSDet_, cTMap *Dep_, cTMap *SSVs_, int type);
 
     double MaxConcentration(double watvol, double sedvol);
     void ChannelFlowDetachmentNew();
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentLayerDepth(int r , int c);
     void RiverSedimentMaxC(int r, int c);
-    double calcTCSuspended(int r,int c, int _d, int method, double h, double w,  double U, int type);
+    double calcTCSuspended(int r,int c, int method, double h, double w,  double U, int type);
     double calcTCBedload(int r,int c, int _d, int method, double h, double w, double U, int type);
     void SWOFSedimentCheckZero(int r, int c, cTMap * h);
     void SWOFSedimentSetConcentration(int r, int c, double h, double w);

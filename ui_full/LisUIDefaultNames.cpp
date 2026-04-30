@@ -755,6 +755,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel 2D flow connect");
     namelist[i].value = QString("6");
     namelist[i++].name = QString("SWATRE precision");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Deposition linear");
 
  //   namelist[i].value = QString("0");
  //   namelist[i++].name = QString("Calculate erosion inside 2D loop");

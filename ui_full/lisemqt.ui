@@ -147,7 +147,7 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>0</y>
+                <y>-219</y>
                 <width>1013</width>
                 <height>831</height>
                </rect>
@@ -7345,15 +7345,26 @@
                    <item row="1" column="0">
                     <widget class="QFrame" name="groupAdvanced">
                      <layout class="QGridLayout" name="gridLayout_68">
-                      <item row="1" column="0">
-                       <widget class="QToolButton" name="toolButton_version">
+                      <item row="0" column="3">
+                       <widget class="QToolButton" name="toolButton_resetAdvanced">
                         <property name="text">
-                         <string>New Version</string>
+                         <string>...</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../resources/openlisem.qrc">
+                          <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
                         </property>
                        </widget>
                       </item>
-                      <item row="5" column="5">
-                       <spacer name="horizontalSpacer_22">
+                      <item row="1" column="1" colspan="2">
+                       <widget class="QCheckBox" name="checkNewversionGITHUB">
+                        <property name="text">
+                         <string>Check for a new version on GITHUB when you start the program</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="5">
+                       <spacer name="horizontalSpacer_19">
                         <property name="orientation">
                          <enum>Qt::Orientation::Horizontal</enum>
                         </property>
@@ -7365,14 +7376,38 @@
                         </property>
                        </spacer>
                       </item>
-                      <item row="0" column="4">
-                       <widget class="QToolButton" name="toolButton_helpAdvanced">
-                        <property name="text">
-                         <string>...</string>
+                      <item row="7" column="5">
+                       <spacer name="horizontalSpacer_16">
+                        <property name="orientation">
+                         <enum>Qt::Orientation::Horizontal</enum>
                         </property>
-                        <property name="icon">
-                         <iconset resource="../resources/openlisem.qrc">
-                          <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item row="0" column="1">
+                       <widget class="QLabel" name="label_56">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Nr of CPU cores (0 = all cores; 1 = 1 core etc.)</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QToolButton" name="toolButton_version">
+                        <property name="text">
+                         <string>New Version</string>
                         </property>
                        </widget>
                       </item>
@@ -7430,6 +7465,50 @@
                           </widget>
                          </item>
                         </layout>
+                       </widget>
+                      </item>
+                      <item row="0" column="4">
+                       <widget class="QToolButton" name="toolButton_helpAdvanced">
+                        <property name="text">
+                         <string>...</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../resources/openlisem.qrc">
+                          <normaloff>:/2X/question-mark-button2x.png</normaloff>:/2X/question-mark-button2x.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="0">
+                       <widget class="QSpinBox" name="nrUserCores">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="minimum">
+                         <number>0</number>
+                        </property>
+                        <property name="maximum">
+                         <number>64</number>
+                        </property>
+                        <property name="singleStep">
+                         <number>1</number>
+                        </property>
+                        <property name="value">
+                         <number>0</number>
+                        </property>
+                        <property name="displayIntegerBase">
+                         <number>10</number>
+                        </property>
                        </widget>
                       </item>
                       <item row="7" column="0" colspan="3">
@@ -7553,30 +7632,6 @@
                          </item>
                         </layout>
                        </widget>
-                      </item>
-                      <item row="0" column="3">
-                       <widget class="QToolButton" name="toolButton_resetAdvanced">
-                        <property name="text">
-                         <string>...</string>
-                        </property>
-                        <property name="icon">
-                         <iconset resource="../resources/openlisem.qrc">
-                          <normaloff>:/2X/reset.png</normaloff>:/2X/reset.png</iconset>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="7" column="5">
-                       <spacer name="horizontalSpacer_16">
-                        <property name="orientation">
-                         <enum>Qt::Orientation::Horizontal</enum>
-                        </property>
-                        <property name="sizeHint" stdset="0">
-                         <size>
-                          <width>40</width>
-                          <height>20</height>
-                         </size>
-                        </property>
-                       </spacer>
                       </item>
                       <item row="5" column="0" colspan="3">
                        <widget class="QGroupBox" name="groupAdvSWOF">
@@ -7931,41 +7986,8 @@
                         </layout>
                        </widget>
                       </item>
-                      <item row="0" column="0">
-                       <widget class="QSpinBox" name="nrUserCores">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="minimum">
-                         <number>0</number>
-                        </property>
-                        <property name="maximum">
-                         <number>64</number>
-                        </property>
-                        <property name="singleStep">
-                         <number>1</number>
-                        </property>
-                        <property name="value">
-                         <number>0</number>
-                        </property>
-                        <property name="displayIntegerBase">
-                         <number>10</number>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="5">
-                       <spacer name="horizontalSpacer_19">
+                      <item row="5" column="5">
+                       <spacer name="horizontalSpacer_22">
                         <property name="orientation">
                          <enum>Qt::Orientation::Horizontal</enum>
                         </property>
@@ -7976,13 +7998,6 @@
                          </size>
                         </property>
                        </spacer>
-                      </item>
-                      <item row="1" column="1" colspan="2">
-                       <widget class="QCheckBox" name="checkNewversionGITHUB">
-                        <property name="text">
-                         <string>Check for a new version on GITHUB when you start the program</string>
-                        </property>
-                       </widget>
                       </item>
                       <item row="3" column="0" colspan="3">
                        <widget class="QGroupBox" name="groupAdvRichards">
@@ -8264,19 +8279,60 @@
                         </layout>
                        </widget>
                       </item>
-                      <item row="0" column="1">
-                       <widget class="QLabel" name="label_56">
+                      <item row="8" column="0" colspan="3">
+                       <widget class="QGroupBox" name="groupBox_4">
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
-                          <bold>false</bold>
+                          <bold>true</bold>
                           <underline>false</underline>
                           <kerning>true</kerning>
                          </font>
                         </property>
-                        <property name="text">
-                         <string>Nr of CPU cores (0 = all cores; 1 = 1 core etc.)</string>
+                        <property name="title">
+                         <string>Erosion</string>
                         </property>
+                        <layout class="QGridLayout" name="gridLayout_85">
+                         <property name="leftMargin">
+                          <number>8</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>4</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>8</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>4</number>
+                         </property>
+                         <property name="horizontalSpacing">
+                          <number>8</number>
+                         </property>
+                         <property name="verticalSpacing">
+                          <number>4</number>
+                         </property>
+                         <item row="0" column="0">
+                          <widget class="QCheckBox" name="checkDepositionLinear">
+                           <property name="enabled">
+                            <bool>true</bool>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Deposition linear (v) or exponential ( )</string>
+                           </property>
+                           <property name="checked">
+                            <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
                        </widget>
                       </item>
                      </layout>

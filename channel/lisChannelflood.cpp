@@ -188,14 +188,15 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 // TUFLOW and other models use this
 // www.brighthubengineering.com
 // NOTE _h is WHrunoff so without microdepression storage
-void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
+void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
 {
     if (!SwitchIncludeChannel)
          return;
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (!crch_[i_].culvert) {
+        if (FloodDomain->Drc > 0 && !crch_[i_].culvert) {
+            // flood domain == 0 is taken care of in
 
             switch (crch_[i_].shape) {
                 case SHAPERECT : chanHandPRect(r,c); break;
@@ -296,15 +297,28 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
 
             // new equilibrium levels erosion
             if (SwitchErosion) {
-                if (tochannel) {
-                    double sed = transfer_volume * SSCFlood->Drc;
-                    SSFlood->Drc -=sed;
-                    ChannelSSSed->Drc += sed;
+                if (FloodDomain->Drc > 0) {
+                    if (tochannel) {
+                        double sed = transfer_volume * SSCFlood->Drc;
+                        SSFlood->Drc -=sed;
+                        ChannelSSSed->Drc += sed;
+                    } else {
+                        double sed = transfer_volume * ChannelSSConc->Drc;
+                        ChannelSSSed->Drc -= sed;
+                        SSFlood->Drc += sed;
+                    }
                 } else {
-                    double sed = transfer_volume * ChannelSSConc->Drc;
-                    ChannelSSSed->Drc -= sed;
-                    SSFlood->Drc += sed;
+                    if (tochannel) {
+                        double sed = transfer_volume * Conc->Drc;
+                        Sed->Drc -=sed;
+                        ChannelSSSed->Drc += sed;
+                    } else {
+                        double sed = transfer_volume * ChannelSSConc->Drc;
+                        ChannelSSSed->Drc -= sed;
+                        Sed->Drc += sed;
+                    }
                 }
+
                 SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drc);
                 SWOFSedimentSetConcentration(r,c, _h->Drc, ChannelAdj->Drc);
 
@@ -391,13 +405,13 @@ void TWorld::ChannelFlood(void)
 {
     // hmx = flood equivalent of WH; hmxrunoff of WHrunoff
 
-    if (!SwitchIncludeChannel)
-        return;
+    // if (!SwitchIncludeChannel)
+    //     return;
 
-    ToFlood();
+   // ToFlood();
 
  //   if (SwitchChannel2DflowConnect)
-        ChannelOverflowAlt(hmxrunoff, V);
+ //       ChannelOverflowBroadWeir(hmxrunoff, V);
 //    else
   //      ChannelOverflow(hmxrunoff, V);
     // determine overflow water => hmx
@@ -428,7 +442,7 @@ void TWorld::ChannelFlood(void)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         if (FloodDomain->Drc > 0) {
-            V->Drc = sqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+            V->Drc = qSqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
             Qn->Drc = V->Drc * hmxrunoff->Drc * ChannelAdj->Drc;
         }
     }}

@@ -82,8 +82,7 @@ void TWorld::cell_FlowDetachment()
         //transport capacity
         DETFlow->Drc = 0;
         DEP->Drc = 0;
-        TC->Drc = calcTCSuspended(r,c,-1, FS_SS_Method, WHrunoff->Drc, FlowWidth->Drc, V->Drc, 2);
-        // trasnport capacity. 2 = kin wave. 1 = 2d flow and 0 is river
+        TC->Drc = calcTCSuspended(r,c, FS_SS_Method, WHrunoff->Drc, FlowWidth->Drc, V->Drc, SUSPrunoff);
 
         if (erosionwh < HMIN) {
             if(DO_SEDDEP == 1) {
@@ -227,7 +226,7 @@ void TWorld::cell_FlowDetachmentContinuous()
         //transport capacity
         DETFlow->Drc = 0;
         DEP->Drc = 0;
-        TC->Drc = calcTCSuspended(r,c,-1, FS_SS_Method, WHrunoff->Drc, FlowWidth->Drc, V->Drc, 2);
+        TC->Drc = calcTCSuspended(r,c, FS_SS_Method, WHrunoff->Drc, FlowWidth->Drc, V->Drc, 2);
         // trasnport capacity. 2 = kin wave. 1 = 2d flow and 0 is river
 
         if (erosionwh < HMIN) {

@@ -38,9 +38,6 @@ void TWorld::GroundwaterFlow(void)
     if (SwitchTwoLayer) {
         pore = ThetaS2;
         SoilDepthinit = SoilDepth2init;
-//        FOR_ROW_COL_MV_L {
-//            SoilDepthinit->Drc = SoilDepthinit->Drc - SoilDepth1init->Drc;
-//        }}
         SoilDepth = SoilDepth2;
     } else {
         pore = Poreeff;

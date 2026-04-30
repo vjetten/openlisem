@@ -391,6 +391,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Channel 2D flow connect")==0)           checkChannel2DflowConnect->setChecked(check);
         if (p1.compare("SWATRE precision")==0)                 spinSwatrePrecision->setValue(iii);
         //if (p1.compare("Channel WF inflow")==0)        checkChannelWFinflow->setChecked(check);
+        if (p1.compare("Deposition linear")==0)           checkDepositionLinear->setChecked(check);
 
 
         //CALIBRATION
@@ -1046,7 +1047,7 @@ void lisemqt::updateModelData()
         if (p1.compare("WH extreme threshold")==0)           namelist[j].value = E_WHextreme->text();
         if (p1.compare("Correct DEM")==0)                    namelist[j].value.setNum((int) checkCorrectDem->isChecked());
         if (p1.compare("Use 2D Diagonal flow")==0)           namelist[j].value.setNum((int) check2DDiagonalFlow->isChecked());
-
+        if (p1.compare("Deposition linear")==0)              namelist[j].value.setNum((int) checkDepositionLinear->isChecked());
          // erosion
         if (p1.compare("Include Erosion simulation")==0)     namelist[j].value.setNum((int)checkDoErosion->isChecked());
         if (p1.compare("Splash equation")==0)                namelist[j].value = E_splashEquation->text();
