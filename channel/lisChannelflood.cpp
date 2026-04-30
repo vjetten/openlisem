@@ -195,7 +195,7 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if ( !crch_[i_].culvert) {//FloodDomain->Drc > 0 &&
+        if (!crch_[i_].culvert) {//FloodDomain->Drc > 0 &&
             // flood domain == 0 is taken care of in
 
             switch (crch_[i_].shape) {
@@ -276,7 +276,7 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
                 ChannelWaterVol->Drc -= transfer_volume;
             }
 
-            //Update water height from volume
+            //Update channel water height from volume
             switch (crch_[i_].shape) {
                 case SHAPERECT : chanHandPRect(r,c); break;
                 case SHAPECIRC : chanHandPCirc(r,c); break;
@@ -284,8 +284,10 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
                 case SHAPETRIA : chanHandPTria(r,c); break;
                 case SHAPEFREE : chanHandPRect(r,c); break;
             }
+
             // update surface water height
             _h->Drc = qMax(0.0, WaterVolall->Drc-MicroStoreVol->Drc) / area_surface;
+            // _h is WHrunoff 2D flow and hmxrunoff for kindyn
 
             if (SwitchKinematic2D == K2D_METHOD_KINDYN) {
                 hmx->Drc = WaterVolall->Drc/area_surface;

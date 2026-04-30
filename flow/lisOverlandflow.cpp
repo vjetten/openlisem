@@ -150,6 +150,8 @@ void TWorld::OverlandFlow2Ddyn(void)
         FOR_ROW_COL_MV_L {
             V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
             Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
+            // if (i_ == 5000)
+            //     qDebug() << Qn->Drc << WHrunoff->Drc << Uflood->Drc << Vflood->Drc;
         }}
     }
 
