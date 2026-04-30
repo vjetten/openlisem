@@ -195,7 +195,7 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        if (FloodDomain->Drc > 0 && !crch_[i_].culvert) {
+        if ( !crch_[i_].culvert) {//FloodDomain->Drc > 0 &&
             // flood domain == 0 is taken care of in
 
             switch (crch_[i_].shape) {

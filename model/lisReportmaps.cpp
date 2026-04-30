@@ -35,7 +35,7 @@ void TWorld::PrepareReportMaps(void)
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        COMBO_V->Drc = V->Drc < 1e-5 ? 0 : V->Drc;
+        COMBO_V->Drc = V->Drc < 1e-6 ? 0 : V->Drc;
         VH->Drc = COMBO_V->Drc * hmxWH->Drc;
         Lwmm->Drc = Lw->Drc *1000;
     }}

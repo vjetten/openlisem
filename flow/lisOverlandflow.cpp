@@ -135,15 +135,15 @@ void TWorld::OverlandFlow2Ddyn(void)
 
         //new flood domain, not used in Dyn Wave?
         // but used in splash!
-        // nrFloodedCells = 0;
-        // FOR_ROW_COL_MV {
-        //     if (WHrunoff->Drc > 0) {
-        //         FloodDomain->Drc = 1;
-        //         nrFloodedCells += 1.0;
-        //     }
-        //     else
-        //         FloodDomain->Drc = 0;
-        // }
+       //  nrFloodedCells = 0;
+       //  FOR_ROW_COL_MV {
+       // //     FloodDomain->Drc = 1;
+       //      if (WHrunoff->Drc > 0) {
+       //          nrFloodedCells += 1.0;
+       //      }
+       //      // else
+       //      //     FloodDomain->Drc = 0;
+       //  }
 
         // calc discharge flux form the last flux in the loop
         #pragma omp parallel for num_threads(userCores)

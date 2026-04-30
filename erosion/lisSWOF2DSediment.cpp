@@ -71,9 +71,9 @@ void TWorld::SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        V->Drc = qSqrt(u->Drc*u->Drc + v->Drc*v->Drc);
+        tma->Drc = qSqrt(u->Drc*u->Drc + v->Drc*v->Drc);
     }}
-    SedimentDetachmentSS(dt, h, w , V, SSFlood, SSCFlood, SSTCFlood, SSDetFlood, DepFlood, SettlingVelocitySS, SUSPflood);
+    SedimentDetachmentSS(dt, h, w , tma, SSFlood, SSCFlood, SSTCFlood, SSDetFlood, DepFlood, SettlingVelocitySS, SUSPflood);
     // suspended detachment (SS), same generic function as for 1D
 
     if (SwitchPest)
