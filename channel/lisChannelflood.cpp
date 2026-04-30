@@ -390,7 +390,6 @@ void TWorld::FloodMaxandTiming()
 void TWorld::ChannelFlood(void)
 {
     // hmx = flood equivalent of WH; hmxrunoff of WHrunoff
-
     if (!SwitchIncludeChannel)
         return;
 
@@ -418,12 +417,13 @@ void TWorld::ChannelFlood(void)
     nrFloodedCells = 0;
     FOR_ROW_COL_MV {
         if (hmxrunoff->Drc > 0) {
-            FloodDomain->Drc = 1;
+            FloodDomain->Drc = 1; // here is 2D ovberflow
             nrFloodedCells += 1.0;
         }
         else
-            FloodDomain->Drc = 0;
+            FloodDomain->Drc = 0; //here is kin wave
     }
+
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -440,6 +440,6 @@ void TWorld::ChannelFlood(void)
     double area = nrFloodedCells*_dx*_dx;
     if (area > 0)
         debug(QString("Flooding (dt %1 sec, n %2): area %3 m2, %4 cells").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(nrFloodedCells));//.arg(K2DQOutBoun));
-    // some screen error reporting
+    // some screen reporting
 
 }
