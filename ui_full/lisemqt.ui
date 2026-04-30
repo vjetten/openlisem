@@ -147,9 +147,9 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>-219</y>
+                <y>-257</y>
                 <width>1013</width>
-                <height>831</height>
+                <height>865</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
@@ -7917,30 +7917,6 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="5" column="0" colspan="5">
-                          <widget class="QCheckBox" name="checkErosionLoop">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Do erosion outside the 2D loop</string>
-                           </property>
-                           <property name="checked">
-                            <bool>true</bool>
-                           </property>
-                          </widget>
-                         </item>
                          <item row="3" column="0" colspan="4">
                           <widget class="QLabel" name="label_161">
                            <property name="sizePolicy">
@@ -8311,7 +8287,7 @@
                          <property name="verticalSpacing">
                           <number>4</number>
                          </property>
-                         <item row="0" column="0">
+                         <item row="1" column="0">
                           <widget class="QCheckBox" name="checkDepositionLinear">
                            <property name="enabled">
                             <bool>true</bool>
@@ -8329,6 +8305,33 @@
                            </property>
                            <property name="checked">
                             <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="0">
+                          <widget class="QCheckBox" name="checkErosionLoop">
+                           <property name="enabled">
+                            <bool>false</bool>
+                           </property>
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Do erosion outside the 2D loop</string>
+                           </property>
+                           <property name="checked">
+                            <bool>false</bool>
                            </property>
                           </widget>
                          </item>

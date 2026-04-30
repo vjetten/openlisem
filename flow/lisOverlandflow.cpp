@@ -53,6 +53,7 @@ void TWorld::OverlandFlow(void)
         CalcVelDisch();
         // Q, V and Alpha Manning
 
+        // calc all erosion
         if (SwitchErosion) {
 
            // cell_FlowDetachment(); // obsolete
@@ -71,13 +72,15 @@ void TWorld::OverlandFlow(void)
             }
         }
 
+        // move water and sed into channel
         if (SwitchIncludeChannel) {
-
-            OverlandFlow1D();   // routing: kinematic wave of water and sediment
 
             ToChannelBroadWeir();
             // kin wave interaction with channel (FloodDomain = 0)
 
+            //TODO pesticide to channel
+
+            // if 2D overflow do that
             if (SwitchKinematic2D == K2D_METHOD_KINDYN) {
                 ToFlood();
                 // transfer kin wave WHrunoff and sed to flood height hmx and SSFlood where both exist
@@ -87,27 +90,11 @@ void TWorld::OverlandFlow(void)
                 // dyn wave for flooded part
             }
 
-               // st venant channel 2D flooding from channel, only for kyn wave + overflow
-    //            } else {
+            OverlandFlow1D();
+            // routing: kinematic wave of water and sediment
 
-
-            // if (SwitchChannel2DflowConnect) // is always true
-            //     ToChannelBroadWeir();
-            //     // overland flow water and sed going into channel, where the kin wave directly touches the channel
-            //     // if kin+flooding the interaction with the channel is done in ChannelFlood
-            // else
-            //     ToChannel();
-                //obsolete
-            //TODO pesticide to channel
         }
-
     }
-
-
-    // if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
-    //     ChannelFlood();
-    //     // st venant channel 2D flooding from channel, only for kyn wave + overflow
-    // }
 }
 
 //--------------------------------------------------------------------------------------------

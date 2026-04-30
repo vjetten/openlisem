@@ -131,13 +131,13 @@ class QwtComboColorMap: public QwtLinearColorMap
 
         if(thresholduse)
         {
-            if ( value <= thresholdmin )
+            if ( value <= thresholdmin)
             {
                 return qRgba( 0, 0, 0, 0 );
             }
         }else
         {
-            if ( value <= -1e20 )
+            if ( qAbs(value) <= -1e20 )
             {
                 return qRgba( 0, 0, 0, 0 );
             }
@@ -315,24 +315,6 @@ public:
 //};
 //---------------------------------------------------------------------------
 /// Dark yellow legend for maps for road map overlay
-class colorMapRoads3: public QwtLinearColorMapVJ
-{
-    virtual QRgb rgb( const QwtInterval &interval, double value ) const
-    {
-        if ( value <= thresholdLCM )
-            return qRgba( 0, 0, 0, 0 );
-
-        return QwtLinearColorMap::rgb( interval, value );
-    }
-public:
-    colorMapRoads3():
-        QwtLinearColorMapVJ( QColor("#ffffff"), QColor("#ffffff"))
-    {
-        addColorStop(0.0, QColor("#ffffff"));
-    }
-};
-//---------------------------------------------------------------------------
-/// Dark yellow legend for maps for road map overlay
 class colorMapRoads: public QwtLinearColorMapVJ
 {
     virtual QRgb rgb( const QwtInterval &interval, double value ) const
@@ -364,8 +346,7 @@ public:
     colorMapRoads2():
 //        QwtLinearColorMapVJ( QColor("#f9fb44"), QColor("#f9fb44")  )
 
-        QwtLinearColorMapVJ( QColor("#fcd6a4"), QColor("#fcd6a4")  ) // OSM road color
-//        QwtLinearColorMapVJ( QColor("#f0f000"), QColor("#f0f000")  )
+        QwtLinearColorMapVJ( QColor("#b7a895"), QColor("#e6d690")  )
     {
     }
 };

@@ -615,7 +615,7 @@ void TWorld::SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *v,
         if(h->Drc < HMIN) {
             if(DO_SEDDEP == 1) {
                 //set all to zero when the water height is zero
-                Dep_->Drc += -SS_->Drc;
+                Dep_->Drc += -SS_->Drc; // gives extreme deposition 50000 ton/ha etc.
                 SSTC_->Drc = 0;
                 SS_->Drc = 0;
                 SSC_->Drc = 0;
@@ -720,7 +720,7 @@ void TWorld::SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *v,
                     //is there erosion and sedimentation under the snowdeck?
 
                     if(SS + detachment > MAXCONC * sswatervol)
-                        detachment = MAXCONC * sswatervol - SS;
+                        detachment = qMax(0.0, MAXCONC * sswatervol - SS);
                     // not more detachment then is needed to keep below ssmax
                 }
             }

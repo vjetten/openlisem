@@ -590,7 +590,7 @@ void lisemqt::showComboMap(int i)
     }
 
     drawMap->setData(RD);
-    drawMap->setColorMap(cm);//Map.at(i));
+    drawMap->setColorMap(cm);
     drawMap->setAlpha(transparencyMap->value());
 
     rightAxis->setColorMap( drawMap->data()->interval( Qt::ZAxis ), cmL);//eg.at(i));
