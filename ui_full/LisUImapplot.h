@@ -137,7 +137,7 @@ class QwtComboColorMap: public QwtLinearColorMap
             }
         }else
         {
-            if ( qAbs(value) <= -1e20 )
+            if ( value <= -1e20 )
             {
                 return qRgba( 0, 0, 0, 0 );
             }

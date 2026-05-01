@@ -1171,14 +1171,13 @@ public:
     void RiverSedimentLayerDepth(int r , int c);
     void RiverSedimentMaxC(int r, int c);
     double calcTCSuspended(int r,int c, int method, double h, double w,  double U, int type);
-    double calcTCBedload(int r,int c, int _d, int method, double h, double w, double U, int type);
+    double calcTCBedload(int r,int c, int method, double h, double w, double U, int type);
     void SWOFSedimentCheckZero(int r, int c, cTMap * h);
     void SWOFSedimentSetConcentration(int r, int c, double h, double w);
     void SedimentSetConcentration(cTMap *h, cTMap *SSC_, cTMap *SS_, cTMap *SSD_);
     void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap *v, cTMap * _SS,cTMap * _SSC);
-    void SedimentFlowInterpolation(double dt, cTMap * h, cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC, cTMap *_SSD);
-    void SedimentFlowInterpolationNew(double dt, cTMap * h, cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC, cTMap *_SSD);
-    void SedimentDetachmentBL(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
+    void SWOFSedimentAdvection(double dt, cTMap * h, cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC, cTMap *_SSD);
+    void SedimentDetachmentBL(double dt, cTMap * h, cTMap *w, cTMap * V);
     void SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);
     void correctMassBalance(double sum1, cTMap *M);

@@ -78,7 +78,7 @@ void TWorld::ChannelFlowDetachmentNew()
 
         //get transport capacity for bed/suspended load for a specific cell and grain size class
         if (SwitchUse2Phase)
-            ChannelBLTC->Drc = calcTCBedload(r, c, 1, R_BL_Method, ChannelWH->Drc, ChannelWidth->Drc, ChannelV->Drc, SUSPchannel);
+            ChannelBLTC->Drc = calcTCBedload(r, c, R_BL_Method, ChannelWH->Drc, ChannelWidth->Drc, ChannelV->Drc, SUSPchannel);
         ChannelSSTC->Drc = calcTCSuspended(r, c, R_SS_Method, ChannelWH->Drc, ChannelWidth->Drc, ChannelV->Drc, SUSPchannel);
 
         //find transport capacity for bed and suspended layer

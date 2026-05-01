@@ -48,13 +48,6 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     double dt_req_min = dt_max;
     sumh = getMass(h);
 
-    // Fill(*tmd,0);
-    // #pragma omp parallel for num_threads(userCores)
-    // FOR_ROW_COL_MV_L {
-    //     if (h->Drc > F_minWH)
-    //         tmd->Drc = 1; // flag which cells have to be calculated
-    // }}
-
     do {
 
         //if (SwitchErosion)
@@ -67,38 +60,28 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             tma->Drc = h->Drc;
             tmb->Drc = u->Drc;
             tmc->Drc = v->Drc;
-            // save the values at the start of the run for MUSCL
+            // save the values at the start of the run for MUSCL/Heun averaging
         }}
 
-        dt_req_min = doSWOFMUSCLdt(dt_max, timesum, h, u, v, z);
-        // do MUSCL (optional), Riemann etc, get back smallest dt
-        // in the original code this is split in reconstruction/MUSCL and maincalcflux
-
-        if (dt_req_min == -1)
-            return(0);
-
-        doSWOFStV(dt_req_min, h, u, v);
-        // Saint-Venant calculations for new h, u, v
-        // called maincalcscheme in fullSWOF
-
-        //until here is first order ! just one calculation
-
-        // 2nd order, with avg according to Heun, according to fullswof hean should allways be done!
-        int step = 0;
-        double dt1;
-
         if (SwitchMUSCL) {
+            // 2nd order, with avg according to Heun, according to fullswof hean should allways be done!
+            int step = 0;
+            double dt1;
+
             do {
                 step++;
                 dt1 = dt_req_min;
 
                 dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
 
-            } while (dt1 > dt_req_min && step < 2);
+                qDebug() << "muscl" << step << dt1 << dt_req_min;
+            } while (dt1 > dt_req_min && step < 3);
 
             doSWOFStV(dt_req_min, h, u, v);
+            // Saint-Venant calculations for new h, u, v
+            // called maincalcscheme in fullSWOF
 
-            //Heun, see SWOF doc
+            //Heun average, see FullSWOF doc
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 double havg = 0.5*(tma->Drc + h->Drc); // avg original before loops and second estimation
@@ -114,12 +97,25 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                     v->Drc = 0.0;
                 }
             }}
-        } // MUSCL
+        } else {
+            // first order solution, cell centers are use, just one calculation, no Heun averaging
+            // in the original code this is split in reconstruction/MUSCL and maincalcflux
+
+            dt_req_min = doSWOFMUSCLdt(dt_max, timesum, h, u, v, z);
+
+            doSWOFStV(dt_req_min, h, u, v);
+            // Saint-Venant calculations for new h, u, v
+            // called maincalcscheme in fullSWOF
+        }
 
   //      correctMassBalance(sumh, h);
 
-        if (SwitchErosion && !SwitchErosionOutsideLoop) {
+        if (SwitchErosion) {// && !SwitchErosionOutsideLoop)
             SWOFSediment(dt_req_min, h, FlowWidth, u,v);
+            // sediment detachment/deposition
+            // suspended and optionally bedload
+            // transport by advection and optionally diffusion
+            // concentration recalculations
         }
 
         if (Switch2DDiagonalFlow) {
@@ -134,13 +130,6 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         if(count > F_MaxIter)
         stop = true;
 
-        // #pragma omp parallel for num_threads(userCores)
-        // FOR_ROW_COL_MV_L {
-        //     tmd->Drc = 0;
-        //     if (h->Drc > F_minWH && qSqrt(u->Drc*u->Drc+v->Drc*v->Drc) > F_minWH)
-        //         tmd->Drc = 1;
-        // }}
-
     } while (!stop);
 
     // small mass balance corrections within 2d flow
@@ -152,9 +141,11 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     //     tmshow->Drc -= h->Drc;
     // }}
 
-    if (SwitchErosion && SwitchErosionOutsideLoop) {
-        SWOFSediment(_dt, h, FlowWidth, u,v);
-    }
+    // GIVES EXTREME DEPOSITION
+    // if (SwitchErosion && SwitchErosionOutsideLoop) {
+    //     SWOFSediment(_dt, h, FlowWidth, u,v);
+    // }
+    // do not do this. inside is a courant factor that detrmines the dt, not dt_ and deposition becomes massive
 
     if (FlowBoundaryType > 0) {
         Boundary2Ddyn(_dt, h, u, v);

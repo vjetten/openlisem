@@ -215,7 +215,7 @@ void TWorld::cell_FlowDetachment()
 }
 
 
-// experimental nor used
+// experimental not used
 void TWorld::cell_FlowDetachmentContinuous()
 {
     #pragma omp parallel for num_threads(userCores)

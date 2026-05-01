@@ -43,8 +43,6 @@ functions: \n
 
 #define signf(x)  ((x < 0)? -1.0 : 1.0)
 
-#define dt_ca 0.005
-
 //--------------------------------------------------------------------------------------------
 /**
  * @fn void TWorld::SWOFSediment(double dt)
@@ -69,23 +67,27 @@ functions: \n
 
 void TWorld::SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
 {
+    // vector velocity for detachment
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        tma->Drc = qSqrt(u->Drc*u->Drc + v->Drc*v->Drc);
+        V->Drc = qSqrt(u->Drc*u->Drc + v->Drc*v->Drc);
     }}
-    SedimentDetachmentSS(dt, h, w , tma, SSFlood, SSCFlood, SSTCFlood, SSDetFlood, DepFlood, SettlingVelocitySS, SUSPflood);
+
+    SedimentDetachmentSS(dt, h, w , V, SSFlood, SSCFlood, SSTCFlood, SSDetFlood, DepFlood, SettlingVelocitySS, SUSPflood);
     // suspended detachment (SS), same generic function as for 1D
 
     if (SwitchPest)
         PesticideFlowDetachmentSS(SSDetFlood, DepFlood, SSFlood);
+    // uses the detachment and depositon for pesticide fractions
 
     if (SwitchUse2Phase) {
-        SedimentDetachmentBL(dt, h, w , u, v);
+        SedimentDetachmentBL(dt, h, w , V);
+        // includes SWOFSedimentLayerDepth that splits wh in ss and bl layer
     } else {
         copy(*SSDepthFlood, *h);
     }
 
-    SedimentFlowInterpolation(dt, h,u,v, SSFlood, SSCFlood, SSDepthFlood);
+    SWOFSedimentAdvection(dt, h,u,v, SSFlood, SSCFlood, SSDepthFlood);
     // susponded matter flow, advection
 
     if (SwitchIncludeDiffusion) {
@@ -96,7 +98,7 @@ void TWorld::SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
 
     //bedload detachment and movement
     if (SwitchUse2Phase) {
-        SedimentFlowInterpolation(dt, h,u,v, BLFlood, BLCFlood, BLDepthFlood);
+        SWOFSedimentAdvection(dt, h,u,v, BLFlood, BLCFlood, BLDepthFlood);
         SedimentSetConcentration(h, BLFlood, BLCFlood, BLDepthFlood);
     }
 
@@ -108,9 +110,9 @@ void TWorld::SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
             //note: PCrs is done in flow detahcment
         }}
 
-        SedimentFlowInterpolation(dt, h,u,v, PMrw, PCrw, SSDepthFlood);
+        SWOFSedimentAdvection(dt, h,u,v, PMrw, PCrw, SSDepthFlood);
         // dissolved pest distribution between cells
-        SedimentFlowInterpolation(dt, h,u,v, PMrs, PCrs, SSDepthFlood);
+        SWOFSedimentAdvection(dt, h,u,v, PMrs, PCrs, SSDepthFlood);
         // absorbed pest distribution between cells
         if (SwitchIncludeDiffusion) {
             SWOFSedimentDiffusion(dt, h,u,v, PMrw, PCrw); //dissolved
@@ -203,7 +205,7 @@ void TWorld::SWOFSedimentDiffusion(double dt, cTMap *h,cTMap *u,cTMap *v, cTMap 
 
         //diffusion coefficient according to J.Smagorinski (1964)
         double eddyvs = cdx * cdy * sqrt(dux*dux + dvy*dvy +  0.5 * (dvx +duy)*(dvx +duy));
-        double eta = eddyvs/FS_SigmaDiffusion;
+        double eta = eddyvs/FS_SigmaDiffusion; // set to 0.5
 
         //cell directions
         int dx[4] = {0, 1, -1, 0};
@@ -211,7 +213,7 @@ void TWorld::SWOFSedimentDiffusion(double dt, cTMap *h,cTMap *u,cTMap *v, cTMap 
         double flux[4] = {0.0,0.0,0.0,0.0};
 
         //use the calculated weights to distribute flow
-        for (int i=0; i<4; i++)
+        for (int i = 0; i < 4; i++)
         {
             //must multiply the cell directions by the sign of the slope vector components
             int rr = r+dy[i];
@@ -222,7 +224,7 @@ void TWorld::SWOFSedimentDiffusion(double dt, cTMap *h,cTMap *u,cTMap *v, cTMap 
             {
                 //diffusion coefficient eta
                 double coeff = SSDepthFlood->Drc > 0 ? dt * eta * qMin(1.0, SSDepthFlood->Drcr/SSDepthFlood->Drc) : 0.0;
-                coeff = qMin(coeff, courant_factorSed);
+                coeff = qMin(coeff, courant_factorSed); //????
                 flux[i] = coeff*_SS->Drc;
                 if (i == 0) tma->Drcr += flux[i];
                 if (i == 1) tmb->Drcr += flux[i];
@@ -232,37 +234,19 @@ void TWorld::SWOFSedimentDiffusion(double dt, cTMap *h,cTMap *u,cTMap *v, cTMap 
         }
 
         _SS->Drc -= (flux[0]+flux[1]+flux[2]+flux[3]);
+        // subtract fluxes form the cell`
     }}
-
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        _SS->Drc = _SS->Drc + tma->Drc + tmb->Drc+tmc->Drc+tmd->Drc;
+        _SS->Drc = _SS->Drc + tma->Drc + tmb->Drc + tmc->Drc + tmd->Drc;
     }}
 
 }
 
 //--------------------------------------------------------------------------------------------
-/**
- * @fn void TWorld::SWOFSedimentFlowInterpolation(int r, int c, double dt, cTMap * _BL,cTMap * _BLC, cTMap * _SS,cTMap * _SSC)
- * @brief Distributes sediment flow in flood water trough bilinear interpolation.
- *
- * Distributes sediment flow in flood water trough bilinear interpolation.
- * The concentration map, together with water height and velocity
- * are used to determine sediment discharges.
- *
- * @param dt : timestep to be taken
- * @param h : the flood water height
- * @param u : the flood velocity in the x-direction
- * @param v : the flood velocity in the y-direction
- * @param _BL : Bed load sediment
- * @param _BLC : Bed load sediment
- * @param _SS : Suspended sediment
- * @param _SSC : Suspended sediment concentration
- *
- * @return void
- */
-void TWorld::SedimentFlowInterpolationNew(double dt, cTMap *h, cTMap *u,cTMap *v,cTMap *_SS, cTMap *_SSC, cTMap *_SSD)
+
+void TWorld::SWOFSedimentAdvection(double dt, cTMap *h, cTMap *u,cTMap *v,cTMap *_SS, cTMap *_SSC, cTMap *_SSD)
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -282,130 +266,18 @@ void TWorld::SedimentFlowInterpolationNew(double dt, cTMap *h, cTMap *u,cTMap *v
         double yn = signf(v_);
         double xn = signf(u_);
 
-        double velocity = sqrt(u_*u_ + v_*v_);
-
-        // material going out of the cell
-        if(velocity > he_ca && h->Drc > he_ca) {
-            // double courant = this->courant_factorSed;
-
-            double dss = dt*velocity*ChannelAdj->Drc * _SSD->Drc * _SSC->Drc;
-            // s*m/s*m*m*kg/m3 = kg
-
-            if(dss > courant_factorSed * _SS->Drc)
-               dss = courant_factorSed * _SS->Drc; // equals courant factor but not more than 0.2
-            //total material that can move, this needs to be divided over neighbour cells
-            //TODO: if dt is inside the swof loop, we do not need a courent factor here because
-            //dt is altready smallest
-
-            //should not travel more distance than cell size
-            double dsx = xn*qMin(fabs(u_)/velocity,1.0);
-            double dsy = yn*qMin(fabs(v_)/velocity,1.0);
-
-            //cell directions
-//            int dx[4] = {0, -1, 0, 1}; //up left down right
-//            int dy[4] = {-1, 0, 1, 0};
-            int dx[3] = {0, 1,  0};
-            int dy[3] = {1, 0,  0};
-
-            double w[3] = {0.0,0.0,0.0};
-            for (int i=0; i<3; i++)
-            {
-                //must multiply the cell directions by the sign of the slope vector components
-                int rr = r+(int)yn*dy[i];
-                int cr = c+(int)xn*dx[i];
-
-                // distance we want is equal to: 1 - distance from the advected location to the neighbouring cell
-                double wdx = 1.0 - qFabs( xn * ((double)dx[i]) - dsx);
-                double wdy = 1.0 - qFabs( yn * ((double)dy[i]) - dsy);
-
-                //the distribution is inversely proportional to the squared distance
-                double weight = qFabs(wdx) * qFabs(wdy);
-
-                if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr)) {
-                    if(h->Drcr > he_ca) {
-                        w[i] = weight;
-                    }
-                }
-            }
-
-            //normalize: sum of the 4 weights is equal to 1
-            double wt = w[0];
-            wt += w[1];
-            wt += w[2];
-          //  wt += w[3];
-
-            if(wt == 0) {
-                w[2] = 1.0;
-                wt = 1.0;
-            }
-
-            w[0] = w[0]/wt;
-            w[1] = w[1]/wt;
-            w[2] = w[2]/wt;
-           // w[3] = w[3]/wt;
-
-            double flux[3] = {0.0,0.0,0.0};
-
-            for (int i=0; i<3; i++) {
-
-                int rr = r+(int)yn*dy[i];
-                int cr = c+(int)xn*dx[i];
-                if(INSIDE(rr,cr) && !pcr::isMV(LDD->Drcr))
-                {
-                    if(h->Drcr > he_ca)
-                    {
-                        flux[i] = w[i]*dss;
-
-                        if (i == 0) tma->Drcr += flux[i];
-                        if (i == 1) tmb->Drcr += flux[i];
-                        if (i == 2) tmc->Drcr += flux[i];
-                        //if (i == 3) tmd->Drcr += flux[i];
-                    }
-                }
-            }
-             // subtract/add the four fluxes from each cell
-            _SS->Drc -= (flux[0]+flux[1]+flux[2]);//+flux[3]); // flux is in kg!
-        } // v en h > ha
-    }}
-
-    // update SS with new values in 4 cells that have changed
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        _SS->Drc = _SS->Drc + tma->Drc + tmb->Drc + tmc->Drc;// + tmd->Drc;
-    }}
-
-}
-
-
-void TWorld::SedimentFlowInterpolation(double dt, cTMap *h, cTMap *u,cTMap *v,cTMap *_SS, cTMap *_SSC, cTMap *_SSD)
-{
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        tma->Drc = 0;
-        tmb->Drc = 0;
-        tmc->Drc = 0;
-        tmd->Drc = 0;
-    }}
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        //first calculate the weights for the cells that are closest to location that flow is advected to
-        double u_ = u->Drc;
-        double v_ = v->Drc;
-
-        //the sign of the x and y direction of flow
-        double yn = signf(v_);
-        double xn = signf(u_);
-
-        double velocity = sqrt(u_*u_ + v_*v_);
+        double velocity = qSqrt(u_*u_ + v_*v_);
 
         if(velocity > he_ca && h->Drc > he_ca) {
-            // double courant = this->courant_factorSed;
-
-            double dss = dt*velocity*ChannelAdj->Drc * _SSD->Drc * _SSC->Drc;
+            double dss = dt*velocity * ChannelAdj->Drc*_SSD->Drc * _SSC->Drc;
             // s*m/s*m*m*kg/m3 = kg
-            if(dss > courant_factorSed * _SS->Drc)
-               dss = courant_factorSed * _SS->Drc; // equals courant factor but not more than 0.2
+
+            // no real reason to do this? dt is already limited by courant so this would be double
+
+            // if(dss > courant_factorSed * _SS->Drc)
+            //    dss = courant_factorSed * _SS->Drc;
+            // equals courant factor but not more than 0.2
+            // courant_factorSed is the same as general courant factor, but limited to < 0.2
 
             //should not travel more distance than cell size
             double dsx = xn*qMin(fabs(u_)/velocity,1.0);
@@ -471,8 +343,9 @@ void TWorld::SedimentFlowInterpolation(double dt, cTMap *h, cTMap *u,cTMap *v,cT
                     }
                 }
             }
-             // subtract the four fluxes from each cell
+            // subtract the four fluxes from each cell
             _SS->Drc -= (flux[0]+flux[1]+flux[2]+flux[3]); // flux is in kg!
+
         } // v en h > ha
     }}
 
@@ -513,7 +386,6 @@ void TWorld::SWOFSedimentSetConcentration(int r, int c, double h, double w)
         SSCFlood->Drc = 0;
     }
 }
-
 
 void TWorld::SedimentSetConcentration(cTMap *h, cTMap *SS_, cTMap *SSC_, cTMap *SSD_)
 {
@@ -591,7 +463,6 @@ void TWorld::SWOFSedimentLayerDepth(int r , int c, double h, double velocity)
  */
 
 //THIS IS NOW THE GENERIC DETACHMENT USED IN 1D and 2D FLOW
-
 void TWorld::SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *v,
                                cTMap *SS_, cTMap *SSC_, cTMap *SSTC_, cTMap *SSDet_, cTMap *Dep_, cTMap *SSVs_, int type)
 {
@@ -737,7 +608,7 @@ void TWorld::SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *v,
 }
 
 
-void TWorld::SedimentDetachmentBL(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
+void TWorld::SedimentDetachmentBL(double dt, cTMap * h, cTMap *w, cTMap * V)
 {
 
     #pragma omp parallel for num_threads(userCores)
@@ -746,7 +617,7 @@ void TWorld::SedimentDetachmentBL(double dt, cTMap * h, cTMap *w, cTMap * u,cTMa
 
         double blwatervol = 0;
 
-        double velocity = std::sqrt(u->Drc *u->Drc + v->Drc * v->Drc);
+        double velocity = V->Drc;//std::sqrt(u->Drc *u->Drc + v->Drc * v->Drc);
 
         double wf = w->Drc;
         double hf = h->Drc;
@@ -756,7 +627,7 @@ void TWorld::SedimentDetachmentBL(double dt, cTMap * h, cTMap *w, cTMap * u,cTMa
 
         //calculate tranport capacity for bed load and suspended load
         // Bedload is based on D90, susp on D50
-        BLTCFlood->Drc = calcTCBedload(r, c, 1, FS_BL_Method, hf, wf, velocity, 1);
+        BLTCFlood->Drc = calcTCBedload(r, c, FS_BL_Method, hf, wf, velocity, SUSPflood);
         blwatervol = wf*DX->Drc * BLDepthFlood->Drc;
 
         double deposition = 0;
@@ -877,7 +748,7 @@ void TWorld::SedimentDetachmentBL(double dt, cTMap * h, cTMap *w, cTMap * u,cTMa
                         detachment *= Y->Drc;
 
                         if(BL + detachment > MAXCONC * blwatervol)
-                            detachment = MAXCONC * blwatervol - BL;
+                            detachment = qMax(0.0, MAXCONC * blwatervol - BL);
                         // limit detachment to what BLflood can carry
 
                         if (SwitchSedtrap && SedMaxVolume->Drc > 0)

@@ -1598,7 +1598,6 @@ void TWorld::InitErosion(void)
 
     COHCalibration = getvaluedouble("Cohesion calibration");
     Cohesion = ReadMap(LDD,getvaluename("coh"));
-
     RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
 
     ASCalibration = getvaluedouble("Aggregate stability calibration");
@@ -1652,9 +1651,9 @@ void TWorld::InitErosion(void)
     R_SS_Method  = getvalueint("River SS method")-1;
     R_BL_Method  = getvalueint("River BL method")-1;
 
-    FS_SigmaDiffusion = getvaluedouble("Sigma diffusion");
-    R_SigmaDiffusion = getvaluedouble("Sigma diffusion"); // same diffusion for river and OF
-
+    FS_SigmaDiffusion = 0.5;// getvaluedouble("Sigma diffusion"); Prandtl Smith turbulense factor
+    R_SigmaDiffusion = 0.5;//getvaluedouble("Sigma diffusion"); // same diffusion for river and OF
+//Prandtl Smidt turbulense factor
     SVCHCalibration = 1;
     //SVCHCalibration = getvaluedouble("SV calibration");
 
@@ -1717,11 +1716,11 @@ void TWorld::InitErosion(void)
    // qDebug() << "SwitchEfficiencyDET" <<SwitchEfficiencyDET;
 
     FOR_ROW_COL_MV {
-        if (RootCohesion->Drc < 0) // root cohesion can be used to avoid surface erosion base don land use
-            CohesionSoil->Drc = -1;
 
-        if (CohesionSoil->Drc >= 0)
+        if (Cohesion->Drc >= 0 && RootCohesion->Drc >= 0)
             CohesionSoil->Drc = COHCalibration*(Cohesion->Drc + Cover->Drc*RootCohesion->Drc);
+        else
+            CohesionSoil->Drc = -1;
 
         // soil cohesion everywhere, plantcohesion only where plants
         if (SwitchGrassStrip)

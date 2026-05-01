@@ -250,10 +250,12 @@ double TWorld::calcTCSuspended(int r,int c, int method, double h, double w, doub
                         ChannelQsr->Drc = qs;
 
                         tc =  qs/ (U * h); //kg/s/m / (m2/s) =  kg/m3   => WH or WHs
-                }else if(method == FSWUWANGJIA)
-                {
+                } else
+                        if(method == FSWUWANGJIA) {
+
                         /*
                         // NOT USED, FOR MULTIPLE GRAINSIZES
+
                     double phk = 0;
                     double pek = 0;
                     double sv = settlingvelocities.at(_d);
@@ -303,7 +305,7 @@ double TWorld::calcTCSuspended(int r,int c, int method, double h, double w, doub
  * @param _d : The grain class (only needed when grain size distribution is used)
  * @param method : the TC method used
  */
-double TWorld::calcTCBedload(int r,int c, int _d, int method, double h, double w, double U, int type)
+double TWorld::calcTCBedload(int r,int c, int method, double h, double w, double U, int type)
 {
     double R,  hb, n, S;
 
