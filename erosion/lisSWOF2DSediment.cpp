@@ -81,7 +81,7 @@ void TWorld::SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
     // uses the detachment and depositon for pesticide fractions
 
     if (SwitchUse2Phase) {
-        SedimentDetachmentBL(dt, h, w , V);
+        SedimentDetachmentBL(dt, h, w, V);
         // includes SWOFSedimentLayerDepth that splits wh in ss and bl layer
     } else {
         copy(*SSDepthFlood, *h);
@@ -258,9 +258,14 @@ void TWorld::SWOFSedimentAdvection(double dt, cTMap *h, cTMap *u,cTMap *v,cTMap 
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
+
+        double velocityfactor = qBound(0.0,  _SSD->Drc / h->Drc, 1.0);
+        // if only suspended sediment the velocityfactor is 1.0, if 2 phaseflow the bedload is assumed to
+        // move with a fraction of the velocity
+
         //first calculate the weights for the cells that are closest to location that flow is advected to
-        double u_ = u->Drc;
-        double v_ = v->Drc;
+        double u_ = u->Drc * velocityfactor;
+        double v_ = v->Drc * velocityfactor;
 
         //the sign of the x and y direction of flow
         double yn = signf(v_);
@@ -290,7 +295,7 @@ void TWorld::SWOFSedimentAdvection(double dt, cTMap *h, cTMap *u,cTMap *v,cTMap 
             double w[4] = {0.0,0.0,0.0,0.0};
             for (int i=0; i<4; i++)
             {
-                //must multiply the cell directions by the sign of the slope vector components
+                //multiply the cell directions by the sign of the slope vector components
                 int rr = r+(int)yn*dy[i];
                 int cr = c+(int)xn*dx[i];
 

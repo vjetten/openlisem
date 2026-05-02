@@ -52,19 +52,18 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
         //if (SwitchErosion)
         //sumS = getMassSed(SSFlood, 0);
-
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            FloodDT->Drc = dt_max;
-            //activeCells->Drc = 0;
-            tma->Drc = h->Drc;
-            tmb->Drc = u->Drc;
-            tmc->Drc = v->Drc;
-            // save the values at the start of the run for MUSCL/Heun averaging
-        }}
+        Fill(*FloodDT, dt_max);
 
         if (SwitchMUSCL) {
             // 2nd order, with avg according to Heun, according to fullswof hean should allways be done!
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                tma->Drc = h->Drc;
+                tmb->Drc = u->Drc;
+                tmc->Drc = v->Drc;
+                // save the values at the start of the run for MUSCL/Heun averaging
+            }}
+
             int step = 0;
             double dt1;
 
@@ -74,7 +73,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
                 dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
 
-                qDebug() << "muscl" << step << dt1 << dt_req_min;
+               // qDebug() << "muscl" << step << dt1 << dt_req_min;
             } while (dt1 > dt_req_min && step < 3);
 
             doSWOFStV(dt_req_min, h, u, v);

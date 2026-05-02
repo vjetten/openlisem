@@ -304,7 +304,8 @@ void lisemqt::setupMapPlot()
 }
 //---------------------------------------------------------------------------
 // fill the current raster data structure with new data, called each run step
-double lisemqt::fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD, double *minv, double *maxv){
+double lisemqt::fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD, double *minv, double *maxv, double dispthres)
+{
     double maxV = -1e20;
     double minV = 1e20;
     mapData.clear();  //QVector double
@@ -321,6 +322,8 @@ double lisemqt::fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_R
             if(!pcr::isMV(_M->Drc))
             {
                 double v =(double)_M->Drc*scale;
+                if (qAbs(v) < dispthres)
+                    v = 0;
                 mapData << v;
                 maxV = qMax(maxV, v);
                 minV = qMin(minV, v);
@@ -519,7 +522,7 @@ void lisemqt::showComboMap(int i)
     // fill vector RD with matrix data and find the new max value
     double MinV;
     double MaxV;
-    double res = fillDrawMapData(op.ComboMaps.at(i), op.ComboScaling.at(i), RD, &MinV, &MaxV);
+    double res = fillDrawMapData(op.ComboMaps.at(i), op.ComboScaling.at(i), RD, &MinV, &MaxV, 1e-3);
 
     if (res <=-1e20)
         return;
@@ -619,7 +622,7 @@ void lisemqt::showBaseMap()
     // only done once
 
     double m1, m2;
-    double res = fillDrawMapData(op.baseMap, 1.0, RDb, &m1, &m2);
+    double res = fillDrawMapData(op.baseMap, 1.0, RDb, &m1, &m2, -1e20);
     if (res == -1e20)
         return;
 
@@ -629,7 +632,7 @@ void lisemqt::showBaseMap()
     baseMap->setData(RDb);
     // setdata sets a pointer to DRb to the private QWT d_data Qvector
 
-    res = fillDrawMapData(op.baseMapDEM, 1.0, RDbb, &m1, &m2);
+    res = fillDrawMapData(op.baseMapDEM, 1.0, RDbb, &m1, &m2, -1e20);
     if (res == -1e20)
         return;
     //double mindem = mapMinimum(*op.baseMapDEM);
@@ -915,7 +918,7 @@ void lisemqt::getOutletMap()
 // there are also outpoint without channel
     if (startplot) {
         double m1, m2;
-        double res = fillDrawMapData(op.outletMap, 1.0, RDc, &m1, &m2);
+        double res = fillDrawMapData(op.outletMap, 1.0, RDc, &m1, &m2, -1e20);
         if (res ==-1e20)
             return;
         RDc->setInterval( Qt::ZAxis, QwtInterval( 0,1.0));
@@ -929,7 +932,7 @@ void lisemqt::showRoadMap()
     if (startplot)
     {
         double m1, m2;
-        double res = fillDrawMapData(op.roadMap,1.0, RDd, &m1, &m2);
+        double res = fillDrawMapData(op.roadMap,1.0, RDd, &m1, &m2, -1e20);
         if (res ==-1e20)
             return;
         RDd->setInterval( Qt::ZAxis, QwtInterval( 0,0.5));
@@ -949,7 +952,7 @@ void lisemqt::showHouseMap()
     if (startplot)
     {
         double m1, m2;
-        double res = fillDrawMapData(op.houseMap,1.0, RDe, &m1, &m2);
+        double res = fillDrawMapData(op.houseMap,1.0, RDe, &m1, &m2, -1e20);
 
         if (res ==-1e20)
             return;
@@ -970,7 +973,7 @@ void lisemqt::showBufferMap()
     if (startplot)
     {
         double m1, m2;
-        double res = fillDrawMapData(op.bufferMap,1.0, RDg, &m1, &m2);
+        double res = fillDrawMapData(op.bufferMap,1.0, RDg, &m1, &m2, -1e20);
 
         if (res ==-1e20)
             return;
@@ -992,7 +995,7 @@ void lisemqt::showHardSurfaceMap()
     {
         double m1, m2;
         // set intervals for rasterdata, x,y,z min and max
-        double res = fillDrawMapData(op.hardsurfaceMap,1.0, RDf, &m1, &m2);
+        double res = fillDrawMapData(op.hardsurfaceMap,1.0, RDf, &m1, &m2, -1e20);
         if (res ==-1e20)
             return;
 

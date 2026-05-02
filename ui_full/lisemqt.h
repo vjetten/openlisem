@@ -193,7 +193,7 @@ public:
     void showImageMap();
     void changeSize();
     double Masp;
-    double fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD, double *minv, double *maxv);
+    double fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD, double *minv, double *maxv, double dispthres);
     double fillDrawMapDataRGB(cTRGBMap *_M, QwtMatrixRasterData *_RD);
 
     QwtPlot *MPlot;               // plot in which the raster map is drawn

@@ -497,7 +497,7 @@ void TWorld::TotalsSediment(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             TotalSoillossMap->Drc = DETSplashCum->Drc + DETFlowCum->Drc + DEPCum->Drc;
-            TotalSoillossMap->Drc = fabs(TotalSoillossMap->Drc) < 1e-3 ? 0.0 : TotalSoillossMap->Drc;
+          //  TotalSoillossMap->Drc = fabs(TotalSoillossMap->Drc) < 1e-3 ? 0.0 : TotalSoillossMap->Drc;
             // 0.001 kg/cellarea = 1/cellarea g/m2
         }}
 

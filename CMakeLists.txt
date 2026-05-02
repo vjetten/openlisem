@@ -61,6 +61,11 @@ endif()
 # Include application makefile
 INCLUDE(Application)
 
+target_sources(Lisem
+  PRIVATE
+    include/LisUIoutput.h
+)
+
 target_sources(${TGT}
   PRIVATE
   AUTHORS

@@ -220,18 +220,17 @@ void TWorld::setLegendColors()
     Colormap.clear();
     Colormap.append(0.0);
   //  Colormap.append(0.25);
-    Colormap.append(0.49);
+    Colormap.append(0.48);
     Colormap.append(0.5);
-    Colormap.append(0.51);
+    Colormap.append(0.52);
     Colormap.append(0.75);
     Colormap.append(1.0);
 
     Colors.clear();
-    Colors.append("#2b83ba");
-   // Colors.append("#a4ddd9");
-    Colors.append("#fffff0");
-    Colors.append("#dddddd");
-    Colors.append("#fffff0");
+    Colors.append("#2470aa");//#4e7b97");//#2b83ba");
+    Colors.append("#f7fbfd");//ebf4f9");
+    Colors.append("#eeeeee");
+    Colors.append("#eeeed0");
     Colors.append("#d3b03e");
     Colors.append("#d7191c");
 
@@ -427,6 +426,7 @@ void TWorld::GetComboMaps()
             factor = 10.0/(_dx*_dx);
             unit = "t/ha";
         }
+
         AddComboMap(1,"Total Soil Loss",unit,TotalSoillossMap,LegendMap[cl],Legend[cl],false,true,factor, step);
 
         cl = 8;

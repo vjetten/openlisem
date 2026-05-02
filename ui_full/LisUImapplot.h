@@ -131,7 +131,7 @@ class QwtComboColorMap: public QwtLinearColorMap
 
         if(thresholduse)
         {
-            if ( value <= thresholdmin)
+            if ( value == 0 || value <= -1e20 ) //value <= thresholdmin)
             {
                 return qRgba( 0, 0, 0, 0 );
             }
@@ -289,8 +289,7 @@ class colorMapGray: public QwtLinearColorMapVJ
     }
 public:
     colorMapGray():
-//      QwtLinearColorMapVJ( QColor("#555555"),QColor("#ffffff"))
-        QwtLinearColorMapVJ( QColor("#222222"),QColor("#ffffff"))
+        QwtLinearColorMapVJ( QColor("#111111"),QColor("#ffffff"))
     {
     }
 };
