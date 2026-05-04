@@ -227,8 +227,8 @@ void TWorld::setLegendColors()
     Colormap.append(1.0);
 
     Colors.clear();
-    Colors.append("#2470aa");//#4e7b97");//#2b83ba");
-    Colors.append("#f7fbfd");//ebf4f9");
+    Colors.append("#2b83ba");//2470aa");//#4e7b97");
+    Colors.append("#eaf4fa");//ebf4f9");
     Colors.append("#eeeeee");
     Colors.append("#eeeed0");
     Colors.append("#d3b03e");
