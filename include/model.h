@@ -912,6 +912,7 @@ public:
     double MassPestInitial(void);
     void PesticideCellDynamics(void);
     void PesticideFlow1D(void);
+    void PesticideConcentration(void);
     void KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
                                 cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
                                 cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, cTMap *_PMW);
@@ -926,8 +927,6 @@ public:
     void PesticideFlowDetachmentSS(cTMap *Df_, cTMap *Dep_, cTMap *Sed_);
 
     double PesticideEnrichmentRatio(double Emax, double S, double beta);
-
-    void PesticideFlow2D(void);
 
     // <= pesticide
 

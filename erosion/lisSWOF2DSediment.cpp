@@ -103,6 +103,7 @@ void TWorld::SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
     }
 
     if (SwitchPest) {
+
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             double vol = CHAdjDX->Drc*h->Drc + MicroStoreVol->Drc;
@@ -114,30 +115,14 @@ void TWorld::SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
         // dissolved pest distribution between cells
         SWOFSedimentAdvection(dt, h,u,v, PMrs, PCrs, SSDepthFlood);
         // absorbed pest distribution between cells
+
+
         if (SwitchIncludeDiffusion) {
             SWOFSedimentDiffusion(dt, h,u,v, PMrw, PCrw); //dissolved
             SWOFSedimentDiffusion(dt, h,u,v, PMrs, PCrs); //absorbed
         }
 
-        // calculate new concentration
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L{
-            double volmw {0.0};         // L - volume of water in mixing layer
-            double massms {0.0};        // kg - mass of sediment in mixing layer
-            double vol = CHAdjDX->Drc*h->Drc + MicroStoreVol->Drc;
-            if (vol > 0.0)
-                PCrw->Drc = PMrw->Drc / (vol * 1000);
-            else
-                PCrw->Drc = 0.0;
-            // L = m * m * m * -- * 1000
-            volmw = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
-            PCmw->Drc = PMmw->Drc / volmw; //
-
-            // kg = m * m * m * kg m_3 * --
-            massms = zm->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest;
-            //mg kg-1 = mg / kg
-            PCms->Drc = PMms->Drc / massms;
-        }}
+        PesticideConcentration();
     }
 
 }

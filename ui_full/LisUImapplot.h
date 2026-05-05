@@ -269,8 +269,12 @@ class colorMapElevation: public QwtLinearColorMapVJ
     }
 public:
     colorMapElevation():
-        QwtLinearColorMapVJ( QColor("#222222"), QColor("#eeeeee"))
-  { }
+        QwtLinearColorMapVJ( QColor("#A39B90"), QColor("#DAD7D2"))
+
+    {
+        // addColorStop(0.50,QColor("#C5B9A9"));
+        // addColorStop(0.70,QColor("#D5C4B0"));
+    }
 /*
     QwtLinearColorMapVJ( QColor(141,116,94),QColor(255,251,244)) //skincolor
     {

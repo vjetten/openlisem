@@ -303,7 +303,8 @@ void TWorld::PesticideCellDynamics(void)
 *   update all masses etc.
 */
 
-void TWorld::PesticideFlow1D(void) {
+void TWorld::PesticideFlow1D(void)
+{
 
     //double Kfilm = KfilmPest; // m sec-1
     //double rho = rhoPest;     //kg m-3
@@ -316,12 +317,18 @@ void TWorld::PesticideFlow1D(void) {
         KinematicPestAdsorbed(crlinkedldd_, LDD, Qsn, PQrs, DX, Alpha, SedMassIn,
                               Qs, Qps, PMrs);
     }
+    PesticideConcentration();
+}
+
+//---------------------------------------------------------------------------
+void TWorld::PesticideConcentration(void)
+{
     // calculate new concentration
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
         double volmw {0.0};         // L - volume of water in mixing layer
         double massms {0.0};        // kg - mass of sediment in mixing layer
-        if (WaterVolall->Drc > 0.0)
+        if (WaterVolall->Drc > 1e-10)
             PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
         else
             PCrw->Drc = 0.0;
@@ -476,39 +483,6 @@ void TWorld::KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
         // 0,001 g
     }// end ldd loop
 }
-
-void TWorld::PesticideFlow2D(void) {
-
-    //double Kfilm = KfilmPest; // m sec-1
-    double rho = rhoPest;     //kg m-3
-
-    //runoff
-    KinematicPestDissolved(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw, PMrw);
-
-    //erosion
-    if(SwitchErosion){
-        KinematicPestAdsorbed(crlinkedldd_, LDD, Qsn, PQrs, DX, Alpha, SedMassIn,
-                              Qs, Qps, PMrs);
-    }
-    // calculate new concentration
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L{
-    double volmw {0.0};         // L - volume of water in mixing layer
-    double massms {0.0};        // kg - mass of sediment in mixing layer
-    if (WaterVolall->Drc > 0.0) {
-    PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
-    } else PCrw->Drc = 0.0;
-    // L = m * m * m * -- * 1000
-    volmw = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
-    PCmw->Drc = PMmw->Drc / volmw; //
-
-    // kg = m * m * m * kg m_3 * --
-    massms = zm->Drc * DX->Drc * SoilWidthDX->Drc * rho;
-    //mg kg-1 = mg / kg
-    PCms->Drc = PMms->Drc / massms;
-    }}
-}
-
 
 //---------------------------------------------------------------------------
 /**
