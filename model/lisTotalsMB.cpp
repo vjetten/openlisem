@@ -362,7 +362,7 @@ void TWorld::TotalsFlow(void)
             //Qm3max->Drc = qMax(Qm3max->Drc, QBoundFlow->Drc);
         //}
 
-        Qoutput->Drc = Qoutput->Drc < 1e-10 ? 0.0 : Qoutput->Drc;
+      //  Qoutput->Drc = Qoutput->Drc < 1e-10 ? 0.0 : Qoutput->Drc;
     }}
     // Total outflow in m3 for all timesteps
     // does NOT include flood water leaving domain (floodBoundaryTot)

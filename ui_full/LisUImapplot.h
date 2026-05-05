@@ -131,7 +131,7 @@ class QwtComboColorMap: public QwtLinearColorMap
 
         if(thresholduse)
         {
-            if ( value == 0 || value <= -1e20 ) //value <= thresholdmin)
+            if ( value == 0 || value <= -1e20 || value <= thresholdmin)
             {
                 return qRgba( 0, 0, 0, 0 );
             }
@@ -269,12 +269,16 @@ class colorMapElevation: public QwtLinearColorMapVJ
     }
 public:
     colorMapElevation():
+        QwtLinearColorMapVJ( QColor("#222222"), QColor("#eeeeee"))
+  { }
+/*
     QwtLinearColorMapVJ( QColor(141,116,94),QColor(255,251,244)) //skincolor
     {
         addColorStop(0.250,QColor(198,164,136)); // "skincolor"
         addColorStop(0.500,QColor(224,201,173));
         addColorStop(0.750,QColor(236,226,214));
     }
+        */
 };
 //---------------------------------------------------------------------------
 /// Gray scale legend for shaded relief map display
