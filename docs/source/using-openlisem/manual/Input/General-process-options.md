@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img width="586" height="374" src="../../../images/input_general_options.png">
+  <img width="586" height="374" src="../../../../images/input_general_options.png">
 </p>
 
 ## Overland flow

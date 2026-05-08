@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="782" height="226" src="../../../images/Output_options_1.png">
+  <img width="782" height="226" src="../../../../images/Output_options_1.png">
 </p>
 
 ## Catchment and outlet totals
@@ -28,6 +28,6 @@ Maps can also be saved for every timestep, or for every _X_ timesteps. The maps 
 
 
 <p align="center">
-  <img width="682" height="237" src="../../../images/Output_options_maps.png">
+  <img width="682" height="237" src="../../../../images/Output_options_maps.png">
 </p>
 
