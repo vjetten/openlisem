@@ -15,7 +15,8 @@ plugins:
     - search
 
 markdown_extensions:
-  - mdx_math
+  - mdx_math:
+      enable_dollar_delimiter: True
 
 extra_javascript:
     - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_HTML

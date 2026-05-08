@@ -21,12 +21,13 @@ Switch erosion processes on or off. If switched on, sediment dynamics are simula
 The channel system can be switched off entirely in which case only overland flow is considered. Channels are 1D networks using a kinematic wave for flow.
 
 * Channel infiltration: assumed to be saturated infiltration, the flux equals Channel Ksat $(mm\ h^{-1})$. If not checked the channel is assumed impermeable. Mutually exclusive with baseflow.
-* Channel baseflow: the baseflow discharge at the outlet(s) is given in $ m3\ s^{-1} $ in the map baseflow.map. This discharge is iterated over the entire channel, so that the kinematic wave gives the stated baseflow at the outlet. Mutually exclusive with channel infiltration.
-* Channel Culverts: these are cells in the channel that constrain the discharge a maximum flow in $ m3\ s^{-1} $ (specified in ChanMaxQ.map). It is a simple bottleneck; no pipe flow physics are used.
+* Channel baseflow: the baseflow discharge at the outlet(s) is given in $m3\ s^{-1}$ in the map baseflow.map. This discharge is iterated over the entire channel, so that the kinematic wave gives the stated baseflow at the outlet. Mutually exclusive with channel infiltration.
+* Channel Culverts: these are cells in the channel that constrain the discharge a maximum flow in $m3\ s^{-1}$ (specified in ChanMaxQ.map). It is a simple bottleneck; no pipe flow physics are used.
 
 ## Infrastructure
 
 Switch on or off the effect of buildings and infrastructure:  
+
 * Buildings have interception storage, are impermeable, obstruct flow and are non-erodible. They can have storage drums for rainwater (interception from roof goes into the drum). Buildings can be smaller than the gridcell in which case the characteristics of the soil and vegetation are used.
 * Roads have no interception, are impermeable, smooth, have no detachment of sediment but can have deposition. Roads can be smaller than the gridcell in which case the characteristics of the soil and vegetation are used.
 * Hard Surfaces (parking lots, courtyards, airstrips), have no interception, are impermeable, smooth, have no detachment of sediment but can have deposition. They behave the same as roads but are a separate class because they are often in a different land use class.
