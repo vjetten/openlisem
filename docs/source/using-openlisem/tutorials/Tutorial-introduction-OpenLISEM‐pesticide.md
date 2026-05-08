@@ -14,4 +14,6 @@ Currently this tutorial is only tested for Windows operating systems.
 
 [[/images/catchment_map.png|height = 500px]]
 
-
+<p align="center">
+  <img width="570" height="718" src="../../images/catchment_map.png">
+</p>
