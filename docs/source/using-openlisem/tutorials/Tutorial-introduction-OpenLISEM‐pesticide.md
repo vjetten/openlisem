@@ -12,8 +12,7 @@ After completion of this tutorial, you will:
 Currently this tutorial is only tested for Windows operating systems.  
 [**Download .zip file with tutorial data**](../../files/tutorials/OLPv1.0_tutorial.zip)
 
-[[/images/catchment_map.png|height = 500px]]
 
 <p align="center">
-  <img width="570" height="718" src="../../images/catchment_map.png">
+  <img width="300" height="420" src="../../../images/catchment_map.png">
 </p>
