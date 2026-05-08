@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="547" height="439" src="https://github.com/vjetten/openlisem/blob/imgs_wiki/docs/imgs/input_flow_options.png">
+  <img width="547" height="439" src="../../../../images/input_flow_options.png">
 </p>
 
 ## Flow boundary and barriers (for 2D flow)

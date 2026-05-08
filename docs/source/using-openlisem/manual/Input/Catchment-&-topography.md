@@ -2,7 +2,7 @@ Spatial modelling of land surface processes requires detailed spatial data to de
 
 
 <p align="center">
-  <img width="570" height="718" src="https://github.com/vjetten/openlisem/blob/imgs_wiki/docs/imgs/input_dem_prado.png">
+  <img width="570" height="718" src="../../../../images/input_dem_prado.png">
 </p>
 <p align="center">
   <em>A DEM prepared for use in openLISEM</em>

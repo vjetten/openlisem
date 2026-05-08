@@ -1,8 +1,8 @@
 <p align="center">
-  <img width="593" height="408" src="https://github.com/vjetten/openlisem/blob/imgs_wiki/docs/imgs/input_calibration_options.png">
+  <img width="593" height="408" src="../../../../images/input_calibration_options.png">
 </p>
 
-Calibration factors are directly multiplied with the input maps to provide quick and dirty calibration options. A value of 1.0 means that all input maps are used as they are. The value is a multiplication factor, larger than 1 increases the map value, smaller than 1 decreases the map value. More detailed calibration can be done by adjusting the input dataset, some more information is given in [Running OpenLISEM]()
+Calibration factors are directly multiplied with the input maps to provide quick and dirty calibration options. A value of 1.0 means that all input maps are used as they are. The value is a multiplication factor, larger than 1 increases the map value, smaller than 1 decreases the map value. More detailed calibration can be done by adjusting the input dataset.
 
  ❗ The calibration factors have different effects on the simulation: 
  

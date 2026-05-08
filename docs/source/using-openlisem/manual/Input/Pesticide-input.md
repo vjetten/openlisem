@@ -2,9 +2,8 @@
 * **1D kinematic flow calculations of dissolved and particulate pesticide transport**  
 * **runfile based input of pesticide choices and options**  
 
-**The following features are planned for 2024:**  
-* **intergation with 2D dynamic wave flow routing**  
-* **full integration with other OpenLISEM options like channels, buildings etc.**  
+**The following features are planned for 2026:**  
+* **intergation with 2D dynamic wave flow routing**   
 * **fully functional user interface**  
 
 
@@ -14,7 +13,7 @@ To run the pesticide module of OpenLISEM-pesticide, the OpenLISEM model must alr
 
 > 📝 because currently no user interface is available for the pesticide module, all settings must be applied through the runfile!
 
-To activate the the pesticide module in OpenLISEM, the option ‘include pesticides’ must be activated in the runfile. The input for pesticides consist of five maps and four parameters (see table below). Two maps are only required if erosion and PP transport is simulated, this depends on the option ‘[include erosion](https://github.com/vjetten/openlisem/wiki/General-process-options#erosion-processes)’ in OpenLISEM. The five maps are the concentration of the pesticide in (1) DP and (2) PP of the mixing layer, the (3) concentration in PP of the deeper soil. Beside that the depth of (4) the mixing layer and of (5) the deeper soil PP profile. The four parameters are specific for the simulated pesticide; the soil-water partitioning, the mass transfer coefficient of the mixing layer, and the coefficient and exponent for the enrichment equation. Besides that, also the bulk density of the soil in the mixing layer is needed, a default value is 1500 $g\ kg^{-1}$. As default OLP simulates equilibrium sorption in the mixing layer, however also kinetic sorption can be simulated. For this a sorption rate (Kr) is required, which limits the rate of the sorption-desorption process. Besides that, also the bulk density of the soil in the mixing layer is needed, a default value is 1500 $g\ kg^{-1}$.
+To activate the the pesticide module in OpenLISEM, the option ‘include pesticides’ must be activated in the runfile. The input for pesticides consist of five maps and four parameters (see table below). Two maps are only required if erosion and PP transport is simulated, this depends on the option ‘[include erosion](./General-process-options.md’) in OpenLISEM. The five maps are the concentration of the pesticide in (1) DP and (2) PP of the mixing layer, the (3) concentration in PP of the deeper soil. Beside that the depth of (4) the mixing layer and of (5) the deeper soil PP profile. The four parameters are specific for the simulated pesticide; the soil-water partitioning, the mass transfer coefficient of the mixing layer, and the coefficient and exponent for the enrichment equation. Besides that, also the bulk density of the soil in the mixing layer is needed, a default value is 1500 $g\ kg^{-1}$. As default OLP simulates equilibrium sorption in the mixing layer, however also kinetic sorption can be simulated. For this a sorption rate (Kr) is required, which limits the rate of the sorption-desorption process. Besides that, also the bulk density of the soil in the mixing layer is needed, a default value is 1500 $g\ kg^{-1}$.
 
 Name | Description | unit | range / **default value** $^1$ | format | Required
 -- | -- | -- | -- | -- | --
@@ -70,7 +69,7 @@ Report Pesticides=0	   0 = not active, 1 = save map series with pesticide dynami
 To activate the pesticide module set `Include Pesticides=1`. To save map series of all pesticide variables set `Report Pesticides=1`. This will store maps with concentrations, fluxes and masses of dissolved and particulate pesticides for the timestep as chosen in the user interface (see figure below). Saving map series will increase computation time and takes significant storage space, so only use this when the output is required!
 
 <p align="center">
-  <img width="367" height="325" src="https://github.com/vjetten/openlisem/blob/imgs_wiki/docs/imgs/pesticide_report_maps.png">
+  <img width="367" height="325" src="../../../../images/pesticide_report_maps.png">
 </p>
 
 **Pesticide description**  
@@ -93,5 +92,5 @@ Rho mixing layer=0.0
 The required input maps are loaded based on the default names. If different map names are used, the correct files can be selected using the map database tab (see figure below). The map names can also be adjusted in the second `[Pesticides]` runfile section totally at the bottom of the runfile.
 
 <p align="center">
-  <img width="556" height="253" src="https://github.com/vjetten/openlisem/blob/imgs_wiki/docs/imgs/pesticide_map_db.png">
+  <img width="556" height="253" src="../../../../images/pesticide_map_db.png">
 </p>
