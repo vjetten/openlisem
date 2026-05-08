@@ -1,5 +1,4 @@
-index: index.md
-arrange:
-  - index.md
+nav:
+  - index.md 
   - manual
   - tutorials

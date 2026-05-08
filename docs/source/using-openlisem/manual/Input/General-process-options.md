@@ -1,13 +1,13 @@
 
 <p align="center">
-  <img width="586" height="374" src="https://github.com/vjetten/openlisem/blob/imgs_wiki/docs/imgs/input_general_options.png">
+  <img width="586" height="374" src="../../../images/input_general_options.png">
 </p>
 
 ## Overland flow
 
 1. 1D uses a kinematic wave on a predefined continues network that connects all cells to the outlet of the area (ldd.map in PCRaster). The network is user defined and is an input, the DEM is not used. The kinematic wave uses a finite difference iteration. This option gives only runoff and no flood.  
 1. 1D and 2D: this options uses a 1D kinematic wave for the runoff and a 2D dynamic wave for the flooding. The flooding **ONLY** takes place when there are channels defined and they overflow. Flood in this case is overflowing channel water.
-1. 2D dynamic flow uses the DEM to determine where water flows. The water is distributed over the cells downstream, using a full dynamic wave with depth-average velocity. The [flow]() tab gives several numerical options. It uses a semi-explicit finite volume solution with a small adaptive timestep (non-iterative).
+1. 2D dynamic flow uses the DEM to determine where water flows. The water is distributed over the cells downstream, using a full dynamic wave with depth-average velocity. The [flow](./Surface-flow-options.md) tab gives several numerical options. It uses a semi-explicit finite volume solution with a small adaptive timestep (non-iterative).
 
 The distinction between runoff and flood is user defined by a flood threshold (in m). All water above this threshold is considered flood (hazardous), below is considered runoff.  
 **NOTE:** channel flow is always 1D kinematic wave over a channel network (lddchan.map in PCRaster).  
@@ -15,14 +15,14 @@ The distinction between runoff and flood is user defined by a flood threshold (i
 
 ## Erosion processes
 
-Switch erosion processes on or off. If switched on, sediment dynamics are simulated for all flows. Default suspended matter is simulated, transport equations can be chosen. Optionally bedload can be simulated. These options can be set for overland flow and channel flow separately, in the [erosion tab]().
+Switch erosion processes on or off. If switched on, sediment dynamics are simulated for all flows. Default suspended matter is simulated, transport equations can be chosen. Optionally bedload can be simulated. These options can be set for overland flow and channel flow separately, in the [erosion tab](./Erosion-options.md).
 
 ## Channels & Rivers
 The channel system can be switched off entirely in which case only overland flow is considered. Channels are 1D networks using a kinematic wave for flow.
 
 * Channel infiltration: assumed to be saturated infiltration, the flux equals Channel Ksat $(mm\ h^{-1})$. If not checked the channel is assumed impermeable. Mutually exclusive with baseflow.
-* Channel baseflow: the baseflow discharge at the outlet(s) is given in $m3\ s^{-1}$ in the map baseflow.map. This discharge is iterated over the entire channel, so that the kinematic wave gives the stated baseflow at the outlet. Mutually exclusive with channel infiltration.
-* Channel Culverts: these are cells in the channel that constrain the discharge a maximum flow in $m3\ s^{-1}$ (specified in ChanMaxQ.map). It is a simple bottleneck; no pipe flow physics are used.
+* Channel baseflow: the baseflow discharge at the outlet(s) is given in $ m3\ s^{-1} $ in the map baseflow.map. This discharge is iterated over the entire channel, so that the kinematic wave gives the stated baseflow at the outlet. Mutually exclusive with channel infiltration.
+* Channel Culverts: these are cells in the channel that constrain the discharge a maximum flow in $ m3\ s^{-1} $ (specified in ChanMaxQ.map). It is a simple bottleneck; no pipe flow physics are used.
 
 ## Infrastructure
 

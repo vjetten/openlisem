@@ -14,4 +14,8 @@ plugins:
         order_by: title
     - search
 
+markdown_extensions:
+  - mdx_math
 
+extra_javascript:
+    - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS_HTML

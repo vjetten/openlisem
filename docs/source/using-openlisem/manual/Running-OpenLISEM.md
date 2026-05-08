@@ -38,4 +38,4 @@ This new runfile should run without errors from the command line.
 
 ## Container to run OpenLISEM
 
-To run OpenLISEM on a high performance computing cluster (HPC), it can be convenient to have the model within a container which can easily be distributed, including all dependencies etc. This is available at: https://git.wur.nl/comme002/singularity-openlisem
+To run OpenLISEM on a high performance computing cluster (HPC), it can be convenient to have the model within a container which can easily be distributed, including all dependencies etc. This is available at: [apptainer openlisem](https://git.wur.nl/comme002/singularity-openlisem)

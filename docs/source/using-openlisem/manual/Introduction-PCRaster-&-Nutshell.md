@@ -1,4 +1,4 @@
-[PCRaster](https://pcraster.geo.uu.nl/) is a software for environmental modelling. It ss a collection of software targeted at the development and deployment of spatio-temporal environmental models. PCRaster is not developed to be a full-blown raster GIS. It lacks functionality for digitising, plotting and other typical GIS tasks. A user interface for PCRaster is available in [Nutshell](https://github.com/vjetten/NutShell/releases/tag/NutShell), the adds some functionality like displaying maps and manual editing of raster maps. For installation and setup of both programs see the [quick start](https://github.com/vjetten/openlisem/wiki/Getting-started#setup--installation).
+[PCRaster](https://pcraster.geo.uu.nl/) is a software for environmental modelling. It ss a collection of software targeted at the development and deployment of spatio-temporal environmental models. PCRaster is not developed to be a full-blown raster GIS. It lacks functionality for digitising, plotting and other typical GIS tasks. A user interface for PCRaster is available in [Nutshell](https://github.com/vjetten/NutShell/releases/tag/NutShell), the adds some functionality like displaying maps and manual editing of raster maps. For installation and setup of both programs see the [quick start](../../quick-start/setup-&-installation.md).
 
 **Nutshell User interface** 
 
@@ -8,7 +8,7 @@ The user interface of Nutshell consists of three main parts:
 * The explorer window  
 
 <p align="center">
-  <img width="563" height="338" src="https://github.com/vjetten/openlisem/blob/imgs_wiki/docs/imgs/nutshell_interface2.png">
+  <img width="563" height="338" src="../../images/nutshell_interface2.png">
 </p>
 
 Note that the working folder of the explorer window and the command window are not the same. The explorer window is controlled from the file structure on the bottom left of the interface, while the working folder of the command window is displayed on top. The current explorer directory can easily be set as the command window directory by pressing the button left from the displayed directory.  
@@ -48,7 +48,7 @@ This is the main use of PCRaster and is executed by starting a command with [`pc
 
 >`pcrcalc new.map = channelwidth.map * 2`  
 
-This command will create a new map with value 2 time the input `channelwidth.map`. Many more extensive uses are [available](https://pcraster.geo.uu.nl/pcraster/4.4.0/documentation/pcraster_manual/sphinx/operations.html) including operations to produce all type of input maps for openLISEM, two important operations are: [`lddcreate()`](https://pcraster.geo.uu.nl/pcraster/4.4.0/documentation/pcraster_manual/sphinx/op_lddcreate.html) and [`lookupscalar()`](https://pcraster.geo.uu.nl/pcraster/4.4.0/documentation/pcraster_manual/sphinx/op_lookup.html). `lddcreate()` is used to prepare the [catchment maps 🔨 ](https://github.com/vjetten/openlisem/wiki/Preparing-Topography#the-ldd-map).
+This command will create a new map with value 2 time the input `channelwidth.map`. Many more extensive uses are [available](https://pcraster.geo.uu.nl/pcraster/4.4.0/documentation/pcraster_manual/sphinx/operations.html) including operations to produce all type of input maps for openLISEM, two important operations are: [`lddcreate()`](https://pcraster.geo.uu.nl/pcraster/4.4.0/documentation/pcraster_manual/sphinx/op_lddcreate.html) and [`lookupscalar()`](https://pcraster.geo.uu.nl/pcraster/4.4.0/documentation/pcraster_manual/sphinx/op_lookup.html). `lddcreate()` is used to prepare the [catchment maps 🔨 ](../manual/Prepare-data/Preparing-Topography.md#the-ldd-map).
 
 ### lookup
 

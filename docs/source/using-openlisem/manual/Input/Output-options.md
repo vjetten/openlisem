@@ -1,10 +1,10 @@
 <p align="center">
-  <img width="782" height="226" src="https://github.com/vjetten/openlisem/blob/imgs_wiki/docs/imgs/Output_options_1.png">
+  <img width="782" height="226" src="../../../images/Output_options_1.png">
 </p>
 
 ## Catchment and outlet totals
 
-The total values in mm and m3, the peak values and runoff fraction for the entire flow domain and the defined are written to the outlets. Basically this is the information that can be seen at the left hand side of [the model results page](https://github.com/vjetten/openlisem/wiki/Getting-started#the-user-interface).  
+The total values in mm and m3, the peak values and runoff fraction for the entire flow domain and the defined are written to the outlets. Basically this is the information that can be seen at the left hand side of [the model results page](../../../quick-start/user-interface.md).  
 The total values of the flow domain can also be saved per timestep.  
 The hydrographs and sedigraphs for each defined outlet point are saved in separate files or as columns in one large file. Discharge, water height, and in case of erosion sediment flux and sediment concetration are saved.  The area average rainfall is added as a column. Als the total domain outflow from channels and overland flow is added.  
 A satellite image (or airphoto or even an image of a topographic map) can be shown as background in the model output. This can be a geotiff image in a different resolution but it is loaded on memory and occupies memory space. It has to have the same cartographic projection and bounding coordinates as the PCRaster maps.
@@ -28,6 +28,6 @@ Maps can also be saved for every timestep, or for every _X_ timesteps. The maps 
 
 
 <p align="center">
-  <img width="682" height="237" src="https://github.com/vjetten/openlisem/blob/imgs_wiki/docs/imgs/Output_options_maps.png">
+  <img width="682" height="237" src="../../../images/Output_options_maps.png">
 </p>
 
