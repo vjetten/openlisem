@@ -8,7 +8,7 @@ The user interface of Nutshell consists of three main parts:
 * The explorer window  
 
 <p align="center">
-  <img width="563" height="338" src="../../images/nutshell_interface2.png">
+  <img width="563" height="338" src="../../../images/nutshell_interface2.png">
 </p>
 
 Note that the working folder of the explorer window and the command window are not the same. The explorer window is controlled from the file structure on the bottom left of the interface, while the working folder of the command window is displayed on top. The current explorer directory can easily be set as the command window directory by pressing the button left from the displayed directory.  
