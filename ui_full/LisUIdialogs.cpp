@@ -813,7 +813,11 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int index)
     label_153->setEnabled(index > 0);
     label_calth->setEnabled(index > 0);
     E_CalibrateTheta->setEnabled(index > 0);
-    E_CalibratePsi->setEnabled(index == 0);
+    if (index > 0 && checkInfilHinit->isChecked())
+        E_CalibratePsi->setEnabled(false);
+    else
+        E_CalibratePsi->setEnabled(true);
+    label_calpsi->setEnabled(E_CalibratePsi->isEnabled());
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_toolButton_version_clicked()
