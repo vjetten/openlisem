@@ -1163,6 +1163,8 @@ public:
     void SplashDetachment();
     void SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *v,
                                    cTMap *SS_, cTMap *SSC_, cTMap *SSTC_, cTMap *SSDet_, cTMap *Dep_, cTMap *SSVs_, int type);
+    void SedimentDetachmentSSCont(double dt, cTMap *h, cTMap *w, cTMap *v,
+                                   cTMap *SS_, cTMap *SSC_, cTMap *SSTC_, cTMap *SSDet_, cTMap *Dep_, cTMap *SSVs_, int type);
 
     double MaxConcentration(double watvol, double sedvol);
     void ChannelFlowDetachmentNew();

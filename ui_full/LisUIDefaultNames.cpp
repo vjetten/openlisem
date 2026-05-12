@@ -476,8 +476,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include GW flow");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("GW flow explicit");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("GW flow SWOF");
+    // namelist[i].value = QString("0");
+    // namelist[i++].name = QString("GW flow SWOF");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("GW flow LDD");
     namelist[i].value = QString("0");

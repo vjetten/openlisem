@@ -276,7 +276,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include water height inflow")==0)       SwitchWaveUser  = iii == 1;
         if (p1.compare("Include GW flow")==0)                   SwitchGWflow  = iii == 1;
         if (p1.compare("GW flow explicit")==0)                  SwitchGW2Dflow  = iii == 1;
-        if (p1.compare("GW flow SWOF")==0)                      SwitchGWSWOFflow  = iii == 1;
+        // if (p1.compare("GW flow SWOF")==0)                      SwitchGWSWOFflow  = iii == 1;
         if (p1.compare("GW flow LDD")==0)                       SwitchLDDGWflow  = iii == 1;
         if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
 

@@ -42,6 +42,8 @@ double TWorld::MaxConcentration(double watvol, double sedvol)
     double conc = 0;//MAXCONC;//0;
     if (watvol > 1e-6) {
         conc = qMin(sedvol/watvol, MAXCONC);
+    } else {
+        conc = 0;
     }
     return conc;
 }

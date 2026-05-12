@@ -258,7 +258,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include water height inflow")==0)    checkWaterUserIn->setChecked(check);
         if (p1.compare("Include GW flow")==0)                checkGWflow->setChecked(check);
         if (p1.compare("GW flow explicit")==0)               checkGWflowexplicit->setChecked(check);
-        if (p1.compare("GW flow SWOF")==0)                   checkGWflowSWOF->setChecked(check);
+      //  if (p1.compare("GW flow SWOF")==0)                   checkGWflowSWOF->setChecked(check);
         if (p1.compare("GW flow LDD")==0)                    checkGWflowLDD->setChecked(check);
         if (p1.compare("GW flow SWAT")==0)                   checkGWflowSWAT->setChecked(check);
         if (p1.compare("GW recharge factor")==0)             GW_recharge->setValue(valc);
@@ -1009,7 +1009,7 @@ void lisemqt::updateModelData()
         // groundwater
         if (p1.compare("Include GW flow")==0)                namelist[j].value.setNum((int)checkGWflow->isChecked());
         if (p1.compare("GW flow explicit")==0)               namelist[j].value.setNum((int)checkGWflowexplicit->isChecked());
-        if (p1.compare("GW flow SWOF")==0)                   namelist[j].value.setNum((int)checkGWflowSWOF->isChecked());
+      //  if (p1.compare("GW flow SWOF")==0)                   namelist[j].value.setNum((int)checkGWflowSWOF->isChecked());
         if (p1.compare("GW flow LDD")==0)                    namelist[j].value.setNum((int)checkGWflowLDD->isChecked());
         if (p1.compare("GW flow SWAT")==0)                   namelist[j].value.setNum((int)checkGWflowSWAT->isChecked());
         if (p1.compare("GW recharge factor")==0)             namelist[j].value = GW_recharge->text();
