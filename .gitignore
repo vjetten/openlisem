@@ -1,3 +1,4 @@
 CMakeLists.txt.user
 doxygen/html/*
 /pest/lisPesticide.cpp
+/docs/site/*
