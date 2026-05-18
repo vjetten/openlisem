@@ -202,6 +202,7 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
                 case SHAPECIRC : chanHandPCirc(r,c); break; // this is always a culvert!
                 case SHAPETRAP : chanHandPTrap(r,c); break;
                 case SHAPETRIA : chanHandPTria(r,c); break;
+                case SHAPEFREE : chanHandPRect(r,c); break;
             }
 
             double dCHh = ChannelWH->Drc-ChannelDepth->Drc;
@@ -225,7 +226,7 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
             double velocityfactor = V->Drc*V->Drc/(2*GRAV);
             //do not use factor 2 for flow on both sides
 
-
+            // lower water level in the channel, flow to the channel
             if(dCHh < 0){
                 double negvol = ChannelMaxArea->Drc*ChannelDX->Drc - ChannelWaterVol->Drc;
                 double freeflow_tochan = lengthfactor*Cd*SQRT2G*std::pow(H+velocityfactor,1.5);
@@ -242,10 +243,11 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
                 //m3 free flow broad crested weir, water flows over edge to deeper water in channel
                 tochannel = true;
             } else {
-                // chhannel water is bankfull or more, channelwatervolo has already shape
-                // because higher. dCHh0 always refers to rectangle above surface with channelwidth
+                // channel water is bankfull or more
+                // dCHh0 always refers to rectangle above surface with channelwidth
                 double H_eq = (dCHh*area_channel + H*area_surface)/CellArea->Drc;
                 // equilibrium level
+
                 if (H > dCHh0) {
                     // surface water higher than channel water, drowned broad crested weir
                     needed_volume = (H - H_eq)*area_surface;
@@ -276,9 +278,10 @@ void TWorld::ChannelOverflowAlt(cTMap *_h, cTMap *V)
             //Update water height from volume
             switch (crch_[i_].shape) {
                 case SHAPERECT : chanHandPRect(r,c); break;
-                case SHAPECIRC : chanHandPCirc(r,c); break; // this is always a culvert!
+                case SHAPECIRC : chanHandPCirc(r,c); break;
                 case SHAPETRAP : chanHandPTrap(r,c); break;
                 case SHAPETRIA : chanHandPTria(r,c); break;
+                case SHAPEFREE : chanHandPRect(r,c); break;
             }
             // update surface water height
             _h->Drc = qMax(0.0, WaterVolall->Drc-MicroStoreVol->Drc) / area_surface;
@@ -387,16 +390,15 @@ void TWorld::FloodMaxandTiming()
 void TWorld::ChannelFlood(void)
 {
     // hmx = flood equivalent of WH; hmxrunoff of WHrunoff
-
     if (!SwitchIncludeChannel)
         return;
 
     ToFlood();
 
-    if (SwitchChannel2DflowConnect)
+ //   if (SwitchChannel2DflowConnect)
         ChannelOverflowAlt(hmxrunoff, V);
-    else
-        ChannelOverflow(hmxrunoff, V);
+//    else
+  //      ChannelOverflow(hmxrunoff, V);
     // determine overflow water => hmx
     // hmx is flood water, WH is overlandflow, WHrunoff etc
 
@@ -415,12 +417,13 @@ void TWorld::ChannelFlood(void)
     nrFloodedCells = 0;
     FOR_ROW_COL_MV {
         if (hmxrunoff->Drc > 0) {
-            FloodDomain->Drc = 1;
+            FloodDomain->Drc = 1; // here is 2D ovberflow
             nrFloodedCells += 1.0;
         }
         else
-            FloodDomain->Drc = 0;
+            FloodDomain->Drc = 0; //here is kin wave
     }
+
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -437,6 +440,6 @@ void TWorld::ChannelFlood(void)
     double area = nrFloodedCells*_dx*_dx;
     if (area > 0)
         debug(QString("Flooding (dt %1 sec, n %2): area %3 m2, %4 cells").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(nrFloodedCells));//.arg(K2DQOutBoun));
-    // some screen error reporting
+    // some screen reporting
 
 }

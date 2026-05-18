@@ -29,13 +29,13 @@
 functions: \n
  */
 
-#include <memory>
-#include "io.h"
+// #include <memory>
+// #include "io.h"
 #include "model.h"
-#include "operation.h"
-#include <QtCore/qstring.h>
+// #include "operation.h"
+// #include <QtCore/qstring.h>
 
-
+// OBSOLETE
 void TWorld::GetFlowBarrierData(QString name)
 {
     QFile fff(name);
@@ -175,12 +175,13 @@ void TWorld::GetFlowBarrierData(QString name)
 
 
 }
-
+// OBSOLETE
 void TWorld::SetFlowBarriers()
 {
     if (!SwitchFlowBarriers)
         return;
 
+    // flow barrier becomes zero (brreaks) at time specified in FlowBarrierNT etc.
     FOR_ROW_COL_MV_L {
         if(this->time > FlowBarrierNT->Drc && !(FlowBarrierNT->Drc < 0))
         {
@@ -201,7 +202,7 @@ void TWorld::SetFlowBarriers()
 
     }}
 }
-
+// NOT USED
 double TWorld::FBW(double h, int r, int c, int dr, int dc)
 {
 
@@ -274,11 +275,18 @@ double TWorld::FB(int r, int c, int rd, int cd)
 //---------------------------------------------------------------------------
 void TWorld::InitFlowBarriers(void)
 {
-    FlowBarrierN = NewMap(0);
-    FlowBarrierW = NewMap(0);
-    FlowBarrierS = NewMap(0);
-    FlowBarrierE = NewMap(0);
-
+    if(!SwitchFlowBarriers)  {
+        FlowBarrierN = NewMap(0);
+        FlowBarrierW = NewMap(0);
+        FlowBarrierS = NewMap(0);
+        FlowBarrierE = NewMap(0);
+    } else {
+        FlowBarrierN = ReadMap(LDD,getvaluename("fbN"));
+        FlowBarrierW = ReadMap(LDD,getvaluename("fbW"));
+        FlowBarrierS = ReadMap(LDD,getvaluename("fbS"));
+        FlowBarrierE = ReadMap(LDD,getvaluename("fbE"));;
+    }
+/*
     if(SwitchFlowBarriers)
     {
         FlowBarrierNT = NewMap(-1);
@@ -320,4 +328,5 @@ void TWorld::InitFlowBarriers(void)
             }
         }
     }
+    */
 }

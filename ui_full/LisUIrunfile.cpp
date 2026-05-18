@@ -104,7 +104,6 @@ void lisemqt::ParseInputData()
     // aux vars
     bool setETmaps = false;
     bool setRainmaps = false;
-    QString orgMapsDir;
 
     QLocale loc = QLocale::system(); // current locale
     QString pnt = loc.decimalPoint();
@@ -118,16 +117,8 @@ void lisemqt::ParseInputData()
         bool ok;
 
         // deal with dot or comma as decimal
-        int iii = loc.toInt(p);
-        double valc = loc.toDouble(p,&ok);
-        if (!ok && pnt == ',') {
-            QString p2 = p.replace(",",".");
-            valc = p2.toDouble();
-        }
-        if (!ok && pnt == '.') {
-            QString p2 = p.replace(",",".");
-            valc = p2.toDouble();
-        }
+        int iii = QLocale::c().toInt(p);
+        double valc = toDOUBLE(p,&ok);
 
         bool check = iii == 1;
         // skip section headers
@@ -233,6 +224,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include tile drains")==0)           checkIncludeTiledrains->setChecked(check);
         if (p1.compare("Tile entry suction")==0)            spinTileSuction->setValue(valc);
         if (p1.compare("Swatre dry")==0)                    checkSwatreDry->setChecked(check);
+        if (p1.compare("Crusting dynamic rate")==0)         spinCrustingRate->setValue(valc);
 
         // FLOW
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
@@ -261,6 +253,7 @@ void lisemqt::ParseInputData()
       //  if (p1.compare("Include stationary baseflow")==0)    checkStationaryBaseflow->setChecked(check);
         //if (p1.compare("Stationary baseflow as map")==0)     checkStationaryBaseflowMap->setChecked(check);
         if (p1.compare("Include channel culverts")==0)       checkChannelCulverts->setChecked(check);
+        if (p1.compare("Channel beta constant")==0)          checkChannelConstantBeta->setChecked(check);
         if (p1.compare("Include channel inflow")==0)         checkDischargeUser->setChecked(check);
         if (p1.compare("Include water height inflow")==0)    checkWaterUserIn->setChecked(check);
         if (p1.compare("Include GW flow")==0)                checkGWflow->setChecked(check);
@@ -312,10 +305,10 @@ void lisemqt::ParseInputData()
                 if (i == 1) param << "1"; else param << "0";
                 param <<  "28.3" << "0.52" << "0.042";
             }
-            radioButtonKE1->setChecked(param[0].toInt());
-            spinKEparameterA1->setValue(param[1].toDouble());
-            spinKEparameterB1->setValue(param[2].toDouble());
-            spinKEparameterC1->setValue(param[3].toDouble());
+            radioButtonKE1->setChecked(QLocale::c().toInt(param[0]));
+            spinKEparameterA1->setValue(toDOUBLE(param[1]));
+            spinKEparameterB1->setValue(toDOUBLE(param[2]));
+            spinKEparameterC1->setValue(toDOUBLE(param[3]));
         }
         if (p1.compare("KE parameters EQ2")==0) {
             QStringList param;
@@ -327,9 +320,9 @@ void lisemqt::ParseInputData()
                 if (i == 1) param << "1"; else param << "0";
                 param <<  "8.95" << "8.44";
             }
-            radioButtonKE2->setChecked(param[0].toInt());
-            spinKEparameterA2->setValue(param[1].toDouble());
-            spinKEparameterB2->setValue(param[2].toDouble());
+            radioButtonKE2->setChecked(QLocale::c().toInt(param[0]));
+            spinKEparameterA2->setValue(toDOUBLE(param[1]));
+            spinKEparameterB2->setValue(toDOUBLE(param[2]));
         }
         if (p1.compare("KE parameters EQ3")==0) {
             QStringList param;
@@ -341,9 +334,9 @@ void lisemqt::ParseInputData()
                 if (i == 1) param << "1"; else param << "0";
                 param <<  "7.6" << "0.22";
             }
-            radioButtonKE3->setChecked(param[0].toInt());
-            spinKEparameterA3->setValue(param[1].toDouble());
-            spinKEparameterB3->setValue(param[2].toDouble());
+            radioButtonKE3->setChecked(QLocale::c().toInt(param[0]));
+            spinKEparameterA3->setValue(toDOUBLE(param[1]));
+            spinKEparameterB3->setValue(toDOUBLE(param[2]));
         }
         if (p1.compare("KE time based")==0)           //  if (p1.compare("Use material depth")==0)              checkMaterialDepth->setChecked(check);
         if (p1.compare("No detachment boundary")==0)          checkNoSedBoundary->setChecked(check);
@@ -379,6 +372,7 @@ void lisemqt::ParseInputData()
         //ADVANCED
         if (p1.compare("Advanced Options")==0)                  checkAdvancedOptions->setChecked(check);
         if (p1.compare("Nr user Cores")==0)                     nrUserCores->setValue(iii);
+     //   if (p1.compare("Check mutex")==0)                       checkMutex->setChecked(check);
         if (p1.compare("Use linked list")==0)                   checkLinkedList->setChecked(check);
         if (p1.compare("Use Perimeter KW")==0)                  checkPerimeterKW->setChecked(check);
         if (p1.compare("Flooding SWOF flux limiter")==0)        E_FloodFluxLimiter->setValue(iii);
@@ -386,6 +380,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use time avg V")==0)                    checkTimeavgV->setChecked(check);
         if (p1.compare("Erosion outside 2D loop")==0)           checkErosionLoop->setChecked(check);
         if (p1.compare("Correct MB with WH")==0)                checkMB_WH->setChecked(check);
+        if (p1.compare("Correct extreme WH")==0)                checkWHextreme->setChecked(check);
+        if (p1.compare("WH extreme threshold")==0)              E_WHextreme->setValue(valc);
         if (p1.compare("Flood max iterations")==0)              E_FloodMaxIter->setValue(iii);
         if (p1.compare("Minimum WH and V flow")==0)             E_minWHVSWOF->setText(p);
    //     if (p1.compare("Use Channel Kinwave dt")==0)            checkKinWaveChannel->setChecked(check);
@@ -481,13 +477,16 @@ void lisemqt::ParseInputData()
 
     setFloodTab(true);  //TODO: check
 
-    // set vthe workdir to th e parent of the runfile dir
+    // set the workdir to the parent of the runfile dir
     E_WorkDir = QFileInfo(E_runFileList->currentText()).dir().absolutePath();
+
     QDir dir(E_WorkDir);
     if (dir.cdUp())
-        E_WorkDir = dir.absolutePath();
-    // workdir is now parent of runfile directory, no "/" at the end
+        E_WorkDir = dir.absolutePath() + "/";
+    QDir::setCurrent(E_WorkDir);
+    currentDir = E_WorkDir;
 
+    // workdir is now parent of runfile directory, no "/" at the end
     //QString daystart, minstart, dayend, minend;
     for (j = 0; j < nrnamelist; j++)
     {
@@ -511,9 +510,9 @@ void lisemqt::ParseInputData()
 
         // input output dirs and file names
         if (p1.compare("Map Directory")==0) {
-            orgMapsDir = p;
             E_MapDir->setText(findDir(p, false, false));
         }
+
         if (p1.compare("Result Directory")==0) {
             E_ResultDir->setText(findDir(p, true, false));
         }
@@ -526,12 +525,9 @@ void lisemqt::ParseInputData()
 
         if (radioRainFile->isChecked()) {
             if (p1.compare("Rainfall Directory")==0) {
-                QString hoi = findCommonRoot(p, orgMapsDir);
                 RainFileDir = findDir(p, false, false);
-              //  qDebug() << "raindir" << RainFileDir;
                 if (RainFileDir.isEmpty())
                     RainFileDir = CheckDir(p, false);
-              //  qDebug() << "raindir2" << RainFileDir;
             }
             if (p1.compare("Rainfall file")==0) RainFileName = p;
         }
@@ -664,7 +660,7 @@ void lisemqt::ParseInputData()
         E_ETName->setText(ETFileDir + ETFileName);
         if (!QFileInfo(E_ETName->text()).exists() && !E_ETName->text().isEmpty())
         {
-            ETFileDir = QString(E_WorkDir + "rain/");
+            ETFileDir = QString(E_WorkDir+"rain/");
             E_ETName->setText(ETFileDir + ETFileName);
         }
 
@@ -759,118 +755,101 @@ void lisemqt::ParseInputData()
 
 }
 //---------------------------------------------------------------------------
-QString lisemqt::findCommonRoot(QString p,QString pR)
+QString lisemqt::findCommonRoot(QString a, QString b)
 {
-    QString path = QDir::fromNativeSeparators(p);
-    QString pathR = QDir::fromNativeSeparators(pR);
-    // replace windows separators if there are any
+    QString pa = QDir::fromNativeSeparators(QDir(a).absolutePath());
+    QString pb = QDir::fromNativeSeparators(QDir(b).absolutePath());
 
-    QStringList pathS = path.split('/', Qt::SkipEmptyParts);
-    QStringList pathRS = pathR.split('/', Qt::SkipEmptyParts);
-    int minSize = qMin(pathS.size(), pathRS.size());
-    QStringList common;
-    for (int i = 0; i < minSize; ++i) {
-        if (pathS[i] == pathRS[i])
-           common << pathRS[i];
-        else
-           break;
-    }
-    QString root;
-    if (pathR.startsWith('/'))
-        root = '/';
-    root = root + common.join('/');
-    //qDebug() << "common" << root;
+    QString driveA, driveB;
 
-    /*
-    QString rootName = QDir(E_WorkDir).dirName();
-    // E_WorkDir is the parent of the dir with the runfile
-    // it does not end with '/'
-    //the rootName is the last dir in that path, so the parent off the runfile dir
-    // qDebug() << rootName;
-
-    //if the path name is relative path: ../maps/ or ./maps/ or maps/ or maps
-    // but not "/maps"
-    if (QDir::isRelativePath(path)) {
-        QDir::setCurrent(E_WorkDir);
-        // lisem now runs in workdir
-        path = QDir(path).absolutePath() + '/';
-    }
-
-    // if it still does not exist or a linux path starting with '/'
-    // assume the specified path under the parent of the run file
-    // find the root in path
-    if (!QDir(path).exists() || path.startsWith('/')) {
-        int idx = p.indexOf(rootName);
-        if (idx != -1)
-            path = QFileInfo(E_WorkDir).absolutePath() + '/'+ p.mid(idx);
-        if (!path.endsWith('/'))
-            path = path + '/';
-    }
-
-    // if it still does not exist then tough luck
-    if (!QDir(path).exists()) {
-        if (makeit)
-            QDir(path).mkpath(path);
-        else {
-            if (warn)
-                QMessageBox::warning(this,"openLISEM",QString("The following directory does not exist:\n%1\nUsing the work directory, check your pathnames").arg(path));
-            path.clear();
+    auto splitDrive = [](const QString &p, QString &drive) {
+        if (p.size() >= 2 && p[1] == ':') {
+            drive = p.left(2);                      // "C:"
+            return p.mid(2).split('/', Qt::SkipEmptyParts);
         }
+        drive.clear();
+        return p.split('/', Qt::SkipEmptyParts);
+    };
+
+    QStringList la = splitDrive(pa, driveA);
+    QStringList lb = splitDrive(pb, driveB);
+
+    QStringList out;
+    if (!driveA.isEmpty() && driveA == driveB) out << driveA;
+
+    int n = qMin(la.size(), lb.size());
+    for (int i = 0; i < n; ++i) {
+        if (la[i] != lb[i]) break;
+        out << la[i];
     }
 
-    return path;
-    */
-    return "";
+    QString root;
+    if (!out.isEmpty() && out[0].endsWith(':'))
+        root = out[0] + "/" + out.mid(1).join('/');
+    else if (!out.isEmpty())  // FIX: Check if out is not empty
+        root = "/" + out.join('/');
+    else
+        root = "";  // FIX: Return empty string if no common root found
+
+    if (! root.endsWith('/') && !root.isEmpty())  // FIX: Add trailing slash
+        root += '/';
+
+    return root;//QDir::toNativeSeparators(root);
 }
 //---------------------------------------------------------------------------
-QString lisemqt::findDir(QString p,bool makeit, bool warn)
+QString lisemqt::findDir(QString p, bool makeit, bool warn)
 {
-    QString path = QDir(p).fromNativeSeparators(p);
-            //p.replace('\\','/');
+    QString path = QDir:: fromNativeSeparators(p);
     // replace windows separators if there are any
 
-    QString rootName = QDir(E_WorkDir).dirName();
-    // E_WorkDir is the parent of the dir with the runfile
-    // it does not end with '/'
-    //the rootName is the last dir in that path, so the parent off the runfile dir
-    // qDebug() << rootName;
-
-    //if the path name is relative path: ../maps/ or ./maps/ or maps/ or maps
+    // if the path name is relative path:  ../maps/ or ./maps/ or maps/ or maps
     // but not "/maps"
-    if (QDir::isRelativePath(path)) {
-        QDir::setCurrent(E_WorkDir);
+    if (QDir:: isRelativePath(path)) {
+        QDir:: setCurrent(E_WorkDir);
         // lisem now runs in workdir
         path = QDir(path).absolutePath() + '/';
     }
 
-    // if it still does not exist or a linux path starting with '/'
-    // assume the specified path under the parent of the run file
-    // find the root in path
-    if (!QDir(path).exists() || path.startsWith('/')) {
-        int idx = p.indexOf(rootName);
-        if (idx != -1)
-            path = QFileInfo(E_WorkDir).absolutePath() + '/'+ p.mid(idx);
-        if (!path.endsWith('/'))
+    // If path already exists, just return it (solved bug on Linux 2026-0)1
+    if (QDir(path).exists()) {
+        if (! path.endsWith('/'))
             path = path + '/';
+        //qDebug() << "finddir (exists)" << path;
+        return path;
+    }
+
+    // Path doesn't exist - try to find it using common root
+    QString commonRoot = findCommonRoot(path, E_WorkDir);
+
+    if (! commonRoot.isEmpty() && QDir(commonRoot).exists()) {
+        path = commonRoot;
+    } else {
+        // Fallback to work directory
+        path = E_WorkDir;
     }
 
     // if it still does not exist then tough luck
-    if (!QDir(path).exists()) {
+    if (! QDir(path).exists()) {
         if (makeit)
             QDir(path).mkpath(path);
         else {
             if (warn)
-                QMessageBox::warning(this,"openLISEM",QString("The following directory does not exist:\n%1\nUsing the work directory, check your pathnames").arg(path));
-            path.clear();
+                QMessageBox::warning(this, "openLISEM",
+                                     QString("The following directory does not exist:\n%1\nUsing the work directory, check your pathnames").arg(path));
+            path = E_WorkDir;
         }
     }
+
+    if (! path.endsWith('/'))
+        path = path + '/';
+
+   // qDebug() << "finddir" << path;
 
     return path;
 }
 //---------------------------------------------------------------------------
 QString lisemqt::CheckDir(QString p, bool makeit)
 {
-    /* TODO mulitplatform: fromNativeSeparators etc*/
     QString path;
     if (p.isEmpty() || p == "/")
         return(p);
@@ -889,7 +868,7 @@ QString lisemqt::CheckDir(QString p, bool makeit)
             path.clear();
         }
     }
-//qDebug() << "checkdir2" << p << path;
+//qDebug() << "checkdir" << p << path;
     return path;
 }
 //---------------------------------------------------------------------------
@@ -976,7 +955,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Swatre table directory")==0)         namelist[j].value = E_SwatreTableDir->text();//setTextSwatreTableDir;
         if (p1.compare("Swatre profile file")==0)            namelist[j].value = E_SwatreTableName->text();//SwatreTableName;
         if (p1.compare("SWATRE internal minimum timestep")==0) {
-            swatreDT = qMin(E_Timestep->text().toDouble(), E_SWATREDtsec->value());
+            swatreDT = qMin(toDOUBLE(E_Timestep->text()), E_SWATREDtsec->value());
             namelist[j].value.setNum(swatreDT,'g',6);
         }
 
@@ -1001,6 +980,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Include tile drains")==0)           namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
         if (p1.compare("Tile entry suction")==0)            namelist[j].value.setNum(spinTileSuction->value());
         if (p1.compare("Swatre dry")==0)                    namelist[j].value.setNum((int)checkSwatreDry->isChecked());
+        if (p1.compare("Crusting dynamic rate")==0)         namelist[j].value.setNum(spinCrustingRate->value());
 
         // pesticides
         //if (p1.compare("Include Pesticides")==0)            namelist[j].value.setNum((int)checkPesticides->isChecked());
@@ -1018,6 +998,7 @@ void lisemqt::updateModelData()
      //   if (p1.compare("Include stationary baseflow")==0)    namelist[j].value.setNum((int)checkStationaryBaseflow->isChecked());
       //  if (p1.compare("Stationary baseflow as map")==0)     namelist[j].value.setNum((int)checkStationaryBaseflowMap->isChecked());
         if (p1.compare("Include channel culverts")==0)       namelist[j].value.setNum((int)checkChannelCulverts->isChecked());
+        if (p1.compare("Channel beta constant")==0)          namelist[j].value.setNum((int)checkChannelConstantBeta->isChecked());
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkDischargeUser->isChecked());
         if (p1.compare("Include water height inflow")==0)    namelist[j].value.setNum((int)checkWaterUserIn->isChecked());
 
@@ -1058,6 +1039,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Use time avg V")==0)                 namelist[j].value.setNum((int) checkTimeavgV->isChecked());
         if (p1.compare("Erosion outside 2D loop")==0)        namelist[j].value.setNum((int) checkErosionLoop->isChecked());
         if (p1.compare("Correct MB with WH")==0)             namelist[j].value.setNum((int) checkMB_WH->isChecked());
+        if (p1.compare("Correct extreme WH")==0)             namelist[j].value.setNum((int) checkWHextreme->isChecked());
+        if (p1.compare("WH extreme threshold")==0)           namelist[j].value = E_WHextreme->text();
         if (p1.compare("Correct DEM")==0)                    namelist[j].value.setNum((int) checkCorrectDem->isChecked());
         if (p1.compare("Use 2D Diagonal flow")==0)           namelist[j].value.setNum((int) check2DDiagonalFlow->isChecked());
 
@@ -1115,6 +1098,7 @@ void lisemqt::updateModelData()
 
         // miscellaneous
         if (p1.compare("Nr user Cores")==0)                 namelist[j].value.setNum(nrUserCores->value());
+      //  if (p1.compare("Check mutex")==0)                   namelist[j].value.setNum(checkMutex->isChecked() ? 0 : 1);
         if (p1.compare("Timeplot as PCRaster")==0)          namelist[j].value.setNum(checkWritePCRaster->isChecked() ? 0 : 1);
         //if (p1.compare("Report point output separate")==0)  namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
         if (p1.compare("Report digits out")==0)             namelist[j].value = E_DigitsOut->text();
@@ -1288,8 +1272,8 @@ void lisemqt::updateModelData()
     //get all actual mapnames from the mapList structure
     fillNamelistMapnames(true);
 
-    currentDir = E_WorkDir;
-    QDir::setCurrent(currentDir);
+    // currentDir = E_WorkDir;  // moved to where E_Workdir is made
+    // QDir::setCurrent(currentDir);
 
     // if (mencoderDir.isEmpty() || !QFileInfo(mencoderDir).exists())
     //     mencoderDir = qApp->applicationDirPath() + "\\mencoder.exe";
@@ -1297,9 +1281,6 @@ void lisemqt::updateModelData()
     if (saveRunFileOnce) {
         savefile(op.runfilename);
         saveRunFileOnce = false;
-//        QMessageBox::warning(this,"openLISEM",QString("The run file has changed: ") +
-//            QString("obsolete options are removed and missing options use default values. ") +
-//            QString("The new run files has your choices where applicable."));
 
         QMessageBox msg;
         msg.setText("The run file has changed: \nobsolete options are removed and missing options use default values. \nThe new run files has your choices where applicable.");

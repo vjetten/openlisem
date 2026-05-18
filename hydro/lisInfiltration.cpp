@@ -124,7 +124,8 @@ void TWorld::InfilDynamicCrusting()
     // recalc ksateff and poreeff
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        CrustFraction->Drc = qMin(1.0, CrustFraction0->Drc + (1.0-exp(-0.2*qMax(0.0, RainCumCrust->Drc*1000))));
+        if (CrustFraction->Drc < 1.0)
+            CrustFraction->Drc = qMin(1.0, CrustFraction0->Drc + (1.0-exp(crustingRate*qMax(0.0, RainCumCrust->Drc*1000))));
         // cumulative rain larger than 5 mm/h
         // exponential crusting proces with cumulative rainfall
         // from no crusting to full crusting at ~ 30 mm,
@@ -155,7 +156,6 @@ void TWorld::cell_InfilMethods(int r, int c)
     double fpot_ = 0;
     double fact_ = 0;
     double SoilDep1 = SoilDepth1->Drc;
-    double SoilDep2 = 0;
 
     if (Ksateff->Drc == 0)
         return;
@@ -175,16 +175,25 @@ void TWorld::cell_InfilMethods(int r, int c)
     if (fwh > 0) {
         //calculate potential infiltration rate fpot
         if (SwitchTwoLayer || SwitchThreeLayer) {
-            SoilDep2 = SoilDepth2->Drc;
-            // if wetting front in second layer set those vars
-            if (Lw->Drc > SoilDep1 && Lw->Drc < SoilDep2) {
-                //weighed harmonic mean:
-                //https://corporatefinanceinstitute.com/resources/data-science/harmonic-mean/
-                // sum (weights) / sum (weight/variable)
- //               Ks = Havg(Ksateff->Drc,Ksat2->Drc,SoilDep1,Lw->Drc-SoilDep1);
-                Ks = Lw->Drc/(SoilDep1/Ksateff->Drc+(Lw->Drc-SoilDep1)/Ksat2->Drc);
-                // if wetting front > layer 1 than ksat is determined weighted average (harmonic mean)
-                Psi = Psi2->Drc; //in m
+             // if wetting front in second layer calculate average Ks
+            if (Lw->Drc > SoilDep1 && Lw->Drc < SoilDepth2->Drc) {
+                switch (KavgType) {
+                    case 0: Ks = ARITHavg(Ksateff->Drc,Ksat2->Drc); break;
+                    case 1: Ks = SQRTavg(Ksateff->Drc,Ksat2->Drc); break;
+                    case 2: Ks = HARMavg(Ksateff->Drc,Ksat2->Drc,SoilDep1,Lw->Drc-SoilDep1); break;
+                    case 3: Ks = MINavg(Ksateff->Drc,Ksat2->Drc); break;
+                }
+                Psi = Psi2->Drc;
+            }
+            // if wetting front in third layer calculate average Ks
+            if (Lw->Drc > SoilDepth2->Drc && Lw->Drc < SoilDepth3->Drc) {
+                switch (KavgType) {
+                    case 0: Ks = ARITHavg(Ks,Ksat3->Drc); break;
+                    case 1: Ks = SQRTavg(Ks,Ksat3->Drc); break;
+                    case 2: Ks = HARMavg(Ks,Ksat3->Drc,SoilDep1+SoilDepth2->Drc,Lw->Drc-SoilDep1-SoilDepth2->Drc); break;
+                    case 3: Ks = MINavg(Ks,Ksat3->Drc); break;
+                }
+                Psi = Psi3->Drc;
             }
         }
 
@@ -218,10 +227,7 @@ void TWorld::cell_InfilMethods(int r, int c)
         }
         // adjust fact and increase Lw, for twolayer, impermeable etc
 
-
-
-        if (fwh < fact_)
-        {
+        if (fwh < fact_) {
             fact_ = fwh;
             fwh = 0;
         }
@@ -267,14 +273,17 @@ double TWorld::IncreaseInfiltrationDepthNew1(double fact_in, int r, int c)
     double space = 0;
     double Lnew = 0;
 
-    // impermeable and L reached SD1, no more infil
+    // impermeable and L reached SD1, no more infil, should also catch dtheta1 = 0;
     if (SwitchImpermeable && L > SoilDep1 - 0.001) {
+        // profle filled
         Lw->Drc = SoilDep1;
         return 0;
     }
 
     if (SwitchGWflow) {
+        // profile filled with GW
         if (GWWH->Drc >= SoilDepth1init->Drc-HMIN) {
+            Lw->Drc = 0; //?? check
             return 0;
         }
     }
@@ -283,25 +292,31 @@ double TWorld::IncreaseInfiltrationDepthNew1(double fact_in, int r, int c)
     // increase wetting front
     space = (SoilDep1 - L)*dtheta1;
     if(Lnew > SoilDep1 || space < fact_in) {
+        // if the new L fills up the profile
         if (SwitchImpermeable)
             // if impermeable remaining space is infiltration
             fact_out = space;
         else
-            fact_out = Perc->Drc;
+            fact_out = space + Perc->Drc;
+            // was only percolation but actual infiltration is filled up space plus percolation
         Lnew = SoilDep1;
     } else {
         fact_out = fact_in;
     }
 
-    Lnew = qMin(SoilDep1,qMax(0.0, Lnew));
-
-    Lw->Drc = Lnew;
-    return qMax(0.0, fact_out);
+    Lw->Drc = qBound(0.0, Lnew, SoilDep1); // should not be necessary!
+    return qBound(0.0, fact_out, fact_in);
 }
 //---------------------------------------------------------------------------
+// order of processes:
+// check if profile is full
+// check if wettingfront is in layer 1, calculate actual infiltration, flag if infiltration moves into SL2
+// if wetting front is in SL2, calc infil from remaining space if impermeaable, or remaining space + percolation of prev timestep if not impermeable
+// if wetting front passes from SL1 into SL2, calculate all and check if the profile fills up
+// if the wetting front is SL2-0.001 (depth - 1 mm) then flag full
 double TWorld::IncreaseInfiltrationDepthNew2(double fact_in, int r, int c)
 {
-    double dtheta1 = qMax(0.0,Poreeff->Drc-Thetaeff->Drc); // space in the top layer
+    double dtheta1 = qMax(0.0,Poreeff->Drc-Thetaeff->Drc); // space in the layers
     double dtheta2 = qMax(0.0,ThetaS2->Drc-ThetaI2->Drc);
     double SoilDep1 = SoilDepth1->Drc;
     double SoilDep2 = SoilDepth2->Drc;
@@ -312,6 +327,7 @@ double TWorld::IncreaseInfiltrationDepthNew2(double fact_in, int r, int c)
     double dfact2 = 0;
     bool passing = false;
     double space2 = 0;
+    double thmin = 0.001;
 
     // profile is full
     if (SwitchImpermeable && L > SoilDep2 - 0.001) {
@@ -319,43 +335,41 @@ double TWorld::IncreaseInfiltrationDepthNew2(double fact_in, int r, int c)
         return 0;
     }
 
+    // GW has filled up profile
     if (SwitchGWflow) {
-       if (L >= SoilDep1 && GWWH->Drc >= SoilDepth2init->Drc-HMIN) {
-           Lw->Drc = SoilDep1;
+       if (/*L >= SoilDep1 && */GWWH->Drc >= SoilDepth2init->Drc-HMIN) {
+           Lw->Drc = 0;//SoilDep1;
            return 0;
        }
-       // when GWWH fills osildep2 than soildep2 is 0 anyway
+       // when GWWH fills soildep2 then soildep2 is 0 anyway
     }
-
 
     // L is in layer 1
     if (L <= SoilDep1) {
-        Lnew = L + fact_in/qMax(0.01,dtheta1);
+        Lnew = L + fact_in/qMax(thmin,dtheta1);
         space = (SoilDep1-L)*dtheta1;
 
         if(fact_in > space || Lnew > SoilDep1) {
-            // water is moving into layer 2
             passing = true;
+            // water is moving into layer 2
             dfact2 = fact_in - space;
             // remaining water for layer 2
         } else {
-            // all remains SD1
             fact_out = fact_in;
+            // all remains SD1
         }
     }
 
     // L is in layer 2
     if (L > SoilDep1) {
-        //L already in layer 2
-
-        Lnew = L + fact_in/qMax(0.01,dtheta2);
+        Lnew = L + fact_in/qMax(thmin,dtheta2);
         space2 = (SoilDep2-L)*dtheta2;
 
         if (Lnew > SoilDep2 || fact_in > space2) {
             if (SwitchImpermeable)
                 fact_out = space2;
             else
-                fact_out = Perc->Drc;
+                fact_out = space2 + Perc->Drc;
 
             Lnew = SoilDep2;
             // L at bottom
@@ -364,58 +378,72 @@ double TWorld::IncreaseInfiltrationDepthNew2(double fact_in, int r, int c)
             // everything fitted
         }
     }
-    // Lnew is now soildep2 or the actual depth
 
-    // L is moving from layer 1 into 2 in this timestep
+    // L is moving from layer 1 into 2 in this timestep, with dfact2
     if (passing) {
         // second layer still at initial
         space2 = (SoilDep2-SoilDep1)*dtheta2;
-        Lnew = SoilDep1 + dfact2/qMax(0.01,dtheta2);
-        dfact2 = qMin(dfact2, space2);
+        Lnew = SoilDep1 + dfact2/qMax(thmin,dtheta2);
 
-        if (dtheta2 < 0.01 || Lnew > SoilDep2) {
+        // if it moves from SL1 all the way and fills SL2
+        if (dtheta2 < thmin || Lnew > SoilDep2-0.001) {
             if (SwitchImpermeable)
-                fact_out = space+space2;
+                fact_out = space + space2;
             else
-                fact_out = Perc->Drc;
+                fact_out = space + space2 + Perc->Drc;
             Lnew = SoilDep2;
         } else
             fact_out = fact_in; // everything fitted
     }
 
-    Lw->Drc = qMin(SoilDep2,qMax(0.0, Lnew));
-    return qMax(0.0,fact_out);
+    Lw->Drc = qBound(0.0, Lnew, SoilDep2); // should not be necessary, may hide errors!
+    return qBound(0.0, fact_out, fact_in);
 }
 //---------------------------------------------------------------------------
 // 3 layer infiltration! not used yet
+// check if the profile is full
+// check if wetting front is in layer 1, or already in layer 2 or already in layer 3
+// then check if the infiltration passes from layer 1 into layer 2, may result in water passing from 2 to 3
+// then check if the infiltration passes from layer 2 into layer 3
+
+//3 LAYER NEEDS TO BE CHECKED
 double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
 {
-    double dtheta1 = qMax(0.0,Poreeff->Drc-Thetaeff->Drc); // space in the top layer
+    double dtheta1 = qMax(0.0,Poreeff->Drc-Thetaeff->Drc); // space in the layers
     double dtheta2 = qMax(0.0,ThetaS2->Drc-ThetaI2->Drc);
     double dtheta3 = qMax(0.0,ThetaS3->Drc-ThetaI3->Drc);
     double SoilDep1 = SoilDepth1->Drc;
     double SoilDep2 = SoilDepth2->Drc;
     double SoilDep3 = SoilDepth3->Drc;
     double fact_out = 0;
-    double space = 0;
     double Lnew = 0;
     double L = Lw->Drc;
     double dfact12 = 0;
     double dfact23 = 0;
     bool passing12 = false;
     bool passing23 = false;
+    double space = 0;
     double space2 = 0;
     double space3 = 0;
+    double thmin = 0.001;
 
     // profile is full
-    if (SwitchImpermeable && L > SoilDep2 - 0.001) {
-        Lw->Drc = SoilDep2;
+    if (SwitchImpermeable && L > SoilDep3 - 0.001) {
+        Lw->Drc = SoilDep3;
         return 0;
+    }
+
+    // GW has filled up profile
+    if (SwitchGWflow) {
+       if (/*L >= SoilDep2 && */GWWH->Drc >= SoilDepth3init->Drc-0.001) {
+           Lw->Drc = 0;//SoilDep2;
+           return 0;
+       }
     }
 
     // L is in layer 1
     if (L <= SoilDep1) {
-        Lnew = L + fact_in/qMax(0.01,dtheta1);
+        Lnew = L + fact_in/qMax(thmin,dtheta1);
         space = (SoilDep1-L)*dtheta1;
 
         if(fact_in > space || Lnew > SoilDep1) {
@@ -429,12 +457,13 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
         }
     }
 
-    // L is in layer 2
+    // if L is in layer 2
     if (L > SoilDep1 && L <= SoilDep2) {
         //L already in layer 2 but not in 3
-        Lnew = L + fact_in/qMax(0.01,dtheta2);
+        Lnew = L + fact_in/qMax(thmin,dtheta2);
         space2 = (SoilDep2-L)*dtheta2;
 
+        // passing frm SL2 into SL3
         if (fact_in > space2 || Lnew > SoilDep2) {
             passing23 = true;
             dfact23 = fact_in - space2;
@@ -447,14 +476,14 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
     // L is in layer 3
     if (L > SoilDep2 && L <= SoilDep3) {
         //L already in layer 2 but not in 3
-        Lnew = L + fact_in/qMax(0.01,dtheta3);
+        Lnew = L + fact_in/qMax(thmin,dtheta3);
         space3 = (SoilDep3-L)*dtheta3;
 
         if (fact_in > space3 || Lnew > SoilDep3) {
             if (SwitchImpermeable)
                 fact_out = space3;
             else
-                fact_out = Perc->Drc;
+                fact_out = space3 + Perc->Drc;
 
             Lnew = SoilDep3;
             // L at bottom
@@ -463,19 +492,18 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
             fact_out = fact_in;
         }
     }
-    // Lnew is now soildep3 or the actual depth
 
     // L is moving from layer 1 into 2 in this timestep
     if (passing12) {
         // second layer still at initial
         space2 = (SoilDep2-SoilDep1)*dtheta2;
-        Lnew = SoilDep1 + dfact12/qMax(0.01,dtheta2);
-        dfact12 = qMin(dfact12, space2);
+        Lnew = SoilDep1 + dfact12/qMax(thmin,dtheta2);
 
-        if (dtheta2 < 0.01 || Lnew > SoilDep2) {
+        // moves all the way into soillayer 3
+        // note that the use can make e.g. the second layer saturated!, hence check dtheta2 < 0.01
+        if (dtheta2 < thmin || Lnew > SoilDep2) {
             passing23 = true;
-            dfact23 = fact_in - space2;
-            // also does not fit in SD2, passing to SD3
+            dfact23 = fact_in - space2 - space;
         } else {
             fact_out = fact_in;
             // everything fitted in SD2
@@ -486,20 +514,20 @@ double TWorld::IncreaseInfiltrationDepthNew3(double fact_in, int r, int c)
     if (passing23) {
         // second layer still at initial
         space3 = (SoilDep3-SoilDep2)*dtheta3;
-        Lnew = SoilDep2 + dfact23/qMax(0.01,dtheta3);
-        dfact23 = qMin(dfact23, space3);
+        Lnew = SoilDep2 + dfact23/qMax(thmin,dtheta3);
 
-        if (dtheta3 < 0.01 || Lnew > SoilDep2) {
+        if (dtheta3 < thmin || Lnew > SoilDep3-0.001) {
             if (SwitchImpermeable)
-                fact_out = space+space3;
+                fact_out = space + space2 + space3; // note that space can be 0
             else
-                fact_out = Perc->Drc;
+                fact_out = space + space2 + space3 + Perc->Drc;
             Lnew = SoilDep3;
         } else
             fact_out = fact_in; // everything fitted
     }
 
-    Lw->Drc = qMin(SoilDep3,qMax(0.0, Lnew));
-    return qMax(0.0,fact_out);
+    Lw->Drc = qBound(0.0, Lnew, SoilDep3); // bounding should not be necessary!
+    return qBound(0.0, fact_out, fact_in);
+
 
 }

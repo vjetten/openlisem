@@ -57,7 +57,7 @@ void TWorld::TotalsHydro(void)
         rainfall = RainAvgmm/catchmentAreaFlatMM;
         RainTot += ptot*_dx*_dx; // in m3
 
-        oldrainpeak  = Rainpeak;
+        oldrainpeak = Rainpeak;
         Rainpeak = qMax(Rainpeak, rainfall);
         if (oldrainpeak  < Rainpeak)
             RainpeakTime = time;
@@ -352,14 +352,15 @@ void TWorld::TotalsFlow(void)
 
         if(SwitchIncludeChannel) {
             Qoutput->Drc += ChannelQn->Drc * factor;
-//            Qm3total->Drc += ChannelQn->Drc * _dt;
+            //Qm3total->Drc += ChannelQn->Drc * _dt;
 //            Qm3max->Drc = qMax(Qm3max->Drc, ChannelQn->Drc);
         }
-        // if(FlowBoundaryType > 0) {
-        //     Qoutput->Drc += QBoundFlow->Drc * factor;
-        //     Qm3total->Drc += QBoundFlow->Drc * _dt;
-        //     Qm3max->Drc = qMax(Qm3max->Drc, QBoundFlow->Drc+ChannelQn->Drc);
-        // }
+
+        //if(FlowBoundaryType > 0) {
+            //Qoutput->Drc += QBoundFlow->Drc * factor;
+            //Qm3total->Drc += QBoundFlow->Drc * _dt;
+            //Qm3max->Drc = qMax(Qm3max->Drc, QBoundFlow->Drc);
+        //}
 
         Qoutput->Drc = Qoutput->Drc < 1e-10 ? 0.0 : Qoutput->Drc;
     }}
@@ -555,6 +556,83 @@ void TWorld::TotalsSediment(void)
 
 }
 //---------------------------------------------------------------------------
+// NEEDS TESTING
+void TWorld::Correctheight()
+{
+    // overland flow
+    double dH = 0;
+    double tot = 0.0;
+    FOR_ROW_COL_MV_L {
+        tma->Drc  = 0;
+        // count pixels with wh
+        if (WHrunoff->Drc > 0) {
+            tot += 1.0;
+            tma->Drc = WHrunoff->Drc + DEM->Drc - DEMmin;
+        }
+        // hydraulic potential
+    }}
+    FOR_ROW_COL_MV_L {
+        bool yes = false;
+
+        // if wh > extreme
+        if (tma->Drc > WHextreme+DEM->Drc - DEMmin) {
+            double h1 = !MV(r-1,c) ? tma->data[r-1][c] : tma->Drc;
+            double h2 = !MV(r+1,c) ? tma->data[r+1][c] : tma->Drc;
+            double h3 = !MV(r,c-1) ? tma->data[r][c-1] : tma->Drc;
+            double h4 = !MV(r,c+1) ? tma->data[r][c+1] : tma->Drc;
+            double factor = 0.5;
+            if (h1 < factor*WHextreme+DEM->Drc-DEMmin &&
+                h2 < factor*WHextreme+DEM->Drc-DEMmin &&
+                h3 < factor*WHextreme+DEM->Drc-DEMmin &&
+                h4 < factor*WHextreme+DEM->Drc-DEMmin)
+                yes = true;
+        }
+
+        if (yes) {
+            dH += (WHrunoff->Drc - WHextreme); // avg error in m on wet cells
+            WHrunoff->Drc = WHextreme;
+            WaterVolall->Drc = CHAdjDX->Drc*WHrunoff->Drc + MicroStoreVol->Drc;
+            WH->Drc = WHrunoff->Drc + WHstore->Drc;
+        }
+    }}
+    if (tot > 10 && dH > 0) {
+        dH /= tot;
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            if (WHrunoff->Drc > 0) {
+                WHrunoff->Drc += dH;
+                WaterVolall->Drc = CHAdjDX->Drc*WHrunoff->Drc + MicroStoreVol->Drc;
+                WH->Drc = WHrunoff->Drc + WHstore->Drc;
+            }
+        }}
+    }
+
+    //  channel
+    dH = 0;
+    tot = 0.0;
+    FOR_ROW_COL_MV_CHL {
+        if (ChannelWH->Drc > 0)
+            tot += 1.0;
+        if (ChannelCulvert->Drc == 0) {
+            if (ChannelWH->Drc > WHextreme) {
+                dH += (ChannelWH->Drc - WHextreme); // avg error in m on wet cells
+                ChannelWH->Drc = WHextreme;
+            }
+        }
+    }}
+    if (tot > 10 && dH > 0) {
+        dH /= tot;
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_CHL {
+            if (ChannelCulvert->Drc == 0 && ChannelWH->Drc > 0) {
+                ChannelWH->Drc += dH;
+                ChannelWaterVol->Drc = ChannelWH->Drc * ChannelDX->Drc * ChannelWidth->Drc;
+            }
+        }}
+    }
+    //---------------------------------------------------------------------------
+}
+
 void TWorld::MassBalance()
 {
 // in mm as displayed on screen
@@ -575,17 +653,28 @@ void TWorld::MassBalance()
 
     Fill(*MBm, 0);
 
+    // FORCEFULLY CORRECT wh > 10M
+    if (SwitchCorrectWHextreme)
+        Correctheight();
+
     if (SwitchCorrectMB_WH && fabs(MB) > 1e-6) {
         //qDebug() << "o " << MB;
         // correct WH
+        double tot = 0;
         FOR_ROW_COL_MV_L {
             tma->Drc = 0;
-            if (WHrunoff->Drc > 0 || hmxrunoff->Drc > 0)
+            if (WHrunoff->Drc > he_ca || hmxrunoff->Drc > he_ca) {
                 tma->Drc = 1;
+                tot += 1.0;
+            }
+            // do not adjust channel cells
+            //if (SwitchIncludeChannel && ChannelWidth->Drc > 0)
+              //  tma->Drc = 0;
         }}
-        double tot = MapTotal(*tma);
+
         double dV = (waterin - waterout - waterstore)/tot;
         waterstore -= WaterVolTot;
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             double dH = dV/(CHAdjDX->Drc); // avg error in m on wet cells
             if (FloodDomain->Drc == 0 && WHrunoff->Drc > 0) {

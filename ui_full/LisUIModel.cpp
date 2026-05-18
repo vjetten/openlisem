@@ -130,7 +130,7 @@ void lisemqt::deleteWStructures()
 Save the current interface as a temporary run file, read by the model
 Make the model world and run it
 */
-void lisemqt::runmodel()
+void lisemqt::runmodelNew()
 {
     //NOTE op.runfilename is set in function openRunFile()
     if (op.runfilename.isEmpty())
@@ -215,13 +215,9 @@ void lisemqt::runmodel()
     connect(W, &TWorld::done, this, &lisemqt::worldDone);
     connect(W, &TWorld::debug, this, &lisemqt::worldDebug);
     connect(W, &TWorld::timedb, this, &lisemqt::worldDebug);
+    connect(W, &TWorld::ScreenShot, this, &lisemqt::worldScreenShot);
     //connections to trigger messages and model stop from the interface
     // e.g. if the world emits done, the worldDone is called to stop the model
-
-    // dealing with digit separator comma or dot
-    W->loc = QLocale::system(); // current locale
-    W->loc.setNumberOptions(QLocale::c().numberOptions()); // borrow number options from the "C" locale
-    QLocale::setDefault(W->loc);
 
     // make a thread to run the world in
     worldThread = new QThread();
@@ -229,7 +225,8 @@ void lisemqt::runmodel()
 
     connect(worldThread, &QThread::started, W, &TWorld::DoModel);
     connect(W, &TWorld::done, worldThread, &QThread::quit);
-    connect(worldThread, &QThread::finished, worldThread, &QThread::deleteLater); // dlete later means these are automatically deleted when the thread finishes
+    connect(worldThread, &QThread::finished, worldThread, &QThread::deleteLater);
+    // delete later means these are automatically deleted when the thread finishes
 
     W->showInfo = true;
 
@@ -245,10 +242,9 @@ void lisemqt::runmodel()
 
     op.timeStartRun = QDateTime().currentDateTime().toString("yyMMdd-hhmm");
     if (op.explanation != "empty" ) {
-        op.timeStartRun = op.explanation;
+        op.timeStartRun = op.explanation; // use the user-output dir string instead of the timestamp
         checkAddDatetime->setChecked(true);
     }
-
 
     if (checkAddDatetime->isChecked()) {
         screenShotDir = E_ResultDir->text() + QString("res"+op.timeStartRun+"/");
@@ -280,28 +276,49 @@ void lisemqt::runmodel()
 
 }
 //---------------------------------------------------------------------------
+void lisemqt::runmodel()
+{
+    // there is a model world, it is paused, continue running
+    if (W && !stoprun) {
+        if (W->waitRequested) {
+            W->mutex.lock();
+            W->waitRequested = false;
+            label_debug->setText("Resuming run...");
+            stopAct->setChecked(false);
+            runAct->setChecked(true);
+            pauseAct->setChecked(false);
+
+            W->mu_condition.wakeAll();
+            W->mutex.unlock();
+        }
+    } else {
+        // there is no model world, start it up
+        stopAct->setChecked(false);
+        runAct->setChecked(false);
+        pauseAct->setChecked(false);
+        runmodelNew();
+    }
+}
+//---------------------------------------------------------------------------
 void lisemqt::pausemodel()
 {
-    if(W)
-    {
-        W->waitRequested = !W->waitRequested;
-        if (!W->waitRequested)
-        {
-            runAct->setChecked(true);
-            stopAct->setChecked(false);
-            pauseAct->setChecked(false);
-          //  label_debug->setText("User continue...");
-            W->mu_condition.wakeOne();//wakeAll();
-        }
-        else
-        {
-            stopAct->setChecked(false);
-            runAct->setChecked(false);
-            pauseAct->setChecked(true);
-        }
+    // there is a model, paused it
+    if(W) {
+        W->mutex.lock();
+
+        W->waitRequested = true; // wait the model
+
+        stopAct->setChecked(false);
+        runAct->setChecked(false);
+        pauseAct->setChecked(true);
+
+        W->userCores = nrUserCores->value(); // option to change nr cores!
+//qDebug() << W->userCores;
+        W->mutex.unlock();
     }
     else
     {
+        // model is not running so put every button to false and do nothing
         stopAct->setChecked(false);
         runAct->setChecked(false);
         pauseAct->setChecked(false);
@@ -314,60 +331,68 @@ void lisemqt::pausemodel()
 void lisemqt::stopmodel()
 {
     if(W) {
+        W->mutex.lock();
         W->stopRequested = true;
+        W->mutex.unlock();
     }
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldShow()
 {
-    progressBar->setMaximum(op.maxstep);
-    if (checkET->isChecked() && checkDailyET->isChecked()) {
-        int p = (int) (op.time/(op.EndTime-op.BeginTime) * op.maxstep);
-        progressBar->setValue(p);
-    } else
-        progressBar->setValue(op.runstep);
-
-    startPlots(); // called once using bool startplot
-
-    showOutputData(); // show output data of totals as minimumfeedback
-
-    if (!W->noOutput) {
-        showPlot(); // show main plot for point X
-
-        showBaseMap(); // show shaded relief base map, only once, set startplot to false
-
-        getOutletMap();
-
-        initChannelVectorandOutlet(); // make channel vectors once
-
-        showRoadMap(); // show road map
-
-        showHouseMap(); // show building structures map
-
-        showHardSurfaceMap(); // show parking lots etc
-
-        showBufferMap(); // show building structures map
-
-        showImageMap();
-
-        startplot = false; //if not set to false all the above are done eahc time
-
-        showMap(); // show map with selected data
-        // the op structure uses POINTERS to maps. These maps are being used in the thread loop
-        // so the action must be locked by mutex, to ensure only one trhead can access the data
-
-        if (doShootScreens)
-            shootMultipleScreens();
-    }
-
-    //qDebug() << "GUI thread waking up model thread at" << QTime::currentTime();
     W->mutex.lock();
+
+    // consume data here (or ensure it's already consumed safely)
+
+    progressBar->setMaximum(50000);
+    int p = qRound((op.time-op.BeginTime)/(op.EndTime-op.BeginTime) * 50000);
+    //(op.time/(op.EndTime-op.BeginTime) * op.maxstep);
+    progressBar->setValue(p);
+
+    startPlots(); //once
+
+    showOutputData(); // show output data, labels
+
+    // noOutput reacts to screen button, no update display of graphs and maps.
+    // OVERKILL now set to true all the time.
+   // if (!W->noOutput) {
+    showPlot(); // show main plot for point X
+
+    showBaseMap(); // show shaded relief base map, only once, set startplot to false
+
+    getOutletMap();
+
+    initChannelVectorandOutlet(); // make channel vectors once
+
+    showRoadMap(); // show road map
+
+    showHouseMap(); // show building structures map
+
+    showHardSurfaceMap(); // show parking lots etc
+
+    showBufferMap(); // show building structures map
+
+    showImageMap();
+
+    startplot = false; //if not set to false all the above are done eahc time
+
+    showMap(); // show map with selected data
+    // the op structure uses POINTERS to maps. so that is dangerous
+
+    if (doShootScreens)
+        shootMultipleScreens();
+    //}
+
+    W->readyForGui = false;
     W->mu_condition.wakeAll();
+
     W->mutex.unlock();
+
 }
 //---------------------------------------------------------------------------
 void lisemqt::worldDone(const QString &results)
 {
+    W->mutex.unlock();
+
     label_debug->setText(results);
     if (results.contains("ERROR"))
         QMessageBox::critical(this,QString("openLISEM"), results, QMessageBox::Ok );
@@ -397,11 +422,26 @@ void lisemqt::worldDone(const QString &results)
     toolButton_fileOpen->setEnabled(true);
     toolButton_deleteRun->setEnabled(true);
 
-    // not sure if this is needed?
+    W->stopRequested = false;
+    W->waitRequested = false;
 
-    // if (op.doBatchmode) {
-    //     close();
-    // }
+    W->mu_condition.wakeAll();
+
+    W->mutex.unlock();
+}
+//---------------------------------------------------------------------------
+void lisemqt::worldScreenShot()
+{
+    W->mutex.lock();
+
+    tabWidget->setCurrentIndex(2);
+    tabWidget_out->setCurrentIndex(0);
+    shootSingleScreen(0);
+    tabWidget_out->setCurrentIndex(1);
+    shootSingleScreen(0);
+
+    W->mu_condition.wakeAll();
+    W->mutex.unlock();
 }
 //---------------------------------------------------------------------------
 // this function is linked to the debug signal emitted from the model world

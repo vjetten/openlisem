@@ -62,9 +62,6 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("0;Surface");
     DEFmaps.append("2;RR;rr.map;Random Roughness (here standard deviation of heights) (cm);rr");
     DEFmaps.append("2;n;n.map;Manning's n (-);manning");
-    DEFmaps.append("2;Stoniness;stonefrc.map;Fraction covered by stones (affects only splash det.) (-);stonefrc");
-    DEFmaps.append("2;Crust;crustfrc.map;Fraction of gridcell covered with Crust (-) (see also ksat crust);crustfrc");
-    DEFmaps.append("2;Compacted;compfrc.map;Fraction of gridcell compacted (e.g. wheeltracks)(-) (see also ksat compacted);compfrc");
 
     DEFmaps.append("0;Infiltration");
     DEFmaps.append("1;Swatre");
@@ -98,12 +95,15 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Depth3;soildep3.map;Layer 3: Depth (mm) to bottom of layer 2;soildep3");
 
     DEFmaps.append("1;Surafce features influencing infiltration");
-    DEFmaps.append("2;Organic Matter;omcorr.map;Organic matter correction increase or decrease (%);OMmap");
-    DEFmaps.append("2;Density Factor;densfact.map;Density factor relative to 1350 kg/m3 (= 1.0, range 0.9 to 1.2);Densmap");
+  //  DEFmaps.append("2;Organic Matter;omcorr.map;Organic matter correction increase or decrease (%);OMmap");
+  //  DEFmaps.append("2;Density Factor;densfact.map;Density factor relative to 1350 kg/m3 (= 1.0, range 0.9 to 1.2);Densmap");
+    DEFmaps.append("2;Crust;crustfrc.map;Fraction of gridcell covered with Crust (-) (see also ksat crust);crustfrc");
     DEFmaps.append("2;Ksat Crust;ksatcrst.map;Ksat of crusts (all models except SWATRE) (mm/h);ksatcrst");
     DEFmaps.append("2;Porosity Crust;porecrst.map;Porosity of crusted areas (all models except SWATRE) (-);porecrst");
+    DEFmaps.append("2;Compacted;compfrc.map;Fraction of gridcell compacted (e.g. wheeltracks)(-) (see also ksat compacted);compfrc");
     DEFmaps.append("2;Ksat Compacted;ksatcomp.map;Ksat of compacted areas (all models except SWATRE) (mm/h);ksatcomp");
     DEFmaps.append("2;Porosity Compact;porecomp.map;Porosity of compacted areas (all models except SWATRE) (-);porecomp");
+    DEFmaps.append("2;Stoniness;stonefrc.map;Fraction covered by stones (affects only splash det.) (-);stonefrc");
 
     DEFmaps.append("0;Channels and Groundwater");
     DEFmaps.append("2;LDD;lddchan.map;LDD of main channel (must be 1 branch connected to the outlet);lddchan");
@@ -111,8 +111,9 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Depth;chandepth.map;Channel depth, zero (0) depth is considered infinite (m);chandepth");
     DEFmaps.append("2;Gradient;changrad.map;Slope gradient of channel bed (-);changrad");
     DEFmaps.append("2;Side angle;chanside.map;Channel side angle (tan angle  channel side and surface: 0 is rectangular);chanside");
-    DEFmaps.append("2;ChannelDiameter;chandiameter.map;Diameter of circular pipe (m);chandiam");
+    DEFmaps.append("2;Channel Diameter;chandiameter.map;Diameter of circular pipe (m);chandiam");
     DEFmaps.append("2;Culverts;chanculvert.map; values > 0 are culverts in the channel: 1=rectangular,2=circular,3=trapezium,4=triangular;chancul");
+    DEFmaps.append("2;Channel max Q;chanmaxq.map;Maximum imposed discharge in a culvert (m3/s);chanmaxq");
     DEFmaps.append("2;N;chanman.map;Mannings n of channel bed (-);chanman");
     DEFmaps.append("2;Ksat;chanksat.map;Infiltration rate of channel bed (mm/h);chanksat");
     DEFmaps.append("2;QinPoints;QinPoints.map;Locations in channel network where discharge is added from a text record. Unique nr > 0;qinpoints");
@@ -154,7 +155,12 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Ksat Grass;ksatgras.map;Ksat of grassstrips (all models except SWATRE) (mm/h);ksatgras");
     DEFmaps.append("2;Porosity Grass;poregras.map;Porosity of grasstrips (all models except SWATRE) (-);poregras");
     DEFmaps.append("2;Cohesion Grass;cohgras.map;Porosity of grasstrips (all models except SWATRE) (-);cohgras");
-    DEFmaps.append("2;FlowBarrierIndex;flowbarrierindex.map;An index value, indicating which flow barrier properties will be used (-);flowbarrierindex");
+    DEFmaps.append("2;Flow barrier N;flowbarn.map; Height of the north wall (m), rest is 0;fbN");
+    DEFmaps.append("2;Flow barrier E;flowbare.map; Height of the east wall (m), rest is 0;fbE");
+    DEFmaps.append("2;Flow barrier S;flowbars.map; Height of the south wall (m), rest is 0;fbS");
+    DEFmaps.append("2;Flow barrier W;flowbarw.map; Height of the west wall (m), rest is 0;fbW");
+
+    //DEFmaps.append("2;FlowBarrierIndex;flowbarrierindex.map;An index value, indicating which flow barrier properties will be used (-);flowbarrierindex");
 
     DEFmaps.append("0;Storm drains/Tile drains");
     DEFmaps.append("2;LDD;lddtile.map;LDD of tile drain system (must be one system connected to the outlet);lddtile");
@@ -380,6 +386,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include crusts");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Dynamic crusting");
+    namelist[i].value = QString("-0.05");
+    namelist[i++].name = QString("Crusting dynamic rate");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Impermeable sublayer");
     namelist[i].value = QString("0");
@@ -462,6 +470,8 @@ void lisemqt::defaultRunFile()
     // namelist[i++].name = QString("Stationary baseflow as map");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include channel culverts");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Channel beta constant");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include GW flow");
     namelist[i].value = QString("0");
@@ -707,12 +717,18 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("[Advanced]");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Nr user Cores");
+  //  namelist[i].value = QString("0");
+  //  namelist[i++].name = QString("Check mutex");
     namelist[i].value = QString("3"); //HLL2
     namelist[i++].name = QString("Flooding SWOF Reconstruction");
     namelist[i].value = QString("1"); //minmod
     namelist[i++].name = QString("Flooding SWOF flux limiter");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Correct MB with WH");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Correct extreme WH");
+    namelist[i].value = QString("10.0");
+    namelist[i++].name = QString("WH extreme threshold");
     namelist[i].value = QString("200");
     namelist[i++].name = QString("Flood max iterations");
     namelist[i].value = QString("1");

@@ -137,13 +137,13 @@ void TWorld::GetUserDischargeData(QString name)
         {
             bool ok = false;
 
-            rl.Qin << SL[i].toDouble(&ok);
-            if (!ok)
-            {
+            rl.Qin << toDOUBLE(SL[i],&ok); //SL[i].toDouble(&ok);
+
+            if (!ok) {
                 ErrorString = QString("Discharge records at time %1 has an unreadable value: %2.").arg(SL[0]).arg(SL[i]);
                 throw 1;
             }
-            rl.stationnr << stationID.at(i-1);
+            rl.stationnr << (int) stationQID.at(i-1);
         }
 
         DischargeSeries << rl;
@@ -160,7 +160,7 @@ void TWorld::GetDischargeMapfromStations(double currenttime)
     // from time t to t+1 the rain is the rain of t
 
     // if time is outside records then use map with zeros
-    if (currenttime < DischargeSeries[0].time || currenttime > DischargeSeries[nrRainfallseries-1].time) {
+    if (currenttime < DischargeSeries[0].time || currenttime > DischargeSeries[nrDischargeseries-1].time) {
         Fill(*QuserIn, 0);
         return;
     }
@@ -286,7 +286,7 @@ void TWorld::GetWHboundaryData(QString name)
         // rainfall values in this row
         bool ok = false;
 
-        rl.WH = SL[1].toDouble(&ok);
+        rl.WH = toDOUBLE(SL[1],&ok);//SL[1].toDouble(&ok);
         if (!ok) {
             ErrorString = QString("Boundary water level record at time %1 has an unreadable value: %2.").arg(SL[0]).arg(SL[1]);
             throw 1;

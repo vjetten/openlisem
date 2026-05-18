@@ -81,25 +81,7 @@ void TWorld::GetInputData(void)
 
 }
 //---------------------------------------------------------------------------
-//     SmaxCalibration = getvaluedouble("Smax calibration");
-//     RRCalibration = getvaluedouble("RR calibration");
-//     ksatCalibration = getvaluedouble("Ksat calibration");
-//     ksat2Calibration = getvaluedouble("Ksat2 calibration");
-//     ksat3Calibration = getvaluedouble("Ksat3 calibration");
-//     thetaCalibration = getvaluedouble("Theta calibration");
-//     psiCalibration = getvaluedouble("Psi calibration");
-
-//     nCalibration = getvaluedouble("N calibration");
-//     ChnCalibration = getvaluedouble("Culvert size calibration");
-//     ChKsatCalibration = getvaluedouble("Channel Ksat calibration");
-//     WaveCalibration = getvaluedouble("Boundary water level calibration");
-//     CulvertCalibration = getvaluedouble("Culvert size calibration");
-
-//     ASCalibration = getvaluedouble("Aggregate stability calibration");
-//     COHCalibration = getvaluedouble("Cohesion calibration");
-//     gsizeCalibrationD50 = getvaluedouble("Grain Size calibration D50");
-//     gsizeCalibrationD90 = getvaluedouble("Grain Size calibration D90");
-//     COHCHCalibration = getvaluedouble("Cohesion Channel calibration");
+// these should be in lisurun! not sure why not
 void TWorld::InitParameters(void)
 {
     PBiasCorrection = getvaluedouble("Rainfall Bias Correction");
@@ -175,13 +157,14 @@ void TWorld::InitParameters(void)
     F_pitValue = getvaluedouble("Pit Value");
 
     SwitchCorrectMB_WH = getvalueint("Correct MB with WH") == 1;
-    op.SwitchCorrectMB_WH = SwitchCorrectMB_WH;
+    SwitchCorrectWHextreme = getvalueint("Correct extreme WH") == 1;
+    //op.SwitchCorrectMB_WH = SwitchCorrectMB_WH;
+    WHextreme = getvaluedouble("WH extreme threshold");
 
     if (SwitchAdvancedOptions) {
         F_MaxIter = getvalueint("Flood max iterations");
         F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
         F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
-        F_scheme = qMin(3,F_scheme);
         F_minWH = getvaluedouble("Minimum WH and V flow");   //HLL HLL2 Rusanov
         if (F_minWH == 0) F_minWH = he_ca;
         //SwitchErosionInsideLoop = getvalueint("Calculate erosion inside 2D loop") == 1;
@@ -230,7 +213,7 @@ void TWorld::InitParameters(void)
     int cores = omp_get_max_threads();
     if (userCores == 0 || userCores > cores)
         userCores = cores;
-    op.cores = userCores;
+   //op.cores = userCores;
 
 }
 //---------------------------------------------------------------------------
@@ -283,26 +266,29 @@ void TWorld::InitStandardInput(void)
     crlinkedldd_ = MakeLinkedList(LDD);
 
     DEM = ReadMap(LDD, getvaluename("dem"));
-    MBm = NewMap(0);
+    MBm = NewMap(0); // optional, mass balance error used to correct infil and wh in next step
+    DEMmin = 1e20;
+    FOR_ROW_COL_MV_L {
+        DEMmin = qMin(DEM->Drc, DEMmin);
+    }}
+    // some trial at dem correction
+    // Fill(*tma,0);
+    // for(long i_ =  0; i_ < crlinkedldd_.size(); i_++) {
+    //     int r = crlinkedldd_.at(i_).r;
+    //     int c = crlinkedldd_.at(i_).c;
 
+    //     for (int j = -1; j < 2; j++)
+    //         for (int i = -1; i < 2; i++) {
+    //             if ((r+j > 0 && r+j < _nrRows) && (c+i > 0 && c+i < _nrCols)) {
+    //                 if (DEM->Drc < DEM->data[r+j][c+i])
+    //                     tma->Drc = DEM->data[r+j][c+i];
+    //                 else
+    //                     tma->Drc = DEM->Drc;
+    //             }
+    //         }
 
-    Fill(*tma,0);
-    for(long i_ =  0; i_ < crlinkedldd_.size(); i_++) {
-        int r = crlinkedldd_.at(i_).r;
-        int c = crlinkedldd_.at(i_).c;
-
-        for (int j = -1; j < 2; j++)
-            for (int i = -1; i < 2; i++) {
-                if ((r+j > 0 && r+j < _nrRows) && (c+i > 0 && c+i < _nrCols)) {
-                    if (DEM->Drc < DEM->data[r+j][c+i])
-                        tma->Drc = DEM->data[r+j][c+i];
-                    else
-                        tma->Drc = DEM->Drc;
-                }
-            }
-
-    }
-    report(*tma, "demadj.map");
+    // }
+    //report(*tma, "demadj.map");
 
     Grad = ReadMap(LDD, getvaluename("grad"));  // must be SINE of the slope angle !!!
     //checkMap(*Grad, LARGER, 1.0, "Gradient cannot be larger than 1: must be SINE of slope angle (not TANGENT)");
@@ -410,7 +396,7 @@ void TWorld::InitMeteoInput(void)
     RainTot = 0;
     RainTotmm = 0;
     Rainpeak = 0;
-    RainpeakTime = 0;
+    RainpeakTime = BeginTime;
     RainstartTime = -1;
     rainStarted = false;
     ETStarted = false;
@@ -459,6 +445,9 @@ void TWorld::InitMeteoInput(void)
 void TWorld::InitLULCInput(void)
 {
     //===== surface =====
+
+    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
+
     N = ReadMap(LDD,getvaluename("manning"));
     checkMap(*LDD, *N, SMALLER, 1e-6, "Manning's N must be > 0.000001");
     calcValue(*N, nCalibration, MUL);
@@ -641,7 +630,7 @@ void TWorld::calcSoilPhysics(cTMap *Ksat, cTMap *lambda, cTMap *thfc, cTMap *thr
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        psi->Drc = qMax(psi->Drc, psiae->Drc);
+        //psi->Drc = qMax(psi->Drc, psiae->Drc); // MC - switch off, this will force to high psi values in case of user defined input.
         psi->Drc *= 0.01*calpsi;
         psiae->Drc *= 0.01;
         Ksat->Drc *= calk;
@@ -651,13 +640,15 @@ void TWorld::calcSoilPhysics(cTMap *Ksat, cTMap *lambda, cTMap *thfc, cTMap *thr
 //---------------------------------------------------------------------------
 void TWorld::InitSoilInput(void)
 {
+    if (InfilMethod == INFIL_NONE)
+        return;
+
     // safeguard for deleting, set to null pointer
     SwatreSoilModel = nullptr;
     SwatreSoilModelCrust = nullptr;
     SwatreSoilModelCompact = nullptr;
     SwatreSoilModelGrass = nullptr;
 
-    LandUnit = ReadMap(LDD,getvaluename("landunit"));  //VJ 110107 added
     ThetaI1a = NewMap(0); // used for screen output
     ThetaI2a = NewMap(0); // for output, average soil layer 2
 
@@ -698,6 +689,7 @@ void TWorld::InitSoilInput(void)
             }
         }}
     }
+
     //## infiltration data
     if(InfilMethod != INFIL_SWATRE)
     {
@@ -971,9 +963,9 @@ void TWorld::InitChannel(void)
     ChannelWH = NewMap(0);
     ChannelWidthB = NewMap(0);
     ChannelPerimeter = NewMap(0);
-    //ChannelCos = NewMap(0);
 
     ChannelAlpha = NewMap(0);//
+    //ChannelBeta = NewMap(0.6);//
     ChannelDX = NewMap(0); //!!!!!!!!!!!!!!!! dit moet DX zijn anders massabalans fout? of nu niet meer?
     ChannelInfilVol = NewMap(0);
 
@@ -1064,11 +1056,11 @@ void TWorld::InitChannel(void)
                 break;
             }
             if (pcr::isMV(ChannelN->Drc) || ChannelN->Drc <= 0) {
-                re = r; ce = c; S = "Channel Manning";;
+                re = r; ce = c; S = "Channel Manning";
                 break;
             }
             if (pcr::isMV(ChannelSide->Drc) || ChannelSide->Drc < 0) {
-                re = r; ce = c; S = "Channel Side angle";;
+                re = r; ce = c; S = "Channel Side angle";
                 break;
             }
         }
@@ -1081,8 +1073,6 @@ void TWorld::InitChannel(void)
     FOR_ROW_COL_MV_CHL {
         ChannelDX->Drc = _dx/cos(asin(Grad->Drc)); // same as DX else mass balance problems
        // ChannelDX->Drc = _dx/cos(asin(ChannelGrad->Drc)); // same as DX else mass balance problems
-
-        //ChannelCos->Drc = cos(atan(ChannelSide->Drc));
 
         ChannelWidthO->Drc = ChannelWidth->Drc;
 
@@ -1103,25 +1093,30 @@ void TWorld::InitChannel(void)
     }}
 
     // Culverts and channel shapes
-    ChannelMaxQ = NewMap(0);
     ChannelMaxAlpha = NewMap(0);
     ChannelMaxArea = NewMap(0);
     if (SwitchCulverts) {
         ChannelCulvert = ReadMap(LDDChannel, getvaluename("chancul"));
         ChannelDiameter = ReadMap(LDDChannel, getvaluename("chandiam"));
+        ChannelMaxQ = ReadMap(LDDChannel, getvaluename("chanmaxq"));
         cover(*ChannelDiameter, *LDD, 0);
         cover(*ChannelCulvert, *LDD, 0);
 
         FOR_ROW_COL_MV_CHL {
+            // if (ChannelMaxQ->Drc > 0)
+            //     qDebug() <<ChannelMaxQ->Drc;
+            ChannelMaxQ->Drc *= CulvertCalibration;
+            // if (ChannelMaxQ->Drc > 0)
+            //     qDebug() <<ChannelMaxQ->Drc << CulvertCalibration;
             if (ChannelCulvert->Drc > 0) {
                 crch_[i_].culvert = true;
                 crch_[i_].shape = (int) ChannelCulvert->Drc;
-                ChannelDiameter->Drc = CulvertCalibration*ChannelDiameter->Drc;
             } else {
                 ChannelN->Drc *= ChnCalibration;
             }
         }}
     } else {
+        ChannelMaxQ = NewMap(0);
         ChannelDiameter = NewMap(0);
         ChannelCulvert = NewMap(0);
         FOR_ROW_COL_MV_CHL {
@@ -1131,31 +1126,71 @@ void TWorld::InitChannel(void)
 
     FOR_ROW_COL_MV_CHL {
         double perim;
+        double beta = BETArect;
         switch (crch_[i_].shape) {
+            case SHAPEFREE :
             case SHAPERECT : ChannelMaxArea->Drc = ChannelWidth->Drc*ChannelDepth->Drc; // or ChannelWidth ?
                 perim = ChannelWidth->Drc*2*ChannelDepth->Drc;
+                beta = 1.0/(1.0+2.0/3.0*ChannelWidth->Drc/perim);
                 break;
             case SHAPECIRC : ChannelMaxArea->Drc = M_PI*ChannelDiameter->Drc*ChannelDiameter->Drc*0.25;//pi r^2
+                crch_[i_].culvert = true; // ciruclar channel is always a culvert
                 perim = M_PI*ChannelDiameter->Drc;
-           //     qDebug() << r << c << perim;
+                beta = BETAcirc;
                 break;
             case SHAPETRAP : ChannelMaxArea->Drc = 0.5*(ChannelWidthB->Drc + ChannelWidth->Drc)*ChannelDepth->Drc;
                 perim = ChannelWidthB->Drc+2*ChannelDepth->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+                beta = BETAtrap;
                 break;
             case SHAPETRIA : ChannelMaxArea->Drc = 0.5*ChannelWidth->Drc*ChannelDepth->Drc;
                 perim = 2*ChannelDepth->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+                beta = BETAtria;
                 break;
             //SHAPEFREE is simply covered free flow, so it is a culvert but not confined
         }
 
-        // used for confined flow
+        // culverts are always confined, so there must be a maxQ
         if (ChannelCulvert->Drc > 0 && ChannelCulvert->Drc < 5) {
-            ChannelMaxQ->Drc = std::pow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrt(ChannelGrad->Drc)/ChannelN->Drc;
-            ChannelMaxAlpha->Drc = ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, 0.6);
-        } else {
+            double sqrtGrad = qSqrt(ChannelGrad->Drc);
+            double maxq = qPow(ChannelMaxArea->Drc/perim,2.0/3.0)*sqrtGrad/ChannelN->Drc;
+            // maxq calculated from gradient, manning hydraulic radius
+            if (ChannelMaxQ->Drc == 0)
+                // no maxq was provided than calculated
+                ChannelMaxQ->Drc = maxq * CulvertCalibration;
+            else {
+                double scale = qPow(ChannelMaxQ->Drc/maxq, 3.0/8.0);
+                // adjust diameter if channelMaxQ is different from the manning calculated
+                if (ChannelCulvert->Drc == SHAPECIRC) {
+                    ChannelDiameter->Drc *= scale;
+                    ChannelMaxArea->Drc = ChannelDiameter->Drc*M_PI;
+                }
+                if (ChannelCulvert->Drc == SHAPERECT) {
+                    ChannelWidth->Drc *= scale;
+                    ChannelDepth->Drc *= scale;
+                    ChannelMaxArea->Drc = ChannelWidth->Drc*ChannelDepth->Drc;
+                }
+                if (ChannelCulvert->Drc == SHAPETRIA) {
+                    ChannelWidth->Drc *= scale;
+                    ChannelDepth->Drc *= scale;
+                    ChannelMaxArea->Drc = 0.5*ChannelWidth->Drc*ChannelDepth->Drc;
+                }
+                if (ChannelCulvert->Drc == SHAPETRAP) {
+                    ChannelWidth->Drc *= scale;
+                    ChannelWidthB->Drc *= scale;
+                    ChannelDepth->Drc *= scale;
+                    ChannelMaxArea->Drc = 0.5*(ChannelWidthB->Drc + ChannelWidth->Drc)*ChannelDepth->Drc;
+                }
+            }
+
+        } /*else {
+            ChannelMaxAlpha->Drc = 0;
             ChannelMaxQ->Drc = 0;
-            ChannelMaxAlpha->Drc= 0;
-        }
+            ChannelMaxArea->Drc = 0;
+        }*/
+        // if (ChannelMaxQ->Drc > 0)
+        //     qDebug() << "a " << ChannelMaxQ->Drc;
+        ChannelMaxAlpha->Drc = ChannelMaxQ->Drc > 0 ? ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, beta) : 0.0;
+        //ChannelMaxAlpha->Drc = ChannelMaxQ->Drc > 0 ? ChannelMaxArea->Drc/std::pow(ChannelMaxQ->Drc, beta) : 0.0;
     }}
 
     // infiltration
@@ -1490,35 +1525,47 @@ void TWorld::CorrectDEM(cTMap *h, cTMap * g)
     Fill(*tmb,0);
     FOR_ROW_COL_MV_L {
         double Z = h->Drc;
-        double z_x1 =  c > 0 && !MV(r,c-1)         ? h->data[r][c-1] : Z;
-        double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? h->data[r][c+1] : Z;
-        double z_y1 =  r > 0 && !MV(r-1,c)         ? h->data[r-1][c] : Z;
-        double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? h->data[r+1][c] : Z;
-        double z_x11 =  c > 0 && r > 0 && !MV(r-1,c-1)         ? h->data[r-1][c-1] : Z;
-        double z_x21 =  c > 0 && r < _nrRows-1 && !MV(r+1,c-1) ? h->data[r+1][c-1] : Z;
-        double z_y11 =  r > 0 && c < _nrCols-1 && !MV(r-1,c+1)         ? h->data[r-1][c+1] : Z;
-        double z_y21 =  r < _nrRows-1 && c < _nrCols-1 && !MV(r+1,c+1) ? h->data[r+1][c+1] : Z;
+        double Zmin = Z;
+        if (c > 0 && !MV(r,c-1))         Zmin = qMin(Zmin, h->data[r][c-1]);
+        if (c < _nrCols-1 && !MV(r,c+1)) Zmin = qMin(Zmin, h->data[r][c+1]);
+        if (r > 0 && !MV(r-1,c))         Zmin = qMin(Zmin, h->data[r-1][c]);
+        if (r < _nrRows-1 && !MV(r+1,c)) Zmin = qMin(Zmin, h->data[r+1][c]);
 
-        zmin.clear();
-        zmin << z_x1 << z_x2 << z_y1 << z_y2 << z_x11 << z_y11 << z_x21 << z_y21;
-        std::sort(zmin.begin(), zmin.end());
-        if (Z < zmin.at(0)) {
-           tma->Drc = zmin.at(0);
-        }
+        if (c > 0 && r > 0 && !MV(r-1,c-1))                 Zmin = qMin(Zmin, h->data[r-1][c-1]);
+        if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1))         Zmin = qMin(Zmin, h->data[r+1][c-1]);
+        if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1))         Zmin = qMin(Zmin, h->data[r-1][c+1]);
+        if (r < _nrRows-1 && c < _nrCols-1 && !MV(r+1,c+1)) Zmin = qMin(Zmin, h->data[r+1][c+1]);
+
+        // double z_x1 = c > 0 && !MV(r,c-1)         ? h->data[r][c-1] : Z;
+        // double z_x2 =  c < _nrCols-1 && !MV(r,c+1) ? h->data[r][c+1] : Z;
+        // double z_y1 =  r > 0 && !MV(r-1,c)         ? h->data[r-1][c] : Z;
+        // double z_y2 =  r < _nrRows-1 && !MV(r+1,c) ? h->data[r+1][c] : Z;
+        // double z_x11 =  c > 0 && r > 0 && !MV(r-1,c-1)         ? h->data[r-1][c-1] : Z;
+        // double z_x21 =  c > 0 && r < _nrRows-1 && !MV(r+1,c-1) ? h->data[r+1][c-1] : Z;
+        // double z_y11 =  r > 0 && c < _nrCols-1 && !MV(r-1,c+1)         ? h->data[r-1][c+1] : Z;
+        // double z_y21 =  r < _nrRows-1 && c < _nrCols-1 && !MV(r+1,c+1) ? h->data[r+1][c+1] : Z;
+
+        // zmin.clear();
+        // zmin << z_x1 << z_x2 << z_y1 << z_y2 << z_x11 << z_y11 << z_x21 << z_y21;
+        // std::sort(zmin.begin(), zmin.end());
+        // if (Z < zmin.at(0)) {
+        //    tma->Drc = zmin.at(0);
+        // }
+        tma->Drc = Zmin;
     }}
     FOR_ROW_COL_MV_L {
         if (tma->Drc > -9999) {
-            tmb->Drc = tma->Drc - h->Drc + 0.001*_dx;
-            h->Drc = tma->Drc-0.001*_dx;
-            g->Drc = 0.001;
+            tmb->Drc = tma->Drc - h->Drc;// + 0.001*_dx;
+            h->Drc = tma->Drc;//-0.001*_dx;
+            g->Drc = 0.005;
         }
     }}
-    //report(*tmb, "demM_PIts.map");
+    report(*tmb, "dem_PITs.map");
 }
 //---------------------------------------------------------------------------
 void TWorld::InitErosion(void)
 {
-//qDebug() << "hoi"; //SwitchSlopeStability ||
+
 //if (SwitchErosion) {
 //        COHCalibration = getvaluedouble("Cohesion calibration");
 //        Cohesion = ReadMap(LDD,getvaluename("coh"));
@@ -1905,21 +1952,21 @@ void TWorld::IntializeData(void)
         if (SwatreSoilModel == nullptr)
             throw 3;
 
-        if (SwitchInfilCrust) {
-            SwatreSoilModelCrust = InitSwatre(ProfileIDCrust);
-            if (SwatreSoilModelCrust == nullptr)
-                throw 3;
-        }
-        if (SwitchInfilCompact) {
-            SwatreSoilModelCompact = InitSwatre(ProfileIDCompact);
-            if (SwatreSoilModelCompact == nullptr)
-                throw 3;
-        }
-        if (SwitchGrassStrip) {
-            SwatreSoilModelGrass = InitSwatre(ProfileIDGrass);
-            if (SwatreSoilModelGrass == nullptr)
-                throw 3;
-        }
+        // if (SwitchInfilCrust) {
+        //     SwatreSoilModelCrust = InitSwatre(ProfileIDCrust);
+        //     if (SwatreSoilModelCrust == nullptr)
+        //         throw 3;
+        // }
+        // if (SwitchInfilCompact) {
+        //     SwatreSoilModelCompact = InitSwatre(ProfileIDCompact);
+        //     if (SwatreSoilModelCompact == nullptr)
+        //         throw 3;
+        // }
+        // if (SwitchGrassStrip) {
+        //     SwatreSoilModelGrass = InitSwatre(ProfileIDGrass);
+        //     if (SwatreSoilModelGrass == nullptr)
+        //         throw 3;
+        // }
         initSwatreStructure = true;
         // flag: structure is created and can be destroyed in function destroydata
     }
@@ -2362,7 +2409,7 @@ void TWorld::FindStationaryBaseFlow()
                                     double FW = ChannelWidth->Drc;
                                     P = FW + 2.0*h;
                                     A = FW*h;
-                                    F = qMax(0.0, 1.0 - q/(sqrt(ChannelGrad->Drc)/ChannelN->Drc*A*pow(A/P,2.0/3.0)));
+                                    F = qMax(0.0, 1.0 - q/(qSqrt(ChannelGrad->Drc)/ChannelN->Drc*A*pow(A/P,2.0/3.0)));
                                     dF = (5.0*FW+6.0*h)/(3.0*h*P);
                                     h1 = h - F/dF;
                                     // function divided by derivative
@@ -2522,7 +2569,7 @@ void TWorld::InitShade(void)
         for (int i = 0; i < 9; i++) {
             mat[i] = DEM->Drc;
         }
-        if (r > 0 && r < _nrRows-1 && c > 0 && c < _nrCols-1) {
+        if ((r > 0 && r < _nrRows-1) && (c > 0 && c < _nrCols-1)) {
             if(!pcr::isMV(LDD->data[r-1][c-1]))
                 mat[0] = DEM->data[r-1][c-1];
             if(!pcr::isMV(LDD->data[r-1][c  ]))
@@ -2552,8 +2599,7 @@ void TWorld::InitShade(void)
         double z_factor = 2.0;
         double Slope_rad = atan( z_factor * sqrt ( dx*dx+dy*dy) );
         double Aspect_rad = 0;
-        if( dx != 0)
-        {
+        if( dx != 0) {
             Aspect_rad = atan2(dy, -dx);
             if (Aspect_rad < 0)
                 Aspect_rad = 2*M_PI + Aspect_rad;

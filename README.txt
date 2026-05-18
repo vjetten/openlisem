@@ -4,7 +4,7 @@ The model can be downloaded from:
 https://github.com/vjetten/openlisem/releases/tag/lisem_bin
 
 ============
-Date: 251126
+Date: 2603202
 ============
 
 This software is under the copyright model GPLv3 (distributed with the model) and subject to additional disclaimers.
@@ -14,16 +14,45 @@ For questions contact v.g.jetten AD utwente.nl
 NOTE: since version 7.4.7.R7 a 4Byte floating point version is maintained that takes up less RAM memory, for very large databases.
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
-NOTE: since version 6.x it is fully parallel and developed with MSYS2.0, Qt6.x.x, openmp, gdal and (minimal) pcraster
 
-251124 - v7.4.8.beta.R1-R3
+260417 - v7.5.0
+- Tagged version WRL project
+- Added a correction in advanced for surious water heigths that sometimes occur due to water piling up behind in front of a culvert. 
+- FIXED: the number of cpu cores could not go to 0 (max cores) in advanced
+
+260322 - v7.5.0.R3.beta
+- Changed: dynamic crusting for SWATRE, simplified. profcrst.map gives the are that will crust (0-1)
+- Added dynamic crusting rate, default -0.02
+- Added spurious water height correction
+- Changed: behaviour of pause/play: pause is wait, play is continue
+- FIXED: bug in model waiting for drawing of maps in UI to finish.
+- FIXED: bug in model waiting for drawing of maps in UI to finish.
+
+260306 - v7.5.0.R1.beta
+- BUG-FIX: Windows region setting: if decimals are comma they are always translated to dot
+- BUG-FIX: Culverts: adjust maxarea to user defined channel max Q if provided, else calculate channel max Q from dimensions
+- BUG-FIX: fixed errors in reading of user-defined discharge data
+- Changed: calibration factor from culvert diameter to calibration of culvert max Q
+
+260205 - v7.4.9
 - Added: show buffers in the map view
 - Added: add surface micro storage in display map list
-- Added: 3-layer Green and Ampt infiltration and redistribution: EXPERIMENTAL
-- Changed: outpoints and outlets arre always visible in map display, also without channel
+- Added: 3-layer Green and Ampt infiltration and redistribution (not tested!)
+- Added: user defined culvert max discharge in m3/s (chanmaxq.map)
+- Changed: Peak time of rainfall and discharge now in min since start of the run, in all output
+- Changed: channel culvert type 5 is an underground channel with width and depth (not cicular), free flow kin wave, but no contact to the surface..
+- Changed: The calibration factor for culvert size only affects, culvert type 2
+- Changed: slightly better diagonal flow (optional)
+- Changed: pressure before culvert not considered anymore due to mass balance errors
+- Changed: outpoints and outlets are always visible in map display, also without channel
+- BUG-FIX: folder path finding in Windows and Linux, to be changed to something more stable
+- BUG-FIX: Display and reporting of discharge graphs showed one day less (calculations were good)
+- BUG FIX: culverts were not drawn correctly on GUI map
+- BUG FIX: channels were drawn on screen even if not selected
 - BUG FIX: redistribution infiltrated water with  Green and Ampt, and is only active after infiltration stops
 - BUG FIX: restored depth wetting front map in interface display
 - BUG FIX: SWATRE user defined minimum timestep condition was not added inside the time loop in SWATRE
+- BUG-FIX: SWATRE profile list was sometimes wrong
 
 251104 - v7.4.7.beta.R9
 - BUG-FIX: skipping steps for writing maps did not work properly.
