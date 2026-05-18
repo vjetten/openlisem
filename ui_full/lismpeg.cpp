@@ -162,9 +162,9 @@ void lismpeg::on_toolButton_createMP4_clicked()
         return;
     }
 
-    QFile outputFile(listName); // Replace this with the path for the output file
+    QFile outputFile(listName);
     if (!outputFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        E_mpegProcessOutput->append("No screenshots found.");
+        E_mpegProcessOutput->append("Cannot write mpeg.");
         return;
     }
 

@@ -38,6 +38,7 @@ profile node setup:
     dz = (endComp[i-1] - endComp[i]) is negative layer thickness
     z = 0.5*(dz[i-1]+dz[i]) is negative centre of compartment, nodes
     disnod = z[i]-z[i-1] is negative distance between centres, nodes
+    NOTE: Independent of individuual soil profiles table depths!!!
 
      -------   surface    -       - z[0]-
         o                  |dz[0] -      | disnod[0]
@@ -52,7 +53,7 @@ profile node setup:
 #include "lerror.h"
 #include "model.h"
 
-#define LIST_INC	10
+#define LIST_INC	20
 
 #define ROOTMAX 60  // rootzone depth
 
@@ -71,7 +72,7 @@ void TWorld::ReadSwatreInputNew(void)
     swatreProfileDef.clear();
     swatreProfileNr.clear();
 
-    QFile file(SwatreTableName); // table name has full path
+    QFile file(SwatreTableName); // table name has full path (profile.inp)
 
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);
@@ -83,13 +84,13 @@ void TWorld::ReadSwatreInputNew(void)
             if (!line.trimmed().isEmpty()) {
                 swatreProfileDef.append(line);
             } else {
-                swatreProfileDef.append("###");
+                swatreProfileDef.append("###"); // replace empty lines "###" for parsing
             }
         }
 
         file.close();
     } else {
-        Error(QString("SWATRE: Can't open profile definition file %1").arg(/*SwatreTableDir +*/SwatreTableName));
+        Error(QString("SWATRE: Can't open profile definition file %1").arg(SwatreTableName));
         throw 1;
     }
 
@@ -126,7 +127,8 @@ void TWorld::ReadSwatreInputNew(void)
 
     int pos = 2;
     for (int i = 0; i < zone->nrNodes; i++) {
-        zone->endComp[i] = swatreProfileDef[i+pos].toDouble(&ok);
+        bool ok;
+        zone->endComp[i] = toDOUBLE(swatreProfileDef[i+pos],&ok);//swatreProfileDef[i+pos].toDouble(&ok);
         if (!ok)
             Error(QString("SWATRE: Can't read compartment end of node %1").arg(i+pos));
         if (zone->endComp[i] <= 0)
@@ -136,7 +138,7 @@ void TWorld::ReadSwatreInputNew(void)
     zone->z[0]= zone->dz[0]*0.5;
     zone->disnod[0] = zone->z[0];
     zone->rootz[0] = 0;
-    double rootmax = -ROOTMAX;
+    double rootmax = -ROOTMAX; // 60 cm fixed independent of crop
     double sum = 0;
     for (int i = 1; i < zone->nrNodes; i++) {
         zone->dz[i]= (zone->endComp[i-1]-zone->endComp[i]);
@@ -171,8 +173,6 @@ void TWorld::ReadSwatreInputNew(void)
     }
     sizeProfileList = nrProfileList;
 
-    //qDebug() << "nr profiles" << nrProfileList << checkList.count();
-
     if (nrProfileList == 0)
         Error(QString("SWATRE: no profiles read from %1").arg(SwatreTableName));
 
@@ -180,27 +180,31 @@ void TWorld::ReadSwatreInputNew(void)
     swatreProfileNr.clear();
     for (int i = 0; i < checkList.count(); i++)
         swatreProfileNr << checkList[i].toInt();
-    std::sort(swatreProfileNr.begin(), swatreProfileNr.end());
+   // std::sort(swatreProfileNr.begin(), swatreProfileNr.end());
+    // DO NOT SORT! IT BREAKS THE LINK BETWEEN THIS LIST AND THE MAP
 
     for (int i = 0; i < swatreProfileNr.count()-1; i++)
     {
+       // qDebug() << swatreProfileNr[i];
         if (swatreProfileNr[i] == swatreProfileNr[i+1])
             DEBUG(QString("Warning SWATRE: profile id %1 defined more than once").arg(swatreProfileNr[i+1]));
     }
 
-  //   profileList = (PROFILE **)realloc(profileList,sizeof(PROFILE *)*(nrProfileList+1)); // why realloc instead of malloc?
-    //profileList = (PROFILE **)malloc(sizeof(PROFILE *)*(nrProfileList+1));
     // profile list is a list of pointers to PROFILE
     profileList = new PROFILE*[nrProfileList + 1];
 
     nrProfileList = 0;
+   // qDebug() << swatreProfileDef.count();
     for (int i = zone->nrNodes+1; i < swatreProfileDef.count(); i++) {
         if (swatreProfileDef[i].contains("###")) {
+            // start of a new profilel
             i++;
+        //    qDebug() << swatreProfileDef[i];
             profileList[nrProfileList] = ReadProfileDefinitionNew(i, zone);
             // creates a profile and gives the pointer to profilelist
             // i is the place in the StrinList where a profile starts
             nrProfileList++;
+         //   qDebug() << "nrProfileList" << nrProfileList;
         }
     }
 
@@ -229,27 +233,24 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
     QString tableName;
     double endHor = 0, endHorPrev = 0;
     PROFILE *p;
-    HORIZON *h;
+    HORIZON *hor;
     bool ok;
 
     p = new PROFILE;
-
-    p->profileId = swatreProfileDef[pos].toInt(&ok, 10);
-    //qDebug() <<  pos << p->profileId;
+    int prid = swatreProfileDef[pos].toInt(&ok, 10);
     if (!ok)
-        Error(QString("SWATRE: read error: error in profile id %1 definition").arg(p->profileId));
-
-   // qDebug() << pos << "readprofdefnew" << p->profileId;
+        Error(QString("SWATRE: read error: error in profile id %1 definition").arg(prid));
+    p->profileId = prid;
 
     p->horizon = (const HORIZON **)malloc(sizeof(HORIZON *) * z->nrNodes); // array of pointers to horizon
-    p->zone = z; // also pointer to zone ninfo
+    p->zone = z; // also pointer to zone info
     for (int i = 0; i < z->nrNodes; i++)
-        p->KsatCal << 1.0; // create ksat cal 1,2,3 for each horizon
+        p->KsatCal << 1.0; // create ksat cal 1,2,3 for each horizon, initialize to 1.0
 
     int i = 0;
     int hornr = 0;
     while (i != z->nrNodes) {
-        pos++; // move one line to the horizon table name
+        pos++; // move one line to read the horizon table name
 
         tableName = swatreProfileDef[pos];
         if (!QFileInfo(SwatreTableDir + tableName).exists())
@@ -258,7 +259,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
 
         endHorPrev = endHor;
         pos++; // move one line to read the horizon depth endhor in cm
-        hornr++;
+        hornr++; // increase horizon number
 
         endHor = swatreProfileDef[pos].toDouble(&ok);
         if (!ok)
@@ -267,18 +268,20 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
             Error(QString("SWATRE: Error in profile definition nr %1, depth horizons does not increase").arg(p->profileId));
 
         // read the horizon and the luts for each node
-        h = ReadHorizonNew(SwatreTableDir, tableName);
+        hor = ReadHorizonNew(SwatreTableDir, tableName);
 
         // copy horizon info to all nodes of this horizon
         // add the proper calibration factor (ksat1 cal for hor 1, ksat2cal for hor 2 adn the rest hor 3)
-        while (i < z->nrNodes && z->endComp[i] <= endHor ) {
-            p->horizon[i] = h;
+        while (i < z->nrNodes && z->endComp[i] <= endHor) {
+
+            p->horizon[i] = hor;
 
             if (hornr == 1) p->KsatCal.replace(i, ksatCalibration);
             if (hornr == 2)  p->KsatCal.replace(i, ksat2Calibration);
             if (hornr > 2)  p->KsatCal.replace(i, ksat3Calibration);
 
-            //qDebug() << i << hornr <<  p->horizon[i]->name;
+         //   qDebug() << i << p->profileId << p->horizon[i]->name << z->endComp[i] << endHor;
+                        //hornr << p->profileId << p->horizon[i]->name << z->endComp[i] << z->z[i] << z->disnod[i] << z->dz[i];
             i++;
         }
 
@@ -286,6 +289,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
         //     Error(QString("SWATRE: Compartment does not end on depth '%1' (found in profile nr %2 for horizon %3)")
         //           .arg(endHor).arg(p->profileId).arg(tableName));
         //? what does this error mean exactly, horizons do not have to end exacvtly on nodes
+
     }
 
     return(p);
@@ -296,6 +300,7 @@ PROFILE * TWorld::ReadProfileDefinitionNew(int pos, ZONE *z)
 // copy horizon info to all nodes of this horizon
 HORIZON * TWorld::ReadHorizonNew(QString tablePath, QString tableName)
 {
+    //qDebug() << "ReadHorizonNew" << nrHorizonList;
     // look if it's already loaded
     for(int i = 0; i < nrHorizonList; i++)
         if (tableName == horizonList[i]->name)
@@ -352,14 +357,20 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
         QStringList SL = list[i].split(QRegularExpression("\\s+"),Qt::SkipEmptyParts);
 
         bool ok;
-        SL[0].toDouble(&ok);
+        double v = toDOUBLE(SL[0],&ok);
         if (!ok || SL.count() < 3) {
             l->Rows--;
             break; // sometimes table ends with a non empty line with some char code
         }
-        l->hydro[THETA_COL].append(SL[THETA_COL].toDouble());
-        l->hydro[H_COL].append(SL[H_COL].toDouble());
-        l->hydro[K_COL].append(SL[K_COL].toDouble()/86400.0); // cm/day to cm/sec
+        l->hydro[THETA_COL].append(toDOUBLE(SL[THETA_COL], &ok));
+        if (!ok)
+            Error(QString("Cannot read theta in table %1.").arg(fileName));
+        l->hydro[H_COL].append(toDOUBLE(SL[H_COL], &ok));
+        if (!ok)
+            Error(QString("Cannot read h in table %1.").arg(fileName));
+        l->hydro[K_COL].append(toDOUBLE(SL[K_COL], &ok)/86400.0); // cm/day to cm/sec
+        if (!ok)
+            Error(QString("Cannot read K in table %1.").arg(fileName));
     }
 
     for (int i = 0; i < l->Rows-1; i++) {
@@ -367,7 +378,7 @@ LUT *TWorld::ReadSoilTableNew(QString fileName)
             Error(QString("matrix head not increasing in table %1 at h = %2.").arg(fileName).arg(l->hydro[H_COL][i]));
         if (l->hydro[THETA_COL][i+1] <= l->hydro[THETA_COL][i])
             Error(QString("moisture content not increasing in table %1 at theta = %2.").arg(fileName).arg(l->hydro[THETA_COL][i]));
-        if (l->hydro[K_COL][i+1] < l->hydro[K_COL][i])
+        if ((l->hydro[K_COL][i+1] < l->hydro[K_COL][i]) && (l->hydro[K_COL][i+1] > 0 && l->hydro[K_COL][i] > 0))
             Error(QString("Hydraulic conductivity not increasing in table %1 at K = %2.").arg(fileName).arg(l->hydro[K_COL][i]));
     }
 

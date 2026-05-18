@@ -69,7 +69,7 @@ cTMap *TWorld::ReadMap(cTMap *Mask, QString name)
     cTMap *_M = new cTMap(readRaster(name));
 
     if (_M->nrCols() != _nrCols || _M->nrRows() != _nrRows) {
-        QString S = QString("Map %1 does not have the right number of roiws and cols: %2, %3").arg(name).arg(_M->nrRows()).arg(_M->nrCols());
+        QString S = QString("Map %1 does not have the right number of rows and cols: %2, %3").arg(name).arg(_M->nrRows()).arg(_M->nrCols());
         Error(S);
         return(nullptr);
     }
@@ -135,7 +135,7 @@ void TWorld::DestroyData(void)
 /// separate networks need their own InitMask: LDD, ChannelLDD, TileLDD
 cTMap *TWorld::InitMask(QString name)
 {
-    // read map and make a mask map   
+    // read map and make a mask map
     cTMap *_M = new cTMap(readRaster(name));
 
     //maplistCTMap[maplistnr].m = _M;

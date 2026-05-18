@@ -47,11 +47,11 @@ TWorld::~TWorld()
 {
 }
 //---------------------------------------------------------------------------
-void TWorld::stop()
-{
-    QMutexLocker locker(&mutex);
-    stopRequested = true;
-}
+// void TWorld::stop()
+// {
+//     QMutexLocker locker(&mutex);
+//     stopRequested = true;
+// }
 //---------------------------------------------------------------------------
 void TWorld::saveMBerror2file( bool start) //bool doError,
 {
@@ -241,10 +241,14 @@ void TWorld::DoModel()
             op.BeginTime = BeginTime/60; // for graph drawing in min
             op.EndTime = EndTime/60;
         } else {
-            BeginTime = (btd*1440+btm)*60; //for running in sec
-            EndTime = (etd*1440+etm)*60;   //in sec
+            BeginTime = ((btd)*1440+btm)*60; //for running in sec
+            EndTime = ((etd)*1440+etm)*60;   //in sec
             op.BeginTime = BeginTime/60;// for graph drawing in min
             op.EndTime = EndTime/60;
+        }
+        if (EndTime < BeginTime + 60) {
+            ErrorString = "End time must be > Begin time + 1 minute.";
+            throw 1;
         }
 
         //get all maps
@@ -324,7 +328,7 @@ void TWorld::DoModel()
         //bool saveMBerror = true;
         //saveMBerror2file(true); //saveMBerror,
 
-        SetFlowBarriers();     // update the presence of flow barriers, static for now, unless breakthrough
+        //SetFlowBarriers();     // obsolete for now! update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
 
         if (SwitchPest) {
@@ -356,7 +360,6 @@ void TWorld::DoModel()
                     else
                         _dt =_dt_user;
                 }
-            qDebug() << _dt;
             }
             savemaptodisk = false;
             // printstep determines report frequency in #define report(...)
@@ -368,21 +371,6 @@ void TWorld::DoModel()
                 savemaptodisk = false;
 
             runstep++;
-
-            if(stopRequested) {
-                mutex.lock();
-                DEBUG("User interrupt... finishing time step");
-                time = EndTime;
-                mutex.unlock();
-            }
-
-            if (waitRequested) {
-                mutex.lock();
-                DEBUG("User pause...");
-                mu_condition.wait(&mutex);
-                mutex.unlock();
-            }
-            // check if user wants to quit or pause
 
             GetInputTimeseries(); // get rainfall, ET, snowmelt, discharge
 
@@ -420,14 +408,26 @@ void TWorld::DoModel()
             // because showing is done outside the Thread in the GUI, a mutex.lock() is needed
             // mu_condition gives a wakeAll() signal at the end of the display in showWorld()
             if (!noInterface) {
-                emit show(); // send the 'op' structure with data to function worldShow in LisUIModel.cpp
                 mutex.lock();
-                //qDebug() << "Model thread waiting at" << QTime::currentTime();
-                mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
-                //qDebug() << "Model thread resumed at" << QTime::currentTime();
-                mutex.unlock();
+                readyForGui = true; // set to false in ui after display and wakeall
+                emit show();
 
+                while (readyForGui) {
+                    mu_condition.wait(&mutex);
+                }
+                mutex.unlock();
             }
+            mutex.lock();
+            if(stopRequested) {
+                DEBUG("User interrupt... finishing time step");
+                time = EndTime;
+            }
+            while (waitRequested) {
+                DEBUG("User pause...");
+                mu_condition.wait(&mutex);
+            }
+            mutex.unlock();
+            // check if user wants to quit or pause
 
             //saveMBerror2file(false); //saveMBerror
 
@@ -469,11 +469,17 @@ void TWorld::DoModel()
 
         if (!noInterface) {
             // wrap up and close the thread
+
             emit done("Finished");
         }
 
-        if (op.doBatchmode)
-        {
+        if (op.doBatchmode) {
+            if (!noInterface) {
+                mutex.lock();
+                emit ScreenShot();
+               // mu_condition.wait(&mutex);   // Wait for GUI to finish drawing
+                mutex.unlock();
+            }
             // delete all maps
             qDeleteAll(maplistCTMap.begin(),maplistCTMap.end());
             maplistCTMap.clear();
@@ -563,7 +569,7 @@ void TWorld::HydrologyProcesses()
 
         if (SwitchIncludeET)
             cell_ETa(r,c);
-        // interception and soil surface evap, also ET from Green and Ampt, not SWATRE
+        // interception and soil surface evap, also ET from Green and Ampt, *not* SWATRE, to be merged later
 
         // floododmain is used if kinwave + overflow to separate WH runoiff from 2D hmx flood
         if (FloodDomain->Drc > 0) {
@@ -598,25 +604,46 @@ void TWorld::HydrologyProcesses()
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 cell_InfilMethods(r, c);
+                // infiltrate wetting front in 1, 2 or 3 layers
 
                 if (SwitchThreeLayer) {
                     cell_RedistributionUnsat(r, c);
+                    // unsat flow between layers 1 and 2
                     cell_Redistribution3(r, c);
+                    // flow from wetting front into underlying unsat layer
+                    // adjusts wetting front Lw and theta underneath
+                    // only if Lw is progressed a minimum of 10 cm in a layer to avoid flutuations
+
+                    // assumed no tiledrain as deep as layer 3!
                 } else {
                     if (SwitchTwoLayer) {
                         cell_RedistributionUnsat(r, c);
+                        // unsat flow between layers 1 and 2, and 2 and 3
                         cell_Redistribution2(r, c);
+                        // flow from wetting front into underlying unsat layer
+                        // adjusts wetting front Lw and theta underneath
+                        // only if Lw is progressed a minimum of 10 cm in a layer to avoid flutuations
                         cell_Tiledrain2(r,c);
+                        // water into tiles if present in layer 2
+
                         //cell_Channelinfow2(r, c);
+                        // side inflow in channel cells not used
                     } else {
                         cell_Redistribution1(r, c);
+                        // flow from wetting front into underlying unsat layer
+                        // adjusts wetting front Lw and theta underneath
+                        // only if Lw is progressed a minimum of 10 cm in a layer to avoid flutuations
                         cell_Tiledrain1(r,c);
+                        // water into tiles if present in layer 1
+
                         //cell_Channelinfow1(r, c);
+                        // side inflow in channel cells not used
                     }
                 }
 
                 if (!SwitchImpermeable)
-                    Perc->Drc = cell_Percolation(r, c, 1.0);
+                    Perc->Drc = cell_PercolationMulti(r, c, 1.0);
+                // factor 1.0 is relate to groundwater recharge
            }}
         }
 
@@ -637,6 +664,7 @@ void TWorld::HydrologyProcesses()
             // if (SwitchSlopeStability)
             //     cell_SlopeStability(r, c);
     }
+
     //MoistureContent();
     // double soiltot2 = SoilWaterMass();
     // if (InfilMethod != INFIL_SOAP)

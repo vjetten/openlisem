@@ -137,29 +137,33 @@ lisemqt::lisemqt(QWidget *parent, bool doBatch, bool forceRes, QString runname)
 
         int i = 0;
         if (op.calhydro.size() > 0) {
-            E_CalibrateSmax->setValue(op.calhydro[i].toDouble()); i++;
-            E_CalibrateRR->setValue(op.calhydro[i].toDouble()); i++;
-            E_CalibrateKsat->setValue(op.calhydro[i].toDouble()); i++;
-            E_CalibrateKsat2->setValue(op.calhydro[i].toDouble()); i++;
-            E_CalibrateKsat3->setValue(op.calhydro[i].toDouble()); i++;
-            E_CalibrateTheta->setValue(op.calhydro[i].toDouble()); i++;
-            E_CalibratePsi->setValue(op.calhydro[i].toDouble());
+            int i = 0;
+            double valc = toDOUBLE(op.calhydro[i]);
+            E_CalibrateSmax->setValue(valc); i++;
+            E_CalibrateRR->setValue(valc); i++;
+            E_CalibrateKsat->setValue(valc); i++;
+            E_CalibrateKsat2->setValue(valc); i++;
+            E_CalibrateKsat3->setValue(valc); i++;
+            E_CalibrateTheta->setValue(valc); i++;
+            E_CalibratePsi->setValue(valc);
         }
         if (op.calflow.size() > 0) {
-            i = 0;
-            E_CalibrateN->setValue(op.calflow[i].toDouble()); i++;
-            E_CalibrateChN->setValue(op.calflow[i].toDouble()); i++;
-            E_CalibrateChKsat->setValue(op.calflow[i].toDouble()); i++;
-            E_CalibrateWave->setValue(op.calflow[i].toDouble()); i++;
-            E_CalibrateCulvert->setValue(op.calflow[i].toDouble()); i++;
+            int i = 0;
+            double valc = toDOUBLE(op.calflow[i]);
+            E_CalibrateN->setValue(valc); i++;
+            E_CalibrateChN->setValue(valc); i++;
+            E_CalibrateChKsat->setValue(valc); i++;
+            E_CalibrateWave->setValue(valc); i++;
+            E_CalibrateCulvert->setValue(valc); i++;
         }
         if (op.caleros.size() > 0) {
-            i = 0;
-            E_CalibrateAS->setValue(op.caleros[i].toDouble()); i++;
-            E_CalibrateCOH->setValue(op.caleros[i].toDouble()); i++;
-            E_CalibrateD50->setValue(op.caleros[i].toDouble()); i++;
-            E_CalibrateD90->setValue(op.caleros[i].toDouble()); i++;
-            E_CalibrateCHCOH->setValue(op.caleros[i].toDouble()); i++;
+            int i = 0;
+            double valc = toDOUBLE(op.caleros[i]);
+            E_CalibrateAS->setValue(valc); i++;
+            E_CalibrateCOH->setValue(valc); i++;
+            E_CalibrateD50->setValue(valc); i++;
+            E_CalibrateD90->setValue(valc); i++;
+            E_CalibrateCHCOH->setValue(valc); i++;
         }
         stopAct->setChecked(false);
         runAct->setChecked(true);
@@ -245,6 +249,7 @@ void lisemqt::setErosionMapOutput(bool doit)
 
 //--------------------------------------------------------------------
 //gives values 0,1,2,4,6,8
+/*
 void lisemqt::on_nrUserCores_valueChanged(int d)
 {
     int cores = cpucores;
@@ -260,6 +265,7 @@ void lisemqt::on_nrUserCores_valueChanged(int d)
     nrUserCores->setValue(cores);
     cpucores = cores;
 }
+*/
 //--------------------------------------------------------------------
 void lisemqt::on_ComboMinSpinBox_valueChanged(double d)
 {
@@ -601,13 +607,13 @@ void lisemqt::SetToolBar()
 
     showAllAct = new QAction(QIcon(":/2X/noscreen.png"), "&no output to screen", this);
     showAllAct->setCheckable(true);
-    connect(showAllAct, SIGNAL(triggered()), this, SLOT(setOutputScreen()));
-    toolBar->addAction(showAllAct);
+  //  connect(showAllAct, SIGNAL(triggered()), this, SLOT(setOutputScreen()));
+  //  toolBar->addAction(showAllAct);
 
     showInfoAct = new QAction(QIcon(":/2X/noinfo.png"), "&no info under cursor", this);
     showInfoAct->setCheckable(true);
-    connect(showInfoAct, SIGNAL(triggered(bool)), this, SLOT(setOutputInfo(bool)));
-    toolBar->addAction(showInfoAct);
+ //   connect(showInfoAct, SIGNAL(triggered(bool)), this, SLOT(setOutputInfo(bool)));
+ //   toolBar->addAction(showInfoAct);
 
     toolBar->addSeparator();
 
@@ -1040,8 +1046,7 @@ void lisemqt::resetTabInfiltration()
 void lisemqt::resetTabChannel()
 {
     checkChannelCulverts->setChecked(false);
-    //checkChannelInfil->setChecked(false);
-    //checkStationaryBaseflow->setChecked(false);
+    checkChannelConstantBeta->setChecked(true);
     E_BaseflowMethod->setCurrentIndex(0);
 
     E_CalibrateChTor->setValue(1.0);
@@ -1149,9 +1154,10 @@ void lisemqt::resetTabAdvanced()
     //checkErosionInsideLoop->setChecked(true);
     //checkKinWaveChannel->setChecked(false);
     //E_ChannelKinWaveDt->setValue(10.0);
-    nrUserCores->setValue(0);
+    nrUserCores->setValue(0);//qFloor(omp_get_max_threads()/2));
     checkChanMaxVelocity->setChecked(true);
     checkChannel2DflowConnect->setChecked(false);
+    spinCrustingRate->setValue(-0.05);
 }
 //--------------------------------------------------------------------
 

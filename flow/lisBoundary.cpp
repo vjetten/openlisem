@@ -78,7 +78,7 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
                 h->Drc = qMax(0.0, h->Drc - Qbflux*dt/CHAdjDX->Drc);
                 //adjust boundary cells
 
-                QBoundary += Qbflux;
+                QBoundary += Qbflux; // used as total in output and mass balance
                 QBoundFlow->Drc = Qbflux; // not used anywhere !!!! use it to sum watershed boundary flow later
                 if (SwitchErosion) {
                     double ds = qMin(SSFlood->Drc, SSCFlood->Drc*QBoundFlow->Drc*dt);

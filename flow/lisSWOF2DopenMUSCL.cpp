@@ -48,13 +48,12 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     double dt_req_min = dt_max;
     sumh = getMass(h);
 
-    //F_MaxIter = 10000;
-    Fill(*tmd,0);
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (h->Drc > F_minWH)
-            tmd->Drc = 1; // flag which cells have to be calculated
-    }}
+    // Fill(*tmd,0);
+    // #pragma omp parallel for num_threads(userCores)
+    // FOR_ROW_COL_MV_L {
+    //     if (h->Drc > F_minWH)
+    //         tmd->Drc = 1; // flag which cells have to be calculated
+    // }}
 
     do {
 
@@ -75,6 +74,9 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         // do MUSCL (optional), Riemann etc, get back smallest dt
         // in the original code this is split in reconstruction/MUSCL and maincalcflux
 
+        if (dt_req_min == -1)
+            return(0);
+
         doSWOFStV(dt_req_min, h, u, v);
         // Saint-Venant calculations for new h, u, v
         // called maincalcscheme in fullSWOF
@@ -92,7 +94,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
                 dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
 
-            } while (dt1 > dt_req_min && step < 5);
+            } while (dt1 > dt_req_min && step < 2);
 
             doSWOFStV(dt_req_min, h, u, v);
 
@@ -114,12 +116,15 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             }}
         } // MUSCL
 
+  //      correctMassBalance(sumh, h);
+
         if (SwitchErosion && !SwitchErosionOutsideLoop) {
             SWOFSediment(dt_req_min, h, FlowWidth, u,v);
         }
 
         if (Switch2DDiagonalFlow) {
-            SWOFDiagonalFlowNew(dt_req_min, h, u, v);
+            SWOFDiagonalFlowLDD(dt_req_min, z, h, u, v);
+          //  SWOFDiagonalFlow(dt_req_min, z, h, u, v);
         }
 
         timesum += dt_req_min;
@@ -129,17 +134,23 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         if(count > F_MaxIter)
         stop = true;
 
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            tmd->Drc = 0;
-            if (h->Drc > F_minWH && qSqrt(u->Drc*u->Drc+v->Drc*v->Drc) > F_minWH)
-                tmd->Drc = 1;
-        }}
+        // #pragma omp parallel for num_threads(userCores)
+        // FOR_ROW_COL_MV_L {
+        //     tmd->Drc = 0;
+        //     if (h->Drc > F_minWH && qSqrt(u->Drc*u->Drc+v->Drc*v->Drc) > F_minWH)
+        //         tmd->Drc = 1;
+        // }}
 
     } while (!stop);
 
     // small mass balance corrections within 2d flow
+    //     FOR_ROW_COL_MV_L {
+    //         tmshow->Drc = h->Drc;
+    //     }}
     correctMassBalance(sumh, h);
+    // FOR_ROW_COL_MV_L {
+    //     tmshow->Drc -= h->Drc;
+    // }}
 
     if (SwitchErosion && SwitchErosionOutsideLoop) {
         SWOFSediment(_dt, h, FlowWidth, u,v);
@@ -162,20 +173,34 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
     double factor = exp(-0.005*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
     double factor2 = factor;//pow(factor,0.667); // manning reduction V=h^2/3
 
-   // Fill(*tmd,0);
-    // map edges are zero, avoid domain touching the edges
+    Fill(*tmd,0);
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        //if (h->Drc > he_ca)
-        //     tmd->Drc = 1;
+        // if water include
+        if (h->Drc > F_minWH) {
+            tmd->Drc = 1;
 
-        if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
-        if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
-        if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
-        if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
+            if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
+            if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
+            if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
+            if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
 
-        if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
-            tmd->Drc = 0;
+            // if (c > 0 && r > 0 && !MV(r-1,c-1))
+            //     tmd->data[r-1][c-1] = 1;
+            // if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1))
+            //     tmd->data[r+1][c+1] = 1;
+            // if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1))
+            //     tmd->data[r-1][c+1] = 1;
+            // if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1))
+            //     tmd->data[r+1][c-1] = 1;
+        }
+
+
+        // map edges are zero, avoid domain touching the edges
+        // ?????????????????
+        // if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
+        //     tmd->Drc = 0;
+
         if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
             tmd->Drc = 0;
     }}
@@ -307,7 +332,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
 
             if (SwitchFlowBarriers) {
                 fb_x1 = bc1 ? qMax(FlowBarrierW->Drc, FlowBarrierE->data[r][c-1]) : FlowBarrierW->Drc;
-                fb_x2 = bc2 ? qMax(FlowBarrierE->Drc, FlowBarrierE->data[r][c+1]) : FlowBarrierE->Drc;
+                fb_x2 = bc2 ? qMax(FlowBarrierE->Drc, FlowBarrierW->data[r][c+1]) : FlowBarrierE->Drc;
                 fb_y1 = br1 ? qMax(FlowBarrierN->Drc, FlowBarrierS->data[r-1][c]) : FlowBarrierN->Drc;
                 fb_y2 = br2 ? qMax(FlowBarrierS->Drc, FlowBarrierN->data[r+1][c]) : FlowBarrierS->Drc;
             }
@@ -495,6 +520,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
 
 
             //left and right hand side of c and c-1 (x and x1)
+            //dz_x1 = (Z - z_x1);
             if (bc1) {
                 h_x1r = qMax(0.0, hx1r - qMax(0.0,  dz_x1 + fb_x1)); //rechts van c-1
                 h_xl  = qMax(0.0, hxl  - qMax(0.0, -dz_x1 + fb_x1)); //links van het midden
@@ -514,7 +540,8 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             }
             hll_x1 = F_Riemann(h_x1r,ux1r,vx1r, h_xl,uxl,vxl); // c-1 (x1 right) and c (x1 left)
 
-            //right and left hand side of c and c+1 (x and x2)
+            //right and left hand side of c and c+1 (x and x2), from left tp right, but not Z:
+            //dz_x2 = (z_x2 - Z);
             if (bc2) {
                 h_xr  = qMax(0.0, hxr  - qMax(0.0,  dz_x2 + fb_x2));
                 h_x2l = qMax(0.0, hx2l - qMax(0.0, -dz_x2 + fb_x2));
@@ -574,11 +601,11 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             // so h_xl-hxl is the difference in height between the boundary of the cell and the mid of the cell
             gflowx->Drc = GRAV*0.5*( (h_xl-hxl)*(h_xl+hxl) + (hxr-h_xr)*(hxr+h_xr) + delzcx*(hxl+hxr) ); // delzcx = 0 if not muscl
             gflowy->Drc = GRAV*0.5*( (h_yu-hyu)*(h_yu+hyu) + (hyd-h_yd)*(hyd+h_yd) + delzcy*(hyu+hyd) );
-            hllx12_0->Drc = hll_x1.v[0] - hll_x2.v[0];
-            hlly12_0->Drc = hll_y1.v[0] - hll_y2.v[0];
-            hllx21_1->Drc = hll_x2.v[1] - hll_x1.v[1];
+            hllx12_0->Drc = hll_x1.v[0] - hll_x2.v[0];  // left - right
+            hlly12_0->Drc = hll_y1.v[0] - hll_y2.v[0];  // up - down
+            hllx21_1->Drc = hll_x2.v[1] - hll_x1.v[1];  // right - left
             hllx21_2->Drc = hll_x2.v[2] - hll_x1.v[2];
-            hlly21_1->Drc = hll_y2.v[1] - hll_y1.v[1];
+            hlly21_1->Drc = hll_y2.v[1] - hll_y1.v[1];  // down - up
             hlly21_2->Drc = hll_y2.v[2] - hll_y1.v[2];
         }
     }} // all cells done
@@ -587,7 +614,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
     double dt_req_min = dt;
     #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
     FOR_ROW_COL_MV_L {
-            dt_req_min = qMin(dt_req_min, FloodDT->Drc);
+        dt_req_min = qMin(dt_req_min, FloodDT->Drc);
     }}
     dt_req_min = qMax(TimestepfloodMin, qMin(dt, qMin(dt_req_min, _dt-timesum)));
 
@@ -606,7 +633,7 @@ void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v)
         double ty = dt/dy;
 
         double hn = qMax(0.0, h->Drc + tx*(hllx12_0->Drc) + ty*(hlly12_0->Drc));
-        // mass balance, hll_....v[0] is the height
+        // mass balance, hll_....v[0] is the  Mass flux per meter (m2/s) (in - out)*tx in x and y directions = height (m)
 
         // momentum balance for cells with water
         if(hn > he_ca) {
@@ -634,8 +661,8 @@ void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v)
         } else {
             // hn < ha
             hn = h->Drc; // if no fluxes then also no change in h
-            Un = 0;
-            Vn = 0;
+            Un = u->Drc;
+            Vn = v->Drc;
         }
 
         // komt niet meer voor

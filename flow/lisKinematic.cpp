@@ -142,7 +142,7 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
  * @return new water discharge
  *
  */
-double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT, double deltaX, double Qm, double Am)
+double TWorld::IterateToQnew(double Qin, double Qold, double alpha, double beta, double deltaT, double deltaX, double Qm, double Am)
 {
     double  ab_pQ, deltaTX, C;  //auxillary vars
     int   count;
@@ -150,8 +150,6 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha,double deltaT
     double fQkx = 1.0; //function
     double dfQkx;  //derivative
     const double _epsilon = 1e-12;
-    const double beta = 0.6;
-    //double q = 0; //sink term, not used
 
     //NOTE Qm is maximum Q in pipes/culverts, Am is max Alpha with max Q, values are -1 if not used
 
@@ -221,7 +219,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
         }
         QinKW->Drc = Qin;
 
-        _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
+        _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, BETArect, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
         int ldd = fabs(_crlinked_.at(i_).ldd); // negative is a culvert
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
@@ -393,7 +391,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
             itercount = 0;
             //double f = ((int) _LDD->data[rowNr][colNr] % 2 == 1) ? 1.414214 : 1.0;
             _Qn->data[rowNr][colNr] =
-                    IterateToQnew(Qin, _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], _dt, _DX->data[rowNr][colNr],
+                    IterateToQnew(Qin, _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], BETArect, _dt, _DX->data[rowNr][colNr],
                                   _Qmax->data[rowNr][colNr], _Amax->data[rowNr][colNr] );
 
             int ldd = static_cast <int>(_LDD->data[rowNr][colNr]);
@@ -541,3 +539,136 @@ void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
         }/* eof subcatchment done */
     } /* eowhile list != nullptr */
 }
+/*
+void TWorld::DynamicChannel(QVector <LDD_COORIN>_crlinked_)
+{
+    int dy[10] = {0,1,1,1,0,0,0,-1,-1,-1};
+    int dx[10] = {0,-1,0,1,-1,0,1,-1,0,1};
+
+    double timesum = 0;
+    double dt_max = qMin(_dt, _dx*0.5);
+    int count = 0;
+    bool stop;
+    double dt_req_min = dt_max;
+    Fill(*tmc, 0);
+    Fill(*tma, 0);
+    Fill(*tmb, 0);
+
+    do {
+        for(long i_ =  0; i_ < _crlinked_.size(); i_++) {
+            int r = _crlinked_.at(i_).r;
+            int c = _crlinked_.at(i_).c;
+            NR = _crlinked_.at(i_).nr; // nr upstream of inflow branches at each point in channeldd
+
+            double CHH = ChannelWH->Drc;
+            double CHV = ChannelV->Drc;
+
+            // upstream boundary
+            //ChatGPT! calculate average V by total crossection coming in and sum of Q.
+            // H average coming in is the H weighed for channelwidth and WHs
+            double Astar = 0;
+            double Bstar = 0;
+            double hstar = 0;
+            double Qtot = 0;
+            double Vstar = 0;
+            double Zstar = 0;
+            if (NR > 0) {
+                for(int j = 0; j < _crlinked_.at(i_).nr; j++) {
+                    int rr = _crlinked_.at(i_).inn[j].r;
+                    int cr = _crlinked_.at(i_).inn[j].c;
+                    Astar += ChannelWidth->Drcr*ChannelWH->Drcr;
+                    Bstar += ChannelWidth->Drcr;
+                    hstar = Astar/Bstar;
+                    Qtot += ChannelQ->Drcr; // or channelQn?
+                    Zstar += ChannelDEM->Drcr;
+                    //TODO: culvert max A
+                }
+                Zstar = Zstar/(double)NR; //average upstream elevation channel bed
+                Vstar = Qtot/Astar;
+            }
+
+            // |_____|_____|_____|
+            //  down  centre  up
+            // always order down-centre, centre-up
+
+
+            double dz_u = ChannelDEM->Drc - Zstar;
+            double hc_u = CHH; // upstream boundary for centre cell, boundary with uopstream cell, so hc_u
+            double hu_d = hstar; // downstream boundary for upstream cell, so hu_d;
+            double vc_u = CHV;
+            double vu_d = Vstar;
+            hc_u = qMax(0.,hc_u - qMax(0.,dz_u));
+            hu_d = qMax(0.,hu_d - qMax(0.,-dz_u));
+            if (hc_u == 0) vc_u = 0;
+            if (hu_d == 0) vu_d = 0;
+            vec3 roeUp = F_VFRoe(hc_u, vc_u, hu_d, vu_d);
+
+            // downstream boundary
+            int ldd = fabs(_crlinked_.at(i_).ldd); // negative is a culvert
+            int cr = c+dx[ldd];
+            int rr = r+dy[ldd];
+            double dz = Zstar - ChannelDEM->Drc;
+            double WHdown = ChannelWH->Drcr;
+            double Vdown = ChannelV->Drcr;
+            hd = qMax(0.,CHH-qMax(0.,dz));
+            hu = qMax(0.,hu-qMax(0.,-dz));
+
+
+
+            vec3 roeDown = F_VFRoe(WHdown, Vdown, CHH, CHV);
+
+            tmc->Drc = courant_factor*_dx/qMax(roeUp.v[2],roeDown.v[2]);
+        }
+
+        // smallest dt
+        double dt_req_min = dt_max;
+        #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            dt_req_min = qMin(dt_req_min, tmc->Drc);
+        }}
+        dt_req_min = qMax(TimestepfloodMin, qMin(dt_max, qMin(dt_req_min, _dt-timesum)));
+
+        // calc Hnew and Vnew with smallest dt
+        for(long i_ =  0; i_ < _crlinked_.size(); i_++) {
+            int r = _crlinked_.at(i_).r;
+            int c = _crlinked_.at(i_).c;
+            double tx = dt_req_min/_dx;
+
+            double Hn = channelWH->Drc - tx*(roeUp1->Drc - roeDown1->Drc);
+            double Qn = 0;
+            double Vn = 0;
+            if(Hn > he_ca) {
+                 Qn = ChannelWH->Drc*ChannelV->Drc - tx*(roeUp2->Drc-roeDown->Drc +
+                        GRAV_DEM*((hleft[i]-hright[i])*(hleft[i]+hright[i])+(hr[i]-hl[i])*(hr[i]+hl[i])+(hl[i]+hr[i])*dzi[i]));
+
+
+                 fric->calc(ve[i],hes[i],qes[i]);
+                 qes[i] = fric->get_qmod();
+
+                 ves[i] = qes[i]/hes[i];
+
+            }
+
+            ChannelQn->Drc = Qn;
+            ChannelV->Drc = Vn;
+            ChannelWH->Drc = Hn;
+        }
+
+
+        // if (_Qmax->Drcr > 0)
+        //     _Qn->Drc = qMin(_Qmax->Drcr, _Qn->Drc);
+
+        //the following causes major problmes: water level rises to extreme levels because there is no flow out!
+        // if (FloodDomain->Drcr > 0)
+        //     _Qn->Drc = 0;
+
+        timesum += dt_req_min;
+        count++; // nr loops
+
+        stop = timesum > _dt-0.001;
+        if(count > F_MaxIter)
+        stop = true;
+    } while (!stop);
+}
+*/
+
