@@ -55,7 +55,7 @@ QString TWorld::getvaluename(QString vname)
                 QFileInfo info(inputDir + s + QString(".001"));
 
                 if (!info.exists()) {
-                    ErrorString = "Filename not found for map \"<I>"+runnamelist[i].name + "\" - " + info.fileName();
+                    ErrorString = "Filename not found for map \"<I>"+runnamelist[i].name + "\" - " + info.fileName(); //inputDir;
                     throw 1;
                 } else {
                     return inputDir + info.baseName();
@@ -80,11 +80,9 @@ QString TWorld::getvaluename(QString vname)
 double TWorld::getvaluedouble(QString vname)
 {
     for (int i = 0; i < nrrunnamelist; i++) {
-        if(vname.toUpper() == runnamelist[i].name.toUpper())
-        {
-            QString s = runnamelist[i].value;
-
-            return loc.toDouble(s);//runnamelist[i].value.toDouble();
+        if(vname.toUpper() == runnamelist[i].name.toUpper()) {
+            return toDOUBLE(runnamelist[i].value);
+            //runnamelist[i].value.toDouble();
         }
     }
 
@@ -210,9 +208,10 @@ void TWorld::ParseRunfileData(void)
     // do all switches (checkbox options) first
     for (j = 0; j < nrrunnamelist; j++)
     {
-        int iii = runnamelist[j].value.toInt();
         QString p1 = runnamelist[j].name;
         QString p = runnamelist[j].value;
+        double valc = toDOUBLE(p);
+        int iii = QLocale::c().toInt(p);
 
         if (p1.compare("Map Directory")==0) {
             inputDir=CheckDir(p);
@@ -237,9 +236,9 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Event based")==0)              SwitchEventbased = iii == 1;
         if (p1.compare("Use Rainfall maps")==0)        SwitchRainfallSatellite = iii == 1;
         if (p1.compare("Daily ET")==0)                 SwitchDailyET = iii == 1;
-        if (p1.compare("ET latitude")==0)              ETlatitude = p.toDouble();
-       // if (p1.compare("ET start day")==0)             ETstartday = p.toDouble();
-        if (p1.compare("long timestep")==0)            longdt = p.toDouble();
+        if (p1.compare("ET latitude")==0)              ETlatitude = valc;
+       // if (p1.compare("ET start day")==0)             ETstartday = p.valc;
+        if (p1.compare("long timestep")==0)            longdt = valc;
         if (p1.compare("Rainfall ID interpolation")==0)SwitchIDinterpolation = iii == 1;
         if (p1.compare("Include ET")==0)               SwitchIncludeET = iii == 1;
         if (p1.compare("Use ET maps")==0)              SwitchETSatellite = iii == 1;
@@ -254,9 +253,9 @@ void TWorld::ParseRunfileData(void)
         // if (p1.compare("Use Density correction")==0)            SwitchDensCorrection = iii == 1;
         if (p1.compare("Include compacted")==0)                 SwitchInfilCompact = iii == 1;
         if (p1.compare("Include crusts")==0)                    SwitchInfilCrust =   iii == 1;
-        if (p1.compare("Dynamic crusting")==0)                  {
-            SwitchDynamicCrusting =   iii == 1;
-        }
+        if (p1.compare("Dynamic crusting")==0)                  SwitchDynamicCrusting =   iii == 1;
+        if (p1.compare("Crusting dynamic rate")==0)             crustingRate = valc;
+
         if (p1.compare("Use one matrix potential")==0)          SwitchHinit4all =    iii == 1;
         if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =  iii == 1;
         if (p1.compare("Nr input layers")==0)                   SwitchNrLayers =     iii == 1;
@@ -272,6 +271,7 @@ void TWorld::ParseRunfileData(void)
       //  if (p1.compare("Stationary baseflow as map")==0)        SwitchChannelBaseflowMap  = iii == 1;
 
         if (p1.compare("Include channel culverts")==0)          SwitchCulverts  = iii == 1;
+        if (p1.compare("Channel beta constant")==0)             SwitchConstantBeta  = iii == 1;
         if (p1.compare("Include channel inflow")==0)            SwitchDischargeUser  = iii == 1;
         if (p1.compare("Include water height inflow")==0)       SwitchWaveUser  = iii == 1;
         if (p1.compare("Include GW flow")==0)                   SwitchGWflow  = iii == 1;
@@ -303,9 +303,12 @@ void TWorld::ParseRunfileData(void)
             param = p.split(";",Qt::SkipEmptyParts);
             if (param[0].toInt() == 1)
                 KEequationType = KE_EXPFUNCTION;
-            KEParamater_a1 = param[1].toDouble();
-            KEParamater_b1 = param[2].toDouble();
-            KEParamater_c1 = param[3].toDouble();
+            // KEParamater_a1 = param[1].toDouble();
+            // KEParamater_b1 = param[2].toDouble();
+            // KEParamater_c1 = param[3].toDouble();
+            KEParamater_a1 = toDOUBLE(param[1]);
+            KEParamater_b1 = toDOUBLE(param[2]);
+            KEParamater_c1 = toDOUBLE(param[3]);
         }
         if (p1.compare("KE parameters EQ2")==0)
         {
@@ -313,8 +316,10 @@ void TWorld::ParseRunfileData(void)
             param = p.split(";",Qt::SkipEmptyParts);
             if (param[0].toInt() == 1)
                 KEequationType = KE_LOGFUNCTION;
-            KEParamater_a2 = param[1].toDouble();
-            KEParamater_b2 = param[2].toDouble();
+            // KEParamater_a2 = param[1].toDouble();
+            // KEParamater_b2 = param[2].toDouble();
+            KEParamater_a2 = toDOUBLE(param[1]);
+            KEParamater_b2 = toDOUBLE(param[2]);
         }
         if (p1.compare("KE parameters EQ3")==0)
         {
@@ -322,8 +327,11 @@ void TWorld::ParseRunfileData(void)
             param = p.split(";",Qt::SkipEmptyParts);
             if (param[0].toInt() == 1)
                 KEequationType = KE_POWERFUNCTION;
-            KEParamater_a3 = param[1].toDouble();
-            KEParamater_b3 = param[2].toDouble();
+            // KEParamater_a3 = param[1].toDouble();
+            // KEParamater_b3 = param[2].toDouble();
+            KEParamater_a3 = toDOUBLE(param[1]);
+            KEParamater_b3 = toDOUBLE(param[2]);
+
         }
         if (p1.compare("KE time based")==0) SwitchKETimebased = iii == 1;
 
@@ -363,6 +371,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use Channel Max GV")==0)                SwitchChannelMaxV = iii == 1;
         if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
         if (p1.compare("Erosion outside 2D loop")==0)           SwitchErosionOutsideLoop = iii == 1;
+        //if (p1.compare("Check mutex")==0)                       SwitchMutex = iii == 1;
 
         // outpu map names
         if (p1.compare("OutRunoff")==0)         SwitchOutrunoff = iii == 1;
@@ -395,12 +404,19 @@ void TWorld::ParseRunfileData(void)
         SwitchEventbased = false;
 
     SwitchResultDatetime = getvalueint("Result datetime") == 1;
-    SwitchOutputTimestamp = SwitchResultDatetime;//getvalueint("Add timestamp") == 1;
+    SwitchOutputTimestamp = SwitchResultDatetime;
 
     if (SwitchResultDatetime) {
         QDir(resultDir).mkpath(QString("res"+op.timeStartRun+"/"));
         resultDir = resultDir + QString("res"+op.timeStartRun+"/");
     }
+
+    // // use user defined result path when running in batchmode
+    // if (op.forceResDir && op.doBatchmode && !op.explanation.isEmpty()) {
+    //     QDir(resultDir).mkpath(QString("res"+op.explanation+"/"));
+    //     resultDir = resultDir + QString("res"+op.explanation+"/");
+    //     op.timeStartRun = op.explanation;
+    // }
 
     InfilMethod = getvalueint("Infil Method");
     if (InfilMethod == INFIL_GREENAMPT2) InfilMethod = INFIL_GREENAMPT;
@@ -427,7 +443,7 @@ void TWorld::ParseRunfileData(void)
             }
         }
 
-        qDebug() <<SwitchChannelInfil<<SwitchChannelBaseflowStationary<<SwitchChannelBaseflowMap;
+        //qDebug() <<SwitchChannelInfil<<SwitchChannelBaseflowStationary<<SwitchChannelBaseflowMap;
     }
 
     if (SwitchGWflow) {

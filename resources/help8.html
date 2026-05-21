@@ -1,24 +1,24 @@
 <h2>Advanced parameters</h2>
 <h3>Parallel processing</h3>
-<p>All CPUs have more than 1 core that can be activated simultatneously for calculations. If the value is set at 0, all cores present are used. For small catchments this may not be faster (the overhead is more than the gain)!</p>
+<p>All CPUs have more than 1 core that can be activated simultaneously for calculations. The default value is 50% of available cores. If the value is set at 0, all cores present are used. For small catchments this may not be faster (the overhead is more than the gain)! When using all (or to many) cores, OpenLISEM can freeze, reducing the number of cores to 50% of available or lower can solve this.</p>
 <p>New version: check if a new version is available in GitHub.</p>
-<h3>Infiltrration</h3>
+<h3>Infiltration</h3>
 <ul>
-<li><em>Correct mass balance</em>: use if for some combination of maps the overall mass balance is not so good. Check this opytion to divide the mass balance error over all pixels that have runoff (this timestep t) and the infiltration of the next timestep (t+1). This artificially spreads the error over all cells with activity.</li>
-<li>Calculate the <em>wetting front psi</em> internally from pedotransfer functions, instead of a user defined map</li>
+<li><em>Correct mass balance each timestep</em>: use if for some combination of maps the overall mass balance is not so good. Check this option to divide the mass balance error over all pixels that have runoff (this timestep t) and the infiltration of the next timestep (t+1). This artificially spreads the error over all cells with activity.</li>
+<li>Calculate the <em>wetting front psi</em> internally from pedotransfer functions, instead of a user defined map (EXPERIMENTAL)</li>
 <li>Type of <em>average k</em> between layers: arithmetric, geometric, hamronic or minimum</li>
 <li><em>Entry suction</em> of water moving into the tile system in SWATRE. Zero (0) cm is saturration, a lower suction can move more water into the tile system, but the conductivity k is also lower. Determine this by trial and errror. </li>
 <li>Apply<em> Organic Matter</em> correction and/or a <em>Density Factor</em> correction based on pedotransfer functions of Saxton and Rawls (2006). This is a way to include an affect of landuse that miomics a change in organic matter and soil structure. Ksat and Porosity are increased by an increase in OM or a lower relative bulk density. A <em>decrease</em> in OM and an <em>increase</em> in relative density (more compact) will <em>decrease</em> Ksat and Porosity. The default values are OM=3.5% and BD=1350 kg/m<sup>3</sup>. The OM correction is a direct percentage (between -2.0 and +2.0% organic matter) and Desnity Factor is a value between 0.9 (loose soil) and 1.2 (heavily compacted soil). Needs input maps OMcorr.map and densfact.map with these ranges of values)</li>
 </ul>
 <h3>Kinematic wave</h3>
 <ul>
-<li><em>Perimeter overland flow:</em> width+2*height or width only. Old versions of LISEM had w+2h. In realty perimeter is somewhere between w and w+2h depedning on surface roughness.</li>
+<li><em>Perimeter overland flow:</em>chyeck when you want to use width+2*height (w+2h). Default is width only (unchecked). Old versions of LISEM had w+2h. In realty the contact surface perimeter is larger than w, depending on surface roughness.</li>
 </ul>
 <h3>Numerical parameters for dynamic flow</h3>
 <ul>
 <li><em>Riemann solver</em>: smoothing functions that gives new states and fluxes on cell boundaries based on pressure and momentum differences. HLL are Harten-Lax-van Leer type solvers (def 4-HLL2c)</li>
 <li><em>Max iterations</em>: forces break out of n-th flood loop, usually not necessary, better to try different Courant conditions and minimum timesteps in the Flow tab (def 200).</li>
-<li><em>Time average V</em>: more stable solution of 2D flkow (def on).</li>
+<li><em>Time average V</em>: more stable solution of 2D flkow (default).</li>
 <li><em>Do erosion outside 2D loop</em>: The erosion calculations can be done inside the 2D flow using the chaning 2D timestep, or outsiode using the Lisem timestep (much faster). Try the inside loop option when results are unstable (def on).</li>
 <li><em>Enable diagonal flow when blocked</em>: water can be blocked in X and Y direction in 2D flow (a local depression, while a diagonal outlet exists. Diagonal outflows are not regarded in a 2D scheme. Enabling this uses the LDD to transport water and sediment to this diagonal cell. The threshold pit depth is set at 0.1 m. Can solve certain spurious pits that remain filled (def off).</li>
 <li><em>Remove pits</em>: set pit elevation to lowest surrounding cell in a 3x3 window (def. off)</li>

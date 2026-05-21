@@ -171,7 +171,7 @@ void TWorld::GetSnowmeltData(QString name)
         for (int i = 1; i <= nrStations; i++)
         {
             bool ok = false;
-            rl.intensity << SL[i].toDouble(&ok);
+            rl.intensity << toDOUBLE(SL[i],&ok);//SL[i].toDouble(&ok);
             if (!ok)
             {
                 ErrorString = QString("Snowmel records at time %1 has unreadable value: %2.").arg(SL[0]).arg(SL[i]);

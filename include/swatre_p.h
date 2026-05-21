@@ -142,6 +142,7 @@ typedef struct PIXEL_INFO {
     double percolation;
     double tiledrain;   /** drainage into tiledrin system at a given depth */
     double thetaroot;
+    double crustfactor;
     double currDt;
     int tilenode;    /** nearest node that has the tiledrain */
    // int dumpHid;     /** if 0 then no head output else write to file amed Hx where x is dumpH value */
