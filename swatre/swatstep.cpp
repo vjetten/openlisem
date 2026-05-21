@@ -85,7 +85,9 @@ void TWorld::calcSinktermSWATRE(PIXEL_INFO *pixel, double *h, double *S)
             S[j] = 0;
             if (zone->rootz[j] > 0) {
                 // van genuchten H50 = -3.5 m
-                double f = 1.0/(1.0+pow(h[j]/-350.0,1.5));
+                double hb = -120;
+                double aa = 2; //loam
+                double f = 1.0/(1.0+pow(h[j]/hb,2.0));
                 if (h[j] > -10) f = 0; // near saturation
                 if (h[j] < -16000) f = 0; // wilting point -16000 cm
                 S[j] =  etanet * f * zone->rootz[j];
