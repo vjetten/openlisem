@@ -329,7 +329,7 @@ void TWorld::ParseRunfileData(void)
 
         // pesticides
         if (p1.compare("Include Pesticides")==0)                SwitchPest = iii == 1;
-        if (p1.compare("Report Pesticides")==0)                 SwitchReportPest = iii == 1;
+        //if (p1.compare("Report Pesticides")==0)                 SwitchReportPest = iii == 1;
 
 
         // infrastructure

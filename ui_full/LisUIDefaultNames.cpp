@@ -289,8 +289,8 @@ void lisemqt::defaultRunFile()
     //### Pesticides
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include Pesticides");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Report Pesticides");
+    // namelist[i].value = QString("0");
+    // namelist[i++].name = QString("Report Pesticides");
 
     //### METEO
     namelist[i++].name = QString("");
