@@ -229,19 +229,19 @@ void TWorld::reportToUI(void)
         op.OutletQs.at(0)->append(SoilLossTot_dt); //timestep output in kg! SoilLossOutlet = sum of Qs*dt and channelQs*dt and QsBoundary
         op.OutletC.at(0)->append(Qtot_dt > MIN_FLUX? SoilLossTot_dt/Qtot_dt : 0);
         op.OutletQstot.replace(0,SoilLossTot*0.001);
-    }
-    if (SwitchPest) {
-        op.PMOutW = PestOutW;
-        op.PMerr = PMerr;
-        op.PMinf = Pestinf;
-        //op.PMperc = PestPerc;
-        op.PestName = PestName;
-        op.PMtotI = PMtotI;
-        if (SwitchErosion) {
-            op.PMOutS = PestOutS;
+
+        if (SwitchPest) {
+            op.PMOutW = PestOutW;
+            op.PMerr = PMerr;
+            op.PMinf = Pestinf;
+            //op.PMperc = PestPerc;
+            op.PestName = PestName;
+            op.PMtotI = PMtotI;
+            if (SwitchErosion) {
+                op.PMOutS = PestOutS;
+            }
         }
     }
-
 
     //hydrographs
     op.Pmm.append((RainAvgmm)*3600/_dt); // + SnowAvgmm
@@ -357,13 +357,11 @@ void TWorld::ReportTotalSeries(void)
             out << sep << "FloodDep(ton)";
             out << sep << "FloodSed(ton)";
             out << sep << "SoilLoss(ton)";
-        }
-        if (SwitchPest) {
-            out << sep << "PMOutW";
-            out << sep << "PMerr";
-            out << sep << "PestPerc";
-            out << sep << "Pestinf";
-            if (SwitchErosion) {
+            if (SwitchPest) {
+                out << sep << "PMOutW";
+                out << sep << "PMerr";
+                out << sep << "PestPerc";
+                out << sep << "Pestinf";
                 out << sep << "PMOutS";
             }
         }

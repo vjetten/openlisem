@@ -387,8 +387,8 @@ void TWorld::TotalsSediment(void)
     SoilLossTot_dt = 0;
     // everything that flows out with channelqs, qs and Qsboundary * _dt
 
-    if (SwitchErosion)
-    {
+    if (SwitchErosion) {
+
         SedTot = 0;
         //#pragma omp parallel for reduction(+:DetSplashTot,DetFlowTot,DepTot,SedTot) num_threads(userCores)
         FOR_ROW_COL_MV_L {
@@ -524,35 +524,23 @@ void TWorld::TotalsSediment(void)
         // this is the value reported in the screen for total soil loss (/1000 for ton)
         // so this is the total loos through the outlets and boundaries
 
+        //=====***** PESTICIDES *****====//
+        if (SwitchPest) {
+            double factor = 1 / (_dx * _dx);
+            // from mg/cell to mg/m2
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L
+            {
+                totalDPlossmap->Drc = pmwdet->Drc + pmwdep->Drc * factor;
+            }}
+
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L
+            {
+                totalPPlossmap->Drc = pmsdet->Drc + pmsdep->Drc * factor;
+            }}
+        }
     }
-
-
-
-
-    //=====***** PESTICIDES *****====//
-    if (SwitchPest)
-    {
-        double factor = 1 / (_dx * _dx);
-        // from mg/cell to mg/m2
-         #pragma omp parallel for num_threads(userCores)
-         FOR_ROW_COL_MV_L
-         {
-        totalDPlossmap->Drc = pmwdet->Drc + pmwdep->Drc * factor;
-         }}
-
-     if (SwitchErosion)
-     {
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L
-        {
-         totalPPlossmap->Drc = pmsdet->Drc + pmsdep->Drc * factor;
-        }}
-
-     }
-
-
-    }
-
 }
 //---------------------------------------------------------------------------
 void TWorld::MassBalance()
@@ -632,6 +620,6 @@ void TWorld::MassBalance()
     // pesticides
     if (SwitchPest) {
         MassPest(PMtotI, PMerr, PMtot, PMserr, PMwerr);
-    }    
+    }
 }
 //---------------------------------------------------------------------------
