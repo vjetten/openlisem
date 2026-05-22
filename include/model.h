@@ -480,7 +480,7 @@ public:
         SwitchConstantBeta,
         SwitchLitter,
         SwitchPest,
-        SwitchReportPest,
+        //SwitchReportPest,
         SwitchDepositionLinear,
 
         // output
@@ -813,7 +813,7 @@ public:
     QString WaveinFileDir;
     QString resultFileName;
     QString temprunname;
-    QString resultPestFile;
+   // QString resultPestFile;
     /// standard names of output map series
     //Outchvol,OutHmx, OutVf,OutHmxWH,OutQf, Outrwh,
     QString Outrunoff, Outconc, Outwh, Outvelo, Outinf, Outss,

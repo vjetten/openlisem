@@ -589,6 +589,8 @@ private slots:
 
     void on_E_FlowBoundary_valueChanged(int arg1);
 
+    void on_checkPestcides_toggled(bool checked);
+
 private:
     QNetworkAccessManager *manager;
 

@@ -700,7 +700,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-17</y>
+              <y>0</y>
               <width>835</width>
               <height>547</height>
              </rect>
@@ -2214,9 +2214,9 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
+              <y>-177</y>
               <width>1013</width>
-              <height>839</height>
+              <height>836</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_54">
@@ -2252,7 +2252,7 @@
                 <enum>QTabWidget::TabShape::Rounded</enum>
                </property>
                <property name="currentIndex">
-                <number>0</number>
+                <number>10</number>
                </property>
                <property name="iconSize">
                 <size>
@@ -2839,7 +2839,7 @@
                   </spacer>
                  </item>
                  <item row="9" column="0" colspan="2">
-                  <widget class="QGroupBox" name="groupPesticides">
+                  <widget class="QGroupBox" name="groupSubst">
                    <property name="font">
                     <font>
                      <pointsize>8</pointsize>
@@ -2871,7 +2871,7 @@
                      <number>4</number>
                     </property>
                     <item row="0" column="0">
-                     <widget class="QCheckBox" name="checkPestcides">
+                     <widget class="QCheckBox" name="checkPesticides">
                       <property name="font">
                        <font>
                         <pointsize>8</pointsize>
@@ -2881,7 +2881,7 @@
                        </font>
                       </property>
                       <property name="text">
-                       <string>Pesticides</string>
+                       <string>Include pesticides</string>
                       </property>
                      </widget>
                     </item>
@@ -8340,7 +8340,7 @@
                 </attribute>
                 <layout class="QGridLayout" name="gridLayout_134">
                  <item row="0" column="0">
-                  <widget class="QGroupBox" name="groupBox_11">
+                  <widget class="QGroupBox" name="groupPesticides">
                    <property name="font">
                     <font>
                      <pointsize>8</pointsize>
@@ -8393,7 +8393,7 @@
                      </widget>
                     </item>
                     <item row="0" column="1">
-                     <widget class="QLineEdit" name="lineEdit">
+                     <widget class="QLineEdit" name="E_PestName">
                       <property name="font">
                        <font>
                         <pointsize>8</pointsize>
@@ -8429,7 +8429,7 @@
                      </widget>
                     </item>
                     <item row="1" column="1">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox">
+                     <widget class="QDoubleSpinBox" name="spinPestKd">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                         <horstretch>0</horstretch>
@@ -8474,7 +8474,7 @@
                      </widget>
                     </item>
                     <item row="2" column="1">
-                     <widget class="QLineEdit" name="lineEdit_2">
+                     <widget class="QLineEdit" name="E_PestKfilm">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                         <horstretch>0</horstretch>
@@ -8516,7 +8516,7 @@
                      </widget>
                     </item>
                     <item row="3" column="1">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+                     <widget class="QDoubleSpinBox" name="spinPestERbeta">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                         <horstretch>0</horstretch>
@@ -8570,7 +8570,7 @@
                      </widget>
                     </item>
                     <item row="4" column="1">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_5">
+                     <widget class="QDoubleSpinBox" name="spinPestKr">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                         <horstretch>0</horstretch>
@@ -8618,7 +8618,7 @@
                      </widget>
                     </item>
                     <item row="5" column="1">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_4">
+                     <widget class="QDoubleSpinBox" name="spinPestERmax">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                         <horstretch>0</horstretch>
@@ -8663,7 +8663,7 @@
                      </widget>
                     </item>
                     <item row="6" column="1">
-                     <widget class="QDoubleSpinBox" name="doubleSpinBox_3">
+                     <widget class="QDoubleSpinBox" name="spinPestRhomix">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                         <horstretch>0</horstretch>

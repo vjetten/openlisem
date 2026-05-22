@@ -729,6 +729,12 @@ void lisemqt::on_checkDoErosion_toggled(bool checked)
     checkMapNameModel(EROSIONMAPS, 0, checked);
 }
 //---------------------------------------------------------------------------
+void lisemqt::on_checkPestcides_toggled(bool checked)
+{
+    groupPesticides->setEnabled(checked);
+
+}
+//---------------------------------------------------------------------------
 void lisemqt::on_checkInfrastructure_toggled(bool checked)
 {
     widgetInfra->setEnabled(checked);

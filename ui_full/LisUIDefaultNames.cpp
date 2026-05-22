@@ -292,12 +292,6 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("10.0");
     namelist[i++].name = QString("Timestep");
 
-    //### Pesticides
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Include Pesticides");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("Report Pesticides");
-
     //### METEO
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Meteo]");
@@ -377,10 +371,6 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("2");  //GA =2
     namelist[i++].name = QString("Infil Method");
     namelist[i].value = QString("0");
-    // namelist[i++].name = QString("Use OM correction");
-    // namelist[i].value = QString("0");
-    // namelist[i++].name = QString("Use Density correction");
-    // namelist[i].value = QString("0");
     namelist[i++].name = QString("Include compacted");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include crusts");
@@ -603,22 +593,24 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include subgridcell retention");
 
-    //### Pesticide data
+    //### Pesticides
     namelist[i++].name = QString("");
     namelist[i++].name = QString("[Pesticides]");
-    namelist[i].value = QString("foobicide");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include Pesticides");
+    namelist[i].value = QString("Glyphosate");
     namelist[i++].name = QString("Pesticide name");
-    namelist[i].value = QString("0.0");
+    namelist[i].value = QString("48.0");
     namelist[i++].name = QString("Kd pesticide");
-    namelist[i].value = QString("0.0");
+    namelist[i].value = QString("8e-4");
     namelist[i++].name = QString("Kfilm pesticide");
-    namelist[i].value = QString("-0.2");
+    namelist[i].value = QString("-0.25");
     namelist[i++].name = QString("ERbeta pesticide");
     namelist[i].value = QString("-1.0");
     namelist[i++].name = QString("Kr pesticide");
     namelist[i].value = QString("7.4");
     namelist[i++].name = QString("ERmax pesticide");
-    namelist[i].value = QString("0");
+    namelist[i].value = QString("1550.0");
     namelist[i++].name = QString("Rho mixing layer");
 
     //### Calibration

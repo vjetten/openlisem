@@ -249,8 +249,6 @@ void TWorld::ParseRunfileData(void)
 
         //infiltration
         if (p1.compare("Include Infiltration")==0)              SwitchInfiltration = iii == 1;
-        // if (p1.compare("Use OM correction")==0)                 SwitchOMCorrection = iii == 1;
-        // if (p1.compare("Use Density correction")==0)            SwitchDensCorrection = iii == 1;
         if (p1.compare("Include compacted")==0)                 SwitchInfilCompact = iii == 1;
         if (p1.compare("Include crusts")==0)                    SwitchInfilCrust =   iii == 1;
         if (p1.compare("Dynamic crusting")==0)                  SwitchDynamicCrusting =   iii == 1;
@@ -337,7 +335,7 @@ void TWorld::ParseRunfileData(void)
 
         // pesticides
         if (p1.compare("Include Pesticides")==0)                SwitchPest = iii == 1;
-        if (p1.compare("Report Pesticides")==0)                 SwitchReportPest = iii == 1;
+        //if (p1.compare("Report Pesticides")==0)                 SwitchReportPest = iii == 1;
 
 
         // infrastructure

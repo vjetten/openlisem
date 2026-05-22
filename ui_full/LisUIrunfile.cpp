@@ -172,8 +172,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Rainfall ET threshold")==0)         E_rainfallETA_threshold->setValue(valc);
         //if (p1.compare("Include Snowmelt")==0)            checkSnowmelt->setChecked(check);
 
-      //  if (p1.compare("Include Pesticides")==0)            checkPesticides->setChecked(check);
-        // INTERCEPTION
+       // INTERCEPTION
         if (p1.compare("Include Interception")==0)     checkInterception->setChecked(check);
         if (p1.compare("Canopy storage equation")==0)
         {
@@ -204,8 +203,6 @@ void lisemqt::ParseInputData()
                 case INFIL_SOAP : E_InfiltrationMethod->setCurrentIndex(3); break;  // NOYT USED
             }
         }
-        // if (p1.compare("Use OM correction")==0)             checkInfilOMcorrection->setChecked(check);
-        // if (p1.compare("Use Density correction")==0)        checkInfilDensfactor->setChecked(check);
         if (p1.compare("Include compacted")==0)             checkInfilCompact->setChecked(check);
         if (p1.compare("Include crusts")==0)                checkInfilCrust->setChecked(check);
         if (p1.compare("Dynamic crusting")==0)              checkDynamicCrusting->setChecked(check);
@@ -368,6 +365,16 @@ void lisemqt::ParseInputData()
         if (p1.compare("Include grass strips")==0)              checkInfilGrass->setChecked(check);
         if (p1.compare("Grassstrip Mannings n")==0)             E_GrassStripN->setValue(valc);
         if (p1.compare("Include subgridcell retention")==0)     checkGridRentention->setChecked(check);
+
+        //PESTICIDES
+        if (p1.compare("Include Pesticides")==0)                checkPesticides->setChecked(check);
+        if (p1.compare("Pesticide name")==0)                    E_PestName->setText(p);
+        if (p1.compare("Kd pesticide")==0)                      spinPestKd->setValue(valc);
+        if (p1.compare("Kfilm pesticide")==0)                   E_PestKfilm->setText(p);
+        if (p1.compare("ERbeta pesticide")==0)                  spinPestERbeta->setValue(valc);
+        if (p1.compare("Kr pesticide")==0)                      spinPestKr->setValue(valc);
+        if (p1.compare("ERmax pesticide")==0)                   spinPestERmax->setValue(valc);
+        if (p1.compare("Rho mixing layer")==0)                  spinPestRhomix->setValue(valc);
 
         //ADVANCED
         if (p1.compare("Advanced Options")==0)                  checkAdvancedOptions->setChecked(check);
@@ -960,8 +967,6 @@ void lisemqt::updateModelData()
             namelist[j].value.setNum(swatreDT,'g',6);
         }
 
-        if (p1.compare("Use OM correction")==0)             namelist[j].value.setNum((int)checkInfilOMcorrection->isChecked());
-        if (p1.compare("Use Density correction")==0)        namelist[j].value.setNum((int)checkInfilDensfactor->isChecked());
         if (p1.compare("Include compacted")==0)             namelist[j].value.setNum((int)checkInfilCompact->isChecked());
         if (p1.compare("Include crusts")==0)                namelist[j].value.setNum((int)checkInfilCrust->isChecked());
         if (p1.compare("Dynamic crusting")==0)              namelist[j].value.setNum((int)checkDynamicCrusting->isChecked());
@@ -981,10 +986,6 @@ void lisemqt::updateModelData()
         if (p1.compare("Include tile drains")==0)           namelist[j].value.setNum((int)checkIncludeTiledrains->isChecked());
         if (p1.compare("Tile entry suction")==0)            namelist[j].value.setNum(spinTileSuction->value());
         if (p1.compare("Swatre dry")==0)                    namelist[j].value.setNum((int)checkSwatreDry->isChecked());
-
-
-        // pesticides
-        //if (p1.compare("Include Pesticides")==0)            namelist[j].value.setNum((int)checkPesticides->isChecked());
 
         if (p1.compare("Crusting dynamic rate")==0)         namelist[j].value.setNum(spinCrustingRate->value());
 
@@ -1067,23 +1068,33 @@ void lisemqt::updateModelData()
         if (p1.compare("River BL method")==0)                namelist[j].value = QString::number(E_RBLMethod->currentIndex()+1);
         if (p1.compare("River SS method")==0)                namelist[j].value = QString::number(E_RSSMethod->currentIndex()+1);
 
+        //PESTICIDES
+        if (p1.compare("Include Pesticides")==0)             namelist[j].value.setNum((int)checkPesticides->isChecked());
+        if (p1.compare("Pesticide name")==0)                 namelist[j].value = E_PestName->text();
+        if (p1.compare("Kd pesticide")==0)                   namelist[j].value = spinPestKd->text();
+        if (p1.compare("Kfilm pesticide")==0)                namelist[j].value = E_PestKfilm->text();
+        if (p1.compare("ERbeta pesticide")==0)               namelist[j].value = spinPestERbeta->text();
+        if (p1.compare("Kr pesticide")==0)                   namelist[j].value = spinPestKr->text();
+        if (p1.compare("ERmax pesticide")==0)                namelist[j].value = spinPestERmax->text();
+        if (p1.compare("Rho mixing layer")==0)               namelist[j].value = spinPestRhomix->text();
+
         //houses
-        if (p1.compare("Include Infrastructure")==0)        namelist[j].value.setNum((int)checkInfrastructure->isChecked());
-        if (p1.compare("Include buildings")==0)             namelist[j].value.setNum((int)checkHouses->isChecked());
-        if (p1.compare("Add buildings to DEM")==0)          namelist[j].value.setNum((int)checkAddBuildingDEM->isChecked());
-        if (p1.compare("Add building fraction")==0)         namelist[j].value = E_AddBuildingFraction->text();
-        if (p1.compare("Add building height")==0)           namelist[j].value = E_buildingHeight->text();
-        if (p1.compare("Include raindrum storage")==0)      namelist[j].value.setNum((int)checkRaindrum->isChecked());
-        if (p1.compare("Include road system")==0)           namelist[j].value.setNum((int)checkRoadsystem->isChecked());
-        if (p1.compare("Hard Surfaces")==0)                 namelist[j].value.setNum((int)checkHardsurface->isChecked());
-        if (p1.compare("Include storm drains")==0)          namelist[j].value.setNum((int)checkStormDrains->isChecked());
+        if (p1.compare("Include Infrastructure")==0)         namelist[j].value.setNum((int)checkInfrastructure->isChecked());
+        if (p1.compare("Include buildings")==0)              namelist[j].value.setNum((int)checkHouses->isChecked());
+        if (p1.compare("Add buildings to DEM")==0)           namelist[j].value.setNum((int)checkAddBuildingDEM->isChecked());
+        if (p1.compare("Add building fraction")==0)          namelist[j].value = E_AddBuildingFraction->text();
+        if (p1.compare("Add building height")==0)            namelist[j].value = E_buildingHeight->text();
+        if (p1.compare("Include raindrum storage")==0)       namelist[j].value.setNum((int)checkRaindrum->isChecked());
+        if (p1.compare("Include road system")==0)            namelist[j].value.setNum((int)checkRoadsystem->isChecked());
+        if (p1.compare("Hard Surfaces")==0)                  namelist[j].value.setNum((int)checkHardsurface->isChecked());
+        if (p1.compare("Include storm drains")==0)           namelist[j].value.setNum((int)checkStormDrains->isChecked());
         if (p1.compare("Storm drain shape")==0)  {
-            if (checkStormDrainRect->isChecked())           namelist[j].value.setNum(0);
-            if (checkStormDrainCirc->isChecked())           namelist[j].value.setNum(1);
+            if (checkStormDrainRect->isChecked())            namelist[j].value.setNum(0);
+            if (checkStormDrainCirc->isChecked())            namelist[j].value.setNum(1);
         }
-        if (p1.compare("Storm drain no outflow")==0)       namelist[j].value.setNum((int)checkDrainNoOutflow->isChecked());
-        if (p1.compare("Drain inlet distance")==0)          namelist[j].value = E_TileInletDistance->text();
-        if (p1.compare("Drain inlet size")==0)              namelist[j].value = E_TileInletSize->text();
+        if (p1.compare("Storm drain no outflow")==0)         namelist[j].value.setNum((int)checkDrainNoOutflow->isChecked());
+        if (p1.compare("Drain inlet distance")==0)           namelist[j].value = E_TileInletDistance->text();
+        if (p1.compare("Drain inlet size")==0)               namelist[j].value = E_TileInletSize->text();
         //if (p1.compare("Use SWMM drain flow")==0)           namelist[j].value.setNum((int)checkTileSWMM->isChecked());
 
         // conservation mtigation
@@ -1091,25 +1102,25 @@ void lisemqt::updateModelData()
         if (p1.compare("Include buffers")==0)                namelist[j].value.setNum((int) checkBuffers->isChecked());
         if (p1.compare("Include flow barriers")==0)          namelist[j].value.setNum((int)checkFlowBarriers->isChecked());
         if (p1.compare("Flow barrier table filename")==0)    namelist[j].value = line_FlowBarriers->text();
-        if (p1.compare("Include Sediment traps")==0)        namelist[j].value.setNum((int)checkSedtrap->isChecked());
-        if (p1.compare("Include grass strips")==0)          namelist[j].value.setNum((int)checkInfilGrass->isChecked());
-        if (p1.compare("Grassstrip Mannings n")==0)         namelist[j].value = E_GrassStripN->text();
-        if (p1.compare("Sediment Trap Mannings n")==0)      namelist[j].value = E_SedTrapN->text();
-        if (p1.compare("Include subgridcell retention")==0) namelist[j].value.setNum((int)checkGridRentention->isChecked());
+        if (p1.compare("Include Sediment traps")==0)         namelist[j].value.setNum((int)checkSedtrap->isChecked());
+        if (p1.compare("Include grass strips")==0)           namelist[j].value.setNum((int)checkInfilGrass->isChecked());
+        if (p1.compare("Grassstrip Mannings n")==0)          namelist[j].value = E_GrassStripN->text();
+        if (p1.compare("Sediment Trap Mannings n")==0)       namelist[j].value = E_SedTrapN->text();
+        if (p1.compare("Include subgridcell retention")==0)  namelist[j].value.setNum((int)checkGridRentention->isChecked());
 
         //advanced
-        if (p1.compare("SWATRE precision")==0)             namelist[j].value = spinSwatrePrecision->text();
+        if (p1.compare("SWATRE precision")==0)               namelist[j].value = spinSwatrePrecision->text();
 
         // miscellaneous
-        if (p1.compare("Nr user Cores")==0)                 namelist[j].value.setNum(nrUserCores->value());
+        if (p1.compare("Nr user Cores")==0)                  namelist[j].value.setNum(nrUserCores->value());
       //  if (p1.compare("Check mutex")==0)                   namelist[j].value.setNum(checkMutex->isChecked() ? 0 : 1);
-        if (p1.compare("Timeplot as PCRaster")==0)          namelist[j].value.setNum(checkWritePCRaster->isChecked() ? 0 : 1);
+        if (p1.compare("Timeplot as PCRaster")==0)           namelist[j].value.setNum(checkWritePCRaster->isChecked() ? 0 : 1);
         //if (p1.compare("Report point output separate")==0)  namelist[j].value.setNum((int)checkSeparateOutput->isChecked());
-        if (p1.compare("Report digits out")==0)             namelist[j].value = E_DigitsOut->text();
+        if (p1.compare("Report digits out")==0)              namelist[j].value = E_DigitsOut->text();
 
-        if (p1.compare("Report format GTiff")==0)           namelist[j].value.setNum((int)checkFormatGtiff->isChecked());
-        if (p1.compare("End run report")==0)                namelist[j].value.setNum((int)checkEndRunReport->isChecked());
-        if (p1.compare("Sediment bulk density")==0)         namelist[j].value = E_BulkDens->text();
+        if (p1.compare("Report format GTiff")==0)            namelist[j].value.setNum((int)checkFormatGtiff->isChecked());
+        if (p1.compare("End run report")==0)                 namelist[j].value.setNum((int)checkEndRunReport->isChecked());
+        if (p1.compare("Sediment bulk density")==0)          namelist[j].value = E_BulkDens->text();
 
         //VJ 110705 KE equations
         if (p1.compare("KE parameters EQ1")==0)

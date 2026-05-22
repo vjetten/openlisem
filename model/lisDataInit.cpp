@@ -2032,7 +2032,7 @@ void TWorld::IntializeOptions(void)
     //tileQmaxfilename= QString("drainqmax.map");
 
     //Pesticide
-    resultPestFile= QString("pest.csv");
+    //resultPestFile= QString("pest.csv");
 
     rainFileName.clear();
     rainFileDir.clear();
@@ -2135,7 +2135,7 @@ void TWorld::IntializeOptions(void)
     SwitchGrassStrip = false;
 
     SwitchPest = false;
-    SwitchReportPest = false;
+    //SwitchReportPest = false;
 
 
 //    SwitchPesticide = false;
