@@ -591,6 +591,8 @@ private slots:
 
     void on_checkPestcides_toggled(bool checked);
 
+    void on_E_PestKfilm_editingFinished();
+
 private:
     QNetworkAccessManager *manager;
 

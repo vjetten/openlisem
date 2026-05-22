@@ -50,6 +50,28 @@ void TWorld::OverlandFlow(void)
     } else {
         // kin wave overland flow
 
+     //    CalcVelDisch();
+
+     //    if (SwitchChannel2DflowConnect)
+     //        ToChannelAlt();
+     //    else
+     //        ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
+
+     // //   CalcVelDisch();
+     //    // overland flow velocity, discharge and alpha
+     //    // V is needed in erosion
+
+     //    if (SwitchErosion) {
+     //        cell_FlowDetachment();
+     //        // kine wave based flow detachment
+     //    }
+
+     //    OverlandFlow1D();   // kinematic wave of water and sediment
+
+     //    if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
+     //        ChannelFlood();
+     //        // st venant channel 2D flooding from channel, only for kyn wave
+     //    }
         CalcVelDisch();
         // Q, V and Alpha Manning
 
@@ -89,11 +111,10 @@ void TWorld::OverlandFlow(void)
                 ChannelFlood();
                 // dyn wave for flooded part
             }
-
-            OverlandFlow1D();
-            // routing: kinematic wave of water and sediment
-
         }
+
+        OverlandFlow1D();
+        // routing: kinematic wave of water and sediment
     }
 }
 

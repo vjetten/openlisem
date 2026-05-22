@@ -106,7 +106,7 @@ void lisemqt::ParseInputData()
     bool setRainmaps = false;
 
     QLocale loc = QLocale::system(); // current locale
-    QString pnt = loc.decimalPoint();
+    //QString pnt = loc.decimalPoint();
 
     // loop through the tunfile list and read name=value
     for (j = 0; j < nrnamelist; j++)

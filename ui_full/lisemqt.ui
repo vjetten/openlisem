@@ -2214,7 +2214,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>-177</y>
+              <y>0</y>
               <width>1013</width>
               <height>836</height>
              </rect>
@@ -2252,7 +2252,7 @@
                 <enum>QTabWidget::TabShape::Rounded</enum>
                </property>
                <property name="currentIndex">
-                <number>10</number>
+                <number>8</number>
                </property>
                <property name="iconSize">
                 <size>
@@ -8532,19 +8532,19 @@
                        </font>
                       </property>
                       <property name="prefix">
-                       <string>-</string>
+                       <string/>
                       </property>
                       <property name="suffix">
                        <string/>
                       </property>
                       <property name="maximum">
-                       <double>1.000000000000000</double>
+                       <double>1000.000000000000000</double>
                       </property>
                       <property name="singleStep">
                        <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>0.250000000000000</double>
+                       <double>0.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -8586,13 +8586,13 @@
                        </font>
                       </property>
                       <property name="prefix">
-                       <string>-</string>
+                       <string/>
                       </property>
                       <property name="singleStep">
                        <double>0.010000000000000</double>
                       </property>
                       <property name="value">
-                       <double>1.000000000000000</double>
+                       <double>0.000000000000000</double>
                       </property>
                      </widget>
                     </item>

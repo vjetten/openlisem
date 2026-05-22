@@ -735,6 +735,21 @@ void lisemqt::on_checkPestcides_toggled(bool checked)
 
 }
 //---------------------------------------------------------------------------
+void lisemqt::on_E_PestKfilm_editingFinished()
+{
+    // auto *validator = new QDoubleValidator(this);
+    // validator->setNotation(QDoubleValidator::ScientificNotation);
+
+    // E_PestKfilm->setValidator(validator);
+
+    QRegularExpression rx("^[+-]?\\d*\\.?\\d+[eE][+-]?\\d+$");
+
+    E_PestKfilm->setValidator(new QRegularExpressionValidator(rx, E_PestKfilm));
+    QString s = E_PestKfilm->text();
+    double v = QLocale::c().toDouble(s);
+    E_PestKfilm->setText(QString::number(v));
+}
+//---------------------------------------------------------------------------
 void lisemqt::on_checkInfrastructure_toggled(bool checked)
 {
     widgetInfra->setEnabled(checked);

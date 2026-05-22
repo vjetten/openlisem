@@ -625,8 +625,8 @@ void TWorld::calcSoilPhysics(cTMap *Ksat, cTMap *lambda, cTMap *thfc, cTMap *thr
         lambda->Drc = qMin(qMax(0.1,lambda->Drc),0.7);
 
         psiae->Drc = exp( -0.3012*logks + 3.5164);
-        if (!SwitchPsiUser)
-            psi->Drc = exp(-0.3382*logks + 3.3425); // psi is different than air entry potential/bubble pressure
+     //   if (!SwitchPsiUser)
+            //psi->Drc = exp(-0.3382*logks + 3.3425); // psi is different than air entry potential/bubble pressure
 
         thr->Drc = 0.0673*exp(-0.238*logks);
         thfc->Drc = -0.0519*logks + 0.3714;
@@ -699,7 +699,7 @@ void TWorld::InitSoilInput(void)
     if(InfilMethod != INFIL_SWATRE)
     {
         nrSoilLayers = getvalueint("Nr input layers");
-        //SwitchPsiUser = false; // MC - moved to the section with defaults
+        SwitchPsiUser = false; // MC - moved to the section with defaults
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
@@ -719,10 +719,10 @@ void TWorld::InitSoilInput(void)
         psi1ae = NewMap(0);
         ThetaFC1 = NewMap(0);
         lambda1 = NewMap(0);
-        if (SwitchPsiUser)
+     //   if (SwitchPsiUser)
             Psi1 = ReadMap(LDD,getvaluename("psi1"));
-        else
-            Psi1 = NewMap(0);
+//        else
+//            Psi1 = NewMap(0);
         calcSoilPhysics(Ksat1, lambda1, ThetaFC1, ThetaR1, Psi1, psi1ae, ksatCalibration, psiCalibration);
 
         if (nrSoilLayers == 2) {
@@ -762,10 +762,10 @@ void TWorld::InitSoilInput(void)
             lambda2 = NewMap(0);             // lambda brooks corey
             psi2ae = NewMap(0);
             ThetaFC2 = NewMap(0);
-            if (SwitchPsiUser)
+       //     if (SwitchPsiUser)
                 Psi2 = ReadMap(LDD,getvaluename("psi2"));
-            else
-                Psi2 = NewMap(0);
+       //     else
+       //         Psi2 = NewMap(0);
             calcSoilPhysics(Ksat2, lambda2, ThetaFC2, ThetaR2, Psi2, psi2ae, ksat2Calibration, psiCalibration);
 
         }
@@ -790,10 +790,10 @@ void TWorld::InitSoilInput(void)
             lambda3 = NewMap(0);             // lambda brooks corey
             psi3ae = NewMap(0);
             ThetaFC3 = NewMap(0);
-            if (SwitchPsiUser)
+//            if (SwitchPsiUser)
                 Psi3 = ReadMap(LDD,getvaluename("psi3"));
-            else
-                Psi3 = NewMap(0);
+//            else
+  //              Psi3 = NewMap(0);
             calcSoilPhysics(Ksat3, lambda3, ThetaFC3, ThetaR3, Psi3, psi3ae, ksat3Calibration, psiCalibration);
 
         }
@@ -2071,7 +2071,7 @@ void TWorld::IntializeOptions(void)
     SwitchWriteHeaders = true; // write headers in output files in first timestep
 
     SwitchAdvancedOptions = false;
-    SwitchPsiUser = false;
+    SwitchPsiUser = true;
     SwitchRainfall = true;
     SwitchSnowmelt = false;
     SwitchRoadsystem = false;

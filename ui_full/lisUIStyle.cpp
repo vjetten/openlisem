@@ -334,7 +334,15 @@ void lisemqt::SetStyleUI()
 
     SetStyleUISize();
 
-    // interface elements that are not visible for now
+    // Pesticde set negative spinbox values, cannot be done in interface
+    spinPestKr->setRange(-10.0, -0.01);
+    spinPestKr->setValue(-1.0);
+    spinPestKr->setSingleStep(-0.01);
+    spinPestERbeta->setRange(-1.0, -0.01);
+    spinPestERbeta->setValue(-0.25);
+    spinPestERbeta->setSingleStep(-0.01);
+
+    // spare or obsolete interface elements that are not visible at the start
     int last = tabWidgetOptions->count()-1;
     tabWidgetOptions->removeTab(last);
 

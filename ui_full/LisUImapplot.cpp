@@ -522,7 +522,7 @@ void lisemqt::showComboMap(int i)
     // fill vector RD with matrix data and find the new max value
     double MinV;
     double MaxV;
-    double th = op.ComboSymColor.at(i) ? 1e-3: 1e-10;
+    double th = 1e-10;//op.ComboSymColor.at(i) ? 1e-3: 1e-10;
     double res = fillDrawMapData(op.ComboMaps.at(i), RD, &MinV, &MaxV, op.ComboScaling.at(i), th);
 
     if (res <=-1e20)

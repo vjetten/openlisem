@@ -333,8 +333,10 @@ void TWorld::DoModel()
         //SetFlowBarriers();     // obsolete for now! update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
 
-        if (SwitchPest) {
-            PMtotI = MassPestInitial();     // calculate pesticide mass in system outside time loop
+        if (SwitchPest && SwitchInfiltration) {
+            PMtotI = MassPestInitial();
+            // calculate pesticide mass in system outside time loop
+            // if infil is set to 0 then crash!
         }
         _dt_user = _dt;
 

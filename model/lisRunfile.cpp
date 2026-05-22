@@ -257,7 +257,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use one matrix potential")==0)          SwitchHinit4all =    iii == 1;
         if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =  iii == 1;
         if (p1.compare("Nr input layers")==0)                   SwitchNrLayers =     iii == 1;
-        if (p1.compare("Psi user input")==0)                    SwitchPsiUser =      iii == 1;
+        //if (p1.compare("Psi user input")==0)                    SwitchPsiUser =      iii == 1;
         if (p1.compare("Swatre output")==0)                     SwitchDumphead =     iii == 1;
         if (p1.compare("Include tile drains")==0)               SwitchIncludeTile =  iii == 1;
         if (p1.compare("Swatre dry")==0)                        SwitchSwatreDry =    iii == 1;
