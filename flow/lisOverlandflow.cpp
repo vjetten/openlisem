@@ -50,28 +50,6 @@ void TWorld::OverlandFlow(void)
     } else {
         // kin wave overland flow
 
-     //    CalcVelDisch();
-
-     //    if (SwitchChannel2DflowConnect)
-     //        ToChannelAlt();
-     //    else
-     //        ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
-
-     // //   CalcVelDisch();
-     //    // overland flow velocity, discharge and alpha
-     //    // V is needed in erosion
-
-     //    if (SwitchErosion) {
-     //        cell_FlowDetachment();
-     //        // kine wave based flow detachment
-     //    }
-
-     //    OverlandFlow1D();   // kinematic wave of water and sediment
-
-     //    if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
-     //        ChannelFlood();
-     //        // st venant channel 2D flooding from channel, only for kyn wave
-     //    }
         CalcVelDisch();
         // Q, V and Alpha Manning
 
@@ -85,14 +63,18 @@ void TWorld::OverlandFlow(void)
             // full flowwidth is used, but adjusted inside for fractions for roads, houses etc
 
             if (SwitchPest) {
+                // obsolete
                 #pragma omp parallel for num_threads(userCores)
                 FOR_ROW_COL_MV_L  {
                     SedMassIn->Drc = Sed->Drc; // for pesticide in kin wave
                 }}
 
-                PesticideFlowDetachmentSS(DETFlow, DEP, Sed);
+                PesticideFlowDetachmentSS(Sed);
             }
         }
+
+        OverlandFlow1D();
+        // routing: kinematic wave of water and sediment
 
         // move water and sed into channel
         if (SwitchIncludeChannel) {
@@ -100,7 +82,7 @@ void TWorld::OverlandFlow(void)
             ToChannelBroadWeir();
             // kin wave interaction with channel (FloodDomain = 0)
 
-            //TODO pesticide to channel
+            // TODO pesticide to channel
 
             // if 2D overflow do that
             if (SwitchKinematic2D == K2D_METHOD_KINDYN) {
@@ -113,8 +95,6 @@ void TWorld::OverlandFlow(void)
             }
         }
 
-        OverlandFlow1D();
-        // routing: kinematic wave of water and sediment
     }
 }
 
@@ -169,6 +149,8 @@ void TWorld::OverlandFlow2Ddyn(void)
  *
  * @return void
  */
+
+    //OBSOLETE: replaced wioth broadweir principles
 void TWorld::ToChannel()
 {
     if (!SwitchIncludeChannel)

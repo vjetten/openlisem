@@ -1698,6 +1698,7 @@ void TWorld::InitErosion(void)
     Sed = NewMap(0);
     TC = NewMap(0);
     Conc = NewMap(0);
+    Sed_dt = NewMap(0);
 
     SettlingVelocitySS = NewMap(0);
     SettlingVelocityBL = NewMap(0);
@@ -2844,6 +2845,7 @@ void TWorld::InitNewSoilProfile()
         KrPest = getvaluedouble("Kr pesticide");
         KrPest = KrPest / 60; // min-1 to sec-1
         ERmaxPest = getvaluedouble("ERmax pesticide");
+
         rhoPest = getvaluedouble("Rho mixing layer");
         PestName = getvaluestring("Pesticide name");
 

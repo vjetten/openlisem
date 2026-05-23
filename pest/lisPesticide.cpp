@@ -89,11 +89,11 @@ void TWorld::MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMser
     // mass balance for active sorbed
     PMserr = 0;
     if (SwitchErosion) {
-    double PMsdep {0.0};
-    double PMsdet {0.0};
-    PMsdep = mapTotal(*pmsdep);
-    PMsdet = mapTotal(*pmsdet);
-    PMserr = PMsdet > 0 ? (PMsdet + PMsdep - PMerosion) / PMsdet * 100 : 0;
+        double PMsdep {0.0};
+        double PMsdet {0.0};
+        PMsdep = mapTotal(*pmsdep);
+        PMsdet = mapTotal(*pmsdet);
+        PMserr = PMsdet > 0 ? (PMsdet + PMsdep - PMerosion) / PMsdet * 100 : 0;
     }
 
     // mass balance active dissolved
@@ -648,82 +648,40 @@ void TWorld::PesticideFlowDetachment()
 
 
 // always calculate after sediment flow detachment
-void TWorld::PesticideFlowDetachmentSS(cTMap *Df_, cTMap *Dep_, cTMap *Sed_)
+void TWorld::PesticideFlowDetachmentSS(cTMap *Sed_)
 {
   // mass exchange between mixing layer an suspended sediment
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L{
-        double msoil_ex {0.0};  // mass exchange between mixing layer and deeper soil
-        double msrm_ex {0.0}; //ass exchange from pest in runoff water (?)
-        // For now only use SoilWidth in formulas. Check what is done with deposition on roads.
-        // Can this be eroded after deposition or not?
-        // option 1 - all deposition on roads add directly to sink
-        // option 2 - deposition on roads can be eroded and added into the system...
-        double er {0.0}; // enrichtment ratio
-        double Se {0.0}; // detachment or deposition rate - kg/ha
+        double Pdep = 0;
+        double Pdet = 0;
 
-
-        PMdep->Drc = 0.0;
-        PMflow->Drc = 0.0;
-
-        if (Dep_->Drc < 0) {
-            //calculate enrichment ratio
-            //Se = DEP->Drc * (10000 / (DX->Drc * SoilWidthDX->Drc)); // cell area to ha
-            //er = PesticideEnrichmentRatio(Emax, Se, beta);
-            // for now no enrichment effect on deposition
-
-        //deposition
-            msoil_ex = Dep_->Drc * PCms->Drc;
+        if (Sed_dt->Drc < 0) { // there is net deposition in this timestep // Dep_->Drc < 0) {
+            Pdep = -Sed_dt->Drc * PCms->Drc;
             // mg = kg * mg/kg
-
-            double dsed = qMax(0.0, SedAfterSplash->Drc - Sed_->Drc);
-            // if sed after splash is more than sed then there was deposition
-            msrm_ex = (dsed/SedAfterSplash->Drc) * PMrs->Drc; // loss by deposition, fraction of sed depostited * runoff pest mass
-//            msrm_ex = (Dep_->Drc/Sed_->Drc) * PMrs->Drc; // loss by deposition
-            // should be msrm_ex = (Dep_->Drc/SedAfterSplash->Drc) * PMrs->Drc; // loss by deposition
-
-            // no more transport than mass in cell domain
-            if (PMrs->Drc + msrm_ex < 0) {
-                msrm_ex = -PMrs->Drc;
+            Pdep = qMin(PMrs->Drc, Pdep); // cannot be more than there is
+        } else {
+            if (Sed_dt->Drc > 0) { // there is net detachment in this timestep // Df_->Drc > 0) {
+                //calculate enrichment ratio
+                double Se = Sed_dt->Drc * (10000 / (DX->Drc * SoilWidthDX->Drc));
+                double er = PesticideEnrichmentRatio(ERmaxPest, Se, ERbetaPest);
+                Pdet = PCms->Drc * Sed_dt->Drc * er; // Sed is already constrained to TC so no need to constrain Pest
             }
-            PMdep->Drc = msrm_ex;
-        } else
-            if (Df_->Drc > 0) {
-            //calculate enrichment ratio
-            // kg/ha = kg/cell * (ha / cell)
-            Se = Df_->Drc * (10000 / (DX->Drc * SoilWidthDX->Drc)); // cell area to ha
-            er = PesticideEnrichmentRatio(ERmaxPest, Se, ERbetaPest);
-            // detachment
-            msoil_ex = Df_->Drc * PCs->Drc; //
-            // mg = mg kg-1  kg
-            msrm_ex = PCms->Drc * Df_->Drc * er; // added by erosion
-            // no more transport than mass in cell domain
-            if (PMms->Drc + msoil_ex < msrm_ex) {
-                msrm_ex = PMms->Drc + msoil_ex;
-                // only compare with PMms? what happens when more then mixing layer depth
-                // erodes in 1 timestep? - very unlikely
-            }
-            PMflow->Drc = msrm_ex;
         }
 
-        // mass balance
-        Dep_->Drc < 0 ? pmsdep->Drc += msrm_ex : pmsdet->Drc += msrm_ex;
-        // note msrm_ex is negative in case of dep
-
         // pesticides in suspended sediment
-        PMrs->Drc = std::max(0.0, PMrs->Drc + msrm_ex);
-    //    PCrs->Drc = SedMassIn->Drc > 1e-6 ? PMrs->Drc / SedMassIn->Drc : 0.0; //
-        PCrs->Drc = Sed_->Drc > 1e-6 ? PMrs->Drc / Sed_->Drc : 0.0; //
+        PMrs->Drc = PMrs->Drc + Pdet; // add pest detachment to runoff
+        PCrs->Drc = Sed_->Drc > 1e-6 ? PMrs->Drc / Sed_->Drc : 0.0;
 
         // adjust mass lower soil layer for mass balance
-        PMsoil->Drc = std::max(0.0, PMsoil->Drc - msoil_ex);
-        PCs->Drc = PMsoil->Drc / (zs->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest);
+        PMsoil->Drc = PMsoil->Drc + Pdep; // add the deposition to the soil P mass
+        PCs->Drc = PMsoil->Drc / (zs->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest); // calc avergae concentration over pest depth
 
         // pesticides in mixing layer
-        PMms->Drc = std::max(0.0, PMms->Drc - msrm_ex + msoil_ex);
+        PMms->Drc = PMms->Drc + Pdep;
         PCms->Drc = PMms->Drc / (zm->Drc * DX->Drc * SoilWidthDX->Drc * rhoPest);
 
-    }}
+     }}
 }
 //---------------------------------------------------------------------------
 /**

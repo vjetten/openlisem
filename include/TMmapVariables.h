@@ -176,6 +176,7 @@ cTMap
 *Sed,                        //!< sediment content of flow [kg]
 *SettlingVelocitySS,           //!< settling velocity according to Stokes [m/s]
 *SettlingVelocityBL,           //!< settling velocity according to Stokes [m/s]
+*Sed_dt,
 
 // Pesticides
 *ThetaPest,

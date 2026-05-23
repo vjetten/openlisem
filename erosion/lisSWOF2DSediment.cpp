@@ -77,7 +77,7 @@ void TWorld::SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
     // suspended detachment (SS), same generic function as for 1D
 
     if (SwitchPest)
-        PesticideFlowDetachmentSS(SSDetFlood, DepFlood, SSFlood);
+        PesticideFlowDetachmentSS(SSFlood);
     // uses the detachment and depositon for pesticide fractions
 
     if (SwitchUse2Phase) {
@@ -458,6 +458,8 @@ void TWorld::SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *v,
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
+        Sed_dt->Drc = 0; // net dep or det in this timestep, needed for pesticides.
+
         double SS = SS_->Drc;
 
         double sswatervol = 0;
@@ -472,7 +474,7 @@ void TWorld::SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *v,
 
         double deposition = 0;
         double detachment = 0;
-tmshow->Drc = hf > HMIN?(SSVs_->Drc*dt)/hf:0.0;
+//tmshow->Drc = hf > HMIN?(SSVs_->Drc*dt)/hf:0.0;
         if(h->Drc < HMIN) {
             if(DO_SEDDEP == 1) {
                 //set all to zero when the water height is zero
@@ -592,6 +594,8 @@ tmshow->Drc = hf > HMIN?(SSVs_->Drc*dt)/hf:0.0;
             SS += detachment;
             SS_->Drc = qMax(0.0,SS);
             SSC_->Drc = MaxConcentration(sswatervol, SS_->Drc);
+
+            Sed_dt->Drc += (deposition + detachment);
 
         } // h > MIN_HEIGHT
     }}

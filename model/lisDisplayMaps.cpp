@@ -428,13 +428,9 @@ void TWorld::GetComboMaps()
         }
 
         AddComboMap(1,"Total Soil Loss",unit,TotalSoillossMap,LegendMap[cl],Legend[cl],false,true,factor, step);
-
         cl = 8;
         AddComboMap(1,"Splash detachment",unit,DETSplashCum,LegendMap[cl],Legend[cl],false,false,factor, step);
         AddComboMap(1,"Flow detachment",unit,DETFlowCum,LegendMap[cl],Legend[cl],false,false,factor, step);
-        cl = 9;
-        AddComboMap(1,"Deposition",unit,DEPCum,LegendMap[cl],Legend[cl],false,false,-factor, step);
-
         cl = 8;
         AddComboMap(1,"Sed. Concentration","kg/m3",TotalConc,LegendMap[cl],Legend[cl],false,false,1.0, step);
         if (SwitchSedtrap)
@@ -451,6 +447,18 @@ void TWorld::GetComboMaps()
          //   AddComboMap(1,"SS depth","m",SSDepthFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
          //   AddComboMap(1,"BL depth","m",BLDepthFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
         }
+        cl = 9;
+        AddComboMap(1,"Deposition",unit,DEPCum,LegendMap[cl],Legend[cl],false,false,-factor, step);
+
+
+        AddComboMap(1,"PMInf",unit,PMinf,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PMSplash",unit,PMsplash,LegendMap[cl],Legend[cl],false,false,factor, step);
+        //AddComboMap(1,"Pest runoff",unit,PQrw,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PMrs (P mass ro solid)",unit,PMrs,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PMrw (P mass ro solve)",unit,PMrw,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PMmw (P mass mix)",unit,PMmw,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PMsoil (P mass soil)",unit,PMsoil,LegendMap[cl],Legend[cl],false,false,factor, step);
+
 
         // cl = 9;
         // if(SwitchUseMaterialDepth) {

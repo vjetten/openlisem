@@ -539,6 +539,7 @@ void TWorld::ReportTotalsNew(void)
         out << "\"Initial pesticide mass in system (mg) \", " << op.PMtotI << "\n";
         out << "\"Total dissolved pesticide transport (mg):\"," << op.PMOutW<< "\n";
         if (SwitchErosion) out << "\"Total particulate pesticide transport (mg):\"," << op.PMOutS<< "\n";
+        //qDebug() << "Total particulate pesticide transport (mg):" << op.PMOutW;
     }
     out << "\n";
     fp.flush();
@@ -751,27 +752,45 @@ void TWorld::ReportTimeseriesCSV(void)
                     out << QString(",Qsrunoff");
                 out << ",Conc";
             }
+            if (SwitchPest) {
+                out << ",PQw";
+                if (SwitchErosion)
+                    out << ",PQs";
+            }
+
             out << "\n";
 
             // second row, units
             out << "days"; //time
             if (SwitchRainfall) out << ",mm/h"; //rain
             if (SwitchSnowmelt) out << ",mm/h"; // snow
+
             out << "," << unitS; // qall
+
             if (FlowBoundaryType > 0)
                 out << "," << unitS; //qbound
+
             if (SwitchIncludeChannel)
                 out  << "," << unitS << ",m"; //qchannel
             else
                 out  << "," << unitS; // Orunoff
+
             if (SwitchIncludeTile)
                 out << "," << unitS;
+
             if (SwitchErosion) {
                 out << ",kg/s";
                 if (FlowBoundaryType > 0)
                     out << ",kg/s";
                 out<< ",kg/s" << ",g/l";
             }
+
+            if (SwitchPest) {
+                out << ",mg/s"; // dissolved pesticide load
+                if (SwitchErosion)
+                    out << ",mg/s"; // particulate pesticide load
+            }
+
             out << "\n";
             fout.close();
         }}
@@ -829,6 +848,15 @@ void TWorld::ReportTimeseriesCSV(void)
                 out << sep << TotalConc->Drc ;
             }
         }
+
+        //pesticide
+        if (SwitchPest) {
+            out << sep << (PQrw_dt / _dt);
+            if (SwitchErosion)
+                out << sep << (PQrs_dt / _dt);
+            //qDebug() << "pest" << PQrw_dt << PQrs_dt;
+        }
+
         out << "\n";
         fout.close();
     }}
