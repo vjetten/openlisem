@@ -454,9 +454,11 @@ void TWorld::GetComboMaps()
         AddComboMap(1,"PMInf",unit,PMinf,LegendMap[cl],Legend[cl],false,false,factor, step);
         AddComboMap(1,"PMSplash",unit,PMsplash,LegendMap[cl],Legend[cl],false,false,factor, step);
         //AddComboMap(1,"Pest runoff",unit,PQrw,LegendMap[cl],Legend[cl],false,false,factor, step);
-        AddComboMap(1,"PMrs (P mass ro solid)",unit,PMrs,LegendMap[cl],Legend[cl],false,false,factor, step);
-        AddComboMap(1,"PMrw (P mass ro solve)",unit,PMrw,LegendMap[cl],Legend[cl],false,false,factor, step);
-        AddComboMap(1,"PMmw (P mass mix)",unit,PMmw,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PMrs (PMass ro solid)",unit,PMrs,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PMrw (PMass ro solve)",unit,PMrw,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PQrs (PQ flux ro solid)",unit,PQrs,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PQrw (PQ flux ro solve)",unit,PQrw,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PMmw (P mass water mixing)",unit,PMmw,LegendMap[cl],Legend[cl],false,false,factor, step);
         AddComboMap(1,"PMsoil (P mass soil)",unit,PMsoil,LegendMap[cl],Legend[cl],false,false,factor, step);
 
 

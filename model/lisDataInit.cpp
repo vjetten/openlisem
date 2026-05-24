@@ -2853,6 +2853,8 @@ void TWorld::InitNewSoilProfile()
         PCms = ReadMap(LDD,getvaluename("pcmixsoil"));
         PCmw = ReadMap(LDD,getvaluename("pcmixwat"));
         zm = ReadMap(LDD,getvaluename("pestmixdep"));
+        //VJ-P zm should be the min of zm and the wetting front depth Lw ?
+
         zs = ReadMap(LDD,getvaluename("pestsoildep1"));
         PCs = ReadMap(LDD,getvaluename("pcsoil1"));
 

@@ -63,12 +63,6 @@ void TWorld::OverlandFlow(void)
             // full flowwidth is used, but adjusted inside for fractions for roads, houses etc
 
             if (SwitchPest) {
-                // obsolete
-                #pragma omp parallel for num_threads(userCores)
-                FOR_ROW_COL_MV_L  {
-                    SedMassIn->Drc = Sed->Drc; // for pesticide in kin wave
-                }}
-
                 PesticideFlowDetachmentSS(Sed);
             }
         }

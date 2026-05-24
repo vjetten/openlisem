@@ -76,8 +76,9 @@ void TWorld::SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
     SedimentDetachmentSS(dt, h, w, V, SSFlood, SSCFlood, SSTCFlood, SSDetFlood, DepFlood, SettlingVelocitySS, SUSPflood);
     // suspended detachment (SS), same generic function as for 1D
 
-    if (SwitchPest)
+    if (SwitchPest) {
         PesticideFlowDetachmentSS(SSFlood);
+    }
     // uses the detachment and depositon for pesticide fractions
 
     if (SwitchUse2Phase) {
@@ -101,30 +102,6 @@ void TWorld::SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v)
         SWOFSedimentAdvection(dt, h,u,v, BLFlood, BLCFlood, BLDepthFlood);
         SedimentSetConcentration(h, BLFlood, BLCFlood, BLDepthFlood);
     }
-
-    if (SwitchPest) {
-
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            double vol = CHAdjDX->Drc*h->Drc + MicroStoreVol->Drc;
-            PCrw->Drc = vol > 1e-9 ? PMrw->Drc/(vol*1000) : 0.0;
-            //note: PCrs is done in flow detahcment
-        }}
-
-        SWOFSedimentAdvection(dt, h,u,v, PMrw, PCrw, SSDepthFlood);
-        // dissolved pest distribution between cells
-        SWOFSedimentAdvection(dt, h,u,v, PMrs, PCrs, SSDepthFlood);
-        // absorbed pest distribution between cells
-
-
-        if (SwitchIncludeDiffusion) {
-            SWOFSedimentDiffusion(dt, h,u,v, PMrw, PCrw); //dissolved
-            SWOFSedimentDiffusion(dt, h,u,v, PMrs, PCrs); //absorbed
-        }
-
-        PesticideConcentration();
-    }
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -244,7 +221,7 @@ void TWorld::SWOFSedimentAdvection(double dt, cTMap *h, cTMap *u,cTMap *v,cTMap 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
 
-        double velocityfactor = qBound(0.0,  _SSD->Drc / h->Drc, 1.0);
+        double velocityfactor = h->Drc > 1e-6 ? qBound(0.0,  _SSD->Drc / h->Drc, 1.0) : 1.0;
         // if only suspended sediment the velocityfactor is 1.0, if 2 phaseflow the bedload is assumed to
         // move with a fraction of the velocity
 

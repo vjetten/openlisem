@@ -117,6 +117,12 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             // concentration recalculations
         }
 
+        if (SwitchPest) {
+            PesticideFlow2D(dt_req_min, h, u, v);
+            // lispesticide.cpp
+        }
+        //VJ-P TODO: add pesticides to boundary flow and diagonal flow
+
         if (Switch2DDiagonalFlow) {
             SWOFDiagonalFlowLDD(dt_req_min, z, h, u, v);
           //  SWOFDiagonalFlow(dt_req_min, z, h, u, v);

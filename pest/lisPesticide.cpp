@@ -133,8 +133,7 @@ double TWorld::MassPestInitial(void)
                     * DX->Drc * 1000;
         // we use ThetaS because we assume saturation when the mixing zone is active.
         // mg = mg kg-1 * m * m * m * kg m-3
-        PMsoil->Drc = PCs->Drc * SoilWidthDX->Drc * DX->Drc
-                      * zs->Drc * rho;
+        PMsoil->Drc = PCs->Drc * SoilWidthDX->Drc * DX->Drc * zs->Drc * rho;
     }}
     pmtot_i = mapTotal(*PMmw) + mapTotal(*PMms) + mapTotal(*PMsoil);
     return(pmtot_i);
@@ -174,10 +173,13 @@ void TWorld::PesticideCellDynamics(void)
 
        // assume the mixing layer is saturated during infiltration or runoff. WHY?
        if (InfilMethod == INFIL_SWATRE)
-           Theta_mix->Drc = ThetaPest->Drc; // is nu wortel diepte, moet minder zijn, fix: zm
+           Theta_mix->Drc = ThetaPest->Drc; // to be coupled still
        else
-           Theta_mix->Drc = Thetaeff->Drc; // was thetas1; why porosity and not actual theta
-       //LET OP HIER STOND THETAS1 !!!
+           Theta_mix->Drc = ThetaS1->Drc; // saturation above wetting front
+
+       //VJ-P: SWATRE is niet zomaar verzadigd, er is geen wetting front maar nodes die verzadigen. This is the gemiddelde theta van de root zone.
+       // maar dat is waarschijnlijk dan de diepte tot de eerste node die niet verzadigd is? Nu is het de rooting depth
+       // Sowieso is de mixing depth de depth of the wetting front L, niet een vaste diepte? of het minimum van L met een mix depth?
 
        //infiltration from runoff through mixing layer to deeper soil
        PMinf->Drc = 0.0; //does not need to be a map...
@@ -263,13 +265,21 @@ void TWorld::PesticideCellDynamics(void)
        // over the full surface of the cell. This would overestimate mixing
        // mass transfer. When water height is smaller than 'WH_lim' we assume the
        // surface area for mass transfer decreases.
-// TODO: THE WET AREA IS KNOWN related to roughness! see splash
+
+       // THE WET AREA IS KNOWN related to roughness! see splash
+
        if (WH->Drc > 1e-4) {
            PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
-           if (WH->Drc < WH_lim && Rainc->Drc < 1e-8) {
-               A_mix = WaterVolall->Drc / WH_lim;
-           } else
-               A_mix = DX->Drc * SoilWidthDX->Drc;
+           // if (WH->Drc < WH_lim && Rainc->Drc < 1e-8) {
+           //     A_mix = WaterVolall->Drc / WH_lim;
+           // } else
+           //     A_mix = DX->Drc * SoilWidthDX->Drc;
+
+           //VJ-P: take wetted area in a cell same as ponded from splash?
+           double FPA = 1.0; // fraction ponded area
+           if (RR->Drc > 0.1)
+               FPA =  1-exp(-1.875*(WH->Drc/(0.01*RR->Drc)));
+           A_mix = FPA * DX->Drc * SoilWidthDX->Drc; // !!!
        // positive adds to runoff.
        // mg = ((m sec-1 (mg m-3)) m2 * sec
            if (PCmw->Drc > PCrw->Drc) {
@@ -309,17 +319,45 @@ void TWorld::PesticideFlow1D(void)
     //double Kfilm = KfilmPest; // m sec-1
     //double rho = rhoPest;     //kg m-3
 
-    //runoff
+    //VJ-P: these functions are a mix of pointers and direct use of the original maps. Hard to read.
+    //Since they are used only once, pointers are not really necessary
+
+    //route dissolved P in runoff, PQrw, PMrw
     KinematicPestDissolved(crlinkedldd_, LDD, Qn, PQrw, DX, Alpha, Q, Qpw, PMrw);
 
     //erosion
     if(SwitchErosion){
-        KinematicPestAdsorbed(crlinkedldd_, LDD, Qsn, PQrs, DX, Alpha, SedMassIn,
-                              Qs, Qps, PMrs);
+        KinematicPestAdsorbed(crlinkedldd_, LDD, Qsn, PQrs, DX, Alpha, SedMassIn, Qs, Qps, PMrs);
     }
     PesticideConcentration();
 }
+//---------------------------------------------------------------------------
+void TWorld::PesticideFlow2D(double dt, cTMap * h, cTMap * u,cTMap * v)
+{
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        double vol = WaterVolall->Drc;
+        PCrw->Drc = vol > 1e-9 ? PMrw->Drc/(vol*1000) : 0.0;
+        //note: PCrs is done in flow detachment
+    }}
 
+    SWOFSedimentAdvection(dt, h,u,v, PMrw, PCrw, SSDepthFlood);
+    //VJ-P "sediment" is missleading! dissolved p[articles
+    // dissolved pest distribution between cells
+    SWOFSedimentDiffusion(dt, h,u,v, PMrw, PCrw); //dissolved
+
+    if(SwitchErosion) {
+        SWOFSedimentAdvection(dt, h,u,v, PMrs, PCrs, SSDepthFlood);
+        // absorbed pest distribution between cells
+
+        if (SwitchIncludeDiffusion) {
+            SWOFSedimentDiffusion(dt, h,u,v, PMrs, PCrs); //absorbed
+        }
+    }
+
+    PesticideConcentration();
+
+}
 //---------------------------------------------------------------------------
 void TWorld::PesticideConcentration(void)
 {
@@ -328,10 +366,7 @@ void TWorld::PesticideConcentration(void)
     FOR_ROW_COL_MV_L{
         double volmw {0.0};         // L - volume of water in mixing layer
         double massms {0.0};        // kg - mass of sediment in mixing layer
-        if (WaterVolall->Drc > 1e-10)
-            PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000);
-        else
-            PCrw->Drc = 0.0;
+        PCrw->Drc = WaterVolall->Drc > 1e-6 ? PMrw->Drc / (WaterVolall->Drc * 1000) : 0.0;
         // L = m * m * m * -- * 1000
         volmw = zm->Drc * DX->Drc * SoilWidthDX->Drc * Theta_mix->Drc * 1000;
         PCmw->Drc = PMmw->Drc / volmw; //
@@ -391,7 +426,8 @@ void TWorld::KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
 
         if (Qn->Drc + QinKW->Drc >= MIN_FLUX) { // more than 1 ml - what is best definition of runoff?
             // calculate concentration for new outflux
-            PCrw->Drc = PMrw->Drc / (WaterVolall->Drc * 1000); // use watervolall and not watervolin for concentration
+            PCrw->Drc = WaterVolall->Drc > 1e-6 ? PMrw->Drc / (WaterVolall->Drc * 1000) : 0.0; // use watervolall and not watervolin for concentration
+            //VJ-P limited to 1e-6 m3 (1 ml over a gridcell is nothing), we should limit this to avoid spurious concentrations
 
             _Qpw->Drc = _Q->Drc * 1000 * PCrw->Drc;
             // use explicit backwards method from Chow
@@ -518,6 +554,14 @@ void TWorld::PesticideSplashDetachment()
         //mass balance
         pmsdet->Drc += PMsplash->Drc;
     }}
+
+//VJ-P not sure if needed in 2d flow?
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L  {
+        SedMassIn->Drc = Sed->Drc; // for pesticide in kin wave
+    }}
+
+
 }
 
 
@@ -648,6 +692,8 @@ void TWorld::PesticideFlowDetachment()
 
 
 // always calculate after sediment flow detachment
+
+//VJ-P simplified flow detachment with Sed_dt ! check this
 void TWorld::PesticideFlowDetachmentSS(cTMap *Sed_)
 {
   // mass exchange between mixing layer an suspended sediment
@@ -656,12 +702,12 @@ void TWorld::PesticideFlowDetachmentSS(cTMap *Sed_)
         double Pdep = 0;
         double Pdet = 0;
 
-        if (Sed_dt->Drc < 0) { // there is net deposition in this timestep // Dep_->Drc < 0) {
+        if (Sed_dt->Drc < 0) { // there is net deposition (<0) in this timestep // Dep_->Drc < 0) {
             Pdep = -Sed_dt->Drc * PCms->Drc;
             // mg = kg * mg/kg
             Pdep = qMin(PMrs->Drc, Pdep); // cannot be more than there is
         } else {
-            if (Sed_dt->Drc > 0) { // there is net detachment in this timestep // Df_->Drc > 0) {
+            if (Sed_dt->Drc > 0) { // there is net detachment (>0) in this timestep // Df_->Drc > 0) {
                 //calculate enrichment ratio
                 double Se = Sed_dt->Drc * (10000 / (DX->Drc * SoilWidthDX->Drc));
                 double er = PesticideEnrichmentRatio(ERmaxPest, Se, ERbetaPest);
