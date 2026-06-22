@@ -96,7 +96,7 @@ void TWorld::DoModel()
 
     mapFormat = "PCRaster";
 
-    errorFileName = QString(resultDir + "error-"+ op.timeStartRun +".csv");
+    errorFileName = QString("error-"+ op.timeStartRun +".csv");
     //errorSedFileName = QString(resultDir + "errorsed-"+ op.timeStartRun +".txt");
     time_ms.start();
     // get time to calc run length
@@ -295,8 +295,7 @@ void TWorld::DoModel()
         DEBUG("setupHydrographData()");
         setupHydrographData(); // reset hydrograph display
 
-        //bool saveMBerror = true;
-        //saveMBerror2file(true); //saveMBerror,
+        saveMBerror2file(true);
 
         //SetFlowBarriers();     // obsolete for now! update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
@@ -396,7 +395,7 @@ void TWorld::DoModel()
             mutex.unlock();
             // check if user wants to quit or pause
 
-            //saveMBerror2file(false); //saveMBerror
+            saveMBerror2file(false);
 
             // show progress in console without GUI
             if (op.doBatchmode && noInterface) {
