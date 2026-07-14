@@ -277,10 +277,12 @@ void TWorld::ChannelDetachmentContinuous()
             //  detachment
             if(maxTC > 0 && ChannelCohesion->Drc >= 0) {
 
-//                TransportFactor = _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
-                TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/ChannelWH->Drc)) * sswatervol;
+                if (SwitchDepositionLinear)
+                    TransportFactor =  qMin(1.0, ChannelY->Drc * _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc);
+                else
+                    TransportFactor = (1-exp(-ChannelY->Drc * _dt*SettlingVelocitySS->Drc/ChannelWH->Drc)) * sswatervol;
 
-                detachment = ChannelY->Drc * maxTC * TransportFactor;
+                detachment = maxTC * TransportFactor;
                 //DetachMaterial(r,c,1,true,false,false, detachment);
                 // multiply by Y
 
