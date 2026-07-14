@@ -482,6 +482,7 @@ public:
         SwitchPest,
         //SwitchReportPest,
         SwitchDepositionLinear,
+        SwitchDepositionContinuous,
 
         // output
         //SwitchOutputTimeUser,
@@ -1163,12 +1164,15 @@ public:
     double GetSV(double d);
     void SplashDetachment();
     void SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *v,
-                                   cTMap *SS_, cTMap *SSC_, cTMap *SSTC_, cTMap *SSDet_, cTMap *Dep_, cTMap *SSVs_, int type);
-    void SedimentDetachmentSSCont(double dt, cTMap *h, cTMap *w, cTMap *v,
-                                   cTMap *SS_, cTMap *SSC_, cTMap *SSTC_, cTMap *SSDet_, cTMap *Dep_, cTMap *SSVs_, int type);
+                                   cTMap *SS_, cTMap *SSC_, cTMap *SSTC_, cTMap *SSDet_,
+                                   cTMap *Dep_, cTMap *SSVs_, int type);
 
+    void SedimentSSContinuous(double dt, cTMap *h, cTMap *w, cTMap *v,
+                                   cTMap *SS_, cTMap *SSC_, cTMap *SSTC_, cTMap *SSDet_,
+                                   cTMap *Dep_, cTMap *SSVs_, int type);
     double MaxConcentration(double watvol, double sedvol);
-    void ChannelFlowDetachmentNew();
+    void ChannelFlowDetachment();
+    void ChannelDetachmentContinuous();
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentLayerDepth(int r , int c);
     void RiverSedimentMaxC(int r, int c);

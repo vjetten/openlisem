@@ -178,6 +178,7 @@ void TWorld::InitParameters(void)
         SwitchChannelWFinflow = false;//getvalueint("Channel WF inflow") == 1;
         SwatrePrecision = getvaluedouble("SWATRE precision");
         SwitchDepositionLinear = getvalueint("Deposition linear") == 1;
+        SwitchDepositionContinuous = getvalueint("Deposition continuous") == 1;
     } else {
         F_MaxIter = 200;
         F_minWH = he_ca;
@@ -189,8 +190,8 @@ void TWorld::InitParameters(void)
         _dtCHkin = _dx/2;
         SwitchChannel2DflowConnect = false;
         SwitchChannelWFinflow = false;
-        SwitchDepositionLinear = true;
-
+        SwitchDepositionLinear = false;
+        SwitchDepositionContinuous = true;
         nN1_ = 3;
         nN2_ = 3;
         nN3_ = 6;

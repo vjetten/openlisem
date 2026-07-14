@@ -58,7 +58,10 @@ void TWorld::OverlandFlow(void)
 
            // cell_FlowDetachment(); // obsolete
 
-            SedimentDetachmentSS(_dt, WHrunoff, ChannelAdj, V, Sed, Conc, TC, DETFlow, DEP, SettlingVelocitySS, SUSPrunoff);
+            if (SwitchDepositionContinuous)
+                SedimentSSContinuous(_dt, WHrunoff, ChannelAdj, V, Sed, Conc, TC, DETFlow, DEP, SettlingVelocitySS, SUSPrunoff);
+            else
+                SedimentDetachmentSS(_dt, WHrunoff, ChannelAdj, V, Sed, Conc, TC, DETFlow, DEP, SettlingVelocitySS, SUSPrunoff);
             // same sed detachment and deposition as in 2D flow
             // full flowwidth is used, but adjusted inside for fractions for roads, houses etc
 

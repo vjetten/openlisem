@@ -748,6 +748,8 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("6");
     namelist[i++].name = QString("SWATRE precision");
     namelist[i].value = QString("1");
+    namelist[i++].name = QString("Deposition continuous");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Deposition linear");
 
  //   namelist[i].value = QString("0");

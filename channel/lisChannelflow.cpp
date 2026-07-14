@@ -53,7 +53,10 @@ void TWorld:: ChannelFlowandErosion()
 
         ChannelVelocityandDischarge();  // mannings V Q Aplha
 
-        ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
+        if (SwitchDepositionContinuous)
+            ChannelDetachmentContinuous();     // detachment, deposition for SS and BL
+        else
+            ChannelFlowDetachment();     // detachment, deposition for SS and BL
 
         ChannelFlow();                  // kin wave for water
 

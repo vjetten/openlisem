@@ -23,7 +23,7 @@
 *************************************************************************/
 
 
-// THESE FUNCTIONS ARE OBSOLETE
+/// ALL THESE FUNCTIONS ARE OBSOLETE
 
 
 /*!
@@ -70,7 +70,7 @@ functions: \n
  * @see TWorld:DetachMaterial
  *
  */
-
+/*
 // Overland flow erosion for 1D flow only
 void TWorld::cell_FlowDetachment()
 {
@@ -328,4 +328,4 @@ void TWorld::cell_FlowDetachmentContinuous()
     }}
 }
 
-
+*/
