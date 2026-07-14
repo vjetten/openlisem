@@ -197,7 +197,6 @@ void TWorld::ChannelFlowDetachment()
                         BL += detachment;
                         BL += deposition;
                         ChannelBLSed->Drc = BL;
-                        //ChannelSed->Drc += BL;
                         ChannelDep->Drc += deposition;
                         ChannelDetFlow->Drc += detachment;
                         ChannelTC->Drc += ChannelBLTC->Drc;
@@ -233,7 +232,7 @@ void TWorld::ChannelDetachmentContinuous()
         double detachment = 0;
         double TransportFactor = 0;
         double maxTC = 0;
-        double minTC = 0;
+
 
         //get transport capacity for bedload for a specific cell and grain size class
         if (SwitchUse2Phase) {
@@ -345,7 +344,6 @@ void TWorld::ChannelDetachmentContinuous()
                         BL += detachment;
                         BL += deposition;
                         ChannelBLSed->Drc = BL;
-                        //ChannelSed->Drc += BL;
                         ChannelDep->Drc += deposition;
                         ChannelDetFlow->Drc += detachment;
                         ChannelTC->Drc += ChannelBLTC->Drc;
@@ -375,10 +373,9 @@ void TWorld::ChannelDetachmentContinuous()
  */
 void TWorld::RiverSedimentMaxC(int r, int c)
 {
-    //ChannelSed->Drc = (SwitchUse2Phase ? ChannelBLSed->Drc : 0) + ChannelSSSed->Drc;
     double sed = (SwitchUse2Phase ? ChannelBLSed->Drc : 0) + ChannelSSSed->Drc;
     //total concentration
-    ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, sed);//ChannelSed->Drc);
+    ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, sed);
 }
 
 //---------------------------------------------------------------------------

@@ -233,7 +233,8 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
     }
 }
 //---------------------------------------------------------------------------
-void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
+//KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed, tma);
+void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
                                 cTMap *_Alpha, cTMap *_DX, cTMap *_Sed, cTMap *_Qmax)
 {
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
@@ -252,20 +253,28 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
         int c = _crlinked_[i_].c;
 
         double Qin = 0;
-        double Sin = 0;   
+        double Sin = 0;
 
         if (_crlinked_.at(i_).nr > 0) {
             for(int j = 0; j < _crlinked_.at(i_).nr; j++) {
                 int rr = _crlinked_.at(i_).inn[j].r;
                 int cr = _crlinked_.at(i_).inn[j].c;
-                //Qin += _Q->Drcr;
+               // Qin += _Q->Drcr;
                 Qin += _Qn->Drcr;
                 Sin += _Qsn->Drcr;
             }
         }
 
         _Qsn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Sin, _Qs->Drc, _Alpha->Drc, _DX->Drc);
-        _Qsn->Drc = qMin(_Qsn->Drc, Sin+_Sed->Drc/_dt);
+
+        /* simple explicit does not seem to make a difference!
+        double totwater = Qin*_dt + WaterVolall->Drc;
+        double totsed = Sin*_dt + Sed->Drc;
+        double Co = totwater > 1e-6 ? totsed/totwater : 0.0;
+        _Qsn->Drc = Co * _Qn->Drc;
+        */
+
+        //_Qsn->Drc = qMin(_Qsn->Drc, Sin+_Sed->Drc/_dt);
         int ldd = fabs(_crlinked_.at(i_).ldd);
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
@@ -409,6 +418,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
     } /* eowhile list != nullptr */
 }
 //---------------------------------------------------------------------------
+//routeSubstance(r, c, LDD, Q, Qn, Qs, Qsn,Alpha, DX, Sed);
 /**
  * @fn void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha, cTMap *_DX, cTMap*  _Vol , cTMap*_Sed ,cTMap *_StorVol, cTMap *_StorSed)
  * @brief Spatial implementation of the kinematic wave for sediment

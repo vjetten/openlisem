@@ -230,10 +230,11 @@ void TWorld::ToChannelBroadWeir()
             hmxWH->Drc = WH->Drc + hmx->Drc;
 
             if (SwitchErosion) {
-                double sed = volintochan * Conc->Drc;  //SSCFlood->Drc; //???????? why SSCFlood is only used when 2Dflow?
+                double sed = volintochan * Conc->Drc;
                 Sed->Drc -= sed;
-                Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
                 ChannelSSSed->Drc += sed;
+
+                Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r, c);
             }
@@ -320,7 +321,10 @@ void TWorld::OverlandFlow1D(void)
         if (SwitchErosion) {
             // calc sediment flux going in kin wave as Qs = Q*C
             Qsn->Drc = 0.0;
-            Conc->Drc = MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, Sed->Drc);
+            //Conc->Drc = MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, Sed->Drc);
+            // wrong, concentration is always for all water!
+
+            Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
             Qs->Drc =  Q->Drc * Conc->Drc;
             // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
         }
@@ -353,8 +357,14 @@ void TWorld::OverlandFlow1D(void)
 
     if (SwitchErosion)
     {
-        KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed, tma);
+        //KinematicSubstance(crlinkedldd_, Q, Qn, Qs, Qsn, Alpha, DX, Sed, tma);
+        // gives mass balance errors?
 
+       FOR_ROW_COL_LDD5 {
+           routeSubstance(r, c, LDD, Q, Qn, Qs, Qsn,Alpha, DX, Sed);
+       }}
+
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             if (Sed->Drc > MAXCONC * WaterVolall->Drc) {
                 double ss = Sed->Drc;
@@ -362,6 +372,8 @@ void TWorld::OverlandFlow1D(void)
                 double ds = ss - Sed->Drc;
                 DEP->Drc -= ds;
             }
+            Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
+
         }}
     }
 

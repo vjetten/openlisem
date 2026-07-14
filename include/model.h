@@ -1145,7 +1145,7 @@ public:
     void routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                                 cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
                                 cTMap *_Alpha, cTMap *_DX, cTMap*_Sed);//,cTMap*_VolStore, cTMap*_SedStore);
-    void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
+    void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
                             cTMap *_Alpha,cTMap *_DX, cTMap *_Sed, cTMap *_Qmax);
     double IterateToQnew(double Qin, double Qold, double alpha, double beta, double deltaT, double deltaX, double Qm, double Am);
     double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol, double sed);

@@ -382,7 +382,7 @@ void TWorld::ChannelSedimentFlow()
     //separate Suspended and baseload for separate transport
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        ChannelQsn->Drc = 0;
+        ChannelQSSsn->Drc = 0;
         double concss = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
         ChannelQSSs->Drc = ChannelQ->Drc * concss; // m3/s *kg/m3 = kg/s
     }}
@@ -390,38 +390,42 @@ void TWorld::ChannelSedimentFlow()
     if(SwitchUse2Phase) {
         #pragma omp parallel num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
+            ChannelQBLsn->Drc = 0;
             double concbl = MaxConcentration(ChannelWaterVol->Drc, ChannelBLSed->Drc);
             ChannelQBLs->Drc = ChannelQ->Drc * concbl;
         }}
     }
 
     // if (SwitchLinkedList) {
-    //     #pragma omp parallel for num_threads(userCores)
-    //     FOR_ROW_COL_MV_L {
-    //         pcr::setMV(ChannelQSSsn->Drc);
-    //     }}
-    //     // advection SS
-    //     FOR_ROW_COL_LDDCH5 {
-    //           routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
-    //     }}
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            pcr::setMV(ChannelQSSsn->Drc);
+        }}
 
-    //     //advection BL
-    //     if(SwitchUse2Phase) {
-    //         #pragma omp parallel for num_threads(userCores)
-    //         FOR_ROW_COL_MV_L {
-    //             pcr::setMV(ChannelQBLsn->Drc);
-    //         }}
+        // advection SS
+        FOR_ROW_COL_LDDCH5 {
+              routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
+        }}
 
-    //         FOR_ROW_COL_LDDCH5 {
-    //             routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
-    //         }}
-    //     }
+        //advection BL
+        if(SwitchUse2Phase) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                pcr::setMV(ChannelQBLsn->Drc);
+            }}
+
+            FOR_ROW_COL_LDDCH5 {
+                routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
+            }}
+        }
 
     // } else {
-        KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed, ChannelMaxQ);
-        if(SwitchUse2Phase) {
-            KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed, ChannelMaxQ);
-        }
+
+
+        // KinematicSubstance(crlinkedlddch_, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed, ChannelMaxQ);
+        // if(SwitchUse2Phase) {
+        //     KinematicSubstance(crlinkedlddch_, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed, ChannelMaxQ);
+        // }
 //    }
 
     if (SwitchIncludeRiverDiffusion) {
@@ -431,19 +435,19 @@ void TWorld::ChannelSedimentFlow()
 
     // recalc all totals fluxes and conc
     #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
+    FOR_ROW_COL_MV_CHL {/*
         if (ChannelSSSed->Drc > MAXCONC * ChannelWaterVol->Drc) {
             double ss = ChannelSSSed->Drc;
             ChannelSSSed->Drc = MAXCONC * ChannelWaterVol->Drc;
             double ds = ss - ChannelSSSed->Drc;
             ChannelDep->Drc -= ds;
-        }
+        }*/
 
 
         RiverSedimentLayerDepth(r,c);
         RiverSedimentMaxC(r,c);
         ChannelQsn->Drc = ChannelQSSsn->Drc + (SwitchUse2Phase ? ChannelQBLsn->Drc : 0);
-        //ChannelSed->Drc = ChannelSSSed->Drc; //????? this is done in riversedmaxC
+
     }}
 }
 
