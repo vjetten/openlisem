@@ -272,7 +272,7 @@ void TWorld::ChannelDetachmentContinuous()
                 TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/ChannelWH->Drc)) * sswatervol;
 
             deposition = TransportFactor * ChannelSSConc->Drc; // in kg
-
+            deposition  = qMax(-ChannelSSSed->Drc, deposition);
             //  detachment
             if(maxTC > 0 && ChannelCohesion->Drc >= 0) {
 

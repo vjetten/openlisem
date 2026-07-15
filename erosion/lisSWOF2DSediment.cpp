@@ -679,8 +679,10 @@ FOR_ROW_COL_MV_L {
             TransportFactor = (1-exp(-dt*SSVs_->Drc/hf)) * sswatervol; // <== better
 
         deposition  = -1.0*TransportFactor * SSC_->Drc;
-        // add negative for consistency in LISEM
+        deposition  = qMax(-SS_->Drc, deposition);
 
+        // add negative for consistency in LISEM
+tmshow->Drc = SS_->Drc > 1e-10 ? -deposition/SS_->Drc : 0.0;
         // exceptions
         // if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
         //     deposition = 0;

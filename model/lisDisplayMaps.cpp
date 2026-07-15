@@ -309,7 +309,7 @@ void TWorld::GetComboMaps()
     cl = 2;
     AddComboMap(0,"Water Height","m",hmxWH,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
     AddComboMap(0,"Micro storage","m",WHstore,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
-    AddComboMap(0,"settling","m",tmshow,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+//    AddComboMap(0,"settling","m",tmshow,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
  //   AddComboMap(0,"Water inflow","m3",ChannelQSide,LegendMap[cl],Legend[cl],true,false,1.0,1.0);
 //    if (Switch2DDiagonalFlow)
 //       AddComboMap(0,"Diagonal Discharge","l/s",Qdiag,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
@@ -428,6 +428,7 @@ void TWorld::GetComboMaps()
         }
 
         AddComboMap(1,"Total Soil Loss",unit,TotalSoillossMap,LegendMap[cl],Legend[cl],false,true,factor, step);
+        AddComboMap(1,"frac dep","-",tmshow,LegendMap[cl],Legend[cl],false,false,1.0, step);
         cl = 8;
         AddComboMap(1,"Splash detachment",unit,DETSplashCum,LegendMap[cl],Legend[cl],false,false,factor, step);
         AddComboMap(1,"Flow detachment",unit,DETFlowCum,LegendMap[cl],Legend[cl],false,false,factor, step);
@@ -439,7 +440,6 @@ void TWorld::GetComboMaps()
         double factor_g = 1/(_dx*_dx);
         QString unit_g = "kg/m2";
         AddComboMap(1,"Suspended sed.",unit_g,COMBO_SS,LegendMap[cl],Legend[cl],false,false,factor_g, step);
-
         AddComboMap(1,"TC suspended","kg/m3",COMBO_TC,LegendMap[cl],Legend[cl],false,false,1.0, step);
         if(SwitchUse2Phase) {
             AddComboMap(1,"Bedload sed.",unit_g,COMBO_BL,LegendMap[cl],Legend[cl],false,false,factor_g, step);
