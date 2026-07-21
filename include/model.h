@@ -481,7 +481,7 @@ public:
         SwitchLitter,
         SwitchPest,
         //SwitchReportPest,
-        SwitchDepositionLinear,
+        SwitchDfDpExponential,
         SwitchDepositionContinuous,
 
         // output

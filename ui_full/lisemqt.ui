@@ -2252,7 +2252,7 @@
                 <enum>QTabWidget::TabShape::Rounded</enum>
                </property>
                <property name="currentIndex">
-                <number>11</number>
+                <number>10</number>
                </property>
                <property name="iconSize">
                 <size>
@@ -10723,7 +10723,7 @@
                         <number>4</number>
                        </property>
                        <item row="1" column="0">
-                        <widget class="QCheckBox" name="checkDepositionLinear">
+                        <widget class="QCheckBox" name="checkDfDpExponential">
                          <property name="enabled">
                           <bool>true</bool>
                          </property>
@@ -10736,7 +10736,7 @@
                           </font>
                          </property>
                          <property name="text">
-                          <string>Deposition linear (v) or exponential ( ) </string>
+                          <string>Linear detachment and deposition with fall velocity ( ), exponential Df and Dp (v) </string>
                          </property>
                          <property name="checked">
                           <bool>false</bool>
@@ -10754,10 +10754,10 @@
                           </font>
                          </property>
                          <property name="text">
-                          <string>Continuous Df abnd Dp (v), or binary (depostion OR detachment in a timestep)</string>
+                          <string>Detachment OR deposition in dt ( ), continuous deposition (v)</string>
                          </property>
                          <property name="checked">
-                          <bool>true</bool>
+                          <bool>false</bool>
                          </property>
                         </widget>
                        </item>

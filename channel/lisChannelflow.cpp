@@ -395,7 +395,7 @@ void TWorld::ChannelSedimentFlow()
             ChannelQBLs->Drc = ChannelQ->Drc * concbl;
         }}
     }
-
+/*
     // if (SwitchLinkedList) {
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
@@ -418,14 +418,14 @@ void TWorld::ChannelSedimentFlow()
                 routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
             }}
         }
-
+*/
     // } else {
 
 
-        // KinematicSubstance(crlinkedlddch_, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed, ChannelMaxQ);
-        // if(SwitchUse2Phase) {
-        //     KinematicSubstance(crlinkedlddch_, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed, ChannelMaxQ);
-        // }
+        KinematicSubstance(crlinkedlddch_, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed, ChannelMaxQ);
+        if(SwitchUse2Phase) {
+            KinematicSubstance(crlinkedlddch_, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed, ChannelMaxQ);
+        }
 //    }
 
     if (SwitchIncludeRiverDiffusion) {

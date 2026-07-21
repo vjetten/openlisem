@@ -116,20 +116,23 @@ void TWorld::ChannelFlowDetachment()
             if (minTC < 0) {
                 //deposition
 
-                if (SwitchDepositionLinear)
-                    TransportFactor =  _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
-                else
+                if (SwitchDfDpExponential)
                     TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/ChannelWH->Drc)) * sswatervol;
+                else
+                    TransportFactor =  qMin(1.0, _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc);
 
-                deposition = qMax(TransportFactor * minTC,-SS); // in kg
+                deposition = qMax(-1.0*TransportFactor * minTC,-SS); // in kg
                 // not more than SS present
 
             } else {
                 //  detachment
                 if(maxTC > 0 && ChannelCohesion->Drc >= 0) {
-                    TransportFactor = _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
+                    if (SwitchDfDpExponential)
+                        TransportFactor = (1-exp(-ChannelY->Drc * _dt*SettlingVelocitySS->Drc/ChannelWH->Drc)) * sswatervol;
+                    else
+                        TransportFactor =  ChannelY->Drc * _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
 
-                    detachment = ChannelY->Drc * maxTC * TransportFactor;
+                    detachment = maxTC * TransportFactor;
                     //DetachMaterial(r,c,1,true,false,false, detachment);
                     // multiply by Y
 
@@ -174,13 +177,16 @@ void TWorld::ChannelFlowDetachment()
 
                     if (maxTC > 0 && ChannelCohesion->Drc >= 0) {
                         //### detachment
-                        TransportFactor = _dt*SettlingVelocityBL->Drc * ChannelDX->Drc * ChannelWidth->Drc;
+
+                        if (SwitchDfDpExponential)
+                            TransportFactor = (1-exp(-ChannelY->Drc * _dt*SettlingVelocityBL->Drc/ChannelWH->Drc)) * blwatervol;
+                        else
+                            TransportFactor =  ChannelY->Drc * _dt*SettlingVelocityBL->Drc * ChannelDX->Drc * ChannelWidth->Drc;
+
                         // units s * m/s * m * m = m3
-                        detachment = maxTC * qMin(TransportFactor, maxTC*sswatervol);
+                        detachment = maxTC * TransportFactor;
                         // unit = kg/m3 * m3 = kg
 
-                        detachment *= ChannelY->Drc;//DetachMaterial(r,c,1,true,false,true, detachment);
-                        // mult by Y and mixingdepth
                         // IN KG/CELL
 
                         if(BL + detachment > MAXCONC * blwatervol)
@@ -189,10 +195,13 @@ void TWorld::ChannelFlowDetachment()
                     } else {
                         //### deposition
                         //if (ChannelBLDepth->Drc > MIN_HEIGHT)
-                        TransportFactor = (1-exp(-_dt*SettlingVelocityBL->Drc/ChannelBLDepth->Drc)) * blwatervol;
+                        if (SwitchDfDpExponential)
+                            TransportFactor = (1-exp(-_dt*SettlingVelocityBL->Drc/ChannelWH->Drc)) * blwatervol;
+                        else
+                            TransportFactor =  qMin(1.0,_dt*SettlingVelocityBL->Drc * ChannelDX->Drc * ChannelWidth->Drc);
 
                         // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
-                        deposition = qMax(minTC * TransportFactor, -BL);
+                        deposition = qMax(-1.0*minTC * TransportFactor, -BL);
                         // cannot have more depo than sediment present
                         BL += detachment;
                         BL += deposition;
@@ -266,20 +275,20 @@ void TWorld::ChannelDetachmentContinuous()
 
             //deposition
 
-            if (SwitchDepositionLinear)
-                TransportFactor =  qMin(1.0, _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc);
-            else
+            if (SwitchDfDpExponential)
                 TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/ChannelWH->Drc)) * sswatervol;
+            else
+                TransportFactor =  qMin(1.0, _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc);
 
-            deposition = TransportFactor * ChannelSSConc->Drc; // in kg
+            deposition = -1.0*TransportFactor * ChannelSSConc->Drc; // in kg
             deposition  = qMax(-ChannelSSSed->Drc, deposition);
             //  detachment
             if(maxTC > 0 && ChannelCohesion->Drc >= 0) {
 
-                if (SwitchDepositionLinear)
-                    TransportFactor =  qMin(1.0, ChannelY->Drc * _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc);
-                else
+                if (SwitchDfDpExponential)
                     TransportFactor = (1-exp(-ChannelY->Drc * _dt*SettlingVelocitySS->Drc/ChannelWH->Drc)) * sswatervol;
+                else
+                    TransportFactor =  ChannelY->Drc * _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
 
                 detachment = maxTC * TransportFactor;
                 //DetachMaterial(r,c,1,true,false,false, detachment);
@@ -319,22 +328,29 @@ void TWorld::ChannelDetachmentContinuous()
                     // there is water
 
                     //### deposition
-                    TransportFactor = (1-exp(-_dt*SettlingVelocityBL->Drc/ChannelBLDepth->Drc)) * blwatervol;
+                    if (SwitchDfDpExponential)
+                        TransportFactor = (1-exp(-_dt*SettlingVelocityBL->Drc/ChannelBLDepth->Drc)) * blwatervol;
+                    else
+                        TransportFactor =  qMin(1.0,  _dt*SettlingVelocityBL->Drc * ChannelDX->Drc * ChannelWidth->Drc);
 
                     // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
-                    deposition = ChannelBLConc->Drc * TransportFactor;
+                    deposition = -1.0 * ChannelBLConc->Drc * TransportFactor;
+                    deposition = qMax(deposition, -ChannelBLSed->Drc);
                     // cannot have more depo than sediment present
 
                     maxTC = qMax(ChannelBLTC->Drc - ChannelBLConc->Drc,0.0);
 
                     if (maxTC > 0 && ChannelCohesion->Drc >= 0) {
                         //### detachment
-                        TransportFactor = _dt*SettlingVelocityBL->Drc * ChannelDX->Drc * ChannelWidth->Drc;
+                        if (SwitchDfDpExponential)
+                            TransportFactor = (1-exp(-ChannelY->Drc * _dt*SettlingVelocityBL->Drc/ChannelBLDepth->Drc)) * blwatervol;
+                        else
+                            TransportFactor =  ChannelY->Drc * _dt*SettlingVelocityBL->Drc * ChannelDX->Drc * ChannelWidth->Drc;
                         // units s * m/s * m * m = m3
-                        detachment = maxTC * qMin(TransportFactor, maxTC*sswatervol);
+                        detachment = maxTC * TransportFactor;// qMin(TransportFactor, maxTC*sswatervol);
                         // unit = kg/m3 * m3 = kg
 
-                        detachment *= ChannelY->Drc;//DetachMaterial(r,c,1,true,false,true, detachment);
+                        //detachment *= DetachMaterial(r,c,1,true,false,true, detachment);
                         // mult by Y and mixingdepth
                         // IN KG/CELL
 

@@ -450,7 +450,7 @@ void TWorld::GetComboMaps()
         cl = 9;
         AddComboMap(1,"Deposition",unit,DEPCum,LegendMap[cl],Legend[cl],false,false,-factor, step);
 
-
+    if (SwitchPest) {
         AddComboMap(1,"PMInf",unit,PMinf,LegendMap[cl],Legend[cl],false,false,factor, step);
         AddComboMap(1,"PMSplash",unit,PMsplash,LegendMap[cl],Legend[cl],false,false,factor, step);
         //AddComboMap(1,"Pest runoff",unit,PQrw,LegendMap[cl],Legend[cl],false,false,factor, step);
@@ -461,7 +461,7 @@ void TWorld::GetComboMaps()
         AddComboMap(1,"PMmw (P mass water mixing)",unit,PMmw,LegendMap[cl],Legend[cl],false,false,factor, step);
         AddComboMap(1,"PMsoil (P mass soil)",unit,PMsoil,LegendMap[cl],Legend[cl],false,false,factor, step);
 
-
+        }
         // cl = 9;
         // if(SwitchUseMaterialDepth) {
         //     AddComboMap(1,"Storage",unit,Storage,LegendMap[cl],Legend[cl],false,false,-factor, step);

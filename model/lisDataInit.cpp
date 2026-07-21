@@ -177,7 +177,7 @@ void TWorld::InitParameters(void)
         SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1; // is set to true ininterface and disabled
         SwitchChannelWFinflow = false;//getvalueint("Channel WF inflow") == 1;
         SwatrePrecision = getvaluedouble("SWATRE precision");
-        SwitchDepositionLinear = getvalueint("Deposition linear") == 1;
+        SwitchDfDpExponential = getvalueint("Deposition exponential") == 1;
         SwitchDepositionContinuous = getvalueint("Deposition continuous") == 1;
     } else {
         F_MaxIter = 200;
@@ -190,7 +190,7 @@ void TWorld::InitParameters(void)
         _dtCHkin = _dx/2;
         SwitchChannel2DflowConnect = false;
         SwitchChannelWFinflow = false;
-        SwitchDepositionLinear = false;
+        SwitchDfDpExponential = false;
         SwitchDepositionContinuous = true;
         nN1_ = 3;
         nN2_ = 3;

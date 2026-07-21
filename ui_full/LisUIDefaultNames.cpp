@@ -750,7 +750,7 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Deposition continuous");
     namelist[i].value = QString("0");
-    namelist[i++].name = QString("Deposition linear");
+    namelist[i++].name = QString("Deposition exponential");
 
  //   namelist[i].value = QString("0");
  //   namelist[i++].name = QString("Calculate erosion inside 2D loop");

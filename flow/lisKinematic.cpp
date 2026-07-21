@@ -226,10 +226,6 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
         if (_Qmax->Drcr > 0)
             _Qn->Drc = qMin(_Qmax->Drcr, _Qn->Drc);
 
-        //the following causes major problmes: water level rises to extreme levels because there is no flow out!
-        // if (FloodDomain->Drcr > 0)
-        //     _Qn->Drc = 0;
-
     }
 }
 //---------------------------------------------------------------------------
@@ -247,7 +243,7 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_Q, cTMa
     }}
 
 
-    for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
+    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
     {
         int r = _crlinked_[i_].r;
         int c = _crlinked_[i_].c;
@@ -274,7 +270,6 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_Q, cTMa
         _Qsn->Drc = Co * _Qn->Drc;
         */
 
-        //_Qsn->Drc = qMin(_Qsn->Drc, Sin+_Sed->Drc/_dt);
         int ldd = fabs(_crlinked_.at(i_).ldd);
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
@@ -284,7 +279,8 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_Q, cTMa
             _Qsn->Drc = qold > 1e-12 ? _Qsn->Drc * _Qn->Drcr/qold : 0.0;
         }
 
-            // no more sediment outflow than total sed in cell
+        _Qsn->Drc = qMin(_Qsn->Drc, Sin+_Sed->Drc/_dt);
+        // no more sediment outflow than total sed in cell
         _Sed->Drc = qMax(0.0, Sin*_dt + _Sed->Drc - _Qsn->Drc*_dt);
             // new sed volume based on all fluxes and org sed present
     }

@@ -357,12 +357,12 @@ void TWorld::OverlandFlow1D(void)
 
     if (SwitchErosion)
     {
-        //KinematicSubstance(crlinkedldd_, Q, Qn, Qs, Qsn, Alpha, DX, Sed, tma);
+        KinematicSubstance(crlinkedldd_, Q, Qn, Qs, Qsn, Alpha, DX, Sed, tma);
         // gives mass balance errors?
 
-       FOR_ROW_COL_LDD5 {
-           routeSubstance(r, c, LDD, Q, Qn, Qs, Qsn,Alpha, DX, Sed);
-       }}
+       // FOR_ROW_COL_LDD5 {
+       //     routeSubstance(r, c, LDD, Q, Qn, Qs, Qsn,Alpha, DX, Sed);
+       // }}
 
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
