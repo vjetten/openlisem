@@ -2399,6 +2399,7 @@ void TWorld::InitImages()
 // for soil tile drains and road strom drains the same maps are used
 void TWorld::InitTiledrains(void)
 {
+qDebug() << SwitchIncludeTile << SwitchIncludeStormDrains;
     if (SwitchIncludeTile || SwitchIncludeStormDrains) {
         // channel vars and maps that must be there even if channel is switched off
         TileWaterVol = NewMap(0);

@@ -452,6 +452,7 @@ void TWorld::ParseRunfileData(void)
         SwitchRoadsystem = false;
         SwitchHardsurface = false;
         SwitchHouses = false;
+        SwitchIncludeStormDrains = false;
     }
     // stationary baseflow and impermeable soil allowed (ignoring where the stationary flow comes form !
 
