@@ -302,20 +302,24 @@ void TWorld::OverlandFlow1D(void)
     }}
 
     // route water
-     // if (SwitchLinkedList) {
-        // #pragma omp parallel for num_threads(userCores)
-        // FOR_ROW_COL_MV_L {
-        //     pcr::setMV(Qn->Drc);
-        //     QinKW->Drc = 0;
-        // }}
 
-        // FOR_ROW_COL_LDD5 {
-        //     Kinematic(r,c, LDD, Q, Qn,  Alpha, DX, tma, tma);
-        //     // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
-        // }}
-     // } else {
+    // if multiple catchments use dynamic scheduling (one catchment per core)
+    if (crldd5_.size() > 1) {
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            pcr::setMV(Qn->Drc);
+            QinKW->Drc = 0;
+        }}
+
+
+        #pragma omp parallel for schedule(dynamic, 1)
+        FOR_ROW_COL_LDD5 {
+            Kinematic(r,c, LDD, Q, Qn,  Alpha, DX, tma, tma);
+            // tm is not used in overland flow, in channel flow it is the max flux of e.g. culverts
+        }}
+    } else {
         KinematicExplicit(crlinkedldd_, Q, Qn, Alpha,DX, tma, tma);
-    //}
+    }
 
     //convert calculate Qn back to WH and volume for next loop
     #pragma omp parallel for num_threads(userCores)
@@ -341,17 +345,19 @@ void TWorld::OverlandFlow1D(void)
 
     if (SwitchErosion)
     {
-        // if (SwitchLinkedList) {
-        //     #pragma omp parallel for num_threads(userCores)
-        //     FOR_ROW_COL_MV_L {
-        //         pcr::setMV(Qsn->Drc);//Qsn->setAllMV();
-        //     }}
-        //     FOR_ROW_COL_LDD5 {
-        //         routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
-        //     }}
-        // } else {
+        if (crldd5_.size() > 1) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                pcr::setMV(Qsn->Drc);//Qsn->setAllMV();
+            }}
+            #pragma omp parallel for schedule(dynamic, 1)
+            FOR_ROW_COL_LDD5 {
+                routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
+            }}
+        } else {
             KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed, tma);
-        //}
+        }
+
         FOR_ROW_COL_MV_L {
             if (Sed->Drc > MAXCONC * WaterVolall->Drc) {
                 double ss = Sed->Drc;

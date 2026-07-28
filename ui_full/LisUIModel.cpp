@@ -391,7 +391,7 @@ void lisemqt::worldShow()
 //---------------------------------------------------------------------------
 void lisemqt::worldDone(const QString &results)
 {
-    W->mutex.unlock();
+    W->mutex.lock();
 
     label_debug->setText(results);
     if (results.contains("ERROR"))
