@@ -144,13 +144,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     } while (!stop);
 
     // small mass balance corrections within 2d flow
-    //     FOR_ROW_COL_MV_L {
-    //         tmshow->Drc = h->Drc;
-    //     }}
     correctMassBalance(sumh, h);
-    // FOR_ROW_COL_MV_L {
-    //     tmshow->Drc -= h->Drc;
-    // }}
 
     if (SwitchErosion && SwitchErosionOutsideLoop) {
         SWOFSediment(_dt, h, FlowWidth, u,v);

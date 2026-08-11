@@ -47,7 +47,6 @@ void TWorld::SWOFDiagonalFlowLDD(double dt_req_min, cTMap *z, cTMap *h, cTMap *v
         tmb->Drc = 0;
         tmc->Drc = 0;
         tmd->Drc = 0;
-        tmshow->Drc = 0;
     }}
 
     bool doit = false;
@@ -109,7 +108,6 @@ void TWorld::SWOFDiagonalFlowLDD(double dt_req_min, cTMap *z, cTMap *h, cTMap *v
                 //h->Drc = qMax(0.0,h->Drc);
                 tma->Drc = -dH;
                 tmb->Drcr = dH;
-                tmshow->Drcr = dH;
 
                 doit = true;
 
@@ -265,7 +263,6 @@ void TWorld::SWOFDiagonalFlow(double dt_req_min, cTMap *z, cTMap *h, cTMap *vx, 
 //                h->Drc = qMax(0.0,h->Drc);
                 tma->Drc = -dH;
                 tmb->Drcr = dH;
-                tmshow->Drcr = dH;
 
                 if (SwitchErosion) {
                     // just do suspended
