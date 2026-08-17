@@ -206,9 +206,9 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
                 case SHAPEFREE : chanHandPRect(r,c); break;
             }
 
-            double dCHh = ChannelWH->Drc-ChannelDepth->Drc;
-            double dCHh0 = qMax(dCHh, 0.0);
-            double H = _h->Drc; // runoff height!
+            double dCHh = ChannelWH->Drc-ChannelDepth->Drc;  // can be + or -
+            double dCHh0 = qMax(dCHh, 0.0);  // overflow depth
+            double H = _h->Drc; // runoff height
 
             if (H < 1e-6 && dCHh0 < 1e-6)
                 continue; // nothing to flow
@@ -223,19 +223,22 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
             bool tochannel = true;
             double transfer_volume = 0;
             double Cd = 0.56; // 2/3 * 0.86
-            double lengthfactor = 2.0*_dt*ChannelDX->Drc;
+            double lengthfactor = 2.0*_dt*ChannelDX->Drc; //length of the weir and from both sides 2.0
             double velocityfactor = V->Drc*V->Drc/(2*GRAV);
             //do not use factor 2 for flow on both sides
 
             // lower water level in the channel, flow to the channel
             if(dCHh < 0){
-                double negvol = ChannelMaxArea->Drc*ChannelDX->Drc - ChannelWaterVol->Drc;
-                double freeflow_tochan = lengthfactor*Cd*SQRT2G*std::pow(H+velocityfactor,1.5);
+                double negvol = ChannelMaxArea->Drc*ChannelDX->Drc - ChannelWaterVol->Drc; //volume deficit in channel
+                double freeflow_tochan = lengthfactor*Cd*SQRT2G*std::pow(H+velocityfactor,1.5); // volume broad weir flow to channel
 
                 needed_volume = H*area_surface;
                 // if flow fills up channel create equilibrium level
-                if (transfer_volume > negvol) {
-                    double heq = (transfer_volume-negvol)/CellArea->Drc;
+//                if (transfer_volume > negvol) {
+
+                if (freeflow_tochan > negvol) {
+                    double heq = (freeflow_tochan-negvol)/CellArea->Drc;
+//                    double heq = (transfer_volume-negvol)/CellArea->Drc;
                     // equilibrium level
                     needed_volume = negvol + (H-heq)*CellArea->Drc;
                     // transfer_volume = vol needed for equilibrium level
@@ -258,7 +261,7 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
                     transfer_volume = qMin(transfer_volume_tochan, needed_volume);
                     tochannel = true;
                 } else {
-                    // flow from channel, drowned weir in the other dircetion, no added velocity
+                    // flow from channel, drowned weir in the other direction, no added velocity
                     needed_volume = (dCHh - H_eq)*area_channel;
                     // vol needed to reach equilibrium level
                     double transfer_volume_fromchan = lengthfactor*Cd*SQRT2G*std::pow(dCHh0 - H,1.5);
