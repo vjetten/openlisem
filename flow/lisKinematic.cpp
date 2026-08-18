@@ -1,4 +1,4 @@
-﻿/*************************************************************************
+/*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
 **  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
 **  contact: v.g.jetten AD utwente DOT nl
@@ -88,9 +88,9 @@ double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol,
  * Complex calculation of sediment outflux from a cell based on a explicit solution of the time/space matrix,
  * j = time and i = place: j1i1 is the new output, j1i is the new flux at the upstream 'entrance' flowing into the gridcell
  *
- * @param Qj1i1 : result kin wave for this cell ( Qj+1,i+1 )  ;j = time, i = place )
- * @param Qj1i : sum of all upstreamwater from kin wave ( Qj+1,i )
- * @param Qji1 : incoming Q for kinematic wave (t=j) in this cell, map Qin in LISEM (Qj,i+1)
+ * @param Qj1i1 : result kin wave for this cell ( Qj+1,i+1 )  ;j = time, i = place - MC Qn
+ * @param Qj1i : sum of all upstreamwater from kin wave ( Qj+1,i ), - MC this should be Qin
+ * @param Qji1 : incoming Q for kinematic wave (t=j) in this cell, map Qin in LISEM (Qj,i+1) - and this Q?? see also line 108
  * @param Sj1i : sum of all upstream sediment (Sj+1,i)
  * @param Sji1 : incoming Sed for kinematic wave (t=j) in this cell, map Qsin in LISEM (Si,j+1)
  * @param alpha : alpha calculated in LISEM from before kinematic wave
@@ -102,16 +102,16 @@ double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol,
 double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i, double Sji1, double alpha, double dx)
 {
     double Sj1i1, Cavg, Qavg, aQb, abQb_1, A, B, C, s = 0;
+    double Qsn = 0;
     const double beta = 0.6;
-// Qj1i1 = Qn and Qj1i = Qin and Qji1 = Q
+// Qj1i1 = Qn and Qj1i = Qin and Qji1 = Q , MC -
 
     if (Qj1i1 < MIN_FLUX)
         return (0);
 
-    Qavg = 0.5*(Qji1+Qj1i);
+    Qavg = 0.5*(Qji1+Qj1i); //m3/s
     if (Qavg <= MIN_FLUX)
         return (0);
-
     Cavg = (Sj1i+Sji1)/(Qj1i+Qji1);
     aQb = alpha*pow(Qavg,beta);
     abQb_1 = alpha*beta*pow(Qavg,beta-1);
@@ -128,7 +128,7 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
 }
 //---------------------------------------------------------------------------
 /**
- * @fn double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i, double Sji1, double alpha, double dt,double dx)
+ * @fn double TWorld::IterateToQnew(double Qin, double Qold, double q, double alpha, double deltaT, double deltaX, double Qmax)
  * @brief Calculation of new discharge in a cell
  *
  * Newton Rapson iteration for new water flux in cell, based on Ven Te Chow 1987
@@ -226,14 +226,11 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
         if (_Qmax->Drcr > 0)
             _Qn->Drc = qMin(_Qmax->Drcr, _Qn->Drc);
 
-        //the following causes major problmes: water level rises to extreme levels because there is no flow out!
-        // if (FloodDomain->Drcr > 0)
-        //     _Qn->Drc = 0;
-
     }
 }
 //---------------------------------------------------------------------------
-void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
+//KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed, tma);
+void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
                                 cTMap *_Alpha, cTMap *_DX, cTMap *_Sed, cTMap *_Qmax)
 {
    int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
@@ -242,11 +239,11 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_L {
        // _Qsn->Drc = 0;
-        QinKW->Drc = 0;
+        SinKW->Drc = 0;
     }}
 
 
-    for(long i_ =  0; i_ < _crlinked_.size(); i_++) //_crlinked_.size()
+    for(long i_ =  0; i_ < _crlinked_.size(); i_++)
     {
         int r = _crlinked_[i_].r;
         int c = _crlinked_[i_].c;
@@ -258,14 +255,21 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
             for(int j = 0; j < _crlinked_.at(i_).nr; j++) {
                 int rr = _crlinked_.at(i_).inn[j].r;
                 int cr = _crlinked_.at(i_).inn[j].c;
-                //Qin += _Q->Drcr;
+               // Qin += _Q->Drcr;
                 Qin += _Qn->Drcr;
                 Sin += _Qsn->Drcr;
             }
         }
 
         _Qsn->Drc = complexSedCalc(_Qn->Drc, Qin, _Q->Drc, Sin, _Qs->Drc, _Alpha->Drc, _DX->Drc);
-        _Qsn->Drc = qMin(_Qsn->Drc, Sin+_Sed->Drc/_dt);
+
+        /* simple explicit does not seem to make a difference!
+        double totwater = Qin*_dt + WaterVolall->Drc;
+        double totsed = Sin*_dt + Sed->Drc;
+        double Co = totwater > 1e-6 ? totsed/totwater : 0.0;
+        _Qsn->Drc = Co * _Qn->Drc;
+        */
+
         int ldd = fabs(_crlinked_.at(i_).ldd);
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
@@ -275,7 +279,8 @@ void TWorld::KinematicSubstance(QVector <LDD_COORIN> _crlinked_, cTMap *_LDD, cT
             _Qsn->Drc = qold > 1e-12 ? _Qsn->Drc * _Qn->Drcr/qold : 0.0;
         }
 
-            // no more sediment outflow than total sed in cell
+        _Qsn->Drc = qMin(_Qsn->Drc, Sin+_Sed->Drc/_dt);
+        // no more sediment outflow than total sed in cell
         _Sed->Drc = qMax(0.0, Sin*_dt + _Sed->Drc - _Qsn->Drc*_dt);
             // new sed volume based on all fluxes and org sed present
     }
@@ -409,6 +414,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
     } /* eowhile list != nullptr */
 }
 //---------------------------------------------------------------------------
+//routeSubstance(r, c, LDD, Q, Qn, Qs, Qsn,Alpha, DX, Sed);
 /**
  * @fn void TWorld::routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn, cTMap *_Alpha, cTMap *_DX, cTMap*  _Vol , cTMap*_Sed ,cTMap *_StorVol, cTMap *_StorSed)
  * @brief Spatial implementation of the kinematic wave for sediment

@@ -53,7 +53,10 @@ void TWorld:: ChannelFlowandErosion()
 
         ChannelVelocityandDischarge();  // mannings V Q Aplha
 
-        ChannelFlowDetachmentNew();     // detachment, deposition for SS and BL
+        if (SwitchDepositionContinuous)
+            ChannelDetachmentContinuous();     // detachment, deposition for SS and BL
+        else
+            ChannelFlowDetachment();     // detachment, deposition for SS and BL
 
         ChannelFlow();                  // kin wave for water
 
@@ -123,49 +126,52 @@ void TWorld::ChannelBaseflow(void)
 
     // add the baseflow from GW
     if (SwitchGWflow) {
+        if(InfilMethod == INFIL_SWATRE) {
+    //todo
+        } else {
 
-        GroundwaterFlow();
-        // move groundwater, GWout is the flow itself between cells
+            GroundwaterFlow();
+            // is all based on 2 layer G&A !
+            //TODO 3 layer G&A
 
-        cTMap *pore = Poreeff;
-        cTMap *ksat = Ksateff;
-        cTMap *SD = SoilDepth1init;
-        if (SwitchTwoLayer) {
-            pore = ThetaS2;
-            ksat = Ksat2;
-            SD = SoilDepth2init;
-        }
-
-        // in all channel cells
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_CHL {
-            if (SwitchSWATGWflow) {
-                Qbase->Drc = ChannelWidth->Drc/_dx * GWout->Drc;
-            } else {
-                double bedrock = DEM->Drc - SD->Drc;
-                double chanbot = DEM->Drc - ChannelDepth->Drc;
-                bedrock=chanbot;
-                double dH = bedrock + GWWH->Drc - chanbot;
-                if (dH > 0 && GWWH->Drc > 0) {
-                   //Qbase->Drc = qMin(GWVol->Drc, 2.0 * dH/GWWH->Drc * GWout->Drc);
-                //   Qbase->Drc = qMin(GWVol->Drc, 2.0 * fabs(GWout->Drc));
-                   Qbase->Drc = 2*GWout->Drc;
-                   // use the fraction of GWout flow that reaches the channel
+            cTMap *SD = SoilDepth1init;
+            cTMap *pore = Thetaeff;
+            if (SwitchTwoLayer) {
+                SD = SoilDepth2init;
+                pore = ThetaS2;
+            }
+            // in all channel cells
+            // move groundwater, GWout is the flow between cells
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_CHL {
+                if (SwitchSWATGWflow) {
+                    Qbase->Drc = ChannelWidth->Drc/_dx * GWout->Drc;
+                } else {
+                    double bedrock = DEM->Drc - SD->Drc;
+                    double chanbot = DEM->Drc - ChannelDepth->Drc;
+                    bedrock=chanbot;
+                    double dH = bedrock + GWWH->Drc - chanbot;
+                    if (dH > 0 && GWWH->Drc > 0) {
+                       //Qbase->Drc = qMin(GWVol->Drc, 2.0 * dH/GWWH->Drc * GWout->Drc);
+                    //   Qbase->Drc = qMin(GWVol->Drc, 2.0 * fabs(GWout->Drc));
+                       Qbase->Drc = 2*GWout->Drc;
+                       // use the fraction of GWout flow that reaches the channel
+                    }
                 }
-            }
-           // Qbase->Drc *= 2.0;
+               // Qbase->Drc *= 2.0;
 
-            if (!crch_[i_].culvert) {
-                ChannelWaterVol->Drc += Qbase->Drc;
-                GWVol->Drc = qMax(0.0, GWVol->Drc - Qbase->Drc);
-                GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
-            }
-            // m3 added per timestep, adjust the volume and height, not in culverts
+                if (!crch_[i_].culvert) {
+                    ChannelWaterVol->Drc += Qbase->Drc;
+                    GWVol->Drc = qMax(0.0, GWVol->Drc - Qbase->Drc);
+                    GWWH->Drc = GWVol->Drc/CHAdjDX->Drc/pore->Drc;
+                }
+                // m3 added per timestep, adjust the volume and height, not in culverts
 
-            // NOTE: flow is always added no matter the conditions! e.g. when GW is below surface - channeldepth!
-            // But that would make channeldepth very sensitive
+                // NOTE: flow is always added no matter the conditions! e.g. when GW is below surface - channeldepth!
+                // But that would make channeldepth very sensitive
 
-        }}
+            }}
+        }
     }
 }
 //---------------------------------------------------------------------------
@@ -376,7 +382,7 @@ void TWorld::ChannelSedimentFlow()
     //separate Suspended and baseload for separate transport
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-        ChannelQsn->Drc = 0;
+        ChannelQSSsn->Drc = 0;
         double concss = MaxConcentration(ChannelWaterVol->Drc, ChannelSSSed->Drc);
         ChannelQSSs->Drc = ChannelQ->Drc * concss; // m3/s *kg/m3 = kg/s
     }}
@@ -384,37 +390,41 @@ void TWorld::ChannelSedimentFlow()
     if(SwitchUse2Phase) {
         #pragma omp parallel num_threads(userCores)
         FOR_ROW_COL_MV_CHL {
+            ChannelQBLsn->Drc = 0;
             double concbl = MaxConcentration(ChannelWaterVol->Drc, ChannelBLSed->Drc);
             ChannelQBLs->Drc = ChannelQ->Drc * concbl;
         }}
     }
-
+/*
     // if (SwitchLinkedList) {
-    //     #pragma omp parallel for num_threads(userCores)
-    //     FOR_ROW_COL_MV_L {
-    //         pcr::setMV(ChannelQSSsn->Drc);
-    //     }}
-    //     // advection SS
-    //     FOR_ROW_COL_LDDCH5 {
-    //           routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
-    //     }}
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            pcr::setMV(ChannelQSSsn->Drc);
+        }}
 
-    //     //advection BL
-    //     if(SwitchUse2Phase) {
-    //         #pragma omp parallel for num_threads(userCores)
-    //         FOR_ROW_COL_MV_L {
-    //             pcr::setMV(ChannelQBLsn->Drc);
-    //         }}
+        // advection SS
+        FOR_ROW_COL_LDDCH5 {
+              routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed);
+        }}
 
-    //         FOR_ROW_COL_LDDCH5 {
-    //             routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
-    //         }}
-    //     }
-
-    // } else {
-        KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed, ChannelMaxQ);
+        //advection BL
         if(SwitchUse2Phase) {
-            KinematicSubstance(crlinkedlddch_, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed, ChannelMaxQ);
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                pcr::setMV(ChannelQBLsn->Drc);
+            }}
+
+            FOR_ROW_COL_LDDCH5 {
+                routeSubstance(r,c, LDDChannel, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed);
+            }}
+        }
+*/
+    // } else {
+
+
+        KinematicSubstance(crlinkedlddch_, ChannelQ, ChannelQn, ChannelQSSs, ChannelQSSsn, ChannelAlpha, ChannelDX, ChannelSSSed, ChannelMaxQ);
+        if(SwitchUse2Phase) {
+            KinematicSubstance(crlinkedlddch_, ChannelQ, ChannelQn, ChannelQBLs, ChannelQBLsn, ChannelAlpha, ChannelDX, ChannelBLSed, ChannelMaxQ);
         }
 //    }
 
@@ -425,19 +435,19 @@ void TWorld::ChannelSedimentFlow()
 
     // recalc all totals fluxes and conc
     #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
+    FOR_ROW_COL_MV_CHL {/*
         if (ChannelSSSed->Drc > MAXCONC * ChannelWaterVol->Drc) {
             double ss = ChannelSSSed->Drc;
             ChannelSSSed->Drc = MAXCONC * ChannelWaterVol->Drc;
             double ds = ss - ChannelSSSed->Drc;
             ChannelDep->Drc -= ds;
-        }
+        }*/
 
 
         RiverSedimentLayerDepth(r,c);
         RiverSedimentMaxC(r,c);
         ChannelQsn->Drc = ChannelQSSsn->Drc + (SwitchUse2Phase ? ChannelQBLsn->Drc : 0);
-        //ChannelSed->Drc = ChannelSSSed->Drc; //????? this is done in riversedmaxC
+
     }}
 }
 

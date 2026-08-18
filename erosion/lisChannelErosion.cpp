@@ -59,36 +59,22 @@ functions: \n
  * @see TWorld:DetachMaterial
  *
  */
-void TWorld::ChannelFlowDetachmentNew()
+void TWorld::ChannelFlowDetachment()
 {
     if (!SwitchErosion)
         return;
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-
+        double velocityfactor = 1.0;
         RiverSedimentLayerDepth(r,c);
         //creates ChannelBLDepth and ChannelSSDepth, if 1 layer ChannelBLDepth = 0
 
         double sswatervol = ChannelSSDepth->Drc*DX->Drc*ChannelWidth->Drc;
         double blwatervol = 0;
-        if (SwitchUse2Phase) {
-            blwatervol = ChannelBLDepth->Drc*DX->Drc*ChannelWidth->Drc;
-        }
-
-        //get transport capacity for bed/suspended load for a specific cell and grain size class
-        if (SwitchUse2Phase)
-            ChannelBLTC->Drc = calcTCBedload(r, c, 1, R_BL_Method, ChannelWH->Drc, ChannelWidth->Drc, ChannelV->Drc, 0);
-        ChannelSSTC->Drc = calcTCSuspended(r, c, 1, R_SS_Method, ChannelWH->Drc, ChannelWidth->Drc, ChannelV->Drc, 0);
-
-        //find transport capacity for bed and suspended layer
         double SS = ChannelSSSed->Drc;
         double BL = 0;
-        if (SwitchUse2Phase) {
-            BL = ChannelBLSed->Drc;
-        }
-
-        ChannelDetFlow->Drc = 0;
+        ChannelDetFlow->Drc = 0; // reset to zero, this is the det and dep of this timestep
         ChannelDep->Drc = 0;
         double deposition = 0;
         double detachment = 0;
@@ -96,22 +82,27 @@ void TWorld::ChannelFlowDetachmentNew()
         double maxTC = 0;
         double minTC = 0;
 
-        //when waterheight is insignificant, deposite all remaining sediment
+        //get transport capacity for bedload for a specific cell and grain size class
+        if (SwitchUse2Phase) {
+            BL = ChannelBLSed->Drc;
+            blwatervol = ChannelBLDepth->Drc*DX->Drc*ChannelWidth->Drc;
+            velocityfactor = ChannelBLDepth->Drc/ChannelWH->Drc;
+            ChannelBLTC->Drc = calcTCBedload(r, c, R_BL_Method, ChannelWH->Drc, ChannelWidth->Drc, ChannelV->Drc*velocityfactor, SUSPchannel);
+            //transport capacity for bedload based on D90
+        }
+
+        ChannelSSTC->Drc = calcTCSuspended(r, c, R_SS_Method, ChannelWH->Drc, ChannelWidth->Drc, ChannelV->Drc, SUSPchannel);
+        //transport capacity for suspended matter based on D50
+
+        //=== Do suspended matter first
+
+        //when waterheight is insignificant, deposite all remaining sediment, HMIN = 1e-6 m
         if(ChannelWH->Drc < HMIN) {
             if(DO_SEDDEP == 1) {
                 deposition += -SS;
                 ChannelSSConc->Drc = 0;
                 ChannelSSSed->Drc = 0;
                 ChannelSSTC->Drc = 0;
-
-                if (SwitchUse2Phase) {
-                    deposition = -BL;
-                    ChannelBLConc->Drc = 0;
-                    ChannelBLSed->Drc = 0;
-                    ChannelBLTC->Drc = 0;
-                }
-
-                //ChannelSed->Drc = 0;
                 ChannelDep->Drc += deposition;
             }
         } else {
@@ -125,28 +116,32 @@ void TWorld::ChannelFlowDetachmentNew()
             if (minTC < 0) {
                 //deposition
 
-               // TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/ChannelWH->Drc)) * sswatervol;
-                TransportFactor =  _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
+                if (SwitchDfDpExponential)
+                    TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/ChannelWH->Drc)) * sswatervol;
+                else
+                    TransportFactor =  qMin(1.0, _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc);
 
-                deposition = qMax(TransportFactor * minTC,-SS); // in kg
+                deposition = qMax(-1.0*TransportFactor * minTC,-SS); // in kg
                 // not more than SS present
 
             } else {
                 //  detachment
                 if(maxTC > 0 && ChannelCohesion->Drc >= 0) {
-                    TransportFactor = _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
+                    if (SwitchDfDpExponential)
+                        TransportFactor = (1-exp(-ChannelY->Drc * _dt*SettlingVelocitySS->Drc/ChannelWH->Drc)) * sswatervol;
+                    else
+                        TransportFactor =  ChannelY->Drc * _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
 
-                    detachment = ChannelY->Drc * maxTC * TransportFactor; //qMin(TransportFactor, sswatervol);
-
-                    if (SwitchCulverts && ChannelCulvert->Drc > 0)
-                        detachment = 0;
-                    // not detahcment in culverts
-
+                    detachment = maxTC * TransportFactor;
                     //DetachMaterial(r,c,1,true,false,false, detachment);
                     // multiply by Y
 
+                    if (SwitchCulverts && ChannelCulvert->Drc > 0)
+                        detachment = 0;
+                    // no detahcment in culverts
+
                     if(SS + detachment > MAXCONC * sswatervol)
-                       detachment = qMax(0.0,MAXCONC * sswatervol - SS);
+                        detachment = qMax(0.0, MAXCONC * sswatervol - SS);
 
                 } else {
                     detachment = 0;
@@ -160,14 +155,13 @@ void TWorld::ChannelFlowDetachmentNew()
             ChannelDep->Drc += deposition;
             ChannelDetFlow->Drc += detachment;
             ChannelTC->Drc = ChannelSSTC->Drc;
-            //ChannelSed->Drc = SS;
-            //total transport capacity (bed load + suspended load), used for output
 
             // if (SwitchUseMaterialDepth)
             //     RStorageDep->Drc += -deposition;
 
             //### do bedload
             if (SwitchUse2Phase) {
+                // water height very low
                 if(ChannelBLDepth->Drc < MIN_HEIGHT) {
                     if(DO_SEDDEP == 1) {
                         ChannelDep->Drc += -BL;
@@ -175,22 +169,24 @@ void TWorld::ChannelFlowDetachmentNew()
                         ChannelBLConc->Drc = 0;
                         ChannelBLSed->Drc = 0;
                     }
-                } else
-                  if (ChannelCohesion->Drc > 0){
-                    //there is BL
+                } else {
+                    // there is water
 
                     maxTC = qMax(ChannelBLTC->Drc - ChannelBLConc->Drc,0.0);
                     minTC = qMin(ChannelBLTC->Drc - ChannelBLConc->Drc,0.0);
 
-                    if (maxTC > 0 && ChannelY->Drc > 0) {
+                    if (maxTC > 0 && ChannelCohesion->Drc >= 0) {
                         //### detachment
-                        TransportFactor = _dt*SettlingVelocityBL->Drc * ChannelDX->Drc * ChannelWidth->Drc;
-                           // units s * m/s * m * m = m3
-                        detachment = maxTC * qMin(TransportFactor, maxTC*sswatervol);
+
+                        if (SwitchDfDpExponential)
+                            TransportFactor = (1-exp(-ChannelY->Drc * _dt*SettlingVelocityBL->Drc/ChannelWH->Drc)) * blwatervol;
+                        else
+                            TransportFactor =  ChannelY->Drc * _dt*SettlingVelocityBL->Drc * ChannelDX->Drc * ChannelWidth->Drc;
+
+                        // units s * m/s * m * m = m3
+                        detachment = maxTC * TransportFactor;
                         // unit = kg/m3 * m3 = kg
 
-                        detachment *= ChannelY->Drc;//DetachMaterial(r,c,1,true,false,true, detachment);
-                        // mult by Y and mixingdepth
                         // IN KG/CELL
 
                         if(BL + detachment > MAXCONC * blwatervol)
@@ -199,15 +195,171 @@ void TWorld::ChannelFlowDetachmentNew()
                     } else {
                         //### deposition
                         //if (ChannelBLDepth->Drc > MIN_HEIGHT)
-                        TransportFactor = (1-exp(-_dt*SettlingVelocityBL->Drc/ChannelBLDepth->Drc)) * blwatervol;
+                        if (SwitchDfDpExponential)
+                            TransportFactor = (1-exp(-_dt*SettlingVelocityBL->Drc/ChannelWH->Drc)) * blwatervol;
+                        else
+                            TransportFactor =  qMin(1.0,_dt*SettlingVelocityBL->Drc * ChannelDX->Drc * ChannelWidth->Drc);
 
                         // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
-                        deposition = qMax(minTC * TransportFactor, -BL);
+                        deposition = qMax(-1.0*minTC * TransportFactor, -BL);
                         // cannot have more depo than sediment present
                         BL += detachment;
                         BL += deposition;
                         ChannelBLSed->Drc = BL;
-                        //ChannelSed->Drc += BL;
+                        ChannelDep->Drc += deposition;
+                        ChannelDetFlow->Drc += detachment;
+                        ChannelTC->Drc += ChannelBLTC->Drc;
+                        //total transport capacity (bed load + suspended load), used for output
+                    }
+                }
+            }
+        }
+
+        RiverSedimentMaxC(r,c);
+        //partial and total concentration ALL DONE
+    }}
+}
+//---------------------------------------------------------------------------
+void TWorld::ChannelDetachmentContinuous()
+{
+    if (!SwitchErosion)
+        return;
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        double velocityfactor = 1.0;
+        RiverSedimentLayerDepth(r,c);
+        //creates ChannelBLDepth and ChannelSSDepth, if 1 layer ChannelBLDepth = 0
+
+        double sswatervol = ChannelSSDepth->Drc*DX->Drc*ChannelWidth->Drc;
+        double blwatervol = 0;
+        double SS = ChannelSSSed->Drc;
+        double BL = 0;
+        ChannelDetFlow->Drc = 0; // reset to zero, this is the det and dep of this timestep
+        ChannelDep->Drc = 0;
+        double deposition = 0;
+        double detachment = 0;
+        double TransportFactor = 0;
+        double maxTC = 0;
+
+
+        //get transport capacity for bedload for a specific cell and grain size class
+        if (SwitchUse2Phase) {
+            BL = ChannelBLSed->Drc;
+            blwatervol = ChannelBLDepth->Drc*DX->Drc*ChannelWidth->Drc;
+            velocityfactor = ChannelBLDepth->Drc/ChannelWH->Drc;
+            ChannelBLTC->Drc = calcTCBedload(r, c, R_BL_Method, ChannelWH->Drc, ChannelWidth->Drc, ChannelV->Drc*velocityfactor, SUSPchannel);
+            //transport capacity for bedload based on D90
+        }
+
+        ChannelSSTC->Drc = calcTCSuspended(r, c, R_SS_Method, ChannelWH->Drc, ChannelWidth->Drc, ChannelV->Drc, SUSPchannel);
+        //transport capacity for suspended matter based on D50
+
+        //=== Do suspended matter first
+
+        //when waterheight is insignificant, deposite all remaining sediment, HMIN = 1e-6 m
+        if(ChannelWH->Drc < HMIN) {
+            if(DO_SEDDEP == 1) {
+                deposition += -SS;
+                ChannelSSConc->Drc = 0;
+                ChannelSSSed->Drc = 0;
+                ChannelSSTC->Drc = 0;
+                ChannelDep->Drc += deposition;
+            }
+        } else {
+            //there is water
+
+            //### do suspended first
+
+            maxTC = qMax(ChannelSSTC->Drc - ChannelSSConc->Drc, 0.0);  // TC in kg/m3
+
+            //deposition
+
+            if (SwitchDfDpExponential)
+                TransportFactor = (1-exp(-_dt*SettlingVelocitySS->Drc/ChannelWH->Drc)) * sswatervol;
+            else
+                TransportFactor =  qMin(1.0, _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc);
+
+            deposition = -1.0*TransportFactor * ChannelSSConc->Drc; // in kg
+            deposition  = qMax(-ChannelSSSed->Drc, deposition);
+            //  detachment
+            if(maxTC > 0 && ChannelCohesion->Drc >= 0) {
+
+                if (SwitchDfDpExponential)
+                    TransportFactor = (1-exp(-ChannelY->Drc * _dt*SettlingVelocitySS->Drc/ChannelWH->Drc)) * sswatervol;
+                else
+                    TransportFactor =  ChannelY->Drc * _dt*SettlingVelocitySS->Drc * ChannelDX->Drc * ChannelWidth->Drc;
+
+                detachment = maxTC * TransportFactor;
+                //DetachMaterial(r,c,1,true,false,false, detachment);
+                // multiply by Y
+
+                if (SwitchCulverts && ChannelCulvert->Drc > 0)
+                    detachment = 0;
+                // no detahcment in culverts
+
+                if(SS + detachment > MAXCONC * sswatervol)
+                    detachment = qMax(0.0, MAXCONC * sswatervol - SS);
+
+            }
+
+            //### sediment balance add suspended
+            SS += detachment;
+            SS += deposition;
+            ChannelSSSed->Drc = SS;
+            ChannelDep->Drc += deposition;
+            ChannelDetFlow->Drc += detachment;
+            ChannelTC->Drc = ChannelSSTC->Drc;
+
+            // if (SwitchUseMaterialDepth)
+            //     RStorageDep->Drc += -deposition;
+
+            //### do bedload
+            if (SwitchUse2Phase) {
+                // water height very low
+                if(ChannelBLDepth->Drc < MIN_HEIGHT) {
+                    if(DO_SEDDEP == 1) {
+                        ChannelDep->Drc += -BL;
+                        ChannelBLTC->Drc = 0;
+                        ChannelBLConc->Drc = 0;
+                        ChannelBLSed->Drc = 0;
+                    }
+                } else {
+                    // there is water
+
+                    //### deposition
+                    if (SwitchDfDpExponential)
+                        TransportFactor = (1-exp(-_dt*SettlingVelocityBL->Drc/ChannelBLDepth->Drc)) * blwatervol;
+                    else
+                        TransportFactor =  qMin(1.0,  _dt*SettlingVelocityBL->Drc * ChannelDX->Drc * ChannelWidth->Drc);
+
+                    // max depo, kg/m3 * m3 = kg, where minTC is sediment surplus so < 0
+                    deposition = -1.0 * ChannelBLConc->Drc * TransportFactor;
+                    deposition = qMax(deposition, -ChannelBLSed->Drc);
+                    // cannot have more depo than sediment present
+
+                    maxTC = qMax(ChannelBLTC->Drc - ChannelBLConc->Drc,0.0);
+
+                    if (maxTC > 0 && ChannelCohesion->Drc >= 0) {
+                        //### detachment
+                        if (SwitchDfDpExponential)
+                            TransportFactor = (1-exp(-ChannelY->Drc * _dt*SettlingVelocityBL->Drc/ChannelBLDepth->Drc)) * blwatervol;
+                        else
+                            TransportFactor =  ChannelY->Drc * _dt*SettlingVelocityBL->Drc * ChannelDX->Drc * ChannelWidth->Drc;
+                        // units s * m/s * m * m = m3
+                        detachment = maxTC * TransportFactor;// qMin(TransportFactor, maxTC*sswatervol);
+                        // unit = kg/m3 * m3 = kg
+
+                        //detachment *= DetachMaterial(r,c,1,true,false,true, detachment);
+                        // mult by Y and mixingdepth
+                        // IN KG/CELL
+
+                        if(BL + detachment > MAXCONC * blwatervol)
+                            detachment = MAXCONC * blwatervol - BL;
+
+                        BL += detachment;
+                        BL += deposition;
+                        ChannelBLSed->Drc = BL;
                         ChannelDep->Drc += deposition;
                         ChannelDetFlow->Drc += detachment;
                         ChannelTC->Drc += ChannelBLTC->Drc;
@@ -237,10 +389,9 @@ void TWorld::ChannelFlowDetachmentNew()
  */
 void TWorld::RiverSedimentMaxC(int r, int c)
 {
-    //ChannelSed->Drc = (SwitchUse2Phase ? ChannelBLSed->Drc : 0) + ChannelSSSed->Drc;
     double sed = (SwitchUse2Phase ? ChannelBLSed->Drc : 0) + ChannelSSSed->Drc;
     //total concentration
-    ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, sed);//ChannelSed->Drc);
+    ChannelConc->Drc = MaxConcentration(ChannelWaterVol->Drc, sed);
 }
 
 //---------------------------------------------------------------------------

@@ -174,9 +174,13 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;N;tileman.map;Mannings n of the tile drains (-);tileman");
 
 
-    // example
-    //   DEFmaps.append("0;Pesticides");
-    //   DEFmaps.append("2;Pest Initial;pestinit.map;Inital content bla bla;pestini");
+    //Pesticides
+    DEFmaps.append("0;Pesticides");
+    DEFmaps.append("2;Pest Mixing Soil;pcmixsoil.map;Initial concentration of pesticide in soil of mixing zone [mg/kg];pcmixsoil");
+    DEFmaps.append("2;Pest Mixing Water;pcmixwat.map;Initial concentration of pesticide in water of mixing zone [mg/l];pcmixwat");
+    DEFmaps.append("2;Pest Mixing Depth;pestmixdep.map;Thickness of the mixing layer [m];pestmixdep");
+    DEFmaps.append("2;Pest Soil Depth;pestsoildep1.map;Initial thickness of soil containing pesticides [m];pestsoildep1");
+    DEFmaps.append("2;Pest Soil Conc;pcsoil1.map;Initial concentration of soil containing pesticides [mg/kg];pcsoil1");
 
 }
 //---------------------------------------------------------------------------
@@ -367,10 +371,6 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("2");  //GA =2
     namelist[i++].name = QString("Infil Method");
     namelist[i].value = QString("0");
-    // namelist[i++].name = QString("Use OM correction");
-    // namelist[i].value = QString("0");
-    // namelist[i++].name = QString("Use Density correction");
-    // namelist[i].value = QString("0");
     namelist[i++].name = QString("Include compacted");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include crusts");
@@ -466,8 +466,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Include GW flow");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("GW flow explicit");
-    namelist[i].value = QString("0");
-    namelist[i++].name = QString("GW flow SWOF");
+    // namelist[i].value = QString("0");
+    // namelist[i++].name = QString("GW flow SWOF");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("GW flow LDD");
     namelist[i].value = QString("0");
@@ -592,6 +592,26 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Sediment Trap Mannings n");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Include subgridcell retention");
+
+    //### Pesticides
+    namelist[i++].name = QString("");
+    namelist[i++].name = QString("[Pesticides]");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Include Pesticides");
+    namelist[i].value = QString("Glyphosate");
+    namelist[i++].name = QString("Pesticide name");
+    namelist[i].value = QString("48.0");
+    namelist[i++].name = QString("Kd pesticide");
+    namelist[i].value = QString("8e-4");
+    namelist[i++].name = QString("Kfilm pesticide");
+    namelist[i].value = QString("-0.25");
+    namelist[i++].name = QString("ERbeta pesticide");
+    namelist[i].value = QString("-1.0");
+    namelist[i++].name = QString("Kr pesticide");
+    namelist[i].value = QString("7.4");
+    namelist[i++].name = QString("ERmax pesticide");
+    namelist[i].value = QString("1550.0");
+    namelist[i++].name = QString("Rho mixing layer");
 
     //### Calibration
     namelist[i++].name = QString("");
@@ -727,6 +747,10 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Channel 2D flow connect");
     namelist[i].value = QString("6");
     namelist[i++].name = QString("SWATRE precision");
+    namelist[i].value = QString("1");
+    namelist[i++].name = QString("Deposition continuous");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Deposition exponential");
 
  //   namelist[i].value = QString("0");
  //   namelist[i++].name = QString("Calculate erosion inside 2D loop");

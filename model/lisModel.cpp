@@ -63,8 +63,25 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
         QTextStream eout(&efout);
         eout << "#mass balance error (%)\n";
 
-        efout.flush();
-        efout.close();
+        if (SwitchPest) {
+            QFile efout(resultDir+errorPestFileName);
+            if (!efout.open(QIODevice::WriteOnly | QIODevice::Text))
+                return;
+            QTextStream eout(&efout);
+            eout << "#pesticide mass balance error (%)\n";
+            if (SwitchErosion) eout << "7\n";
+            if (!SwitchErosion) eout << "5\n";
+            eout << "run step\n";
+            eout << "WMerr\n";
+            if (SwitchErosion) {eout << "SMerr\n";}
+            eout << "PMerr\n";
+            if (SwitchErosion) {eout << "PMserr\n";}
+            eout << "PMwerr\n";
+            eout << "runtime\n";
+            efout.flush();
+            efout.close();
+
+        }
     }
 
 
@@ -76,9 +93,23 @@ void TWorld::saveMBerror2file( bool start) //bool doError,
         eout << " " << runstep << "," << MB << "," << (SwitchErosion ? MBs : 0.0) << "\n";
         efout.flush();
         efout.close();
-  //  }
 
+        if (SwitchPest) {
+            QFile efout(resultDir+errorPestFileName);
+            if (!efout.open(QIODevice::Append | QIODevice::Text))
+                return;
+            QTextStream eout(&efout);
+            if (SwitchErosion) {
+                eout << " " << runstep << " " << MB << " " << MBs << " " << PMerr << " " << PMserr << " " << PMwerr << " " << op.t << "\n";
+            } else {
+                eout << " " << runstep << " " << MB << " " << PMerr << " " << PMwerr << " " << op.t << "\n";
+            }
+            efout.flush();
+            efout.close();
+        }
+   //   }
 }
+
 //---------------------------------------------------------------------------
 // the actual model with the main loop
 void TWorld::DoModel()
@@ -98,6 +129,7 @@ void TWorld::DoModel()
 
     errorFileName = QString(resultDir + "error-"+ op.timeStartRun +".csv");
     //errorSedFileName = QString(resultDir + "errorsed-"+ op.timeStartRun +".txt");
+    errorPestFileName = QString(resultDir + "error_pest.txt");
     time_ms.start();
     // get time to calc run length
     startTime=omp_get_wtime()/60.0;
@@ -301,6 +333,11 @@ void TWorld::DoModel()
         //SetFlowBarriers();     // obsolete for now! update the presence of flow barriers, static for now, unless breakthrough
         GridCell();            // static for now
 
+        if (SwitchPest && SwitchInfiltration) {
+            PMtotI = MassPestInitial();
+            // calculate pesticide mass in system outside time loop
+            // if infil is set to 0 then crash!
+        }
         _dt_user = _dt;
 
         DEBUG(" ");
@@ -345,7 +382,7 @@ void TWorld::DoModel()
 
             InfilDynamicCrusting(); // if crusting recalc Ksateff and Poreff becuase of crusting effect
 
-            HydrologyProcesses();  // hydrological processes in one loop, incl splash
+            HydrologyProcesses();  // hydrological processes in one loop, incl splash and pesticides
 
             ToTiledrain();  // fraction going into tiledrain directly from surface
 
@@ -555,6 +592,14 @@ void TWorld::HydrologyProcesses()
                 // assume there is no hmx in WHboundarea
             }
         }
+
+
+        if (SwitchPest) {
+            // update concentration of pesticides after rainfall (mg/L)
+            if (WH->Drc > he_ca) {
+                PCrw->Drc = PMrw->Drc / (WH->Drc * FlowWidth->Drc * DX->Drc * 1000);
+            }
+        }
     }}
 
     if (SwitchInfiltration) {
@@ -619,7 +664,7 @@ void TWorld::HydrologyProcesses()
     }}
 
     if (SwitchErosion) {
-        cell_SplashDetachment();
+        SplashDetachment();
             // if (SwitchSlopeStability)
             //     cell_SlopeStability(r, c);
     }
@@ -629,6 +674,14 @@ void TWorld::HydrologyProcesses()
     // if (InfilMethod != INFIL_SOAP)
     //     SoilMoistDiff = soiltot2 - soiltot1;
 
+    if (SwitchPest) {
+        PesticideCellDynamics();
+        // calculate partitioning, uptake and infiltration losses of pesticides
+        if (SwitchErosion) {
+            PesticideSplashDetachment();
+            // splash detachment for pesticides
+        }
+    }
 }
 //---------------------------------------------------------------------------
 

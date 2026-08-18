@@ -80,6 +80,10 @@
 #define SHAPETRIA 4
 #define SHAPEFREE 5
 
+#define SUSPchannel 0
+#define SUSPflood   1
+#define SUSPrunoff  2
+
 #define ARITHavg(a,b)  (0.5*(a+b))
 #define SQRTavg(a,b)  sqrt(a*b)
 #define HARMavg(a,b,w1,w2)  ((w1+w2)/(w1/a+w2/b))  //  sum (weight/variable) / sum weights
@@ -475,6 +479,10 @@ public:
         SwitchCulverts,
         SwitchConstantBeta,
         SwitchLitter,
+        SwitchPest,
+        //SwitchReportPest,
+        SwitchDfDpExponential,
+        SwitchDepositionContinuous,
 
         // output
         //SwitchOutputTimeUser,
@@ -702,11 +710,11 @@ public:
     double TileEntrySuction;
 
     ///pesticides
-    double MBp,PestMassApplied, PestLossTotOutlet, PestFluxTotOutlet, PestRunoffSpatial, PestDisMixing, PestSorMixing, PestInfilt, PestStorage, Pestdetach, PestCinfilt,PestCfilmexit;
-    double MBpex,PestRunoffSpatialex,PestDisMixingex,PestSorMixingex,PestInfiltex,PestLossTotOutletex;
-    int N_SPK;
-    double Maxsolubility;
-    double MaxVup;
+    double PMtot, PMerr, PMtotI, PMwerr, PMserr;
+    double Pestinf, PestOutW, PestOutS;
+    double PQrw_dt, PQrs_dt;
+    double KdPest, KfilmPest, KrPest, rhoPest, ERmaxPest, ERbetaPest;
+    QString PestName;
 
     /// swatre
     double SwatrePrecision;
@@ -806,6 +814,7 @@ public:
     QString WaveinFileDir;
     QString resultFileName;
     QString temprunname;
+   // QString resultPestFile;
     /// standard names of output map series
     //Outchvol,OutHmx, OutVf,OutHmxWH,OutQf, Outrwh,
     QString Outrunoff, Outconc, Outwh, Outvelo, Outinf, Outss,
@@ -817,6 +826,7 @@ public:
     SwitchOutTiledrain, SwitchOutTileVol, SwitchOutHmx, SwitchOutVf, SwitchOutQf, SwitchOutHmxWH, SwitchOutTheta, SwitchOutGW;
     QString errorFileName;
     QString errorSedFileName;
+    QString errorPestFileName;
     QString satImageFileName;
     QString satImageFileDir;
 
@@ -867,29 +877,25 @@ public:
     void InitGroundwater(void);
     void InitFlood(void);
     void InitMeteoInput(void);
-    void InitScreenChanNetwork();
+    void InitScreenChanNetwork(void);
+    void InitPesticides(void);
+
     void CorrectDEM(cTMap *h, cTMap * g);
     void DiagonalFlowDEM();
     void calcSoilPhysics(cTMap *Ksat, cTMap *lambda, cTMap *thfc, cTMap *thr,
                                  cTMap *psi, cTMap *psiae, double calk, double calpsi);
     // <= initiatlisation
-
-
     //int GrainSizeDistributionType;
-
     double LogNormalDist(double d50,double sigma, double d); // not used
     double DetachMaterial(int r,int c, int d,bool channel,bool flood,bool bl, double detachment); //not used
 
     //material that is available for detachment
-    QList<cTMap *> StorageDep_D;
-    QList<cTMap *> Storage_D;
+   // QList<cTMap *> StorageDep_D;
+   // QList<cTMap *> Storage_D;
     cTMap *Storage;
     cTMap *StorageDep;
     cTMap *SedimentMixingDepth;
     cTMap *maxDetachment;
-
-    //QList<cTMap *> RStorageDep_D;
-    //QList<cTMap *> RStorage_D;
     cTMap *RStorage;
     cTMap *RStorageDep;
     cTMap *RSedimentMixingDepth;
@@ -901,19 +907,30 @@ public:
     //QList<cTMap *> F_Advect;
     bool addedbaseflow;
 
-    // TODO PEST stuff, replace with work Meindert
-    void Pestmobilisation(void);
-//    void TransPesticide(int pitRowNr, int pitColNr,cTMap *_LDD,cTMap *_Qn, cTMap *_Vup, cTMap *_Vupold,cTMap *_WHoutavg,
-//                         cTMap *_WHoutavgold,cTMap *_RainNet,cTMap *_CM_N,cTMap *_C_N,cTMap *_CS_N,cTMap *_InfilVol,cTMap *_InfilVolold,
-//                         cTMap *_DX,cTMap *_C,cTMap *_Cold,cTMap *_CS,cTMap *_CM,cTMap *_Kfilm,cTMap *_epsil,
-//                         cTMap *_KD,cTMap *_poro,cTMap *_rhob,cTMap *_kr,cTMap *_Qin, cTMap *_Sin,cTMap *_Q,cTMap *_Alpha,cTMap *_Qpn);
-    double cmx_analytique(double t, double dKfi, double dpestiinf, double depsil, double drhob, double dkr, double dKD, double dn, double CM0, double CS0,double Cr);
-    double csx_analytique(double t, double dKfi,double dpestiinf,double depsil,double drhob,double dkr,double dKD,double dn, double CM0,double CS0,double Cr);
-    double **Factorize(double **A, int n, int m);
-    double *Solve(int n,int m, double **A_LU, double *B);
-    double Implicitscheme(double Qj1i1, double Qj1i, double Qji1,double Pj1i, double Pji1, double alpha, double dt,double dx, double Kfilm, double CMi1j1);
-    double ConcentrationP(double watvol, double pest);
-    // <= PEST
+    //Pesticides
+    // <= pesticide
+    void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);
+    double MassPestInitial(void);
+    void PesticideCellDynamics(void);
+    void PesticideFlow1D(void);
+    void PesticideFlow2D(double dt, cTMap * h, cTMap * u,cTMap * v);
+    void PesticideConcentration(void);
+    void KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
+                                cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
+                                cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, cTMap *_PMW);
+    void KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
+                               cTMap *_LDD, cTMap *_Qn, cTMap *_Qpsn, cTMap *_DX,
+                               cTMap *_Alpha, cTMap *_Sed, cTMap *_Q, cTMap *_Qps,
+                               cTMap *_PMS);
+    void PesticideSplashDetachment();
+    double ChowSubstance(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
+                         double Pji1, double alpha, double dx, double dt);
+    void PesticideFlowDetachment();
+    void PesticideFlowDetachmentSS(cTMap *Sed_);
+
+    double PesticideEnrichmentRatio(double Emax, double S, double beta);
+
+    // <= pesticide
 
     // 1D hydro processes
     // => input timeseries
@@ -989,7 +1006,9 @@ public:
     void cell_RedistributionUnsat(int r, int c);
     void cell_Tiledrain1(int r, int c);
     void cell_Tiledrain2(int r, int c);
+
     void avgTheta();
+
 
     // erosion per cell
     void cell_SplashDetachment();
@@ -1009,13 +1028,13 @@ public:
     void CalcVelDisch();
     void OverlandFlow1D(void);
     void OverlandFlow2D();
-    void ToChannel();
-    void ToChannelAlt();
+    void ToChannel(); // obsolete
+    void ToChannelBroadWeir();
     void ToFlood();
     void ToTiledrain();
     // <= OF
 
-    //SWMM pipe flow
+    //SWMM pipe flow, NOT USED
     void PipeFlowSWMM();
     double getAfromS(DRAIN_PROP *dr, double s);
     int findroot_Newton(DRAIN_PROP *dr, double x1, double x2);
@@ -1035,11 +1054,12 @@ public:
     double pipeThetafroma(int r, int c, double a);
     void ChannelFlood(void);
     void ChannelOverflow(cTMap *_h, cTMap *_V);
-    void ChannelOverflowAlt(cTMap *_h, cTMap *_V);
+    void ChannelOverflowBroadWeir(cTMap *_h, cTMap *_V);
     void chanHandPCirc(int r, int c);
     void chanHandPRect(int r, int c);
     void chanHandPTrap(int r, int c);
     void chanHandPTria(int r, int c);
+
     // tiles/stormdrains
     void TileFlow(void);
     void TileFlowSWMM(void);
@@ -1104,10 +1124,9 @@ public:
     // <= extend channel
 
     void InitFlowBarriers(void);
-    //double DEMFB(int r, int c, int rd, int cd, bool addwh);
-    double FB(int r, int c, int rd, int cd);
     void SetFlowBarriers();
     void GetFlowBarrierData(QString name);
+    double FB(int r, int c, int rd, int cd);
     double FBW(double h, int r, int c, int dr, int dc);
 
     double courant_factor;
@@ -1126,7 +1145,7 @@ public:
     void routeSubstance(int pitRowNr, int pitColNr, cTMap *_LDD,
                                 cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
                                 cTMap *_Alpha, cTMap *_DX, cTMap*_Sed);//,cTMap*_VolStore, cTMap*_SedStore);
-    void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_LDD, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
+    void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
                             cTMap *_Alpha,cTMap *_DX, cTMap *_Sed, cTMap *_Qmax);
     double IterateToQnew(double Qin, double Qold, double alpha, double beta, double deltaT, double deltaX, double Qm, double Am);
     double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol, double sed);
@@ -1140,43 +1159,31 @@ public:
     double itercount;
     // <= kinematic
 
-    void DynamicChannel(QVector<LDD_COORIN> _crlinked);
-
-    // <= pesticide
-    void MassPest(double PMtotI, double &PMerr, double &PMtot, double &PMserr, double &PMwerr);
-    double MassPestInitial(void);
-    void PesticideCellDynamics(void);
-    void PesticideFlow1D(void);
-    void KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
-                   cTMap *_LDD, cTMap *_Qn, cTMap *_Qpwn, cTMap *_DX,
-                   cTMap *_Alpha, cTMap *_Q, cTMap *_Qpw, cTMap *_PMW);
-    void KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
-                                 cTMap *_LDD, cTMap *_Qn, cTMap *_Qpsn, cTMap *_DX,
-                                 cTMap *_Alpha, cTMap *_Sed, cTMap *_Q, cTMap *_Qps,
-                                       cTMap *_PMS);
-    void PesticideSplashDetachment();
-    double ChowSubstance(double Qj1i1, double Qj1i, double Qji1,double Pj1i,
-                                 double Pji1, double alpha, double dx, double dt);
-    void PesticideFlowDetachment(double rho);
-    double PesticideEnrichmentRatio(double Emax, double S, double beta);
-
-
     // => sediment stuff
     double rillfactor;
     double GetSV(double d);
     void SplashDetachment();
+    void SedimentDetachmentSS(double dt, cTMap *h, cTMap *w, cTMap *v,
+                                   cTMap *SS_, cTMap *SSC_, cTMap *SSTC_, cTMap *SSDet_,
+                                   cTMap *Dep_, cTMap *SSVs_, int type);
+
+    void SedimentSSContinuous(double dt, cTMap *h, cTMap *w, cTMap *v,
+                                   cTMap *SS_, cTMap *SSC_, cTMap *SSTC_, cTMap *SSDet_,
+                                   cTMap *Dep_, cTMap *SSVs_, int type);
     double MaxConcentration(double watvol, double sedvol);
-    void ChannelFlowDetachmentNew();
+    void ChannelFlowDetachment();
+    void ChannelDetachmentContinuous();
     void RiverSedimentDiffusion(double dt, cTMap * _SS,cTMap * _SSC);
     void RiverSedimentLayerDepth(int r , int c);
     void RiverSedimentMaxC(int r, int c);
-    double calcTCSuspended(int r,int c, int _d, int method, double h, double w,  double U, int type);
-    double calcTCBedload(int r,int c, int _d, int method, double h, double w, double U, int type);
+    double calcTCSuspended(int r,int c, int method, double h, double w,  double U, int type);
+    double calcTCBedload(int r,int c, int method, double h, double w, double U, int type);
     void SWOFSedimentCheckZero(int r, int c, cTMap * h);
     void SWOFSedimentSetConcentration(int r, int c, double h, double w);
+    void SedimentSetConcentration(cTMap *h, cTMap *SSC_, cTMap *SS_, cTMap *SSD_);
     void SWOFSedimentDiffusion(double dt, cTMap * h,cTMap * u,cTMap *v, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentFlowInterpolation(double dt, cTMap * h, cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC);
-    void SWOFSedimentDetNew(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
+    void SWOFSedimentAdvection(double dt, cTMap * h, cTMap * u,cTMap * v, cTMap * _SS,cTMap * _SSC, cTMap *_SSD);
+    void SedimentDetachmentBL(double dt, cTMap * h, cTMap *w, cTMap * V);
     void SWOFSediment(double dt, cTMap * h, cTMap *w, cTMap * u,cTMap * v);
     void SWOFSedimentLayerDepth(int r , int c, double h, double velocity);//cTMap * u,cTMap * v);
     void correctMassBalance(double sum1, cTMap *M);
@@ -1256,6 +1263,7 @@ int showc;
     void ReportMapSeries(void);
     void ReportTotalsNew(void);
     void ReportErosionLandunits(void); //VJ 110107 report erosion stats per land unit
+    void ReportTotalsPest(void); //MC 220628 initial setup pesticide report
     void CountLandunits(void); //VJ 110107 report erosion stats per land unit
     void saveMBerror2file(bool start);
     void FloodMaxandTiming();

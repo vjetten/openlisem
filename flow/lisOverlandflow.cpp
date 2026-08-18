@@ -46,31 +46,52 @@ void TWorld::OverlandFlow(void)
 {
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
         OverlandFlow2Ddyn();
-        // dynamic wave overland flow
+        // dynamic wave overland flow, water and sediment and pesticides
     } else {
+        // kin wave overland flow
 
         CalcVelDisch();
+        // Q, V and Alpha Manning
 
-        if (SwitchChannel2DflowConnect)
-            ToChannelAlt();
-        else
-            ToChannel();        // overland flow water and sed flux going into or out of channel, in channel cells
-
-     //   CalcVelDisch();
-        // overland flow velocity, discharge and alpha
-        // V is needed in erosion
-
+        // calc all erosion
         if (SwitchErosion) {
-            cell_FlowDetachment();
-            // kine wave based flow detachment
+
+           // cell_FlowDetachment(); // obsolete
+
+            if (SwitchDepositionContinuous)
+                SedimentSSContinuous(_dt, WHrunoff, ChannelAdj, V, Sed, Conc, TC, DETFlow, DEP, SettlingVelocitySS, SUSPrunoff);
+            else
+                SedimentDetachmentSS(_dt, WHrunoff, ChannelAdj, V, Sed, Conc, TC, DETFlow, DEP, SettlingVelocitySS, SUSPrunoff);
+            // same sed detachment and deposition as in 2D flow
+            // full flowwidth is used, but adjusted inside for fractions for roads, houses etc
+
+            if (SwitchPest) {
+                PesticideFlowDetachmentSS(Sed);
+            }
         }
 
-        OverlandFlow1D();   // kinematic wave of water and sediment
+        OverlandFlow1D();
+        // routing: kinematic wave of water and sediment
 
-        if(SwitchKinematic2D == K2D_METHOD_KINDYN) {
-            ChannelFlood();
-            // st venant channel 2D flooding from channel, only for kyn wave
+        // move water and sed into channel
+        if (SwitchIncludeChannel) {
+
+            ToChannelBroadWeir();
+            // kin wave interaction with channel (FloodDomain = 0)
+
+            // TODO pesticide to channel
+
+            // if 2D overflow do that
+            if (SwitchKinematic2D == K2D_METHOD_KINDYN) {
+                ToFlood();
+                // transfer kin wave WHrunoff and sed to flood height hmx and SSFlood where both exist
+                ChannelOverflowBroadWeir(hmxrunoff, V);
+                // 2D flow part interact with channel (FloodDomain > 0)
+                ChannelFlood();
+                // dyn wave for flooded part
+            }
         }
+
     }
 }
 
@@ -80,7 +101,7 @@ void TWorld::OverlandFlow2Ddyn(void)
     double dtOF = 0;
 
     // NOTE: only broad crested weir works with different channel shapes!
-    ChannelOverflowAlt(WHrunoff, V);
+    ChannelOverflowBroadWeir(WHrunoff, V);
     // this changes channel and surface water volume
 
     // obsolete this is only for a rectangular channel
@@ -103,7 +124,7 @@ void TWorld::OverlandFlow2Ddyn(void)
         // calc discharge flux form the last flux in the loop
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            V->Drc = sqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
+            V->Drc = qSqrt(Uflood->Drc*Uflood->Drc + Vflood->Drc*Vflood->Drc);
             Qn->Drc = V->Drc*(WHrunoff->Drc*ChannelAdj->Drc);
         }}
     }
@@ -125,6 +146,8 @@ void TWorld::OverlandFlow2Ddyn(void)
  *
  * @return void
  */
+
+    //OBSOLETE: replaced wioth broadweir principles
 void TWorld::ToChannel()
 {
     if (!SwitchIncludeChannel)
@@ -174,7 +197,9 @@ void TWorld::ToChannel()
    }}
 }
 //--------------------------------------------------------------------------------------------
-void TWorld::ToChannelAlt()
+// used only in kin wave without overflow
+// based on broad crested weir function like 2D flow
+void TWorld::ToChannelBroadWeir()
 {
     if (!SwitchIncludeChannel)
         return;
@@ -196,7 +221,7 @@ void TWorld::ToChannelAlt()
             //free flow broad crested weir, water flows over edge to deeper water in channel
 
             double volintochan = qMin(freeflow_tochan, CHAdjDX->Drc * WHrunoff->Drc);
-            // in m3, minimum off what is therre and broad crested flow
+            // in m3, minimum off what is there and broad crested flow
 
             WaterVolall->Drc -= volintochan;
             ChannelWaterVol->Drc += volintochan;
@@ -205,10 +230,11 @@ void TWorld::ToChannelAlt()
             hmxWH->Drc = WH->Drc + hmx->Drc;
 
             if (SwitchErosion) {
-                double sed = volintochan * SSCFlood->Drc;
+                double sed = volintochan * Conc->Drc;
                 Sed->Drc -= sed;
-                Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
                 ChannelSSSed->Drc += sed;
+
+                Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
                 RiverSedimentLayerDepth(r,c);
                 RiverSedimentMaxC(r, c);
             }
@@ -293,15 +319,18 @@ void TWorld::OverlandFlow1D(void)
         //do not make -1!
 
         if (SwitchErosion) {
-            // calc seediment flux going in kin wave as Qs = Q*C
+            // calc sediment flux going in kin wave as Qs = Q*C
             Qsn->Drc = 0.0;
-            Conc->Drc = MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, Sed->Drc);
+            //Conc->Drc = MaxConcentration(WHrunoff->Drc * CHAdjDX->Drc, Sed->Drc);
+            // wrong, concentration is always for all water!
+
+            Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
             Qs->Drc =  Q->Drc * Conc->Drc;
             // calc sed flux as water flux * conc m3/s * kg/m3 = kg/s
         }
     }}
 
-    // route water
+    //============ route water ===============
 
     // if multiple catchments use dynamic scheduling (one catchment per core)
     if (crldd5_.size() > 1) {
@@ -310,7 +339,6 @@ void TWorld::OverlandFlow1D(void)
             pcr::setMV(Qn->Drc);
             QinKW->Drc = 0;
         }}
-
 
         #pragma omp parallel for schedule(dynamic, 1)
         FOR_ROW_COL_LDD5 {
@@ -355,16 +383,24 @@ void TWorld::OverlandFlow1D(void)
                 routeSubstance(r,c, LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed);
             }}
         } else {
-            KinematicSubstance(crlinkedldd_,LDD, Q, Qn, Qs, Qsn, Alpha, DX, Sed, tma);
+            KinematicSubstance(crlinkedldd_, Q, Qn, Qs, Qsn, Alpha, DX, Sed, tma);
         }
 
+        #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
-            if (Sed->Drc > MAXCONC * WaterVolall->Drc) {
-                double ss = Sed->Drc;
-                Sed->Drc = MAXCONC * WaterVolall->Drc;
-                double ds = ss - Sed->Drc;
-                DEP->Drc -= ds;
-            }
+            // check for max sediment concentration????
+            // if (Sed->Drc > MAXCONC * WaterVolall->Drc) {
+            //     double ss = Sed->Drc;
+            //     Sed->Drc = MAXCONC * WaterVolall->Drc;
+            //     double ds = ss - Sed->Drc;
+            //     DEP->Drc -= ds;
+            // }
+            Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
         }}
+    }
+
+    if (SwitchPest) {
+        //this function takes care of dissolved and sorbed kinematic wave
+        PesticideFlow1D();
     }
 }

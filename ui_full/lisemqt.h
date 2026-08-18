@@ -193,7 +193,7 @@ public:
     void showImageMap();
     void changeSize();
     double Masp;
-    double fillDrawMapData(cTMap *_M, double scale, QwtMatrixRasterData *_RD, double *minv, double *maxv);
+    double fillDrawMapData(cTMap *_M, QwtMatrixRasterData *_RD, double *minv, double *maxv, double scale = 1.0, double dispthres = -1e20);
     double fillDrawMapDataRGB(cTRGBMap *_M, QwtMatrixRasterData *_RD);
 
     QwtPlot *MPlot;               // plot in which the raster map is drawn
@@ -588,6 +588,10 @@ private slots:
     void on_checkNewversionGITHUB_toggled(bool checked);
 
     void on_E_FlowBoundary_valueChanged(int arg1);
+
+    void on_checkPestcides_toggled(bool checked);
+
+    void on_E_PestKfilm_editingFinished();
 
 private:
     QNetworkAccessManager *manager;

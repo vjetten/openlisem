@@ -239,6 +239,17 @@ void TWorld::reportToUI(void)
         op.OutletC.at(0)->append(Qtot_dt > MIN_FLUX? SoilLossTot_dt/Qtot_dt : 0);
         op.OutletQstot.replace(0,SoilLossTot*0.001);
     }
+    if (SwitchPest) {
+        op.PMOutW = PestOutW;
+        op.PMerr = PMerr;
+        op.PMinf = Pestinf;
+        //op.PMperc = PestPerc;
+        op.PestName = PestName;
+        op.PMtotI = PMtotI;
+        if (SwitchErosion) {
+            op.PMOutS = PestOutS;
+        }
+    }
 
 
     //hydrographs
@@ -355,6 +366,15 @@ void TWorld::ReportTotalSeries(void)
             out << sep << "FloodSed(ton)";
             out << sep << "SoilLoss(ton)";
         }
+        if (SwitchPest) {
+            out << sep << "PMOutW";
+            out << sep << "PMerr";
+            out << sep << "PestPerc";
+            out << sep << "Pestinf";
+            if (SwitchErosion) {
+                out << sep << "PMOutS";
+            }
+        }
         out << "\n";
         fout.flush();
         fout.close();
@@ -398,7 +418,7 @@ void TWorld::ReportTotalSeries(void)
     out << sep << op.ChannelVolTotmm;
     out << sep << op.Qtotmm;
     if (FlowBoundaryType > 0)
-        out << sep << op.Qboundtotmm;
+    out << sep << op.Qboundtotmm;
     if (SwitchErosion) {
         out << sep << op.DetTotSplash;
         out << sep << op.DetTotFlow;
@@ -411,6 +431,16 @@ void TWorld::ReportTotalSeries(void)
         out << sep << op.FloodDepTot;
         out << sep << op.FloodSedTot;
         out << sep << op.SoilLossTot;
+    }
+    if (SwitchPest) {
+        out << sep << op.PMOutW;
+        out << sep << op.PMerr;
+        out << sep << op.PMperc;
+        out << sep << op.PMinf;
+        if (SwitchErosion) {
+            out << sep << op.PMOutS;
+        }
+
     }
     out << "\n";
 
@@ -503,9 +533,19 @@ void TWorld::ReportTotalsNew(void)
     for(int i = 1; i< op.OutletQpeak.length();i++) {
         out << "\"Peak time discharge for outlet " + QString::number(i) +" (min):\"," << op.OutletQpeaktime.at(i)<< "\n";
     }
+    if (SwitchPest) {
+        out << "\n";
+        out << "\"Pesticide simulated:\"," << op.PestName << "\n";
+        out << "\"Initial pesticide mass in system (mg) \", " << op.PMtotI << "\n";
+        out << "\"Total dissolved pesticide transport (mg):\"," << op.PMOutW<< "\n";
+        if (SwitchErosion) out << "\"Total particulate pesticide transport (mg):\"," << op.PMOutS<< "\n";
+        //qDebug() << "Total particulate pesticide transport (mg):" << op.PMOutW;
+    }
+    out << "\n";
     fp.flush();
     fp.close();
 }
+
 //---------------------------------------------------------------------------
 void TWorld::ReportTimeseriesPCR(void)
 {
@@ -712,27 +752,45 @@ void TWorld::ReportTimeseriesCSV(void)
                     out << QString(",Qsrunoff");
                 out << ",Conc";
             }
+            if (SwitchPest) {
+                out << ",PQw";
+                if (SwitchErosion)
+                    out << ",PQs";
+            }
+
             out << "\n";
 
             // second row, units
             out << "days"; //time
             if (SwitchRainfall) out << ",mm/h"; //rain
             if (SwitchSnowmelt) out << ",mm/h"; // snow
+
             out << "," << unitS; // qall
+
             if (FlowBoundaryType > 0)
                 out << "," << unitS; //qbound
+
             if (SwitchIncludeChannel)
                 out  << "," << unitS << ",m"; //qchannel
             else
                 out  << "," << unitS; // Orunoff
+
             if (SwitchIncludeTile)
                 out << "," << unitS;
+
             if (SwitchErosion) {
                 out << ",kg/s";
                 if (FlowBoundaryType > 0)
                     out << ",kg/s";
                 out<< ",kg/s" << ",g/l";
             }
+
+            if (SwitchPest) {
+                out << ",mg/s"; // dissolved pesticide load
+                if (SwitchErosion)
+                    out << ",mg/s"; // particulate pesticide load
+            }
+
             out << "\n";
             fout.close();
         }}
@@ -790,6 +848,15 @@ void TWorld::ReportTimeseriesCSV(void)
                 out << sep << TotalConc->Drc ;
             }
         }
+
+        //pesticide
+        if (SwitchPest) {
+            out << sep << (PQrw_dt / _dt);
+            if (SwitchErosion)
+                out << sep << (PQrs_dt / _dt);
+            //qDebug() << "pest" << PQrw_dt << PQrs_dt;
+        }
+
         out << "\n";
         fout.close();
     }}

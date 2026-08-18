@@ -34,6 +34,7 @@ functions: \n
 
 #include <algorithm>
 #include "model.h"
+//#define tiny 1e-8
 
 
 //---------------------------------------------------------------------------

@@ -220,18 +220,17 @@ void TWorld::setLegendColors()
     Colormap.clear();
     Colormap.append(0.0);
   //  Colormap.append(0.25);
-    Colormap.append(0.49);
+    Colormap.append(0.48);
     Colormap.append(0.5);
-    Colormap.append(0.51);
+    Colormap.append(0.52);
     Colormap.append(0.75);
     Colormap.append(1.0);
 
     Colors.clear();
-    Colors.append("#2b83ba");
-   // Colors.append("#a4ddd9");
-    Colors.append("#fffff0");
-    Colors.append("#dddddd");
-    Colors.append("#fffff0");
+    Colors.append("#2b83ba");//2470aa");//#4e7b97");
+    Colors.append("#cae3f3");//ebf4f9");
+    Colors.append("#eeeeee");
+    Colors.append("#f7f1de");
     Colors.append("#d3b03e");
     Colors.append("#d7191c");
 
@@ -310,7 +309,11 @@ void TWorld::GetComboMaps()
     cl = 2;
     AddComboMap(0,"Water Height","m",hmxWH,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
     AddComboMap(0,"Micro storage","m",WHstore,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+
     AddComboMap(0,"swatre n","m",tmshow,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+
+//    AddComboMap(0,"settling","m",tmshow,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+
  //   AddComboMap(0,"Water inflow","m3",ChannelQSide,LegendMap[cl],Legend[cl],true,false,1.0,1.0);
 //    if (Switch2DDiagonalFlow)
 //       AddComboMap(0,"Diagonal Discharge","l/s",Qdiag,LegendMap[cl],Legend[cl],false,false,1.0, 0.01);
@@ -427,14 +430,12 @@ void TWorld::GetComboMaps()
             factor = 10.0/(_dx*_dx);
             unit = "t/ha";
         }
-        AddComboMap(1,"Total Soil Loss",unit,TotalSoillossMap,LegendMap[cl],Legend[cl],false,true,factor, step);
 
+        AddComboMap(1,"Total Soil Loss",unit,TotalSoillossMap,LegendMap[cl],Legend[cl],false,true,factor, step);
+        AddComboMap(1,"frac dep","-",tmshow,LegendMap[cl],Legend[cl],false,false,1.0, step);
         cl = 8;
         AddComboMap(1,"Splash detachment",unit,DETSplashCum,LegendMap[cl],Legend[cl],false,false,factor, step);
         AddComboMap(1,"Flow detachment",unit,DETFlowCum,LegendMap[cl],Legend[cl],false,false,factor, step);
-        cl = 9;
-        AddComboMap(1,"Deposition",unit,DEPCum,LegendMap[cl],Legend[cl],false,false,-factor, step);
-
         cl = 8;
         AddComboMap(1,"Sed. Concentration","kg/m3",TotalConc,LegendMap[cl],Legend[cl],false,false,1.0, step);
         if (SwitchSedtrap)
@@ -443,7 +444,6 @@ void TWorld::GetComboMaps()
         double factor_g = 1/(_dx*_dx);
         QString unit_g = "kg/m2";
         AddComboMap(1,"Suspended sed.",unit_g,COMBO_SS,LegendMap[cl],Legend[cl],false,false,factor_g, step);
-
         AddComboMap(1,"TC suspended","kg/m3",COMBO_TC,LegendMap[cl],Legend[cl],false,false,1.0, step);
         if(SwitchUse2Phase) {
             AddComboMap(1,"Bedload sed.",unit_g,COMBO_BL,LegendMap[cl],Legend[cl],false,false,factor_g, step);
@@ -451,7 +451,21 @@ void TWorld::GetComboMaps()
          //   AddComboMap(1,"SS depth","m",SSDepthFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
          //   AddComboMap(1,"BL depth","m",BLDepthFlood,LegendMap[cl],Legend[cl],false,false,1.0, step);
         }
+        cl = 9;
+        AddComboMap(1,"Deposition",unit,DEPCum,LegendMap[cl],Legend[cl],false,false,-factor, step);
 
+    if (SwitchPest) {
+        AddComboMap(1,"PMInf",unit,PMinf,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PMSplash",unit,PMsplash,LegendMap[cl],Legend[cl],false,false,factor, step);
+        //AddComboMap(1,"Pest runoff",unit,PQrw,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PMrs (PMass ro solid)",unit,PMrs,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PMrw (PMass ro solve)",unit,PMrw,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PQrs (PQ flux ro solid)",unit,PQrs,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PQrw (PQ flux ro solve)",unit,PQrw,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PMmw (P mass water mixing)",unit,PMmw,LegendMap[cl],Legend[cl],false,false,factor, step);
+        AddComboMap(1,"PMsoil (P mass soil)",unit,PMsoil,LegendMap[cl],Legend[cl],false,false,factor, step);
+
+        }
         // cl = 9;
         // if(SwitchUseMaterialDepth) {
         //     AddComboMap(1,"Storage",unit,Storage,LegendMap[cl],Legend[cl],false,false,-factor, step);

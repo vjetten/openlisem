@@ -729,6 +729,27 @@ void lisemqt::on_checkDoErosion_toggled(bool checked)
     checkMapNameModel(EROSIONMAPS, 0, checked);
 }
 //---------------------------------------------------------------------------
+void lisemqt::on_checkPestcides_toggled(bool checked)
+{
+    groupPesticides->setEnabled(checked);
+
+}
+//---------------------------------------------------------------------------
+void lisemqt::on_E_PestKfilm_editingFinished()
+{
+    // auto *validator = new QDoubleValidator(this);
+    // validator->setNotation(QDoubleValidator::ScientificNotation);
+
+    // E_PestKfilm->setValidator(validator);
+
+    QRegularExpression rx("^[+-]?\\d*\\.?\\d+[eE][+-]?\\d+$");
+
+    E_PestKfilm->setValidator(new QRegularExpressionValidator(rx, E_PestKfilm));
+    QString s = E_PestKfilm->text();
+    double v = QLocale::c().toDouble(s);
+    E_PestKfilm->setText(QString::number(v));
+}
+//---------------------------------------------------------------------------
 void lisemqt::on_checkInfrastructure_toggled(bool checked)
 {
     widgetInfra->setEnabled(checked);
@@ -813,7 +834,11 @@ void lisemqt::on_E_InfiltrationMethod_currentIndexChanged(int index)
     label_153->setEnabled(index > 0);
     label_calth->setEnabled(index > 0);
     E_CalibrateTheta->setEnabled(index > 0);
-    E_CalibratePsi->setEnabled(index == 0);
+    if (index > 0 && checkInfilHinit->isChecked())
+        E_CalibratePsi->setEnabled(false);
+    else
+        E_CalibratePsi->setEnabled(true);
+    label_calpsi->setEnabled(E_CalibratePsi->isEnabled());
 }
 //---------------------------------------------------------------------------
 void lisemqt::on_toolButton_version_clicked()

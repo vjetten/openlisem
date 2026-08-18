@@ -84,7 +84,12 @@ struct output{
     FloodTotMax, FloodAreaMax, FloodArea, WHflood, FloodVolmm,
     FloodDetTot, FloodDepTot, FloodSedTot,
     // sediment
-    MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot, maxRainaxis;
+    MBs, DetTot, DetTotSplash, DetTotFlow, DepTot, SoilLossTot, SedTot, maxRainaxis,
+    //Pesticide
+    PCrw, PCrs, PQrw, PQrs, PMrw, PMrs, PCmw, PCms, PMinf, PMmw, PMms, PMOutW,
+    PMOutS, PMerr, PMperc, PestOutW, PestOutS, PMtotI;
+    QString PestName;
+
 
     // map pointers for display
     cTMap *baseMap;

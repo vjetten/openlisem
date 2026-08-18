@@ -275,7 +275,7 @@ void TWorld::TotalsFlow(void)
                     ChanRetentionVolTot += ChanRetentionAct->Drc;
             }}
             RetentionVolTotmm += ChanRetentionVolTot*catchmentAreaFlatMM;
-            qDebug() << "chan" << ChanRetentionVolTot << ChanRetentionVolTotPot;
+          //  qDebug() << "chan" << ChanRetentionVolTot << ChanRetentionVolTotPot;
         }
 
     }
@@ -362,7 +362,7 @@ void TWorld::TotalsFlow(void)
             //Qm3max->Drc = qMax(Qm3max->Drc, QBoundFlow->Drc);
         //}
 
-        Qoutput->Drc = Qoutput->Drc < 1e-10 ? 0.0 : Qoutput->Drc;
+      //  Qoutput->Drc = Qoutput->Drc < 1e-10 ? 0.0 : Qoutput->Drc;
     }}
     // Total outflow in m3 for all timesteps
     // does NOT include flood water leaving domain (floodBoundaryTot)
@@ -409,8 +409,11 @@ void TWorld::TotalsSediment(void)
             DETSplashCum->Drc += DETSplash->Drc;
             DETFlowCum->Drc += DETFlow->Drc;
             DEPCum->Drc += DEP->Drc;
+
+            // set to zero for next loop
+            DEP->Drc = 0;
+            DETFlow->Drc = 0;
         }}
-        // DEP is set to 0 each timestep
         // for total soil loss calculation: TotalSoillossMap
 
         //outflow from domain/channel
@@ -494,7 +497,7 @@ void TWorld::TotalsSediment(void)
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             TotalSoillossMap->Drc = DETSplashCum->Drc + DETFlowCum->Drc + DEPCum->Drc;
-            TotalSoillossMap->Drc = fabs(TotalSoillossMap->Drc) < 1e-3 ? 0.0 : TotalSoillossMap->Drc;
+          //  TotalSoillossMap->Drc = fabs(TotalSoillossMap->Drc) < 1e-3 ? 0.0 : TotalSoillossMap->Drc;
             // 0.001 kg/cellarea = 1/cellarea g/m2
         }}
 
@@ -515,7 +518,6 @@ void TWorld::TotalsSediment(void)
             // set to zero for next loop
             DepFlood->Drc = 0;
             BLDetFlood->Drc = 0;
-
             SSDetFlood->Drc = 0;
 
         }}
@@ -526,6 +528,26 @@ void TWorld::TotalsSediment(void)
         // so this is the total loos through the outlets and boundaries
 
     }
+
+    //=====***** PESTICIDES *****====//
+    if (SwitchPest)
+    {
+        double factor = 1 / (_dx * _dx);
+        // from mg/cell to mg/m2
+        #pragma omp parallel for num_threads(userCores)
+        FOR_ROW_COL_MV_L {
+            totalDPlossmap->Drc = pmwdet->Drc + pmwdep->Drc * factor;
+        }}
+
+        if (SwitchErosion) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                totalPPlossmap->Drc = pmsdet->Drc + pmsdep->Drc * factor;
+            }}
+
+        }
+    }
+
 }
 //---------------------------------------------------------------------------
 // NEEDS TESTING
@@ -690,5 +712,9 @@ void TWorld::MassBalance()
         MBs = detachment > 0 ? (detachment + deposition  - sediment)/detachment*100 : 0;
     }
 
+    // pesticides
+    if (SwitchPest) {
+        MassPest(PMtotI, PMerr, PMtot, PMserr, PMwerr);
+    }
 }
 //---------------------------------------------------------------------------

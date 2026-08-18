@@ -249,8 +249,6 @@ void TWorld::ParseRunfileData(void)
 
         //infiltration
         if (p1.compare("Include Infiltration")==0)              SwitchInfiltration = iii == 1;
-        // if (p1.compare("Use OM correction")==0)                 SwitchOMCorrection = iii == 1;
-        // if (p1.compare("Use Density correction")==0)            SwitchDensCorrection = iii == 1;
         if (p1.compare("Include compacted")==0)                 SwitchInfilCompact = iii == 1;
         if (p1.compare("Include crusts")==0)                    SwitchInfilCrust =   iii == 1;
         if (p1.compare("Dynamic crusting")==0)                  SwitchDynamicCrusting =   iii == 1;
@@ -259,7 +257,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use one matrix potential")==0)          SwitchHinit4all =    iii == 1;
         if (p1.compare("Impermeable sublayer")==0)              SwitchImpermeable =  iii == 1;
         if (p1.compare("Nr input layers")==0)                   SwitchNrLayers =     iii == 1;
-        if (p1.compare("Psi user input")==0)                    SwitchPsiUser =      iii == 1;
+        //if (p1.compare("Psi user input")==0)                    SwitchPsiUser =      iii == 1;
         if (p1.compare("Swatre output")==0)                     SwitchDumphead =     iii == 1;
         if (p1.compare("Include tile drains")==0)               SwitchIncludeTile =  iii == 1;
         if (p1.compare("Swatre dry")==0)                        SwitchSwatreDry =    iii == 1;
@@ -276,7 +274,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Include water height inflow")==0)       SwitchWaveUser  = iii == 1;
         if (p1.compare("Include GW flow")==0)                   SwitchGWflow  = iii == 1;
         if (p1.compare("GW flow explicit")==0)                  SwitchGW2Dflow  = iii == 1;
-        if (p1.compare("GW flow SWOF")==0)                      SwitchGWSWOFflow  = iii == 1;
+        // if (p1.compare("GW flow SWOF")==0)                      SwitchGWSWOFflow  = iii == 1;
         if (p1.compare("GW flow LDD")==0)                       SwitchLDDGWflow  = iii == 1;
         if (p1.compare("GW flow SWAT")==0)                      SwitchSWATGWflow  = iii == 1;
 
@@ -334,6 +332,11 @@ void TWorld::ParseRunfileData(void)
 
         }
         if (p1.compare("KE time based")==0) SwitchKETimebased = iii == 1;
+
+        // pesticides
+        if (p1.compare("Include Pesticides")==0)                SwitchPest = iii == 1;
+        //if (p1.compare("Report Pesticides")==0)                 SwitchReportPest = iii == 1;
+
 
         // infrastructure
         if (p1.compare("Include Infrastructure")==0)            SwitchInfrastructure =   iii == 1;
@@ -449,6 +452,7 @@ void TWorld::ParseRunfileData(void)
         SwitchRoadsystem = false;
         SwitchHardsurface = false;
         SwitchHouses = false;
+        SwitchIncludeStormDrains = false;
     }
     // stationary baseflow and impermeable soil allowed (ignoring where the stationary flow comes form !
 
@@ -639,6 +643,8 @@ void TWorld::ParseRunfileData(void)
     OutInt    = "int";
     Outvelo   = "v";
     Outinf    = "inf";
+//    Outinfilvol = "ivol";
+//    OutinfilvolKinWave = "ivkw";
     Outss     = "sstor";
     OutTheta1 = "the1l";
     OutTheta2 = "the2l";

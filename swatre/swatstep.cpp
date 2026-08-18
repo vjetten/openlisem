@@ -463,6 +463,7 @@ tmshow->Drc = count;
         }
     }
     pixel->thetaroot = sumth/n;
+    // used for pesticide
 
     //put new h back into h
     //memcpy(pixel->h.data(), h, nN * sizeof(double));

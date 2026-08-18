@@ -113,7 +113,7 @@ cTMap
 *Qn,                         //!< new discharge of overland flow after kin wave [m^3/s]
 *Qdiag,
 *VH,
-*QinKW,
+*QinKW,                      //!< new Q kinematic wave
 *QKW,
 *Qm3total,
 *Qm3max,
@@ -121,6 +121,7 @@ cTMap
 *Qoutput,                    //!< new discharge for output purposes, sum of overland flow and channel, converted [l/s]
 *Qs,                         //!< sediment discharge before kin wave [kg/s]
 *Qsn,                        //!< new sediment discharge after kin wave [kg/s]
+*SinKW,                      //!< New Sed flux kinematic wave
 *Qsoutput,                   //!< sediment outflow for screen/file output, sum of overland flow and channel [kg/s]
 //*q,                          //!< infiltration surplus going in kin wave (<= 0) [m2/s]
 *R,                          //!< hydraulic radius overland flow [m]
@@ -175,6 +176,43 @@ cTMap
 *Sed,                        //!< sediment content of flow [kg]
 *SettlingVelocitySS,           //!< settling velocity according to Stokes [m/s]
 *SettlingVelocityBL,           //!< settling velocity according to Stokes [m/s]
+*Sed_dt,
+
+// Pesticides
+*ThetaPest,
+*PMmw,                      //!< Mass of pesticides in water part of mixing zone [mg]
+*PMms,                      //!< Mass of pesticides in soil part of mixing zone [mg]
+*PMrw,                      //!< mass of pesticide in runoff water [mg]
+*PMrs,                      //!< mass of pesticide in runoff sediment [mg]
+*PMsoil,                    //!< mass of pesticide in the soil layer without mixing zone [mg]
+*PCrw,                      //!< concentration of pesticide in runoff water [mg/L]
+*PCrs,                      //!< concentration of pesticide in runoff sediment [mg/kg]
+*PCms,                      //!< concentration of pesticide in soil of mixing zone [mg/kg]
+*PCmw,                      //!< concentration of pesticide in water of mixing zone [mg/L]
+*PQrw,                      //!< flux of pesticide in runoff water [mg/sec]
+*PQrs,                      //!< flux of pesticide in runoff sediment [mg/sec]
+*PMinf,                     //!< mass of pesticide in infiltrating water [mg]
+*zm,                        //!< depth of the mixing layer [m]
+*zs,                        //!< depth of the soil layer containing pesticides [m]
+*SpinKW,                    //!< sum upstream influx Qpsn [mg/sec]
+*QpinKW,                    //!< sum upstream influx Qpn [mg/sec]
+*Qpw,                       //!< dissolved pesticide flux based on Qp [mg/sec]
+*Qps,                       //!< pesticide sediment flux based on Qs [mg/sec]
+*PCs,                       //!< concentration of pesticide in pesticide soil layer 1 [mg/kg]
+*Theta_mix,                 //!< theta of the mixing layer [-]
+*pmsdet,                     //!< mass of detached pesticide [mg]
+*pmsdep,                     //!< mass of deposited pesticide [mg]
+*pmwdep,                    //!< mass of deposited pesticide [mg]
+*pmwdet,                     //!< mass of detatched pesticide [mg]
+*WVji1,                     //!< water volume in cell at j, i+1 [m3]
+*SedMassIn,                  //!< sediment mass in to kinematic wave [kg]
+*SedAfterSplash,             //!< sediment mass in flow after splash [kg]
+*PMsplash,                   //!< mass detached sorbed pesticide by splash erosion [mg]
+*PMflow,                    //!< mass detached sorbed pesticide by flow detachement[mg]
+*PMdep,                     //!< mass deposited sorbed pesticide [mg]
+*totalPPlossmap,             //!< total loss of PP pesticide [mg/m2]
+*totalDPlossmap,             //!< total loss of DP pesticide [mg/m2]
+
 
 // infiltration
 *Fcum,                       //!< cumulative infiltration [m]
@@ -298,7 +336,7 @@ cTMap
 *ChannelInfM3,                //!<
 
 *ChannelAdj,                //!<
-*CHAdjDX,                //!<
+*CHAdjDX,                //!< channel adjusted DX
 *BaseflowL,
 
 *cosGrad,
@@ -442,5 +480,4 @@ cTMap
 *FlowBarrierET               //!< Flow barriers end timing East of cell
 
 ;
-
 cTRGBMap * RGB_Image;

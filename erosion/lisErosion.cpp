@@ -22,6 +22,10 @@
 **
 *************************************************************************/
 
+
+/// ALL THESE FUNCTIONS ARE OBSOLETE
+
+
 /*!
   \file lisErosion.cpp
   \brief Flow and splash detachment functions for slopes and channels
@@ -49,6 +53,8 @@ functions: \n
 #include "model.h"
 
 //---------------------------------------------------------------------------
+//OBSOLETE!!!
+
 /**
  * @fn void TWorld::FlowDetachment(void)
  * @brief Calculates flow detachment for overland flow in entire catchment
@@ -64,7 +70,7 @@ functions: \n
  * @see TWorld:DetachMaterial
  *
  */
-
+/*
 // Overland flow erosion for 1D flow only
 void TWorld::cell_FlowDetachment()
 {
@@ -76,8 +82,7 @@ void TWorld::cell_FlowDetachment()
         //transport capacity
         DETFlow->Drc = 0;
         DEP->Drc = 0;
-        TC->Drc = calcTCSuspended(r,c,-1, FS_SS_Method, WHrunoff->Drc, FlowWidth->Drc, V->Drc, 2);
-        // trasnport capacity. 2 = kin wave. 1 = 2d flow and 0 is river
+        TC->Drc = calcTCSuspended(r,c, FS_SS_Method, WHrunoff->Drc, FlowWidth->Drc, V->Drc, SUSPrunoff);
 
         if (erosionwh < HMIN) {
             if(DO_SEDDEP == 1) {
@@ -112,9 +117,9 @@ void TWorld::cell_FlowDetachment()
 
                 deposition = qMax(deposition, -Sed->Drc);
 
-                if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
-                    deposition = 0;
-                // VJ 190325 prevent any activity on the boundary!
+                //if (SwitchNoBoundarySed && FlowBoundary->Drc > 0)
+                //    deposition = 0;
+                // kin wave, there is no boundary
 
                 if (SwitchSedtrap && SedMaxVolume->Drc == 0 && N->Drc == SedTrapN) {
                     N->Drc = Norg->Drc;
@@ -184,10 +189,10 @@ void TWorld::cell_FlowDetachment()
                 detachment *= qBound(0.0,1.0 - (RoadWidthHSDX->Drc/_dx),1.0);
                 // no flow detachment on hard surfaces, map is 0 is not selected
 
-                if (SwitchSedtrap && SedMaxVolume->Drc > 0)
+                if (SwitchSedtrap && SedMaxVolume->Drc >= 0)
                     detachment = 0;
 
-                if (SwitchGridRetention && GridRetention->Drc > 0)
+                if (SwitchGridRetention && GridRetention->Drc >= 0)
                     detachment = 0;
 
                 if(Sed->Drc+detachment > MAXCONC * erosionwv)
@@ -200,6 +205,7 @@ void TWorld::cell_FlowDetachment()
             // add to sediment in flow (IN KG/CELL)
             Sed->Drc += detachment;
             Sed->Drc += deposition;
+            Sed->Drc = qMax(0.0, Sed->Drc);
             DETFlow->Drc += detachment;
             DEP->Drc += deposition;
             Conc->Drc = MaxConcentration(erosionwv, Sed->Drc);
@@ -208,6 +214,8 @@ void TWorld::cell_FlowDetachment()
     }}
 }
 
+
+// experimental not used
 void TWorld::cell_FlowDetachmentContinuous()
 {
     #pragma omp parallel for num_threads(userCores)
@@ -218,7 +226,7 @@ void TWorld::cell_FlowDetachmentContinuous()
         //transport capacity
         DETFlow->Drc = 0;
         DEP->Drc = 0;
-        TC->Drc = calcTCSuspended(r,c,-1, FS_SS_Method, WHrunoff->Drc, FlowWidth->Drc, V->Drc, 2);
+        TC->Drc = calcTCSuspended(r,c, FS_SS_Method, WHrunoff->Drc, FlowWidth->Drc, V->Drc, 2);
         // trasnport capacity. 2 = kin wave. 1 = 2d flow and 0 is river
 
         if (erosionwh < HMIN) {
@@ -246,16 +254,15 @@ void TWorld::cell_FlowDetachmentContinuous()
             }
             // mannings N becomes normal when sedtrap is full
 
-            if (SwitchSedtrap && SedMaxVolume->Drc > 0) {
+            if (SwitchSedtrap && SedMaxVolume->Drc > 0)
+            {
                 if (Sed->Drc > 0) {
-                    double depvol = Sed->Drc/BulkDens; // m3
+                    double depvol = Sed->Drc * 1.0/BulkDens; // m3
                     if (SedMaxVolume->Drc < depvol)
                         depvol = SedMaxVolume->Drc;
                     if (SedMaxVolume->Drc > 0){
                         deposition = -depvol*BulkDens;
                     }
-                    SedMaxVolume->Drc = SedMaxVolume->Drc - depvol;
-                    SedimentFilter->Drc += depvol*BulkDens;
                 }
             }
 
@@ -321,4 +328,4 @@ void TWorld::cell_FlowDetachmentContinuous()
     }}
 }
 
-
+*/

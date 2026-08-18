@@ -1,4 +1,4 @@
-﻿/*************************************************************************
+/*************************************************************************
 **  openLISEM: a spatial surface water balance and soil erosion model
 **  Copyright (C) 1992, 2003, 2016, 2024  Victor Jetten
 **  contact: v.g.jetten AD utwente DOT nl
@@ -53,6 +53,9 @@ void TWorld::GetInputData(void)
 
     InitErosion();
     //extended sediment stuff
+
+    InitPesticides();
+    // pesticide stuff
 
     InitChannel();
     //## read and initialize all channel maps and variables
@@ -171,9 +174,11 @@ void TWorld::InitParameters(void)
         SwitchLinkedList = false; //getvalueint("Use linked List") == 1;
         SwitchPerimeterKW = getvalueint("Use Perimeter KW") == 1;
         _dtCHkin = _dx/2;//getvaluedouble("Channel Kinwave dt");
-        SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1;
+        SwitchChannel2DflowConnect = getvalueint("Channel 2D flow connect") == 1; // is set to true ininterface and disabled
         SwitchChannelWFinflow = false;//getvalueint("Channel WF inflow") == 1;
         SwatrePrecision = getvaluedouble("SWATRE precision");
+        SwitchDfDpExponential = getvalueint("Deposition exponential") == 1;
+        SwitchDepositionContinuous = getvalueint("Deposition continuous") == 1;
     } else {
         F_MaxIter = 200;
         F_minWH = he_ca;
@@ -185,7 +190,8 @@ void TWorld::InitParameters(void)
         _dtCHkin = _dx/2;
         SwitchChannel2DflowConnect = false;
         SwitchChannelWFinflow = false;
-
+        SwitchDfDpExponential = false;
+        SwitchDepositionContinuous = true;
         nN1_ = 3;
         nN2_ = 3;
         nN3_ = 6;
@@ -620,8 +626,8 @@ void TWorld::calcSoilPhysics(cTMap *Ksat, cTMap *lambda, cTMap *thfc, cTMap *thr
         lambda->Drc = qMin(qMax(0.1,lambda->Drc),0.7);
 
         psiae->Drc = exp( -0.3012*logks + 3.5164);
-        if (!SwitchPsiUser)
-            psi->Drc = exp(-0.3382*logks + 3.3425); // psi is different than air entry potential/bubble pressure
+     //   if (!SwitchPsiUser)
+            //psi->Drc = exp(-0.3382*logks + 3.3425); // psi is different than air entry potential/bubble pressure
 
         thr->Drc = 0.0673*exp(-0.238*logks);
         thfc->Drc = -0.0519*logks + 0.3714;
@@ -694,7 +700,7 @@ void TWorld::InitSoilInput(void)
     if(InfilMethod != INFIL_SWATRE)
     {
         nrSoilLayers = getvalueint("Nr input layers");
-        //SwitchPsiUser = false; // MC - moved to the section with defaults
+        SwitchPsiUser = false; // MC - moved to the section with defaults
 
         SoilDepth1 = ReadMap(LDD,getvaluename("soildep1"));
         calcValue(*SoilDepth1, 1000, DIV);
@@ -714,10 +720,10 @@ void TWorld::InitSoilInput(void)
         psi1ae = NewMap(0);
         ThetaFC1 = NewMap(0);
         lambda1 = NewMap(0);
-        if (SwitchPsiUser)
+     //   if (SwitchPsiUser)
             Psi1 = ReadMap(LDD,getvaluename("psi1"));
-        else
-            Psi1 = NewMap(0);
+//        else
+//            Psi1 = NewMap(0);
         calcSoilPhysics(Ksat1, lambda1, ThetaFC1, ThetaR1, Psi1, psi1ae, ksatCalibration, psiCalibration);
 
         if (nrSoilLayers == 2) {
@@ -757,10 +763,10 @@ void TWorld::InitSoilInput(void)
             lambda2 = NewMap(0);             // lambda brooks corey
             psi2ae = NewMap(0);
             ThetaFC2 = NewMap(0);
-            if (SwitchPsiUser)
+       //     if (SwitchPsiUser)
                 Psi2 = ReadMap(LDD,getvaluename("psi2"));
-            else
-                Psi2 = NewMap(0);
+       //     else
+       //         Psi2 = NewMap(0);
             calcSoilPhysics(Ksat2, lambda2, ThetaFC2, ThetaR2, Psi2, psi2ae, ksat2Calibration, psiCalibration);
 
         }
@@ -785,10 +791,10 @@ void TWorld::InitSoilInput(void)
             lambda3 = NewMap(0);             // lambda brooks corey
             psi3ae = NewMap(0);
             ThetaFC3 = NewMap(0);
-            if (SwitchPsiUser)
+//            if (SwitchPsiUser)
                 Psi3 = ReadMap(LDD,getvaluename("psi3"));
-            else
-                Psi3 = NewMap(0);
+//            else
+  //              Psi3 = NewMap(0);
             calcSoilPhysics(Ksat3, lambda3, ThetaFC3, ThetaR3, Psi3, psi3ae, ksat3Calibration, psiCalibration);
 
         }
@@ -1593,7 +1599,6 @@ void TWorld::InitErosion(void)
 
     COHCalibration = getvaluedouble("Cohesion calibration");
     Cohesion = ReadMap(LDD,getvaluename("coh"));
-
     RootCohesion = ReadMap(LDD,getvaluename("cohadd"));
 
     ASCalibration = getvaluedouble("Aggregate stability calibration");
@@ -1647,9 +1652,9 @@ void TWorld::InitErosion(void)
     R_SS_Method  = getvalueint("River SS method")-1;
     R_BL_Method  = getvalueint("River BL method")-1;
 
-    FS_SigmaDiffusion = getvaluedouble("Sigma diffusion");
-    R_SigmaDiffusion = getvaluedouble("Sigma diffusion"); // same diffusion for river and OF
-
+    FS_SigmaDiffusion = 0.5;// getvaluedouble("Sigma diffusion"); Prandtl Smith turbulense factor
+    R_SigmaDiffusion = 0.5;//getvaluedouble("Sigma diffusion"); // same diffusion for river and OF
+//Prandtl Smidt turbulense factor
     SVCHCalibration = 1;
     //SVCHCalibration = getvaluedouble("SV calibration");
 
@@ -1670,6 +1675,7 @@ void TWorld::InitErosion(void)
 
     Qs = NewMap(0);
     Qsn = NewMap(0);
+    SinKW = NewMap(0);
 
     DetSplashTot = 0;
     DetFlowTot = 0;
@@ -1693,6 +1699,7 @@ void TWorld::InitErosion(void)
     Sed = NewMap(0);
     TC = NewMap(0);
     Conc = NewMap(0);
+    Sed_dt = NewMap(0);
 
     SettlingVelocitySS = NewMap(0);
     SettlingVelocityBL = NewMap(0);
@@ -1711,11 +1718,11 @@ void TWorld::InitErosion(void)
    // qDebug() << "SwitchEfficiencyDET" <<SwitchEfficiencyDET;
 
     FOR_ROW_COL_MV {
-        if (RootCohesion->Drc < 0) // root cohesion can be used to avoid surface erosion base don land use
-            CohesionSoil->Drc = -1;
 
-        if (CohesionSoil->Drc >= 0)
+        if (Cohesion->Drc >= 0 && RootCohesion->Drc >= 0)
             CohesionSoil->Drc = COHCalibration*(Cohesion->Drc + Cover->Drc*RootCohesion->Drc);
+        else
+            CohesionSoil->Drc = -1;
 
         // soil cohesion everywhere, plantcohesion only where plants
         if (SwitchGrassStrip)
@@ -1982,6 +1989,10 @@ void TWorld::IntializeData(void)
         BaseFlowInit = MapTotal(*BaseFlowInitialVolume);
         // correct mass balance
 
+    // load data for pesticide
+    SedMassIn = NewMap(0);
+    SedAfterSplash = NewMap(0);
+
 }
 //---------------------------------------------------------------------------
 //TODO: are all switches and options initialised here?
@@ -2022,6 +2033,9 @@ void TWorld::IntializeOptions(void)
     tileWaterVolfilename= QString("drainvol.map");
     //tileQmaxfilename= QString("drainqmax.map");
 
+    //Pesticide
+    //resultPestFile= QString("pest.csv");
+
     rainFileName.clear();
     rainFileDir.clear();
     rainSatFileName.clear();
@@ -2059,7 +2073,7 @@ void TWorld::IntializeOptions(void)
     SwitchWriteHeaders = true; // write headers in output files in first timestep
 
     SwitchAdvancedOptions = false;
-    SwitchPsiUser = false;
+    SwitchPsiUser = true;
     SwitchRainfall = true;
     SwitchSnowmelt = false;
     SwitchRoadsystem = false;
@@ -2121,6 +2135,9 @@ void TWorld::IntializeOptions(void)
     SwitchSedtrap = false;
     SwitchGridRetention = false;
     SwitchGrassStrip = false;
+
+    SwitchPest = false;
+    //SwitchReportPest = false;
 
 
 //    SwitchPesticide = false;
@@ -2382,6 +2399,7 @@ void TWorld::InitImages()
 // for soil tile drains and road strom drains the same maps are used
 void TWorld::InitTiledrains(void)
 {
+qDebug() << SwitchIncludeTile << SwitchIncludeStormDrains;
     if (SwitchIncludeTile || SwitchIncludeStormDrains) {
         // channel vars and maps that must be there even if channel is switched off
         TileWaterVol = NewMap(0);
@@ -2561,7 +2579,7 @@ void TWorld::InitShade(void)
 }
 //---------------------------------------------------------------------------
 // for drawing onscreen
-void TWorld::InitScreenChanNetwork()
+void TWorld::InitScreenChanNetwork(void)
 {
     op.EndPointX.clear();
     op.EndPointY.clear();
@@ -2815,3 +2833,74 @@ void TWorld::InitNewSoilProfile()
     }}
 
 }
+    //---------------------------------------------------------------------------
+    void TWorld::InitPesticides(void)
+    {
+        if(!SwitchPest)
+            return;
+
+        // get constants from runfile
+        KdPest = getvaluedouble("Kd pesticide");
+        KfilmPest = getvaluedouble("Kfilm pesticide");
+        KfilmPest = KfilmPest / 1000; // mm sec-1 to m sec-1
+        ERbetaPest = getvaluedouble("ERbeta pesticide");
+        KrPest = getvaluedouble("Kr pesticide");
+        KrPest = KrPest / 60; // min-1 to sec-1
+        ERmaxPest = getvaluedouble("ERmax pesticide");
+
+        rhoPest = getvaluedouble("Rho mixing layer");
+        PestName = getvaluestring("Pesticide name");
+
+        // load maps
+        PCms = ReadMap(LDD,getvaluename("pcmixsoil"));
+        PCmw = ReadMap(LDD,getvaluename("pcmixwat"));
+        zm = ReadMap(LDD,getvaluename("pestmixdep"));
+        //VJ-P zm should be the min of zm and the wetting front depth Lw ?
+
+        zs = ReadMap(LDD,getvaluename("pestsoildep1"));
+        PCs = ReadMap(LDD,getvaluename("pcsoil1"));
+
+        //Maps for pesticide_MC
+        ThetaPest = NewMap(0);
+
+        PMmw = NewMap(0);
+        PMms = NewMap(0);
+        PMrw = NewMap(0);
+        PMsoil = NewMap(0);
+        PCrw = NewMap(0);
+        PQrw = NewMap(0);
+        Qpw = NewMap(0);
+        PMinf = NewMap(0);
+        pmwdet = NewMap(0);
+        pmwdep = NewMap(0);
+        WVji1 = NewMap(0);
+        SpinKW = NewMap(0);
+        QpinKW = NewMap(0);
+        Theta_mix = NewMap(0);
+        totalDPlossmap = NewMap(0);
+        if (SwitchErosion) {
+            PQrs = NewMap(0);
+            PCrs = NewMap(0);
+            PMrs = NewMap(0);
+            Qps = NewMap(0);
+            pmsdet = NewMap(0);
+            pmsdep = NewMap(0);
+            PMsplash = NewMap(0);
+            PMflow = NewMap(0);
+            PMdep = NewMap(0);
+            totalPPlossmap = NewMap(0);
+        }
+
+        // total masses
+        PestOutW = 0;
+        Pestinf = 0;
+        PMtot = 0;
+        PMerr = 0;
+        PMtotI = 0;
+        PMwerr = 0;
+        PMserr = 0;
+        PQrw_dt = 0;
+        PQrs_dt = 0;
+        PestOutS = 0;
+    }
+

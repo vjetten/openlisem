@@ -27,7 +27,7 @@
 
 
 //---------------------------------------------------------------------------
-void TWorld::cell_SplashDetachment()
+void TWorld::SplashDetachment()
 {
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L  {
@@ -139,7 +139,9 @@ void TWorld::cell_SplashDetachment()
                     Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
                 }
             }
-
+            if (SwitchPest) {
+                SedAfterSplash->Drc = Sed->Drc; //needed for pesticide detachment
+            }
             DETSplash->Drc = DETSplash_;
             // IN KG/CELL
         }

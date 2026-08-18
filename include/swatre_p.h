@@ -135,7 +135,6 @@ typedef struct PROFILE {
 typedef struct PIXEL_INFO {
     const PROFILE *profile;    /** profile this pixel belongs to */
     QVector <double> h;
-   // QVector <double> theta;
     int r;
     int c;
     double wh;

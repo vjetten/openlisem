@@ -38,9 +38,6 @@ void TWorld::GroundwaterFlow(void)
     if (SwitchTwoLayer) {
         pore = ThetaS2;
         SoilDepthinit = SoilDepth2init;
-//        FOR_ROW_COL_MV_L {
-//            SoilDepthinit->Drc = SoilDepthinit->Drc - SoilDepth1init->Drc;
-//        }}
         SoilDepth = SoilDepth2;
     } else {
         pore = Poreeff;
@@ -90,17 +87,17 @@ void TWorld::GroundwaterFlow(void)
          //GWFlow2D(1.0);
     }
 
-    if (SwitchGWSWOFflow) {
-        double er = fullSWOF2GW(GWWH, GWU, GWV, GWz);
-        //Fill(*tma,0);
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            GWout->Drc = sqrt(GWU->Drc*GWU->Drc + GWV->Drc*GWV->Drc) * _dx * GWWH->Drc * _dt;
-            GWVol->Drc = GWWH->Drc*pore->Drc*CHAdjDX->Drc;
-            //tma->Drc = sqrt(GWU->Drc*GWU->Drc + GWV->Drc*GWV->Drc)*1000*3600/_dt;
-        }}
-        //report(*tma,"gwv");
-    }
+    // if (SwitchGWSWOFflow) {
+    //     double er = fullSWOF2GW(GWWH, GWU, GWV, GWz);
+    //     //Fill(*tma,0);
+    //     #pragma omp parallel for num_threads(userCores)
+    //     FOR_ROW_COL_MV_L {
+    //         GWout->Drc = sqrt(GWU->Drc*GWU->Drc + GWV->Drc*GWV->Drc) * _dx * GWWH->Drc * _dt;
+    //         GWVol->Drc = GWWH->Drc*pore->Drc*CHAdjDX->Drc;
+    //         //tma->Drc = sqrt(GWU->Drc*GWU->Drc + GWV->Drc*GWV->Drc)*1000*3600/_dt;
+    //     }}
+    //     //report(*tma,"gwv");
+    // }
 
     if (SwitchLDDGWflow)
         GWFlowLDDKsat(); // ldd with ksat based flow
