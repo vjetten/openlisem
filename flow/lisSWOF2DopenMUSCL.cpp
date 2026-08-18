@@ -94,7 +94,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
                 dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
 
-            } while (dt1 > dt_req_min && step < 2);
+            } while (dt1 > dt_req_min && step < 3);
 
             doSWOFStV(dt_req_min, h, u, v);
 
