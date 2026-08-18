@@ -206,6 +206,72 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
                 case SHAPEFREE : chanHandPRect(r,c); break;
             }
 
+            double Ac = ChannelWidth->Drc * ChannelDX->Drc;
+            double As = CellArea->Drc - Ac;
+
+            double d = ChannelWH->Drc - ChannelDepth->Drc;
+            double H = _h->Drc;
+
+            if (H < 1e-6 && d < 1e-6)
+                continue;
+
+            if (std::fabs(H - d) < 1e-6)
+                continue;
+
+            double Cd = 0.56;
+
+            // Total crest/bank length.
+            // Use 2*ChannelDX only if there really are two independent
+            // channel banks receiving/transferring water.
+            double L = 2.0 * ChannelDX->Drc;
+
+            double H_eq = (H * As + d * Ac) / (As+Ac); // equilibrium water level
+
+            double transfer_volume = 0.0;
+            bool tochannel = false;
+
+            if (H > d) {
+                // ---------------------------------------------------------
+                // CASE 1:
+                // surface water higher than channel, d can be negative
+                // surface -> channel
+                // ---------------------------------------------------------
+                tochannel = true;
+                double needed_volume  = 0;
+                if (H_eq > 0.0)
+                    // Both surface and channel contain water at equilibrium.
+                    needed_volume = (H - H_eq) * As;
+                else
+                    needed_volume = H * As;
+                // all surface water fits into channel
+
+                // Broad-crested weir discharge.
+                // Channel is below the surface, so this is free flow.
+                double velocityHead = V->Drc * V->Drc / (2.0 * GRAV);    // added factor of incoming velocity pushing water into channel
+                double hydraulic_volume = _dt*Cd*L*SQRT2G * std::pow(H + velocityHead, 1.5);
+
+                transfer_volume = qMin(hydraulic_volume, needed_volume);
+
+            } else {
+
+                // ---------------------------------------------------------
+                // CASE 2:
+                // channel water higher than surface
+                // channel -> surface, so d is > 0
+                // ---------------------------------------------------------
+
+                tochannel = false;
+
+                // Volume required to reach equilibrium.
+                double needed_volume =  qMax((d - H_eq) * Ac, 0.0);
+
+                double hydraulic_volume = _dt*L*Cd*SQRT2G * std::pow(d - H,1.5);
+
+                transfer_volume = qMin(hydraulic_volume, needed_volume);
+            }
+
+/*
+
             double dCHh = ChannelWH->Drc-ChannelDepth->Drc;  // can be + or -
             double dCHh0 = qMax(dCHh, 0.0);  // overflow depth
             double H = _h->Drc; // runoff height
@@ -223,24 +289,23 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
             bool tochannel = true;
             double transfer_volume = 0;
             double Cd = 0.56; // 2/3 * 0.86
-            double lengthfactor = 2.0*_dt*ChannelDX->Drc; //length of the weir and from both sides 2.0
+            double lengthfactor = 2.0*ChannelDX->Drc; //length of the weir and from both sides 2.0
             double velocityfactor = V->Drc*V->Drc/(2*GRAV);
             //do not use factor 2 for flow on both sides
 
             // lower water level in the channel, flow to the channel
-            if(dCHh < 0){
-                double negvol = ChannelMaxArea->Drc*ChannelDX->Drc - ChannelWaterVol->Drc; //volume deficit in channel
-                double freeflow_tochan = lengthfactor*Cd*SQRT2G*std::pow(H+velocityfactor,1.5); // volume broad weir flow to channel
+            if(dCHh < 0) {
+                double negvol = ChannelMaxArea->Drc*ChannelDX->Drc - ChannelWaterVol->Drc; //volume deficit in channel, channelmaxarea is cross section when bankfull
+                double freeflow_tochan = _dt*lengthfactor*Cd*SQRT2G*std::pow(H+velocityfactor,1.5); // volume broad weir flow to channel
 
                 needed_volume = H*area_surface;
                 // if flow fills up channel create equilibrium level
-//                if (transfer_volume > negvol) {
-
                 if (freeflow_tochan > negvol) {
-                    double heq = (freeflow_tochan-negvol)/CellArea->Drc;
+                    double H_eq = (dCHh*area_channel + H*area_surface)/CellArea->Drc;
+//                    double heq = (freeflow_tochan-negvol)/CellArea->Drc;
 //                    double heq = (transfer_volume-negvol)/CellArea->Drc;
                     // equilibrium level
-                    needed_volume = negvol + (H-heq)*CellArea->Drc;
+                    needed_volume = negvol + (H-H_eq)*CellArea->Drc;
                     // transfer_volume = vol needed for equilibrium level
                 }
                 transfer_volume = qMin(freeflow_tochan, needed_volume);
@@ -256,7 +321,7 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
                     // surface water higher than channel water, drowned broad crested weir
                     needed_volume = (H - H_eq)*area_surface;
                     // vol needed to reach equilibrium level
-                    double transfer_volume_tochan = lengthfactor*Cd*SQRT2G*std::pow(H+velocityfactor - dCHh0,1.5);
+                    double transfer_volume_tochan = _dt*lengthfactor*Cd*SQRT2G*std::pow(H+velocityfactor - dCHh0,1.5);
                     // drowned flow to channel with velocity of approach
                     transfer_volume = qMin(transfer_volume_tochan, needed_volume);
                     tochannel = true;
@@ -264,12 +329,13 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
                     // flow from channel, drowned weir in the other direction, no added velocity
                     needed_volume = (dCHh - H_eq)*area_channel;
                     // vol needed to reach equilibrium level
-                    double transfer_volume_fromchan = lengthfactor*Cd*SQRT2G*std::pow(dCHh0 - H,1.5);
+                    double transfer_volume_fromchan = _dt*lengthfactor*Cd*SQRT2G*std::pow(dCHh0 - H,1.5);
                     // drowned flow from channel
                     transfer_volume = qMin(transfer_volume_fromchan, needed_volume);
                     tochannel = false;
                 }
             }
+*/
 
             if (tochannel) {
                 WaterVolall->Drc -= transfer_volume;
@@ -278,7 +344,6 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
                 WaterVolall->Drc += transfer_volume;
                 ChannelWaterVol->Drc -= transfer_volume;
             }
-
             //Update channel water height from volume
             switch (crch_[i_].shape) {
                 case SHAPERECT : chanHandPRect(r,c); break;
@@ -289,14 +354,14 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
             }
 
             // update surface water height
-            _h->Drc = qMax(0.0, WaterVolall->Drc-MicroStoreVol->Drc) / area_surface;
+            _h->Drc = qMax(0.0, WaterVolall->Drc-MicroStoreVol->Drc) / As;//area_surface;
             // _h is WHrunoff 2D flow and hmxrunoff for kindyn
 
             if (SwitchKinematic2D == K2D_METHOD_KINDYN) {
-                hmx->Drc = WaterVolall->Drc/area_surface;
+                hmx->Drc = WaterVolall->Drc/As;//area_surface;
                 hmxWH->Drc = hmx->Drc;
             } else {
-                WH->Drc =  WaterVolall->Drc/area_surface; ///_h->Drc + WHstore->Drc;
+                WH->Drc =  WaterVolall->Drc/As; //area_surface; ///_h->Drc + WHstore->Drc;
                 hmxWH->Drc = WH->Drc;
             }
 
