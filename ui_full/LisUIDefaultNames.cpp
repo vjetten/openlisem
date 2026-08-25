@@ -723,6 +723,8 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("WH extreme threshold");
     namelist[i].value = QString("200");
     namelist[i++].name = QString("Flood max iterations");
+    namelist[i].value = QString("3");
+    namelist[i++].name = QString("MUSCL max steps");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Use time avg V");
     namelist[i].value = QString("1");

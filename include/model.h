@@ -1072,7 +1072,7 @@ public:
 
     // => 2D flow according to FULLSWOF2D
     double Flood_DTMIN;
-    int F_scheme, F_fluxLimiter, F_MaxIter, F_AddGravity;
+    int F_scheme, F_fluxLimiter, F_MaxIter, F_maxMUSCL;
     double F_minWH;
     double F_pitValue;
     bool startFlood;

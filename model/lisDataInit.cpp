@@ -166,6 +166,7 @@ void TWorld::InitParameters(void)
 
     if (SwitchAdvancedOptions) {
         F_MaxIter = getvalueint("Flood max iterations");
+        F_maxMUSCL = getvalueint("MUSCL max steps");
         F_fluxLimiter = getvalueint("Flooding SWOF flux limiter"); //minmax, vanleer, albeda
         F_scheme = getvalueint("Flooding SWOF Reconstruction");   //HLL HLL2 Rusanov
         F_minWH = getvaluedouble("Minimum WH and V flow");   //HLL HLL2 Rusanov
@@ -181,6 +182,7 @@ void TWorld::InitParameters(void)
         SwitchDepositionContinuous = getvalueint("Deposition continuous") == 1;
     } else {
         F_MaxIter = 200;
+        F_maxMUSCL = 3;
         F_minWH = he_ca;
         F_fluxLimiter = 1; //minmod, vanleer, albeda
         F_scheme = 3;   //Rusanov HLL HLL2 HLL2c

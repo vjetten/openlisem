@@ -1143,6 +1143,7 @@ void lisemqt::resetTabAdvanced()
 {
     E_FloodMaxIter->setValue(200);
     E_FloodReconstruction->setValue(4);  //HLL2 etc
+    spinMaxMUSCL->setValue(3);
     //E_Z2Dcorrection->setValue(1.0);  //HLL2 etc
     E_FloodFluxLimiter->setValue(1);     //minmod etc
     E_courantFactorSed->setValue(0.2);

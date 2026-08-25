@@ -39,6 +39,14 @@
  * During this process, surpluss potential infilration is subtracted from the water content.
  * Based on the options in the run file, either the 1D or 2D kinematic wave is used.
  * Sediment transport in overland flow is automatically taken into accaunt.
+ *
+ * @fn void TWorld::ToChannelBroadWeir(void)
+ * @brief Calculates fraction of overland flow that flows into channel
+ *
+ * Calculates fraction of overland flow that flows into channel.
+ * This fraction is based on channel width and flow velocity
+ *
+ * @return void
  */
 
 //---------------------------------------------------------------------------
@@ -47,9 +55,9 @@ void TWorld::OverlandFlow(void)
     if(SwitchKinematic2D == K2D_METHOD_DYN) {
         OverlandFlow2Ddyn();
         // dynamic wave overland flow, water and sediment and pesticides
+
     } else {
         // kin wave overland flow
-
         CalcVelDisch();
         // Q, V and Alpha Manning
 
@@ -58,6 +66,7 @@ void TWorld::OverlandFlow(void)
 
            // cell_FlowDetachment(); // obsolete
 
+            // detachment and deposition of sed
             if (SwitchDepositionContinuous)
                 SedimentSSContinuous(_dt, WHrunoff, ChannelAdj, V, Sed, Conc, TC, DETFlow, DEP, SettlingVelocitySS, SUSPrunoff);
             else
@@ -79,14 +88,14 @@ void TWorld::OverlandFlow(void)
             ToChannelBroadWeir();
             // kin wave interaction with channel (FloodDomain = 0)
 
-            // TODO pesticide to channel
+            // TODO pesticide to channel in kin wave
 
             // if 2D overflow do that
             if (SwitchKinematic2D == K2D_METHOD_KINDYN) {
                 ToFlood();
-                // transfer kin wave WHrunoff and sed to flood height hmx and SSFlood where both exist
+                // transfer kin wave WHrunoff and sed to flood height hmx and SSFlood where both exist (flooddomain > 0)
                 ChannelOverflowBroadWeir(hmxrunoff, V);
-                // 2D flow part interact with channel (FloodDomain > 0)
+                // 2D flow part interact with channel
                 ChannelFlood();
                 // dyn wave for flooded part
             }
@@ -103,10 +112,6 @@ void TWorld::OverlandFlow2Ddyn(void)
     // NOTE: only broad crested weir works with different channel shapes!
     ChannelOverflowBroadWeir(WHrunoff, V);
     // this changes channel and surface water volume
-
-    // obsolete this is only for a rectangular channel
-    //    ChannelOverflow(WHrunoff, V);
-
     // after this new ChannelHW and WHrunoff, and Susp sediment values ChannelSSSed and SSFlood->Drc
 
     startFlood = false;
@@ -136,67 +141,9 @@ void TWorld::OverlandFlow2Ddyn(void)
 
 }
 //--------------------------------------------------------------------------------------------
-// ToChannel is ONLY called with KIN or KINDYN
-/**
- * @fn void TWorld::ToChannel(void)
- * @brief Calculates fraction of overland flow that flows into channel
- *
- * Calculates fraction of overland flow that flows into channel.
- * This fraction is based on channel width and flow velocity
- *
- * @return void
- */
 
-    //OBSOLETE: replaced wioth broadweir principles
-void TWorld::ToChannel()
-{
-    if (!SwitchIncludeChannel)
-        return;
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
-        if (WHrunoff->Drc > 0 && FloodDomain->Drc == 0 && !crch_.at(i_).culvert) {
-
-            double fractiontochannel = qMin(1.0, _dt*V->Drc/(0.5*ChannelAdj->Drc));
-            // fraction to channel calc from half the adjacent area width and flow velocity
-
-            if (SwitchKinematic2D == K2D_METHOD_KINDYN &&
-                    WHrunoff->Drc <= qMax(0.0 , ChannelWH->Drc - ChannelDepth->Drc))
-                fractiontochannel = 0;
-            // cannot flow into channel if water level in channel is higher than runoff depth
-
-            if (fractiontochannel > 0) {
-                double dwh = fractiontochannel*WHrunoff->Drc;
-                double dvol = dwh*CHAdjDX->Drc;//fractiontochannel*(WaterVolall->Drc - MicroStoreVol->Drc);
-
-                // water diverted to the channel
-                ChannelWaterVol->Drc += dvol;
-                ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
-
-                WHrunoff->Drc -= dwh;
-                WH->Drc -= dwh;
-                hmxWH->Drc = WH->Drc;
-                WaterVolall->Drc = CHAdjDX->Drc*hmxWH->Drc;        //(WHrunoff->Drc) + MicroStoreVol->Drc;
-
-                if (SwitchErosion) {
-                    double dsed = fractiontochannel*Sed->Drc;
-                    double maxsed = MAXCONC * ChannelWaterVol->Drc;
-                    if (ChannelSSSed->Drc  + dsed > maxsed)
-                        dsed = maxsed - ChannelSSSed->Drc;
-                    if (dsed > 0) {
-                        ChannelSSSed->Drc += dsed; //sediment diverted to the channel
-                        Sed->Drc -= dsed;
-                        Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
-                        // adjust sediment in suspension
-                        RiverSedimentLayerDepth(r,c);
-                        RiverSedimentMaxC(r,c);
-                    }
-                }
-            }
-        }
-   }}
-}
 //--------------------------------------------------------------------------------------------
+// ToChannelBroadWeir is ONLY called with KIN or KINDYN
 // used only in kin wave without overflow
 // based on broad crested weir function like 2D flow
 void TWorld::ToChannelBroadWeir()
@@ -212,6 +159,7 @@ void TWorld::ToChannelBroadWeir()
                     WHrunoff->Drc <= qMax(0.0 , ChannelWH->Drc - ChannelDepth->Drc))
                 continue;
             // cannot flow into channel if water level in channel is higher than runoff depth
+            // when kin wave + dyn wave is chosen, else channel is always deep enough!
 
             // potentially all surface water flows into channel
             double Cd = 0.56;
@@ -403,4 +351,55 @@ void TWorld::OverlandFlow1D(void)
         //this function takes care of dissolved and sorbed kinematic wave
         PesticideFlow1D();
     }
+}
+
+//------------------------------------------------------
+//OBSOLETE: replaced with broadweir principles
+void TWorld::ToChannel()
+{
+    if (!SwitchIncludeChannel)
+        return;
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        if (WHrunoff->Drc > 0 && FloodDomain->Drc == 0 && !crch_.at(i_).culvert) {
+
+            double fractiontochannel = qMin(1.0, _dt*V->Drc/(0.5*ChannelAdj->Drc));
+            // fraction to channel calc from half the adjacent area width and flow velocity
+
+            if (SwitchKinematic2D == K2D_METHOD_KINDYN &&
+                    WHrunoff->Drc <= qMax(0.0 , ChannelWH->Drc - ChannelDepth->Drc))
+                fractiontochannel = 0;
+            // cannot flow into channel if water level in channel is higher than runoff depth
+
+            if (fractiontochannel > 0) {
+                double dwh = fractiontochannel*WHrunoff->Drc;
+                double dvol = dwh*CHAdjDX->Drc;//fractiontochannel*(WaterVolall->Drc - MicroStoreVol->Drc);
+
+                // water diverted to the channel
+                ChannelWaterVol->Drc += dvol;
+                ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelWidth->Drc*ChannelDX->Drc);
+
+                WHrunoff->Drc -= dwh;
+                WH->Drc -= dwh;
+                hmxWH->Drc = WH->Drc;
+                WaterVolall->Drc = CHAdjDX->Drc*hmxWH->Drc;        //(WHrunoff->Drc) + MicroStoreVol->Drc;
+
+                if (SwitchErosion) {
+                    double dsed = fractiontochannel*Sed->Drc;
+                    double maxsed = MAXCONC * ChannelWaterVol->Drc;
+                    if (ChannelSSSed->Drc  + dsed > maxsed)
+                        dsed = maxsed - ChannelSSSed->Drc;
+                    if (dsed > 0) {
+                        ChannelSSSed->Drc += dsed; //sediment diverted to the channel
+                        Sed->Drc -= dsed;
+                        Conc->Drc = MaxConcentration(WaterVolall->Drc, Sed->Drc);
+                        // adjust sediment in suspension
+                        RiverSedimentLayerDepth(r,c);
+                        RiverSedimentMaxC(r,c);
+                    }
+                }
+            }
+        }
+   }}
 }

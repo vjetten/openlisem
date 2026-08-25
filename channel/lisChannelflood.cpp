@@ -30,7 +30,8 @@
         back into channel before kin wave of channel is done in ChannelFlow()
 
 functions: \n
-- void TWorld::ChannelOverflow(void) Mixing of flood and overflow in channel cells, source of overflow
+- OBSOLETE: void TWorld::ChannelOverflow(void) Mixing of flood and overflow in channel cells, source of overflow
+- void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V) Mixing of flood and overflow in channel cells, source of overflow
 - void TWorld::ChannelFlood(void) Calculate channelflood height maps (hmx, U+VFlood) and FloodDomain
 */
 
@@ -40,6 +41,276 @@ functions: \n
 #include "operation.h"
 #include "global.h"
 
+
+//---------------------------------------------------------------------------
+// flow to and from channel based on broad crested weirs, freeflow or drowned
+// TUFLOW and other models use this
+// www.brighthubengineering.com
+// NOTE _h is WHrunoff so without microdepression storage
+void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
+{
+    if (!SwitchIncludeChannel)
+         return;
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_CHL {
+        if (!crch_[i_].culvert) {//FloodDomain->Drc > 0 &&
+
+            switch (crch_[i_].shape) {
+                case SHAPERECT : chanHandPRect(r,c); break;
+                case SHAPECIRC : chanHandPCirc(r,c); break; // this is always a culvert!
+                case SHAPETRAP : chanHandPTrap(r,c); break;
+                case SHAPETRIA : chanHandPTria(r,c); break;
+                case SHAPEFREE : chanHandPRect(r,c); break;
+            }
+
+            double Ac = ChannelWidth->Drc * ChannelDX->Drc;
+            double As = CellArea->Drc - Ac;
+
+            double ChH = ChannelWH->Drc - ChannelDepth->Drc;
+            double H = _h->Drc;
+
+            if (H < 1e-6 && ChH < 1e-6)
+                continue;
+
+            if (std::fabs(H - qMax(ChH,0.0)) < 1e-6)
+                continue;
+
+            double Cd = 0.56; // 2/3 * 0.86
+
+            // Total crest/bank length.
+            // Use 2*ChannelDX only if there really are two independent
+            // channel banks receiving/transferring water. which is always the case in LSIEM for now
+            double L = 2.0 * ChannelDX->Drc;
+
+            double H_eq = (H*As + d*Ac)/(As + Ac); // equilibrium water level
+
+            double transfer_volume = 0.0;
+            bool tochannel = false;
+
+            if (H > ChH) {
+                // ---------------------------------------------------------
+                // surface water higher than channel, note that ChH can be negative
+                // surface transfer channel
+                // ---------------------------------------------------------
+                tochannel = true;
+                double needed_volume  = 0;
+                if (H_eq > 0.0)
+                    // Both surface and channel contain water that can reach an equilibrium.
+                    needed_volume = (H - H_eq)*As;
+                else
+                    needed_volume = H*As;
+                // all surface water fits into channel
+
+                // Broad-crested weir discharge.
+                // Channel is below the surface, so this is free flow.
+                double velocityHead = V->Drc*V->Drc/(2.0*GRAV);
+                // added factor of incoming velocity pushing water into channel
+                // has very little effect! possibly in steep catchments
+                double hydraulic_volume = _dt*Cd*L*SQRT2G * std::pow(H + velocityHead, 1.5);
+
+                transfer_volume = qMin(hydraulic_volume, needed_volume);
+
+            } else {
+
+                // ---------------------------------------------------------
+                // CASE 2:
+                // channel water higher than surface
+                // channel transfer surface, ChH > 0
+                // ---------------------------------------------------------
+
+                tochannel = false;
+
+                // Volume required to reach equilibrium.
+                double needed_volume =  qMax((ChH - H_eq)*Ac, 0.0);
+                double hydraulic_volume = _dt*L*Cd*SQRT2G * std::pow(ChH - H, 1.5);
+
+                transfer_volume = qMin(hydraulic_volume, needed_volume);
+            }
+
+            if (tochannel) {
+                WaterVolall->Drc -= transfer_volume;
+                ChannelWaterVol->Drc += transfer_volume;
+            } else {
+                WaterVolall->Drc += transfer_volume;
+                ChannelWaterVol->Drc -= transfer_volume;
+            }
+            //Update channel water height from volume
+            switch (crch_[i_].shape) {
+                case SHAPERECT : chanHandPRect(r,c); break;
+                case SHAPECIRC : chanHandPCirc(r,c); break;
+                case SHAPETRAP : chanHandPTrap(r,c); break;
+                case SHAPETRIA : chanHandPTria(r,c); break;
+                case SHAPEFREE : chanHandPRect(r,c); break;
+            }
+
+            // update surface water height
+            _h->Drc = qMax(0.0, WaterVolall->Drc-MicroStoreVol->Drc)/As;
+            // _h is WHrunoff 2D flow and hmxrunoff for kindyn
+
+            if (SwitchKinematic2D == K2D_METHOD_KINDYN) {
+                hmx->Drc = WaterVolall->Drc/As;
+                hmxWH->Drc = hmx->Drc;
+            } else {
+                WH->Drc =  WaterVolall->Drc/As;
+                hmxWH->Drc = WH->Drc;
+            }
+
+            // new equilibrium levels erosion
+            if (SwitchErosion) {
+                //if (FloodDomain->Drc > 0) {
+                    if (tochannel) {
+                        double sed = transfer_volume * SSCFlood->Drc;
+                        SSFlood->Drc -=sed;
+                        ChannelSSSed->Drc += sed;
+                    } else {
+                        double sed = transfer_volume * ChannelSSConc->Drc;
+                        ChannelSSSed->Drc -= sed;
+                        SSFlood->Drc += sed;
+                    }
+                //}
+
+                SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drc);
+                SWOFSedimentSetConcentration(r,c, _h->Drc, ChannelAdj->Drc);
+
+                RiverSedimentLayerDepth(r, c);
+                RiverSedimentMaxC(r, c);
+            }
+        }
+    }}
+}
+//---------------------------------------------------------------------------
+// NOTE THIS function is only called for Kinematic+dynamic wave
+void TWorld::ToFlood()
+{
+    #pragma omp parallel for  num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (hmxrunoff->Drc > 0 && WHrunoff->Drc > 0) {
+            double dwh = WHrunoff->Drc;
+
+            hmxrunoff->Drc += dwh;
+            hmx->Drc = hmxrunoff->Drc + WHstore->Drc;
+            WHrunoff->Drc = 0;
+            WH->Drc = WHstore->Drc;
+
+            hmxWH->Drc = hmx->Drc + WH->Drc;
+            WaterVolall->Drc = CHAdjDX->Drc*hmxWH->Drc;
+
+            if(SwitchErosion) {
+                double dsed = Sed->Drc;
+                SSFlood->Drc += dsed;
+                Sed->Drc = 0;
+                Conc->Drc = 0;
+
+                SWOFSedimentLayerDepth(r,c,hmx->Drc, V->Drc);
+                //SWOFSedimentSetConcentration(r,c,hmx->Drc, ChannelAdj->Drc);
+                SSCFlood->Drc = MaxConcentration(WaterVolall->Drc, SSFlood->Drc);
+            }
+        }
+    }}
+}
+//---------------------------------------------------------------------------
+// DO NOT MAKE PARALLEL
+void TWorld::FloodMaxandTiming()
+{
+    // floodwater volume and max flood map
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (hmxWH->Drc > minReportFloodHeight) {
+            floodTime->Drc += _dt/60;
+            floodHmxMax->Drc = qMax(floodHmxMax->Drc, hmxWH->Drc);
+            // for output
+        }
+
+        floodVMax->Drc = qMax(floodVMax->Drc, V->Drc);
+        floodVHMax->Drc = qMax(floodVHMax->Drc, V->Drc*hmxWH->Drc);
+        // max velocity
+        WHmax->Drc = qMax(WHmax->Drc, hmxWH->Drc);
+    }}
+    floodVolTotMax = 0;
+    floodArea = 0;
+    double area = _dx*_dx;
+
+    #pragma omp parallel for reduction(+:floodVolTotMax,floodArea) num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (floodHmxMax->Drc > minReportFloodHeight) {
+            floodVolTotMax += floodHmxMax->Drc*area;
+        }
+        if (hmxWH->Drc > minReportFloodHeight && floodTimeStart->Drc == 0)  {
+            if (SwitchWaveUser)
+                floodTimeStart->Drc = (time - BeginTime)/60.0;
+            else
+                floodTimeStart->Drc = (time - RainstartTime)/60.0;
+            // time since first pixel received rainfall
+        }
+        if (hmxWH->Drc > minReportFloodHeight) {
+            floodArea += area;
+        }
+    }}
+
+    floodAreaMax = qMax(floodArea,floodAreaMax);
+}
+//---------------------------------------------------------------------------
+// NOTE THIS function is only called for Kinematic+dynamic wave
+void TWorld::ChannelFlood(void)
+{
+    // hmx = flood equivalent of WH; hmxrunoff of WHrunoff
+
+    // if (!SwitchIncludeChannel)
+    //     return;
+
+   // ToFlood();
+
+ //   if (SwitchChannel2DflowConnect)
+ //       ChannelOverflowBroadWeir(hmxrunoff, V);
+//    else
+  //      ChannelOverflow(hmxrunoff, V);
+    // determine overflow water => hmx
+    // hmx is flood water, WH is overlandflow, WHrunoff etc
+
+    startFlood = false;
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (hmxrunoff->Drc > 0)
+            startFlood = true;
+    }}
+
+    double dtflood = 0;
+    if (startFlood)
+        dtflood = fullSWOF2openMUSCL(hmxrunoff, Uflood, Vflood, DEM);
+
+    //new flood domain
+    nrFloodedCells = 0;
+    FOR_ROW_COL_MV {
+        if (hmxrunoff->Drc > 0) {
+            FloodDomain->Drc = 1; // here is 2D ovberflow
+            nrFloodedCells += 1.0;
+        }
+        else
+            FloodDomain->Drc = 0; //here is kin wave
+    }
+
+
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (FloodDomain->Drc > 0) {
+            V->Drc = qSqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
+            Qn->Drc = V->Drc * hmxrunoff->Drc * ChannelAdj->Drc;
+        }
+    }}
+
+    updateWHandHmx();
+
+    FloodMaxandTiming();
+
+    double area = nrFloodedCells*_dx*_dx;
+    if (area > 0)
+        debug(QString("Flooding (dt %1 sec, n %2): area %3 m2, %4 cells").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(nrFloodedCells));//.arg(K2DQOutBoun));
+    // some screen reporting
+
+}
+//-----------------------------------------------------------------
+//OBSOLETE
 void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
 {
     if (!SwitchIncludeChannel)
@@ -181,350 +452,4 @@ void TWorld::ChannelOverflow(cTMap *_h, cTMap *V)
             }
         }
     }}
-}
-
-//---------------------------------------------------------------------------
-// flow to and from channel based on broad crested weirs, freeflow or drowned
-// TUFLOW and other models use this
-// www.brighthubengineering.com
-// NOTE _h is WHrunoff so without microdepression storage
-void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
-{
-    if (!SwitchIncludeChannel)
-         return;
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
-        if (!crch_[i_].culvert) {//FloodDomain->Drc > 0 &&
-            // flood domain == 0 is taken care of in
-
-            switch (crch_[i_].shape) {
-                case SHAPERECT : chanHandPRect(r,c); break;
-                case SHAPECIRC : chanHandPCirc(r,c); break; // this is always a culvert!
-                case SHAPETRAP : chanHandPTrap(r,c); break;
-                case SHAPETRIA : chanHandPTria(r,c); break;
-                case SHAPEFREE : chanHandPRect(r,c); break;
-            }
-
-            double Ac = ChannelWidth->Drc * ChannelDX->Drc;
-            double As = CellArea->Drc - Ac;
-
-            double d = ChannelWH->Drc - ChannelDepth->Drc;
-            double H = _h->Drc;
-
-            if (H < 1e-6 && d < 1e-6)
-                continue;
-
-            if (std::fabs(H - d) < 1e-6)
-                continue;
-
-            double Cd = 0.56;
-
-            // Total crest/bank length.
-            // Use 2*ChannelDX only if there really are two independent
-            // channel banks receiving/transferring water.
-            double L = 2.0 * ChannelDX->Drc;
-
-            double H_eq = (H * As + d * Ac) / (As+Ac); // equilibrium water level
-
-            double transfer_volume = 0.0;
-            bool tochannel = false;
-
-            if (H > d) {
-                // ---------------------------------------------------------
-                // CASE 1:
-                // surface water higher than channel, d can be negative
-                // surface -> channel
-                // ---------------------------------------------------------
-                tochannel = true;
-                double needed_volume  = 0;
-                if (H_eq > 0.0)
-                    // Both surface and channel contain water at equilibrium.
-                    needed_volume = (H - H_eq) * As;
-                else
-                    needed_volume = H * As;
-                // all surface water fits into channel
-
-                // Broad-crested weir discharge.
-                // Channel is below the surface, so this is free flow.
-                double velocityHead = V->Drc * V->Drc / (2.0 * GRAV);    // added factor of incoming velocity pushing water into channel
-                double hydraulic_volume = _dt*Cd*L*SQRT2G * std::pow(H + velocityHead, 1.5);
-
-                transfer_volume = qMin(hydraulic_volume, needed_volume);
-
-            } else {
-
-                // ---------------------------------------------------------
-                // CASE 2:
-                // channel water higher than surface
-                // channel -> surface, so d is > 0
-                // ---------------------------------------------------------
-
-                tochannel = false;
-
-                // Volume required to reach equilibrium.
-                double needed_volume =  qMax((d - H_eq) * Ac, 0.0);
-
-                double hydraulic_volume = _dt*L*Cd*SQRT2G * std::pow(d - H,1.5);
-
-                transfer_volume = qMin(hydraulic_volume, needed_volume);
-            }
-
-/*
-
-            double dCHh = ChannelWH->Drc-ChannelDepth->Drc;  // can be + or -
-            double dCHh0 = qMax(dCHh, 0.0);  // overflow depth
-            double H = _h->Drc; // runoff height
-
-            if (H < 1e-6 && dCHh0 < 1e-6)
-                continue; // nothing to flow
-
-            if (fabs(H-dCHh0) < 1e-6)
-                continue; // no flow, already equilibrium
-
-            double area_channel = ChannelWidth->Drc * ChannelDX->Drc;
-            double area_surface = CHAdjDX->Drc;
-            double needed_volume = 0;
-
-            bool tochannel = true;
-            double transfer_volume = 0;
-            double Cd = 0.56; // 2/3 * 0.86
-            double lengthfactor = 2.0*ChannelDX->Drc; //length of the weir and from both sides 2.0
-            double velocityfactor = V->Drc*V->Drc/(2*GRAV);
-            //do not use factor 2 for flow on both sides
-
-            // lower water level in the channel, flow to the channel
-            if(dCHh < 0) {
-                double negvol = ChannelMaxArea->Drc*ChannelDX->Drc - ChannelWaterVol->Drc; //volume deficit in channel, channelmaxarea is cross section when bankfull
-                double freeflow_tochan = _dt*lengthfactor*Cd*SQRT2G*std::pow(H+velocityfactor,1.5); // volume broad weir flow to channel
-
-                needed_volume = H*area_surface;
-                // if flow fills up channel create equilibrium level
-                if (freeflow_tochan > negvol) {
-                    double H_eq = (dCHh*area_channel + H*area_surface)/CellArea->Drc;
-//                    double heq = (freeflow_tochan-negvol)/CellArea->Drc;
-//                    double heq = (transfer_volume-negvol)/CellArea->Drc;
-                    // equilibrium level
-                    needed_volume = negvol + (H-H_eq)*CellArea->Drc;
-                    // transfer_volume = vol needed for equilibrium level
-                }
-                transfer_volume = qMin(freeflow_tochan, needed_volume);
-                //m3 free flow broad crested weir, water flows over edge to deeper water in channel
-                tochannel = true;
-            } else {
-                // channel water is bankfull or more
-                // dCHh0 always refers to rectangle above surface with channelwidth
-                double H_eq = (dCHh*area_channel + H*area_surface)/CellArea->Drc;
-                // equilibrium level
-
-                if (H > dCHh0) {
-                    // surface water higher than channel water, drowned broad crested weir
-                    needed_volume = (H - H_eq)*area_surface;
-                    // vol needed to reach equilibrium level
-                    double transfer_volume_tochan = _dt*lengthfactor*Cd*SQRT2G*std::pow(H+velocityfactor - dCHh0,1.5);
-                    // drowned flow to channel with velocity of approach
-                    transfer_volume = qMin(transfer_volume_tochan, needed_volume);
-                    tochannel = true;
-                } else {
-                    // flow from channel, drowned weir in the other direction, no added velocity
-                    needed_volume = (dCHh - H_eq)*area_channel;
-                    // vol needed to reach equilibrium level
-                    double transfer_volume_fromchan = _dt*lengthfactor*Cd*SQRT2G*std::pow(dCHh0 - H,1.5);
-                    // drowned flow from channel
-                    transfer_volume = qMin(transfer_volume_fromchan, needed_volume);
-                    tochannel = false;
-                }
-            }
-*/
-
-            if (tochannel) {
-                WaterVolall->Drc -= transfer_volume;
-                ChannelWaterVol->Drc += transfer_volume;
-            } else {
-                WaterVolall->Drc += transfer_volume;
-                ChannelWaterVol->Drc -= transfer_volume;
-            }
-            //Update channel water height from volume
-            switch (crch_[i_].shape) {
-                case SHAPERECT : chanHandPRect(r,c); break;
-                case SHAPECIRC : chanHandPCirc(r,c); break;
-                case SHAPETRAP : chanHandPTrap(r,c); break;
-                case SHAPETRIA : chanHandPTria(r,c); break;
-                case SHAPEFREE : chanHandPRect(r,c); break;
-            }
-
-            // update surface water height
-            _h->Drc = qMax(0.0, WaterVolall->Drc-MicroStoreVol->Drc) / As;//area_surface;
-            // _h is WHrunoff 2D flow and hmxrunoff for kindyn
-
-            if (SwitchKinematic2D == K2D_METHOD_KINDYN) {
-                hmx->Drc = WaterVolall->Drc/As;//area_surface;
-                hmxWH->Drc = hmx->Drc;
-            } else {
-                WH->Drc =  WaterVolall->Drc/As; //area_surface; ///_h->Drc + WHstore->Drc;
-                hmxWH->Drc = WH->Drc;
-            }
-
-            // new equilibrium levels erosion
-            if (SwitchErosion) {
-                //if (FloodDomain->Drc > 0) {
-                    if (tochannel) {
-                        double sed = transfer_volume * SSCFlood->Drc;
-                        SSFlood->Drc -=sed;
-                        ChannelSSSed->Drc += sed;
-                    } else {
-                        double sed = transfer_volume * ChannelSSConc->Drc;
-                        ChannelSSSed->Drc -= sed;
-                        SSFlood->Drc += sed;
-                    }
-                // } else {
-                //     if (tochannel) {
-                //         double sed = transfer_volume * Conc->Drc;
-                //         Sed->Drc -=sed;
-                //         ChannelSSSed->Drc += sed;
-                //     } else {
-                //         double sed = transfer_volume * ChannelSSConc->Drc;
-                //         ChannelSSSed->Drc -= sed;
-                //         Sed->Drc += sed;
-                //     }
-                // }
-
-                SWOFSedimentLayerDepth(r,c,_h->Drc, V->Drc);
-                SWOFSedimentSetConcentration(r,c, _h->Drc, ChannelAdj->Drc);
-
-                RiverSedimentLayerDepth(r, c);
-                RiverSedimentMaxC(r, c);
-            }
-        }
-    }}
-}
-//---------------------------------------------------------------------------
-// NOTE THIS function is only called for Kinematic+dynamic wave
-void TWorld::ToFlood()
-{
-    #pragma omp parallel for  num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (hmxrunoff->Drc > 0 && WHrunoff->Drc > 0) {
-            double dwh = WHrunoff->Drc;
-
-            hmxrunoff->Drc += dwh;
-            hmx->Drc = hmxrunoff->Drc + WHstore->Drc;
-            WHrunoff->Drc = 0;
-            WH->Drc = WHstore->Drc;
-
-            hmxWH->Drc = hmx->Drc + WH->Drc;
-            WaterVolall->Drc = CHAdjDX->Drc*hmxWH->Drc;
-
-            if(SwitchErosion) {
-                double dsed = Sed->Drc;
-                SSFlood->Drc += dsed;
-                Sed->Drc = 0;
-                Conc->Drc = 0;
-
-                SWOFSedimentLayerDepth(r,c,hmx->Drc, V->Drc);
-                //SWOFSedimentSetConcentration(r,c,hmx->Drc, ChannelAdj->Drc);
-                SSCFlood->Drc = MaxConcentration(WaterVolall->Drc, SSFlood->Drc);
-            }
-        }
-    }}
-}
-//---------------------------------------------------------------------------
-// DO NOT MAKE PARALLEL
-void TWorld::FloodMaxandTiming()
-{
-    // floodwater volume and max flood map
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (hmxWH->Drc > minReportFloodHeight) {
-            floodTime->Drc += _dt/60;
-            floodHmxMax->Drc = qMax(floodHmxMax->Drc, hmxWH->Drc);
-            // for output
-        }
-
-        floodVMax->Drc = qMax(floodVMax->Drc, V->Drc);
-        floodVHMax->Drc = qMax(floodVHMax->Drc, V->Drc*hmxWH->Drc);
-        // max velocity
-        WHmax->Drc = qMax(WHmax->Drc, hmxWH->Drc);
-    }}
-    floodVolTotMax = 0;
-    floodArea = 0;
-    double area = _dx*_dx;
-
-    #pragma omp parallel for reduction(+:floodVolTotMax,floodArea) num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (floodHmxMax->Drc > minReportFloodHeight) {
-            floodVolTotMax += floodHmxMax->Drc*area;
-        }
-        if (hmxWH->Drc > minReportFloodHeight && floodTimeStart->Drc == 0)  {
-            if (SwitchWaveUser)
-                floodTimeStart->Drc = (time - BeginTime)/60.0;
-            else
-                floodTimeStart->Drc = (time - RainstartTime)/60.0;
-            // time since first pixel received rainfall
-        }
-        if (hmxWH->Drc > minReportFloodHeight) {
-            floodArea += area;
-        }
-    }}
-
-    floodAreaMax = qMax(floodArea,floodAreaMax);
-}
-//---------------------------------------------------------------------------
-// NOTE THIS function is only called for Kinematic+dynamic wave
-void TWorld::ChannelFlood(void)
-{
-    // hmx = flood equivalent of WH; hmxrunoff of WHrunoff
-
-    // if (!SwitchIncludeChannel)
-    //     return;
-
-   // ToFlood();
-
- //   if (SwitchChannel2DflowConnect)
- //       ChannelOverflowBroadWeir(hmxrunoff, V);
-//    else
-  //      ChannelOverflow(hmxrunoff, V);
-    // determine overflow water => hmx
-    // hmx is flood water, WH is overlandflow, WHrunoff etc
-
-    startFlood = false;
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (hmxrunoff->Drc > 0)
-            startFlood = true;
-    }}
-
-    double dtflood = 0;
-    if (startFlood)
-        dtflood = fullSWOF2openMUSCL(hmxrunoff, Uflood, Vflood, DEM);
-
-    //new flood domain
-    nrFloodedCells = 0;
-    FOR_ROW_COL_MV {
-        if (hmxrunoff->Drc > 0) {
-            FloodDomain->Drc = 1; // here is 2D ovberflow
-            nrFloodedCells += 1.0;
-        }
-        else
-            FloodDomain->Drc = 0; //here is kin wave
-    }
-
-
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (FloodDomain->Drc > 0) {
-            V->Drc = qSqrt(Uflood->Drc*Uflood->Drc+Vflood->Drc*Vflood->Drc);
-            Qn->Drc = V->Drc * hmxrunoff->Drc * ChannelAdj->Drc;
-        }
-    }}
-
-    updateWHandHmx();
-
-    FloodMaxandTiming();
-
-    double area = nrFloodedCells*_dx*_dx;
-    if (area > 0)
-        debug(QString("Flooding (dt %1 sec, n %2): area %3 m2, %4 cells").arg(dtflood,6,'f',3).arg(iter_n,4).arg(area,8,'f',1).arg(nrFloodedCells));//.arg(K2DQOutBoun));
-    // some screen reporting
-
 }

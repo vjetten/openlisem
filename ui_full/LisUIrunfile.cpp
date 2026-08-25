@@ -390,6 +390,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Correct extreme WH")==0)                checkWHextreme->setChecked(check);
         if (p1.compare("WH extreme threshold")==0)              E_WHextreme->setValue(valc);
         if (p1.compare("Flood max iterations")==0)              E_FloodMaxIter->setValue(iii);
+        if (p1.compare("MUSCL max steps")==0)                   spinMaxMUSCL->setValue(iii);
         if (p1.compare("Minimum WH and V flow")==0)             E_minWHVSWOF->setText(p);
    //     if (p1.compare("Use Channel Kinwave dt")==0)            checkKinWaveChannel->setChecked(check);
    //     if (p1.compare("Channel KinWave dt")==0)                E_ChannelKinWaveDt->setValue(valc);
@@ -1040,6 +1041,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel 2D flow connect")==0)        namelist[j].value.setNum((int)checkChannel2DflowConnect->isChecked());
 //        if (p1.compare("Channel WF inflow")==0)              namelist[j].value.setNum((int)checkChannelWFinflow->isChecked());
         if (p1.compare("Flood max iterations")==0)           namelist[j].value = E_FloodMaxIter->text();
+        if (p1.compare("MUSCL max steps")==0)                namelist[j].value = spinMaxMUSCL->text();
         if (p1.compare("Minimum WH and V flow")==0)          namelist[j].value = E_minWHVSWOF->text();
         if (p1.compare("Timestep flood")==0)                 namelist[j].value = E_TimestepMinFlood->text();
         if (p1.compare("Use time avg V")==0)                 namelist[j].value.setNum((int) checkTimeavgV->isChecked());

@@ -68,15 +68,20 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             int step = 0;
             double dt1;
 
-            do {
-                step++;
+            //do {
+              //  step++;
                 dt1 = dt_req_min;
-
                 dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
 
-               // qDebug() << "muscl" << step << dt1 << dt_req_min;
+                if (dt1 > dt_req_min) {
+                    dt1 = dt_req_min;
+                    dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
+                }
+                //qDebug() << "muscl" << step << dt1 << dt_req_min;
 
-            } while (dt1 > dt_req_min && step < 3);
+            //} while (dt1 > dt_req_min && step < F_maxMUSCL);
+
+            dt_req_min = qMin(dt_req_min, dt1);
 
             doSWOFStV(dt_req_min, h, u, v);
             // Saint-Venant calculations for new h, u, v
