@@ -238,6 +238,10 @@ void TWorld::InitStandardInput(void)
             SET_MV_REAL4(&LDD->Drc);
         //SET_MV_REAL8(&LDD->Drc);
     }
+    nrValidCells = 0;
+    FOR_ROW_COL_MV {
+        nrValidCells++;
+    }
 
     tm = NewMap(0); // temp map for aux calculations
     tma = NewMap(0); // temp map for aux calculations
@@ -246,15 +250,24 @@ void TWorld::InitStandardInput(void)
     tmd = NewMap(0); // temp map for aux calculations
     tmshow = NewMap(0); // temp map form reporting when debug stuff
 
-    nrValidCells = 0;
-    FOR_ROW_COL_MV {
-        nrValidCells++;
+    nrWS = 1;
+    WaterSheds = ReadMap(LDD, getvaluename("watersheds"));
+    if(WaterSheds != nullptr) {
+        QList <int> tmp;
+        tmp = countUnits(*WaterSheds);
+        nrWS = tmp.count();
+    }
+
+    for(k = 0; k < nrWS; k++) {
+        FOR_ROW_COL_MV {
+            LDD_COOR newcr;
+            newcr.r = r;
+            newcr.c = c;
+            cr_ << newcr;
+        }
     }
 
     FOR_ROW_COL_MV {
-        // LDD_COOR *newcr = new LDD_COOR;
-        // newcr->r = r;
-        // newcr->c = c;
         LDD_COOR newcr;
         newcr.r = r;
         newcr.c = c;
@@ -272,6 +285,8 @@ void TWorld::InitStandardInput(void)
     nrValidCellsLDD5 = crldd5_.size();
 
     crlinkedldd_ = MakeLinkedList(LDD);
+    // only used for kinematic wave! not needed otherwise
+    // move to that part
 
     DEM = ReadMap(LDD, getvaluename("dem"));
     MBm = NewMap(0); // optional, mass balance error used to correct infil and wh in next step

@@ -407,6 +407,11 @@ public:
     long nrValidCellsLDDCH5;
     long nrValidCellsWS;
     long nrValidCellsTile;
+
+    // watershed approach
+    int nrWS;
+    QVector<QVector<int>> watershedCells;
+
     QVector <LDD_COOR> cr_;
     QVector <LDD_COORCH> crch_;
     QVector <LDD_COORIN> crlinkedldd_;
