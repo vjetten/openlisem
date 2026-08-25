@@ -29,7 +29,7 @@
 // the scheme is made suited for parallel processing
 // LICENCE: http://cecill.info/licences/Licence_CeCILL_V2-en.html
 
-#include <algorithm>
+//#include <algorithm>
 #include "lisemqt.h"
 #include "model.h"
 #include "operation.h"
@@ -41,24 +41,27 @@
 //----------------------------------------------------------------------------------------
 double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
-    double timesum = 0;
     double dt_max = qMin(_dt, _dx*0.5);
-    int count = 0;
     double sumh = 0;
-    bool stop;
-    double dt_req_min = dt_max;
     sumh = getMass(h);
+
+    Fill(*FloodDT, dt_max); //?? or inside ws loop
+
+for (int k_= 0; k_ < nrWS; k_==) {
+    int count = 0;
+    double timesum = 0;
+    double dt_req_min = dt_max;
+    bool stop;
 
     do {
 
         //if (SwitchErosion)
         //sumS = getMassSed(SSFlood, 0);
-        Fill(*FloodDT, dt_max);
 
         if (SwitchMUSCL) {
             // 2nd order, with avg according to Heun, according to fullswof hean should allways be done!
             #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
+            FOR_ROW_COL_MV_Lws {
                 tma->Drc = h->Drc;
                 tmb->Drc = u->Drc;
                 tmc->Drc = v->Drc;
@@ -71,25 +74,28 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             //do {
               //  step++;
                 dt1 = dt_req_min;
-                dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
+                dt_req_min = doSWOFMUSCLdt(k_, dt1, timesum, h, u, v, z);
+                minWSDt.append(dt_req_min);
 
-                if (dt1 > dt_req_min) {
-                    dt1 = dt_req_min;
-                    dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
-                }
+                // if (dt1 > dt_req_min) {
+                //     dt1 = dt_req_min;
+                //     dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
+                // }
                 //qDebug() << "muscl" << step << dt1 << dt_req_min;
 
             //} while (dt1 > dt_req_min && step < F_maxMUSCL);
 
-            dt_req_min = qMin(dt_req_min, dt1);
+            //dt_req_min = qMin(dt_req_min, dt1);
 
-            doSWOFStV(dt_req_min, h, u, v);
+            doSWOFStV(k_, h, u, v);
             // Saint-Venant calculations for new h, u, v
             // called maincalcscheme in fullSWOF
 
+
+            //TODO: HEUN AVERAGE MAY HAVE A LARGE EFFECT, WHY DO THIS?
             //Heun average, see FullSWOF doc
             #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
+            FOR_ROW_COL_MV_Lws {
                 double havg = 0.5*(tma->Drc + h->Drc); // avg original before loops and second estimation
                 if (havg >= he_ca){
                     double q1 = 0.5*(tma->Drc*tmb->Drc + h->Drc*u->Drc);
@@ -107,14 +113,12 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             // first order solution, cell centers are use, just one calculation, no Heun averaging
             // in the original code this is split in reconstruction/MUSCL and maincalcflux
 
-            dt_req_min = doSWOFMUSCLdt(dt_max, timesum, h, u, v, z);
+            dt_req_min = doSWOFMUSCLdt(k_, dt_max, timesum, h, u, v, z);
 
-            doSWOFStV(dt_req_min, h, u, v);
+            doSWOFStV(k_, h, u, v);
             // Saint-Venant calculations for new h, u, v
             // called maincalcscheme in fullSWOF
         }
-
-  //      correctMassBalance(sumh, h);
 
         if (SwitchErosion) {// && !SwitchErosionOutsideLoop)
             SWOFSediment(dt_req_min, h, FlowWidth, u,v);
@@ -143,6 +147,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         stop = true;
 
     } while (!stop);
+} // watersheds
 
     // small mass balance corrections within 2d flow
     correctMassBalance(sumh, h);
@@ -164,15 +169,22 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
 }
 //------------------------------------------------------------------------------------------------------
-double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
+double TWorld::doSWOFMUSCLdt(int WSnr, double dt, double timesum, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     // boundary
     double factor = exp(-0.005*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
     double factor2 = factor;//pow(factor,0.667); // manning reduction V=h^2/3
 
-    Fill(*tmd,0);
+    const QVector<int>& cells = watershedCells[WSnr];
+
+    //Fill(*FloodDT, dt_max);
+    //wsMinDt.clear();
+
+
+    // find which cells to process: those with water plus 1 neighbour extra
     #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
+    FOR_ROW_COL_MV_Lws {
+        tmd->Drc = 0;
         // if water include
         if (h->Drc > F_minWH) {
             tmd->Drc = 1;
@@ -182,29 +194,25 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
             if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
 
-            // if (c > 0 && r > 0 && !MV(r-1,c-1))
-            //     tmd->data[r-1][c-1] = 1;
-            // if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1))
-            //     tmd->data[r+1][c+1] = 1;
-            // if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1))
-            //     tmd->data[r-1][c+1] = 1;
-            // if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1))
-            //     tmd->data[r+1][c-1] = 1;
         }
 
-
         // map edges are zero, avoid domain touching the edges
-        // ?????????????????
-        // if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
-        //     tmd->Drc = 0;
-
         if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
+            tmd->Drc = 0;
+
+    }}
+
+    //tmd must not be outside watershed
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        if (WaterSheds->Drc != WSnr)
             tmd->Drc = 0;
     }}
 
     //do all flow and state calculations
+
     #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
+    FOR_ROW_COL_MV_Lws {
         if (tmd->Drc == 1) {
             double dx = _dx; // do not do channeladj because the channelflood function does this already
             double dy = _dx;
@@ -605,9 +613,9 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             hlly21_1->Drc = hll_y2.v[1] - hll_y1.v[1];  // down - up
             hlly21_2->Drc = hll_y2.v[2] - hll_y1.v[2];
         }
-    }} // all cells done
+    }} // all cells in watershed done
 
-    //find smallest dt in domain
+    //find smallest dt in this watershed, can be done smarter
     double dt_req_min = dt;
     #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -618,17 +626,22 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
     return dt_req_min;
 }
 //-----------------------------------------------------------------------------------------------------------
-void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v)
+void TWorld::doSWOFStV(int WSnr, cTMap *h, cTMap *u, cTMap *v)
 {
+
+    const QVector<int>& cells = watershedCells[WSnr];
+
     #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
+    FOR_ROW_COL_MV_Lws {
         double dx = _dx;
         double dy = _dx;
         double Un = 0;
         double Vn = 0;
-        double tx = dt/dx;
-        double ty = dt/dy;
-
+        double dt = minWSDt[k_];
+        double tx;
+        double ty;
+        tx = dt/dx;
+        ty = dt/dy;
         double hn = qMax(0.0, h->Drc + tx*(hllx12_0->Drc) + ty*(hlly12_0->Drc));
         // mass balance, hll_....v[0] is the  Mass flux per meter (m2/s) (in - out)*tx in x and y directions = height (m)
 

@@ -121,6 +121,9 @@
 #define FOR_ROW_COL_MV_L for(long i_ = 0; i_ < nrValidCells; i_++)\
  {int r = cr_[i_].r; int c = cr_[i_].c;
 
+#define FOR_ROW_COL_MV_Lws for(long i_ = 0; i_ < cells.size(); i_++)\
+ {int r = cells[i_].r; int c = cells[i_].c;
+
 #define FOR_ROW_COL_LDD5 for(long i_ = 0; i_ < nrValidCellsLDD5; i_++)\
 {int r = crldd5_[i_].r; int c = crldd5_[i_].c;
 
@@ -411,6 +414,7 @@ public:
     // watershed approach
     int nrWS;
     QVector<QVector<int>> watershedCells;
+    QVector<double> minWSDt;
 
     QVector <LDD_COOR> cr_;
     QVector <LDD_COORCH> crch_;
@@ -1083,9 +1087,9 @@ public:
     bool startFlood;
     int iter_n;
     double fullSWOF2openMUSCL(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
-    double doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
+    double doSWOFMUSCLdt(int WSnr, double dt, double timesum, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
 
-    void doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v);
+    void doSWOFStV(int WSnr, cTMap *h, cTMap *u, cTMap *v);
 
     void ChannelSWOFopen();  //TODO not used
     void KinematicSWOFopen(cTMap *_h, cTMap *_V);

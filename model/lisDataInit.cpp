@@ -257,21 +257,17 @@ void TWorld::InitStandardInput(void)
         tmp = countUnits(*WaterSheds);
         nrWS = tmp.count();
     }
-
-    for(k = 0; k < nrWS; k++) {
-        FOR_ROW_COL_MV {
-            LDD_COOR newcr;
-            newcr.r = r;
-            newcr.c = c;
-            cr_ << newcr;
-        }
-    }
+    watershedCells.resize(nrWS);
 
     FOR_ROW_COL_MV {
         LDD_COOR newcr;
         newcr.r = r;
         newcr.c = c;
-        cr_ << newcr;
+        int index = cr_.size();
+        cr_.append(newcr);
+
+        int ws = wsGrid[r][c];
+        watershedCells[ws].append(index);
     }
 
     FOR_ROW_COL_MV {
