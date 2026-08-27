@@ -385,7 +385,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flooding SWOF flux limiter")==0)        E_FloodFluxLimiter->setValue(iii);
         if (p1.compare("Flooding SWOF Reconstruction")==0)      E_FloodReconstruction->setValue(iii);
         if (p1.compare("Use time avg V")==0)                    checkTimeavgV->setChecked(check);
-        if (p1.compare("Erosion outside 2D loop")==0)           checkErosionLoop->setChecked(check);
         if (p1.compare("Correct MB with WH")==0)                checkMB_WH->setChecked(check);
         if (p1.compare("Correct extreme WH")==0)                checkWHextreme->setChecked(check);
         if (p1.compare("WH extreme threshold")==0)              E_WHextreme->setValue(valc);
@@ -1045,7 +1044,6 @@ void lisemqt::updateModelData()
         if (p1.compare("Minimum WH and V flow")==0)          namelist[j].value = E_minWHVSWOF->text();
         if (p1.compare("Timestep flood")==0)                 namelist[j].value = E_TimestepMinFlood->text();
         if (p1.compare("Use time avg V")==0)                 namelist[j].value.setNum((int) checkTimeavgV->isChecked());
-        if (p1.compare("Erosion outside 2D loop")==0)        namelist[j].value.setNum((int) checkErosionLoop->isChecked());
         if (p1.compare("Correct MB with WH")==0)             namelist[j].value.setNum((int) checkMB_WH->isChecked());
         if (p1.compare("Correct extreme WH")==0)             namelist[j].value.setNum((int) checkWHextreme->isChecked());
         if (p1.compare("WH extreme threshold")==0)           namelist[j].value = E_WHextreme->text();

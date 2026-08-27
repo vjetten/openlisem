@@ -368,7 +368,6 @@ void TWorld::ParseRunfileData(void)
 //        if (p1.compare("Use Channel Kinwave dt")==0)            SwitchChannelKinwaveDt = iii == 1;
         if (p1.compare("Use Channel Max GV")==0)                SwitchChannelMaxV = iii == 1;
         if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
-        if (p1.compare("Erosion outside 2D loop")==0)           SwitchErosionOutsideLoop = iii == 1;
         //if (p1.compare("Check mutex")==0)                       SwitchMutex = iii == 1;
 
         // outpu map names

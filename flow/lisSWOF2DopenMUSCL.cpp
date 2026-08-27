@@ -39,20 +39,23 @@
 //#define SIGN(V)(V < 0 ? -1.0 : 1.0)
 
 //----------------------------------------------------------------------------------------
+//  zie: https://chatgpt.com/share/6a8f56d0-b6fc-83eb-a392-caf47de444ab
 double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     double timesum = 0;
-    double dt_max = qMin(_dt, _dx*0.5);
+    double dt_max = qMin(_dt, _dx*0.5); //???? or intuitively qMin(_dt*0.5, _dx*0.5);
     int count = 0;
     double sumh = 0;
     bool stop;
-    double dt_req_min = dt_max;
+    double dt_cfl = dt_max;
+    double dt_cfl_new = dt_max;
     sumh = getMass(h);
 
     do {
 
         //if (SwitchErosion)
         //sumS = getMassSed(SSFlood, 0);
+
         Fill(*FloodDT, dt_max);
 
         if (SwitchMUSCL) {
@@ -64,30 +67,32 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 tmc->Drc = v->Drc;
                 // save the values at the start of the run for MUSCL/Heun averaging
             }}
+            //NOTE: MUSCL gives second order precision in space
+            // Heun (or Runga Kutta 2) gives second order precision in time
 
-            int step = 0;
-            double dt1;
+            doSWOFMUSCL(true, h, u, v, z);
+            // h,u,v are updated, they are now h*,u*,v*
+            // in the original code there is an iteration for the smallest dt, we don't do that for now
+            dt_cfl = findSmallestCFLdt(dt_cfl_new, timesum);
+            // find smallest cfl dt from FloodDT
 
-            //do {
-              //  step++;
-                dt1 = dt_req_min;
-                dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
-
-                if (dt1 > dt_req_min) {
-                    dt1 = dt_req_min;
-                    dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
-                }
-                //qDebug() << "muscl" << step << dt1 << dt_req_min;
-
-            //} while (dt1 > dt_req_min && step < F_maxMUSCL);
-
-            dt_req_min = qMin(dt_req_min, dt1);
-
-            doSWOFStV(dt_req_min, h, u, v);
-            // Saint-Venant calculations for new h, u, v
+            // stage 1 Euler update
+            doSWOFStV(dt_cfl, h, u, v);
+            // Saint-Venant calculations for new h*, u*, v* and dt_cfl
             // called maincalcscheme in fullSWOF
 
-            //Heun average, see FullSWOF doc
+            // stage 2: MUSCL+Riemann using updated h*,u*,v*, results in h**, u**, v**
+            doSWOFMUSCL(true, h, u, v, z);
+
+            dt_cfl_new = findSmallestCFLdt(dt_cfl, timesum);
+            // use the smallest dt2 as the best estimate for the start of the next loop
+            // this new timestep is used as the best guess for the next loop, not to finish this loop,
+
+            // Stage 2 Euler update, we keep using dt_cfl for all remaining calculations
+            // in the old code this dt was again updated! wich is wrong because the Heun avarage is then not a true average anymore
+            doSWOFStV(dt_cfl, h, u, v);
+
+            //Heun average for 2nd order time precision , see FullSWOF doc
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 double havg = 0.5*(tma->Drc + h->Drc); // avg original before loops and second estimation
@@ -104,20 +109,21 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 }
             }}
         } else {
-            // first order solution, cell centers are use, just one calculation, no Heun averaging
+            // first order solution in space and time, cell centers are used, just one calculation, no Heun averaging
             // in the original code this is split in reconstruction/MUSCL and maincalcflux
-
-            dt_req_min = doSWOFMUSCLdt(dt_max, timesum, h, u, v, z);
-
-            doSWOFStV(dt_req_min, h, u, v);
+            doSWOFMUSCL(false, h, u, v, z);
+            dt_cfl = findSmallestCFLdt(dt_cfl_new, timesum);
+            dt_cfl_new = dt_cfl; // best guess for next timestep
+            doSWOFStV(dt_cfl, h, u, v);
             // Saint-Venant calculations for new h, u, v
             // called maincalcscheme in fullSWOF
         }
 
   //      correctMassBalance(sumh, h);
 
-        if (SwitchErosion) {// && !SwitchErosionOutsideLoop)
-            SWOFSediment(dt_req_min, h, FlowWidth, u,v);
+
+        if (SwitchErosion) {
+            SWOFSediment(dt_cfl, h, FlowWidth, u,v);
             // sediment detachment/deposition
             // suspended and optionally bedload
             // transport by advection and optionally diffusion
@@ -125,17 +131,17 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         }
 
         if (SwitchPest) {
-            PesticideFlow2D(dt_req_min, h, u, v);
+            PesticideFlow2D(dt_cfl, h, u, v);
             // lispesticide.cpp
         }
         //VJ-P TODO: add pesticides to boundary flow and diagonal flow
 
         if (Switch2DDiagonalFlow) {
-            SWOFDiagonalFlowLDD(dt_req_min, z, h, u, v);
+            SWOFDiagonalFlowLDD(dt_cfl, z, h, u, v);
           //  SWOFDiagonalFlow(dt_req_min, z, h, u, v);
         }
 
-        timesum += dt_req_min;
+        timesum += dt_cfl;
         count++; // nr loops
 
         stop = timesum > _dt-0.001;
@@ -164,7 +170,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
 }
 //------------------------------------------------------------------------------------------------------
-double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
+void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     // boundary
     double factor = exp(-0.005*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
@@ -345,7 +351,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
 
             //======== MUSCL: on the 4 boundaties of a gridcell interpolate from the center values
             // called "reconstruction" in SWOF code
-            if (SwitchMUSCL) {
+            if (doMUSCL) {
                 bool b2c1 ,b2c2 ,b2r1 ,b2r2;
                 double h_xx1, h_xx2, u_xx1, u_xx2, v_xx1, v_xx2;
                 double h_yy1, h_yy2, u_yy1, u_yy2, v_yy1, v_yy2;
@@ -607,6 +613,19 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
         }
     }} // all cells done
 
+    // //find smallest dt in domain
+    // double dt_req_min = dt;
+    // #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
+    // FOR_ROW_COL_MV_L {
+    //     dt_req_min = qMin(dt_req_min, FloodDT->Drc);
+    // }}
+    // dt_req_min = qMax(TimestepfloodMin, qMin(dt, qMin(dt_req_min, _dt-timesum)));
+
+    // return dt_req_min;
+}
+//-----------------------------------------------------------------------------------------------------------
+double TWorld::findSmallestCFLdt(double dt, double timesum)
+{
     //find smallest dt in domain
     double dt_req_min = dt;
     #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
@@ -614,6 +633,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
         dt_req_min = qMin(dt_req_min, FloodDT->Drc);
     }}
     dt_req_min = qMax(TimestepfloodMin, qMin(dt, qMin(dt_req_min, _dt-timesum)));
+    // check against remaining time and user min dt
 
     return dt_req_min;
 }

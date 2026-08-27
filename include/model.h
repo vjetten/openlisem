@@ -1078,9 +1078,9 @@ public:
     bool startFlood;
     int iter_n;
     double fullSWOF2openMUSCL(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
-    double doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
-
+    void doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     void doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v);
+    double findSmallestCFLdt(double dt, double timesum);
 
     void ChannelSWOFopen();  //TODO not used
     void KinematicSWOFopen(cTMap *_h, cTMap *_V);

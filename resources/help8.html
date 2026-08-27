@@ -19,7 +19,6 @@
 <li><em>Riemann solver</em>: smoothing functions that gives new states and fluxes on cell boundaries based on pressure and momentum differences. HLL are Harten-Lax-van Leer type solvers (def 4-HLL2c)</li>
 <li><em>Max iterations</em>: forces break out of n-th flood loop, usually not necessary, better to try different Courant conditions and minimum timesteps in the Flow tab (def 200).</li>
 <li><em>Time average V</em>: more stable solution of 2D flkow (default).</li>
-<li><em>Do erosion outside 2D loop</em>: The erosion calculations can be done inside the 2D flow using the chaning 2D timestep, or outsiode using the Lisem timestep (much faster). Try the inside loop option when results are unstable (def on).</li>
 <li><em>Enable diagonal flow when blocked</em>: water can be blocked in X and Y direction in 2D flow (a local depression, while a diagonal outlet exists. Diagonal outflows are not regarded in a 2D scheme. Enabling this uses the LDD to transport water and sediment to this diagonal cell. The threshold pit depth is set at 0.1 m. Can solve certain spurious pits that remain filled (def off).</li>
 <li><em>Remove pits</em>: set pit elevation to lowest surrounding cell in a 3x3 window (def. off)</li>
 </ul>
