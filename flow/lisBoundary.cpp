@@ -37,46 +37,42 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
 //    #pragma omp parallel for num_threads(userCores)
     #pragma omp parallel for reduction(+:QBoundary, QsBoundary) num_threads(userCores)
     FOR_ROW_COL_MV_L {
+        // flag outflowing cells
         if (FlowBoundary->Drc > 0) {
             int flag = 0;
-            double count = 0;
-            double Qbflux1 = 0;
-            double Qbflux2 = 0;
-            double Qbflux3 = 0;
-            double Qbflux4 = 0;
             double Area = h->Drc*ChannelAdj->Drc;
 
             if (c > 0 && c < _nrCols-1 ) {
                 if (MV(r,c-1) && !MV(r,c+1) && u->Drc < 0) {
                     flag  = 1;
-                    count += 1.0;
-                    Qbflux1 = -u->Drc*Area;
                 }
                 if (MV(r,c+1) && !MV(r,c-1) && u->Drc > 0) {
-                    Qbflux2 = u->Drc*Area;
-                    count += 1.0;
                     flag = 2;
                 }
             }
 
             if (r > 0 && r < _nrRows-1) {
                 if (MV(r-1,c) && !MV(r+1,c) && v->Drc < 0) {
-                    Qbflux3 = -v->Drc*Area;
-                    count += 1.0;
                     flag = 3;
                 }
                 if (MV(r+1,c) && !MV(r-1,c) && v->Drc > 0) {
-                    Qbflux4 = v->Drc*Area;
-                    count += 1.0;
                     flag = 4;
                 }
             }
 
-
             if (flag > 0) {
+                //adjust boundary cells
+                double Vvec = sqrt(u->Drc*u->Drc + v->Drc*v->Drc);
+                double Vmax = h->Drc/dt;
+                double factor = 1.0;
+                // if more velocity than there is water, adjust velocity
+                if (Vmax < Vvec)
+                    factor = Vmax/Vvec;
+                u->Drc *= factor;
+                v->Drc *= factor;
+
                 double Qbflux = sqrt(u->Drc*u->Drc + v->Drc*v->Drc)*Area;
                 h->Drc = qMax(0.0, h->Drc - Qbflux*dt/CHAdjDX->Drc);
-                //adjust boundary cells
 
                 QBoundary += Qbflux; // used as total in output and mass balance
                 QBoundFlow->Drc = Qbflux; // not used anywhere !!!! use it to sum watershed boundary flow later

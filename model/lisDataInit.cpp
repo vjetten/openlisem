@@ -1418,7 +1418,7 @@ void TWorld::InitFlood(void)
     hlly21_1 = NewMap(0);
     hlly21_2 = NewMap(0);
     iter_n = 0;
-
+    forceM = 0;
     dcr_.clear(); // clear list of M_PIts  that need diagonal flow
     if (Switch2DDiagonalFlow)
         DiagonalFlowDEM();

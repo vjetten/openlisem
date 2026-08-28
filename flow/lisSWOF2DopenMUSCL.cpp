@@ -50,6 +50,19 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     double dt_cfl = dt_max;
     double dt_cfl_new = dt_max;
     sumh = getMass(h);
+    /*
+     *With a first-order Godunov-type scheme, the Riemann solver sees the cell-center/cell-average states directly.
+     *At every interface, the solution is effectively smeared over the grid. This introduces numerical diffusion.
+     *MUSCL reconstructs left/right interface states and substantially reduces that diffusion. This is why MUSCL
+     *is used for second-order spatial accuracy. FullSWOF describes its first-order scheme as using cell values
+     *directly and its second-order version as reconstructing interface values with MUSCL.
+     */
+
+    // forceM++;
+    // if (forceM % 2 == 0)
+    //     SwitchMUSCL = true;
+    // else
+    //     SwitchMUSCL = false;
 
     do {
 
@@ -58,7 +71,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
         Fill(*FloodDT, dt_max);
 
-        if (SwitchMUSCL) {
+        if (SwitchHeun) {
             // 2nd order, with avg according to Heun, according to fullswof hean should allways be done!
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
@@ -111,7 +124,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         } else {
             // first order solution in space and time, cell centers are used, just one calculation, no Heun averaging
             // in the original code this is split in reconstruction/MUSCL and maincalcflux
-            doSWOFMUSCL(false, h, u, v, z);
+            doSWOFMUSCL(SwitchMUSCL, h, u, v, z);
             dt_cfl = findSmallestCFLdt(dt_cfl_new, timesum);
             dt_cfl_new = dt_cfl; // best guess for next timestep
             doSWOFStV(dt_cfl, h, u, v);
@@ -119,9 +132,9 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             // called maincalcscheme in fullSWOF
         }
 
-  //      correctMassBalance(sumh, h);
+     //   correctMassBalance(sumh, h);
 
-
+        // sediment and pesticde must be inside loop using dt_cfl
         if (SwitchErosion) {
             SWOFSediment(dt_cfl, h, FlowWidth, u,v);
             // sediment detachment/deposition
@@ -153,12 +166,6 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     // small mass balance corrections within 2d flow
     correctMassBalance(sumh, h);
 
-    // GIVES EXTREME DEPOSITION
-    // if (SwitchErosion && SwitchErosionOutsideLoop) {
-    //     SWOFSediment(_dt, h, FlowWidth, u,v);
-    // }
-    // do not do this. inside is a courant factor that detrmines the dt, not dt_ and deposition becomes massive
-
     if (FlowBoundaryType > 0) {
         Boundary2Ddyn(_dt, h, u, v);
     }
@@ -183,30 +190,36 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         if (h->Drc > F_minWH) {
             tmd->Drc = 1;
 
-            if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
-            if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
-            if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
-            if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
+           if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
+           if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
+           if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
+           if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
 
-            // if (c > 0 && r > 0 && !MV(r-1,c-1))
-            //     tmd->data[r-1][c-1] = 1;
-            // if (c < _nrCols-1 && r < _nrRows-1 && !MV(r+1,c+1))
-            //     tmd->data[r+1][c+1] = 1;
-            // if (r > 0 && c < _nrCols-1 && !MV(r-1,c+1))
-            //     tmd->data[r-1][c+1] = 1;
-            // if (c > 0 && r < _nrRows-1 && !MV(r+1,c-1))
-            //     tmd->data[r+1][c-1] = 1;
+           //     // if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
+           //     //     tmd->Drc = 0;
+           tmshow->Drc = tmd->Drc;
         }
-
-
-        // map edges are zero, avoid domain touching the edges
-        // ?????????????????
-        // if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
-        //     tmd->Drc = 0;
-
-        if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
-            tmd->Drc = 0;
     }}
+
+    // #pragma omp parallel for num_threads(userCores)
+    // FOR_ROW_COL_MV_L {
+
+    //     if (tmd->Drc == 1) {
+    //         if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
+    //         if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
+    //         if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
+    //         if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
+    //     }
+    //     // map edges are zero, avoid domain touching the edges
+    //     // ?????????????????
+    //     // if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
+    //     //     tmd->Drc = 0;
+
+    //     // if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
+    //     //     tmd->Drc = 0;
+    //     //tmd->Drc = 1;
+
+    // }}
 
     //do all flow and state calculations
     #pragma omp parallel for num_threads(userCores)
@@ -658,22 +671,19 @@ void TWorld::doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v)
             double qxn = h->Drc*u->Drc - tx*(hllx21_1->Drc + gflowx->Drc) - ty*hlly21_2->Drc;
             double qyn = h->Drc*v->Drc - tx*hllx21_2->Drc - ty*(hlly21_1->Drc + gflowy->Drc);
 
+            double eps = 1e-6;
+            double nsq1 = (N->Drc)*(N->Drc)*GRAV/qMax(eps,std::pow(hn,4.0/3.0));
+            double nsq = nsq1 * sqrt(u->Drc*u->Drc + v->Drc*v->Drc) * dt;
+            Un = (qxn/(1.0+nsq))/qMax(eps,hn);
+            Vn = (qyn/(1.0+nsq))/qMax(eps,hn);
+
             if (SwitchTimeavgV) {
-                double nsq1 = (N->Drc)*(N->Drc)*GRAV/qMax(0.0001,std::pow(hn,4.0/3.0));
-                double nsq = nsq1 * sqrt(u->Drc*u->Drc + v->Drc*v->Drc) * dt;
-
-                Un = (qxn/(1.0+nsq))/qMax(0.0001,hn);
-                Vn = (qyn/(1.0+nsq))/qMax(0.0001,hn);
-
-                double fac = 0.5 + 0.5*qMin(1.0,4*hn)*qMin(1.0,4*hn); // if hn > 1 fac = 1
+                double fac = 0.5 + 0.5*qMin(1.0,4*hn)*qMin(1.0,4*hn);
                 fac = fac * exp(- qMax(1.0,dt) / nsq1);
+               // tmshow->Drc = fac;
+                // high velocities give fac closer to 1, min factor is around 0.5!
                 Un = fac * u->Drc + (1.0-fac) *Un;
                 Vn = fac * v->Drc + (1.0-fac) *Vn;
-            } else {
-                double nsq1 = (N->Drc)*(N->Drc)*GRAV/std::pow(hn,4.0/3.0);
-                double nsq = nsq1*sqrt(u->Drc*u->Drc + v->Drc*v->Drc)*dt;
-                Un = (qxn/(1.0+nsq))/hn;
-                Vn = (qyn/(1.0+nsq))/hn;
             }
         } else {
             // hn < ha

@@ -449,7 +449,7 @@ void TWorld::ComputeForPixel(long i_, SOIL_MODEL *s)//, NODES l)
     //     pixel->currDt/=1.25;
     // if (count < 2)
     //     pixel->currDt*=1.25;
-tmshow->Drc = count;
+
     // if (i_ == 5000)
     //     qDebug() << pixel->currDt << count;
 

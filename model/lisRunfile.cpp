@@ -284,6 +284,7 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Flow Boundary 2D")==0)                  FlowBoundaryType = iii;
         if (p1.compare("Flood initial level map")==0)           SwitchFloodInitial = iii == 1;
         if (p1.compare("Flood solution")==0)                    SwitchMUSCL = iii == 1;
+        if (p1.compare("Flood Heun 2nd order")==0)              SwitchHeun = iii == 1;
 
         // erosion
         if (p1.compare("Include Erosion simulation")==0)        SwitchErosion =          iii == 1;

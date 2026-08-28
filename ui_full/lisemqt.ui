@@ -2208,9 +2208,9 @@
               <property name="geometry">
                <rect>
                 <x>0</x>
-                <y>-261</y>
+                <y>0</y>
                 <width>1013</width>
-                <height>869</height>
+                <height>863</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
@@ -2246,7 +2246,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>11</number>
+                  <number>4</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -4923,6 +4923,75 @@
                         </property>
                        </widget>
                       </item>
+                      <item row="1" column="0" colspan="3">
+                       <widget class="QLabel" name="label_96">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Courant factor: </string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="5" column="0" colspan="7">
+                       <widget class="QCheckBox" name="checkHeun">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Use MUSCL and Heun: 2nd order in sopace and time (def. off)</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="0" column="1" colspan="7">
+                       <widget class="QLabel" name="label_84">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>0 - closed boundary except outlets; 1 - open boundary; 2 - user defined map</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                        </property>
+                        <property name="wordWrap">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
                       <item row="1" column="4">
                        <widget class="QLabel" name="label_197">
                         <property name="sizePolicy">
@@ -4944,6 +5013,69 @@
                         </property>
                         <property name="alignment">
                          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="0" colspan="7">
+                       <widget class="QComboBox" name="comboMUSCLandHeun">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <item>
+                         <property name="text">
+                          <string>1. Cell centers: 1st order space and time </string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>2. MUSCL for space but 1st order time</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>3. MUSCL and Heun averaging: 2nd order space and time</string>
+                         </property>
+                        </item>
+                       </widget>
+                      </item>
+                      <item row="0" column="0">
+                       <widget class="QSpinBox" name="E_FlowBoundary">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="maximum">
+                         <number>2</number>
+                        </property>
+                        <property name="singleStep">
+                         <number>1</number>
+                        </property>
+                        <property name="value">
+                         <number>1</number>
                         </property>
                        </widget>
                       </item>
@@ -4980,37 +5112,7 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="0" column="1" colspan="7">
-                       <widget class="QLabel" name="label_84">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>0 - closed boundary except outlets; 1 - open boundary; 2 - user defined map</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-                        </property>
-                        <property name="wordWrap">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="0" colspan="8">
+                      <item row="4" column="0" colspan="8">
                        <widget class="QCheckBox" name="checkMUSCL">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -5027,64 +5129,10 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string>Use MUSCL and Heun: 2nd order estimates of fluxes for space and time (def. on)</string>
+                         <string>Use MUSCL: 1st order estimates in space and time with MUSCL (def. on)</string>
                         </property>
                         <property name="checked">
                          <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="0" column="0">
-                       <widget class="QSpinBox" name="E_FlowBoundary">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="maximum">
-                         <number>2</number>
-                        </property>
-                        <property name="singleStep">
-                         <number>1</number>
-                        </property>
-                        <property name="value">
-                         <number>1</number>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="0" colspan="3">
-                       <widget class="QLabel" name="label_96">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Courant factor: </string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                         </property>
                        </widget>
                       </item>
@@ -15917,22 +15965,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkMUSCL</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>E_FloodFluxLimiter</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>481</x>
-     <y>477</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>135</x>
-     <y>413</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkDischargeUser</sender>
    <signal>toggled(bool)</signal>
    <receiver>toolButton_DischargeName</receiver>
@@ -15977,22 +16009,6 @@
     <hint type="destinationlabel">
      <x>651</x>
      <y>417</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkMUSCL</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_100</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>481</x>
-     <y>477</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>580</x>
-     <y>429</y>
     </hint>
    </hints>
   </connection>
@@ -16425,6 +16441,38 @@
     <hint type="destinationlabel">
      <x>360</x>
      <y>498</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkMUSCL</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>E_FloodFluxLimiter</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>481</x>
+     <y>477</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>135</x>
+     <y>413</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkMUSCL</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_100</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>481</x>
+     <y>477</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>580</x>
+     <y>429</y>
     </hint>
    </hints>
   </connection>

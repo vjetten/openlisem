@@ -553,6 +553,7 @@ public:
         Switch2DDiagonalFlow,
         SwitchSWOFopen,
         SwitchMUSCL,
+        SwitchHeun,
         SwitchUserCores,
         SwitchVariableTimestep,
         SwitchImage,
@@ -1077,6 +1078,7 @@ public:
     double F_pitValue;
     bool startFlood;
     int iter_n;
+    long forceM;
     double fullSWOF2openMUSCL(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
     void doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     void doSWOFStV(double dt, cTMap *h, cTMap *u, cTMap *v);
