@@ -2091,6 +2091,8 @@ void TWorld::IntializeOptions(void)
     Switch2DDiagonalFlow = true;
     SwitchSWOFopen = true;
     SwitchMUSCL = false;
+    SwitchHeun = false;
+    SwitchMUSCLandHeun = 1; // 1st order
     SwitchFloodInitial = false;
     SwitchErosion = false;
     SwitchUse2Phase = false;

@@ -1068,6 +1068,8 @@ void lisemqt::resetTabFlow()
     E_TimestepMinFlood->setValue(0.2);
     E_courantFactor->setValue(0.2);
 
+    E_MUSCLandHeun->setCurrentIndex(0);
+
     GW_recharge->setValue(1.0);
     GW_flow->setValue(1.0);
     GW_slope->setValue(1.0);

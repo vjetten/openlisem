@@ -4947,21 +4947,6 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="5" column="0" colspan="7">
-                       <widget class="QCheckBox" name="checkHeun">
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Use MUSCL and Heun: 2nd order in sopace and time (def. off)</string>
-                        </property>
-                       </widget>
-                      </item>
                       <item row="0" column="1" colspan="7">
                        <widget class="QLabel" name="label_84">
                         <property name="enabled">
@@ -5017,7 +5002,7 @@
                        </widget>
                       </item>
                       <item row="2" column="0" colspan="7">
-                       <widget class="QComboBox" name="comboMUSCLandHeun">
+                       <widget class="QComboBox" name="E_MUSCLandHeun">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -5109,30 +5094,6 @@
                         </property>
                         <property name="value">
                          <double>0.200000000000000</double>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="0" colspan="8">
-                       <widget class="QCheckBox" name="checkMUSCL">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="text">
-                         <string>Use MUSCL: 1st order estimates in space and time with MUSCL (def. on)</string>
-                        </property>
-                        <property name="checked">
-                         <bool>true</bool>
                         </property>
                        </widget>
                       </item>
@@ -16441,38 +16402,6 @@
     <hint type="destinationlabel">
      <x>360</x>
      <y>498</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkMUSCL</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>E_FloodFluxLimiter</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>481</x>
-     <y>477</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>135</x>
-     <y>413</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkMUSCL</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_100</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>481</x>
-     <y>477</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>580</x>
-     <y>429</y>
     </hint>
    </hints>
   </connection>

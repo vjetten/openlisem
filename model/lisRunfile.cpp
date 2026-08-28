@@ -283,8 +283,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use 2D Diagonal flow")==0)              Switch2DDiagonalFlow = iii == 1;
         if (p1.compare("Flow Boundary 2D")==0)                  FlowBoundaryType = iii;
         if (p1.compare("Flood initial level map")==0)           SwitchFloodInitial = iii == 1;
-        if (p1.compare("Flood solution")==0)                    SwitchMUSCL = iii == 1;
-        if (p1.compare("Flood Heun 2nd order")==0)              SwitchHeun = iii == 1;
+        if (p1.compare("Flood solution")==0)                    SwitchMUSCLandHeun = iii;
+        //if (p1.compare("Flood Heun 2nd order")==0)              SwitchHeun = iii == 1;
 
         // erosion
         if (p1.compare("Include Erosion simulation")==0)        SwitchErosion =          iii == 1;
@@ -447,6 +447,18 @@ void TWorld::ParseRunfileData(void)
     if (SwitchGWflow) {
         SwitchImpermeable = false;  //???okay
     }
+
+    // 1st order solution, 1st order with MUSCL, 2nd order solution
+    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
+        SwitchMUSCL = false;
+        SwitchHeun = false;
+        if (SwitchMUSCLandHeun == 1) SwitchMUSCL = true;
+        if (SwitchMUSCLandHeun == 2) {
+            SwitchMUSCL = true;
+            SwitchHeun = true;
+        }
+    }
+
 
     if (!SwitchInfrastructure) {
         SwitchRoadsystem = false;

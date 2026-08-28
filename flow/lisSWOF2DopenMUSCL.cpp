@@ -72,6 +72,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         Fill(*FloodDT, dt_max);
 
         if (SwitchHeun) {
+            qDebug() << "heun";
             // 2nd order, with avg according to Heun, according to fullswof hean should allways be done!
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
@@ -122,6 +123,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 }
             }}
         } else {
+qDebug() << SwitchMUSCL;
             // first order solution in space and time, cell centers are used, just one calculation, no Heun averaging
             // in the original code this is split in reconstruction/MUSCL and maincalcflux
             doSWOFMUSCL(SwitchMUSCL, h, u, v, z);
