@@ -447,9 +447,15 @@ void TWorld::ParseRunfileData(void)
     if (SwitchGWflow) {
         SwitchImpermeable = false;  //???okay
     }
+    int wave = getvalueint("Routing Kin Wave 2D");
+    if (wave == 0) SwitchKinematic2D = K2D_METHOD_KIN;
+    if (wave == 1) SwitchKinematic2D = K2D_METHOD_KINDYN;
+    if (wave == 2) SwitchKinematic2D = K2D_METHOD_DYN;
+    if (wave < 2) SwitchWaveUser = false; // waveuser is an incoming wave at the boundary (tsunami type)
 
     // 1st order solution, 1st order with MUSCL, 2nd order solution
     if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
+        qDebug() << "mh" << SwitchMUSCLandHeun;
         SwitchMUSCL = false;
         SwitchHeun = false;
         if (SwitchMUSCLandHeun == 1) SwitchMUSCL = true;
@@ -457,6 +463,7 @@ void TWorld::ParseRunfileData(void)
             SwitchMUSCL = true;
             SwitchHeun = true;
         }
+        //qDebug() << "muscl heun" << SwitchMUSCLandHeun << SwitchMUSCL << SwitchHeun;
     }
 
 

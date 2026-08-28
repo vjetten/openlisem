@@ -208,11 +208,11 @@ void TWorld::InitParameters(void)
     if (SwitchChannelMaxV)
        _CHMaxV =  getvaluedouble("Channel Max V");
 
-    int wave = getvalueint("Routing Kin Wave 2D");
-    if (wave == 0) SwitchKinematic2D = K2D_METHOD_KIN;
-    if (wave == 1) SwitchKinematic2D = K2D_METHOD_KINDYN;
-    if (wave == 2) SwitchKinematic2D = K2D_METHOD_DYN;
-    if (wave < 2) SwitchWaveUser = false; // waveuser is an incoming wave at the boundary (tsunami type)
+    // int wave = getvalueint("Routing Kin Wave 2D");
+    // if (wave == 0) SwitchKinematic2D = K2D_METHOD_KIN;
+    // if (wave == 1) SwitchKinematic2D = K2D_METHOD_KINDYN;
+    // if (wave == 2) SwitchKinematic2D = K2D_METHOD_DYN;
+    // if (wave < 2) SwitchWaveUser = false; // waveuser is an incoming wave at the boundary (tsunami type)
 
     if (SwitchKinematic2D == K2D_METHOD_KIN)
         FlowBoundaryType = 0;
