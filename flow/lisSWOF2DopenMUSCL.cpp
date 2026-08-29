@@ -93,7 +93,7 @@ for (int k_; k_ < nrWatersheds; k_++) {
             //NOTE: MUSCL gives second order precision in space
             // Heun (or Runga Kutta 2) gives second order precision in time
 
-            doSWOFMUSCL(cells, true, h, u, v, z);
+            doSWOFMUSCL(cells, k_, true, h, u, v, z);
             // h,u,v are updated, they are now h*,u*,v*
             // in the original code there is an iteration for the smallest dt, we don't do that for now
             dt_cfl = findSmallestCFLdt(cells, minWSDtnew[k_], timesumWS[k_]);
@@ -106,7 +106,7 @@ for (int k_; k_ < nrWatersheds; k_++) {
             // called maincalcscheme in fullSWOF
 
             // stage 2: MUSCL+Riemann using updated h*,u*,v*, results in h**, u**, v**
-            doSWOFMUSCL(cells, true, h, u, v, z);
+            doSWOFMUSCL(cells, k_, true, h, u, v, z);
 
             dt_cfl_new = findSmallestCFLdt(cells, dt_cfl, timesum);
             minWSDtnew[k_] = dt_cfl_new;
@@ -137,7 +137,7 @@ for (int k_; k_ < nrWatersheds; k_++) {
             // first order solution in space and time, cell centers are used, just one calculation, no Heun averaging
             // in the original code this is split in reconstruction/MUSCL and maincalcflux
 
-            doSWOFMUSCL(cells, SwitchMUSCL, h, u, v, z);
+            doSWOFMUSCL(cells, k_,  SwitchMUSCL, h, u, v, z);
 
             dt_cfl = findSmallestCFLdt(cells, minWSDtnew[k_], timesumWS[k_]);
 
@@ -201,7 +201,7 @@ FOR_ROW_COL_MV_Lws {
 
 }
 //------------------------------------------------------------------------------------------------------
-void TWorld::doSWOFMUSCL(const QVector<long>& cells, bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
+void TWorld::doSWOFMUSCL(const QVector<long>& cells, int WSnr, bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
     // for boundary
     double factor = exp(-0.005*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
@@ -232,6 +232,10 @@ void TWorld::doSWOFMUSCL(const QVector<long>& cells, bool doMUSCL, cTMap *h, cTM
 
     // #pragma omp parallel for num_threads(userCores)
     // FOR_ROW_COL_MV_L {
+    //     if (WaterSheds->Drc != WSnr)
+    //         tmd->Drc = 0;
+
+    // }}
 
     //     if (tmd->Drc == 1) {
     //         if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;

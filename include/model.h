@@ -1092,7 +1092,7 @@ public:
     int iter_n;
     long forceM;
     double fullSWOF2openMUSCL(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
-    void doSWOFMUSCL(const QVector<long>& cells, bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
+    void doSWOFMUSCL(const QVector<long>& cells, int WSnr, bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
     void doSWOFStV(const QVector<long>& cells,double dt, cTMap *h, cTMap *u, cTMap *v);
     double findSmallestCFLdt(const QVector<long>& cells, double dt, double timesum);
 
