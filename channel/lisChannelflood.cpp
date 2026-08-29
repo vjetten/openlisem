@@ -83,7 +83,7 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
             // channel banks receiving/transferring water. which is always the case in LSIEM for now
             double L = 2.0 * ChannelDX->Drc;
 
-            double H_eq = (H*As + ChD*Ac)/(As + Ac); // equilibrium water level
+            double H_eq = (H*As + ChH*Ac)/(As + Ac); // equilibrium water level
 
             double transfer_volume = 0.0;
             bool tochannel = false;

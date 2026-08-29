@@ -39,27 +39,50 @@
 //#define SIGN(V)(V < 0 ? -1.0 : 1.0)
 
 //----------------------------------------------------------------------------------------
+//  zie: https://chatgpt.com/share/6a8f56d0-b6fc-83eb-a392-caf47de444ab
 double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
-    double dt_max = qMin(_dt, _dx*0.5);
-    double sumh = 0;
-    sumh = getMass(h);
 
-    Fill(*FloodDT, dt_max); //?? or inside ws loop
-
-for (int k_= 0; k_ < nrWS; k_==) {
-    int count = 0;
     double timesum = 0;
-    double dt_req_min = dt_max;
+    double dt_max = qMin(_dt, _dx*0.5); //???? or intuitively qMin(_dt*0.5, _dx*0.5);
+    int count = 0;
+    double sumh = 0;
     bool stop;
+    double dt_cfl = dt_max;
+    double dt_cfl_new = dt_max;
+
+    sumh = getMass(h);
+    /*
+     *With a first-order Godunov-type scheme, the Riemann solver sees the cell-center/cell-average states directly.
+     *At every interface, the solution is effectively smeared over the grid. This introduces numerical diffusion.
+     *MUSCL reconstructs left/right interface states and substantially reduces that diffusion. This is why MUSCL
+     *is used for second-order spatial accuracy. FullSWOF describes its first-order scheme as using cell values
+     *directly and its second-order version as reconstructing interface values with MUSCL.
+     */
+
+
+    Fill(*FloodDT, dt_max);
+    minWSDt.clear();
+    minWSDtnew.clear();
+    timesumWS.clear();
+    for (int k_; k_ < nrWatersheds; k_++) {
+        minWSDt << dt_max;
+        minWSDtnew << dt_max;
+        timesumWS << 0.0;
+    }
+
+
+for (int k_; k_ < nrWatersheds; k_++) {
+    const QVector<long>& cells = wsCells[k_];
 
     do {
 
         //if (SwitchErosion)
         //sumS = getMassSed(SSFlood, 0);
 
-        if (SwitchMUSCL) {
-            // 2nd order, with avg according to Heun, according to fullswof hean should allways be done!
+
+        if (SwitchHeun) {
+              // 2nd order, with avg according to Heun, according to fullswof hean should allways be done!
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_Lws {
                 tma->Drc = h->Drc;
@@ -67,33 +90,34 @@ for (int k_= 0; k_ < nrWS; k_==) {
                 tmc->Drc = v->Drc;
                 // save the values at the start of the run for MUSCL/Heun averaging
             }}
+            //NOTE: MUSCL gives second order precision in space
+            // Heun (or Runga Kutta 2) gives second order precision in time
 
-            int step = 0;
-            double dt1;
+            doSWOFMUSCL(cells, true, h, u, v, z);
+            // h,u,v are updated, they are now h*,u*,v*
+            // in the original code there is an iteration for the smallest dt, we don't do that for now
+            dt_cfl = findSmallestCFLdt(cells, minWSDtnew[k_], timesumWS[k_]);
+            // find smallest cfl dt from FloodDT
+            minWSDt[k_] = dt_cfl;
 
-            //do {
-              //  step++;
-                dt1 = dt_req_min;
-                dt_req_min = doSWOFMUSCLdt(k_, dt1, timesum, h, u, v, z);
-                minWSDt.append(dt_req_min);
-
-                // if (dt1 > dt_req_min) {
-                //     dt1 = dt_req_min;
-                //     dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
-                // }
-                //qDebug() << "muscl" << step << dt1 << dt_req_min;
-
-            //} while (dt1 > dt_req_min && step < F_maxMUSCL);
-
-            //dt_req_min = qMin(dt_req_min, dt1);
-
-            doSWOFStV(k_, h, u, v);
-            // Saint-Venant calculations for new h, u, v
+            // stage 1 Euler update
+            doSWOFStV(cells, dt_cfl, h, u, v);
+            // Saint-Venant calculations for new h*, u*, v* and dt_cfl
             // called maincalcscheme in fullSWOF
 
+            // stage 2: MUSCL+Riemann using updated h*,u*,v*, results in h**, u**, v**
+            doSWOFMUSCL(cells, true, h, u, v, z);
 
-            //TODO: HEUN AVERAGE MAY HAVE A LARGE EFFECT, WHY DO THIS?
-            //Heun average, see FullSWOF doc
+            dt_cfl_new = findSmallestCFLdt(cells, dt_cfl, timesum);
+            minWSDtnew[k_] = dt_cfl_new;
+            // use the smallest dt2 as the best estimate for the start of the next loop
+            // this new timestep is used as the best guess for the next loop, not to finish this loop,
+
+            // Stage 2 Euler update, we keep using dt_cfl for all remaining calculations
+            // in the old code this dt was again updated! wich is wrong because the Heun avarage is then not a true average anymore
+            doSWOFStV(cells, dt_cfl, h, u, v);
+
+            //Heun average for 2nd order time precision , see FullSWOF doc
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_Lws {
                 double havg = 0.5*(tma->Drc + h->Drc); // avg original before loops and second estimation
@@ -110,18 +134,32 @@ for (int k_= 0; k_ < nrWS; k_==) {
                 }
             }}
         } else {
-            // first order solution, cell centers are use, just one calculation, no Heun averaging
+            // first order solution in space and time, cell centers are used, just one calculation, no Heun averaging
             // in the original code this is split in reconstruction/MUSCL and maincalcflux
 
-            dt_req_min = doSWOFMUSCLdt(k_, dt_max, timesum, h, u, v, z);
+            doSWOFMUSCL(cells, SwitchMUSCL, h, u, v, z);
 
-            doSWOFStV(k_, h, u, v);
+            dt_cfl = findSmallestCFLdt(cells, minWSDtnew[k_], timesumWS[k_]);
+
+            minWSDt[k_] = dt_cfl;
+            minWSDtnew[k_] = dt_cfl;
+
+            dt_cfl_new = dt_cfl; // best guess for next timestep
+            doSWOFStV(cells, dt_cfl, h, u, v);
             // Saint-Venant calculations for new h, u, v
             // called maincalcscheme in fullSWOF
         }
+#pragma omp parallel for num_threads(userCores)
+FOR_ROW_COL_MV_Lws {
+    tmshow->Drc = dt_cfl;
+    // save the values at the start of the run for MUSCL/Heun averaging
+}}
+     //   correctMassBalance(sumh, h);
 
-        if (SwitchErosion) {// && !SwitchErosionOutsideLoop)
-            SWOFSediment(dt_req_min, h, FlowWidth, u,v);
+        // sediment and pesticde must be inside loop using dt_cfl
+        if (SwitchErosion) {
+            SWOFSediment(dt_cfl, h, FlowWidth, u,v);
+
             // sediment detachment/deposition
             // suspended and optionally bedload
             // transport by advection and optionally diffusion
@@ -129,20 +167,20 @@ for (int k_= 0; k_ < nrWS; k_==) {
         }
 
         if (SwitchPest) {
-            PesticideFlow2D(dt_req_min, h, u, v);
+            PesticideFlow2D(dt_cfl, h, u, v);
             // lispesticide.cpp
         }
         //VJ-P TODO: add pesticides to boundary flow and diagonal flow
 
         if (Switch2DDiagonalFlow) {
-            SWOFDiagonalFlowLDD(dt_req_min, z, h, u, v);
+            SWOFDiagonalFlowLDD(dt_cfl, z, h, u, v);
           //  SWOFDiagonalFlow(dt_req_min, z, h, u, v);
         }
 
-        timesum += dt_req_min;
+        timesumWS[k_] += dt_cfl;
         count++; // nr loops
 
-        stop = timesum > _dt-0.001;
+        stop = timesumWS[k_] > _dt-0.001;
         if(count > F_MaxIter)
         stop = true;
 
@@ -151,12 +189,6 @@ for (int k_= 0; k_ < nrWS; k_==) {
 
     // small mass balance corrections within 2d flow
     correctMassBalance(sumh, h);
-
-    // GIVES EXTREME DEPOSITION
-    // if (SwitchErosion && SwitchErosionOutsideLoop) {
-    //     SWOFSediment(_dt, h, FlowWidth, u,v);
-    // }
-    // do not do this. inside is a courant factor that detrmines the dt, not dt_ and deposition becomes massive
 
     if (FlowBoundaryType > 0) {
         Boundary2Ddyn(_dt, h, u, v);
@@ -169,30 +201,26 @@ for (int k_= 0; k_ < nrWS; k_==) {
 
 }
 //------------------------------------------------------------------------------------------------------
-double TWorld::doSWOFMUSCLdt(int WSnr, double dt, double timesum, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
+void TWorld::doSWOFMUSCL(const QVector<long>& cells, bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
-    // boundary
+    // for boundary
     double factor = exp(-0.005*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
     double factor2 = factor;//pow(factor,0.667); // manning reduction V=h^2/3
 
-    const QVector<int>& cells = watershedCells[WSnr];
-
-    //Fill(*FloodDT, dt_max);
-    //wsMinDt.clear();
-
+    //const QVector<int>& cells = wsCells[WSnr];
 
     // find which cells to process: those with water plus 1 neighbour extra
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_Lws {
         tmd->Drc = 0;
-        // if water include
+        // if water include this cell and its neighbours
         if (h->Drc > F_minWH) {
             tmd->Drc = 1;
 
-            if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
-            if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
-            if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
-            if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
+           if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
+           if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
+           if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
+           if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
 
         }
 
@@ -202,12 +230,25 @@ double TWorld::doSWOFMUSCLdt(int WSnr, double dt, double timesum, cTMap *h, cTMa
 
     }}
 
-    //tmd must not be outside watershed
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        if (WaterSheds->Drc != WSnr)
-            tmd->Drc = 0;
-    }}
+    // #pragma omp parallel for num_threads(userCores)
+    // FOR_ROW_COL_MV_L {
+
+    //     if (tmd->Drc == 1) {
+    //         if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
+    //         if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
+    //         if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
+    //         if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
+    //     }
+    //     // map edges are zero, avoid domain touching the edges
+    //     // ?????????????????
+    //     // if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
+    //     //     tmd->Drc = 0;
+
+    //     // if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
+    //     //     tmd->Drc = 0;
+    //     //tmd->Drc = 1;
+
+    // }}
 
     //do all flow and state calculations
 
@@ -353,7 +394,7 @@ double TWorld::doSWOFMUSCLdt(int WSnr, double dt, double timesum, cTMap *h, cTMa
 
             //======== MUSCL: on the 4 boundaties of a gridcell interpolate from the center values
             // called "reconstruction" in SWOF code
-            if (SwitchMUSCL) {
+            if (doMUSCL) {
                 bool b2c1 ,b2c2 ,b2r1 ,b2r2;
                 double h_xx1, h_xx2, u_xx1, u_xx2, v_xx1, v_xx2;
                 double h_yy1, h_yy2, u_yy1, u_yy2, v_yy1, v_yy2;
@@ -615,21 +656,24 @@ double TWorld::doSWOFMUSCLdt(int WSnr, double dt, double timesum, cTMap *h, cTMa
         }
     }} // all cells in watershed done
 
-    //find smallest dt in this watershed, can be done smarter
+}
+//-----------------------------------------------------------------------------------------------------------
+double TWorld::findSmallestCFLdt(const QVector<long>& cells, double dt, double timesum)
+{
+    //find smallest dt in domain
     double dt_req_min = dt;
+
     #pragma omp parallel for reduction(min:dt_req_min) num_threads(userCores)
-    FOR_ROW_COL_MV_L {
+    FOR_ROW_COL_MV_Lws {
         dt_req_min = qMin(dt_req_min, FloodDT->Drc);
     }}
     dt_req_min = qMax(TimestepfloodMin, qMin(dt, qMin(dt_req_min, _dt-timesum)));
-
+    // check against remaining time and user min dt
     return dt_req_min;
 }
 //-----------------------------------------------------------------------------------------------------------
-void TWorld::doSWOFStV(int WSnr, cTMap *h, cTMap *u, cTMap *v)
+void TWorld::doSWOFStV(const QVector<long>& cells, double dt,cTMap *h, cTMap *u, cTMap *v)
 {
-
-    const QVector<int>& cells = watershedCells[WSnr];
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_Lws {
@@ -637,7 +681,6 @@ void TWorld::doSWOFStV(int WSnr, cTMap *h, cTMap *u, cTMap *v)
         double dy = _dx;
         double Un = 0;
         double Vn = 0;
-        double dt = minWSDt[k_];
         double tx;
         double ty;
         tx = dt/dx;
@@ -651,22 +694,19 @@ void TWorld::doSWOFStV(int WSnr, cTMap *h, cTMap *u, cTMap *v)
             double qxn = h->Drc*u->Drc - tx*(hllx21_1->Drc + gflowx->Drc) - ty*hlly21_2->Drc;
             double qyn = h->Drc*v->Drc - tx*hllx21_2->Drc - ty*(hlly21_1->Drc + gflowy->Drc);
 
+            double eps = 1e-6;
+            double nsq1 = (N->Drc)*(N->Drc)*GRAV/qMax(eps,std::pow(hn,4.0/3.0));
+            double nsq = nsq1 * sqrt(u->Drc*u->Drc + v->Drc*v->Drc) * dt;
+            Un = (qxn/(1.0+nsq))/qMax(eps,hn);
+            Vn = (qyn/(1.0+nsq))/qMax(eps,hn);
+
             if (SwitchTimeavgV) {
-                double nsq1 = (N->Drc)*(N->Drc)*GRAV/qMax(0.0001,std::pow(hn,4.0/3.0));
-                double nsq = nsq1 * sqrt(u->Drc*u->Drc + v->Drc*v->Drc) * dt;
-
-                Un = (qxn/(1.0+nsq))/qMax(0.0001,hn);
-                Vn = (qyn/(1.0+nsq))/qMax(0.0001,hn);
-
-                double fac = 0.5 + 0.5*qMin(1.0,4*hn)*qMin(1.0,4*hn); // if hn > 1 fac = 1
+                double fac = 0.5 + 0.5*qMin(1.0,4*hn)*qMin(1.0,4*hn);
                 fac = fac * exp(- qMax(1.0,dt) / nsq1);
+               // tmshow->Drc = fac;
+                // high velocities give fac closer to 1, min factor is around 0.5!
                 Un = fac * u->Drc + (1.0-fac) *Un;
                 Vn = fac * v->Drc + (1.0-fac) *Vn;
-            } else {
-                double nsq1 = (N->Drc)*(N->Drc)*GRAV/std::pow(hn,4.0/3.0);
-                double nsq = nsq1*sqrt(u->Drc*u->Drc + v->Drc*v->Drc)*dt;
-                Un = (qxn/(1.0+nsq))/hn;
-                Vn = (qyn/(1.0+nsq))/hn;
             }
         } else {
             // hn < ha

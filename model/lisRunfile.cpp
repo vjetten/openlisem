@@ -283,7 +283,8 @@ void TWorld::ParseRunfileData(void)
         if (p1.compare("Use 2D Diagonal flow")==0)              Switch2DDiagonalFlow = iii == 1;
         if (p1.compare("Flow Boundary 2D")==0)                  FlowBoundaryType = iii;
         if (p1.compare("Flood initial level map")==0)           SwitchFloodInitial = iii == 1;
-        if (p1.compare("Flood solution")==0)                    SwitchMUSCL = iii == 1;
+        if (p1.compare("Flood solution")==0)                    SwitchMUSCLandHeun = iii;
+        //if (p1.compare("Flood Heun 2nd order")==0)              SwitchHeun = iii == 1;
 
         // erosion
         if (p1.compare("Include Erosion simulation")==0)        SwitchErosion =          iii == 1;
@@ -368,7 +369,6 @@ void TWorld::ParseRunfileData(void)
 //        if (p1.compare("Use Channel Kinwave dt")==0)            SwitchChannelKinwaveDt = iii == 1;
         if (p1.compare("Use Channel Max GV")==0)                SwitchChannelMaxV = iii == 1;
         if (p1.compare("Use time avg V")==0)                    SwitchTimeavgV = iii == 1;
-        if (p1.compare("Erosion outside 2D loop")==0)           SwitchErosionOutsideLoop = iii == 1;
         //if (p1.compare("Check mutex")==0)                       SwitchMutex = iii == 1;
 
         // outpu map names
@@ -447,6 +447,26 @@ void TWorld::ParseRunfileData(void)
     if (SwitchGWflow) {
         SwitchImpermeable = false;  //???okay
     }
+    // used to be in datainit
+    int wave = getvalueint("Routing Kin Wave 2D");
+    if (wave == 0) SwitchKinematic2D = K2D_METHOD_KIN;
+    if (wave == 1) SwitchKinematic2D = K2D_METHOD_KINDYN;
+    if (wave == 2) SwitchKinematic2D = K2D_METHOD_DYN;
+    if (wave < 2) SwitchWaveUser = false; // waveuser is an incoming wave at the boundary (tsunami type)
+
+    // 1st order solution, 1st order with MUSCL, 2nd order solution
+    if (SwitchKinematic2D == K2D_METHOD_DYN || SwitchKinematic2D == K2D_METHOD_KINDYN) {
+        qDebug() << "mh" << SwitchMUSCLandHeun;
+        SwitchMUSCL = false;
+        SwitchHeun = false;
+        if (SwitchMUSCLandHeun == 1) SwitchMUSCL = true;
+        if (SwitchMUSCLandHeun == 2) {
+            SwitchMUSCL = true;
+            SwitchHeun = true;
+        }
+        //qDebug() << "muscl heun" << SwitchMUSCLandHeun << SwitchMUSCL << SwitchHeun;
+    }
+
 
     if (!SwitchInfrastructure) {
         SwitchRoadsystem = false;

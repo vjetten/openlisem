@@ -122,7 +122,7 @@
  {int r = cr_[i_].r; int c = cr_[i_].c;
 
 #define FOR_ROW_COL_MV_Lws for(long i_ = 0; i_ < cells.size(); i_++)\
- {int r = cells[i_].r; int c = cells[i_].c;
+ {long WSi_ = cells[i_];int r = cr_[WSi_].r;int c = cr_[WSi_].c;
 
 #define FOR_ROW_COL_LDD5 for(long i_ = 0; i_ < nrValidCellsLDD5; i_++)\
 {int r = crldd5_[i_].r; int c = crldd5_[i_].c;
@@ -412,9 +412,11 @@ public:
     long nrValidCellsTile;
 
     // watershed approach
-    int nrWS;
-    QVector<QVector<int>> watershedCells;
+    int nrWatersheds;
+    QVector<QVector<long>> wsCells;
     QVector<double> minWSDt;
+    QVector<double> minWSDtnew;
+    QVector<double> timesumWS;
 
     QVector <LDD_COOR> cr_;
     QVector <LDD_COORCH> crch_;
@@ -562,6 +564,7 @@ public:
         Switch2DDiagonalFlow,
         SwitchSWOFopen,
         SwitchMUSCL,
+        SwitchHeun,
         SwitchUserCores,
         SwitchVariableTimestep,
         SwitchImage,
@@ -580,6 +583,7 @@ public:
          SwitchReadGrainSizeDistribution,
          SwitchD50CHavg;
 
+    int SwitchMUSCLandHeun;
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
     int SwitchEfficiencyDETCH; // channel detachment efficiency
@@ -1086,10 +1090,11 @@ public:
     double F_pitValue;
     bool startFlood;
     int iter_n;
+    long forceM;
     double fullSWOF2openMUSCL(cTMap *h, cTMap *vx, cTMap *vy, cTMap *z);
-    double doSWOFMUSCLdt(int WSnr, double dt, double timesum, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
-
-    void doSWOFStV(int WSnr, cTMap *h, cTMap *u, cTMap *v);
+    void doSWOFMUSCL(const QVector<long>& cells, bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z);
+    void doSWOFStV(const QVector<long>& cells,double dt, cTMap *h, cTMap *u, cTMap *v);
+    double findSmallestCFLdt(const QVector<long>& cells, double dt, double timesum);
 
     void ChannelSWOFopen();  //TODO not used
     void KinematicSWOFopen(cTMap *_h, cTMap *_V);

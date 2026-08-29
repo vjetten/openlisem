@@ -695,8 +695,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>860</width>
-                <height>536</height>
+                <width>835</width>
+                <height>547</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_39">
@@ -2209,8 +2209,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>1002</width>
-                <height>832</height>
+                <width>1013</width>
+                <height>863</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_54">
@@ -2246,7 +2246,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>10</number>
+                  <number>4</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -4923,8 +4923,8 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="4">
-                       <widget class="QLabel" name="label_197">
+                      <item row="1" column="0" colspan="3">
+                       <widget class="QLabel" name="label_96">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -4940,43 +4940,10 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string>Minimum timestep (sec): </string>
+                         <string>Courant factor: </string>
                         </property>
                         <property name="alignment">
                          <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="5">
-                       <widget class="QDoubleSpinBox" name="E_TimestepMinFlood">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="decimals">
-                         <number>2</number>
-                        </property>
-                        <property name="minimum">
-                         <double>0.010000000000000</double>
-                        </property>
-                        <property name="maximum">
-                         <double>1000.000000000000000</double>
-                        </property>
-                        <property name="singleStep">
-                         <double>0.010000000000000</double>
-                        </property>
-                        <property name="value">
-                         <double>0.200000000000000</double>
                         </property>
                        </widget>
                       </item>
@@ -5010,8 +4977,8 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="3" column="0" colspan="8">
-                       <widget class="QCheckBox" name="checkMUSCL">
+                      <item row="1" column="4">
+                       <widget class="QLabel" name="label_197">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -5027,11 +4994,44 @@
                          </font>
                         </property>
                         <property name="text">
-                         <string>Use MUSCL: better estimation of cell boundary flows (def. on)</string>
+                         <string>Minimum timestep (sec): </string>
                         </property>
-                        <property name="checked">
-                         <bool>true</bool>
+                        <property name="alignment">
+                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                         </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="0" colspan="7">
+                       <widget class="QComboBox" name="E_MUSCLandHeun">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <item>
+                         <property name="text">
+                          <string>1. Cell centers: 1st order space and time </string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>2. MUSCL for space but 1st order time</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>3. MUSCL and Heun averaging: 2nd order space and time</string>
+                         </property>
+                        </item>
                        </widget>
                       </item>
                       <item row="0" column="0">
@@ -5064,8 +5064,8 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="0" colspan="3">
-                       <widget class="QLabel" name="label_96">
+                      <item row="1" column="5">
+                       <widget class="QDoubleSpinBox" name="E_TimestepMinFlood">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -5080,11 +5080,20 @@
                           <kerning>true</kerning>
                          </font>
                         </property>
-                        <property name="text">
-                         <string>Courant factor: </string>
+                        <property name="decimals">
+                         <number>2</number>
                         </property>
-                        <property name="alignment">
-                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                        <property name="minimum">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="maximum">
+                         <double>1000.000000000000000</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>0.200000000000000</double>
                         </property>
                        </widget>
                       </item>
@@ -10124,11 +10133,8 @@
                          <property name="verticalSpacing">
                           <number>4</number>
                          </property>
-                         <item row="2" column="1" colspan="4">
-                          <widget class="QLabel" name="label_199">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
+                         <item row="8" column="4">
+                          <widget class="QLabel" name="label_135">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                              <horstretch>0</horstretch>
@@ -10144,31 +10150,10 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Max iterations (def. 200)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                            <string> (m)</string>
                            </property>
-                           <property name="alignment">
-                            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="9" column="0" colspan="5">
-                          <widget class="QCheckBox" name="checkCorrectDem">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Ignore pits: set pit elevation to lowest surrounding cell (3x3 window)</string>
+                           <property name="wordWrap">
+                            <bool>true</bool>
                            </property>
                           </widget>
                          </item>
@@ -10199,7 +10184,7 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="7" column="0" colspan="3">
+                         <item row="8" column="0" colspan="3">
                           <widget class="QCheckBox" name="check2DDiagonalFlow">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -10223,8 +10208,8 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="4" column="4">
-                          <widget class="QLineEdit" name="E_minWHVSWOF">
+                         <item row="8" column="3">
+                          <widget class="QDoubleSpinBox" name="E_pitValue">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                              <horstretch>0</horstretch>
@@ -10239,8 +10224,77 @@
                              <kerning>true</kerning>
                             </font>
                            </property>
+                           <property name="decimals">
+                            <number>2</number>
+                           </property>
+                           <property name="minimum">
+                            <double>0.010000000000000</double>
+                           </property>
+                           <property name="maximum">
+                            <double>100.000000000000000</double>
+                           </property>
+                           <property name="singleStep">
+                            <double>0.010000000000000</double>
+                           </property>
+                           <property name="value">
+                            <double>0.100000000000000</double>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="1" colspan="4">
+                          <widget class="QLabel" name="label_199">
+                           <property name="enabled">
+                            <bool>true</bool>
+                           </property>
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
                            <property name="text">
-                            <string>1e-9</string>
+                            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Max iterations (def. 200)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                           </property>
+                           <property name="alignment">
+                            <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="2" column="0">
+                          <widget class="QSpinBox" name="E_FloodMaxIter">
+                           <property name="enabled">
+                            <bool>true</bool>
+                           </property>
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="minimum">
+                            <number>10</number>
+                           </property>
+                           <property name="maximum">
+                            <number>999</number>
+                           </property>
+                           <property name="value">
+                            <number>200</number>
                            </property>
                           </widget>
                          </item>
@@ -10277,82 +10331,7 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="7" column="4">
-                          <widget class="QLabel" name="label_135">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string> (m)</string>
-                           </property>
-                           <property name="wordWrap">
-                            <bool>true</bool>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="4" column="0" colspan="4">
-                          <widget class="QLabel" name="label_161">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="text">
-                            <string>Minimum threshold for waterheight and velocity calculations: </string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="2" column="0">
-                          <widget class="QSpinBox" name="E_FloodMaxIter">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="minimum">
-                            <number>10</number>
-                           </property>
-                           <property name="maximum">
-                            <number>999</number>
-                           </property>
-                           <property name="value">
-                            <number>200</number>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="5" column="0" colspan="5">
+                         <item row="6" column="0" colspan="5">
                           <widget class="QCheckBox" name="checkTimeavgV">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -10376,8 +10355,29 @@
                            </property>
                           </widget>
                          </item>
-                         <item row="7" column="3">
-                          <widget class="QDoubleSpinBox" name="E_pitValue">
+                         <item row="5" column="0" colspan="4">
+                          <widget class="QLabel" name="label_161">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="font">
+                            <font>
+                             <pointsize>8</pointsize>
+                             <bold>false</bold>
+                             <underline>false</underline>
+                             <kerning>true</kerning>
+                            </font>
+                           </property>
+                           <property name="text">
+                            <string>Minimum threshold for waterheight and velocity calculations: </string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="5" column="4">
+                          <widget class="QLineEdit" name="E_minWHVSWOF">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                              <horstretch>0</horstretch>
@@ -10392,51 +10392,18 @@
                              <kerning>true</kerning>
                             </font>
                            </property>
-                           <property name="decimals">
-                            <number>2</number>
-                           </property>
-                           <property name="minimum">
-                            <double>0.010000000000000</double>
-                           </property>
-                           <property name="maximum">
-                            <double>100.000000000000000</double>
-                           </property>
-                           <property name="singleStep">
-                            <double>0.010000000000000</double>
-                           </property>
-                           <property name="value">
-                            <double>0.100000000000000</double>
+                           <property name="text">
+                            <string>1e-9</string>
                            </property>
                           </widget>
                          </item>
-                         <item row="3" column="0">
-                          <widget class="QSpinBox" name="spinMaxMUSCL">
-                           <property name="enabled">
-                            <bool>false</bool>
-                           </property>
-                           <property name="font">
-                            <font>
-                             <pointsize>8</pointsize>
-                             <bold>false</bold>
-                             <underline>false</underline>
-                             <kerning>true</kerning>
-                            </font>
-                           </property>
-                           <property name="minimum">
-                            <number>1</number>
-                           </property>
-                           <property name="maximum">
-                            <number>9</number>
-                           </property>
-                           <property name="value">
-                            <number>3</number>
-                           </property>
-                          </widget>
-                         </item>
-                         <item row="3" column="1" colspan="4">
-                          <widget class="QLabel" name="label_118">
-                           <property name="enabled">
-                            <bool>false</bool>
+                         <item row="10" column="0" colspan="5">
+                          <widget class="QCheckBox" name="checkCorrectDem">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
                            </property>
                            <property name="font">
                             <font>
@@ -10447,7 +10414,7 @@
                             </font>
                            </property>
                            <property name="text">
-                            <string>Maximum MUSCL steps for dt estimate</string>
+                            <string>Ignore pits: set pit elevation to lowest surrounding cell (3x3 window)</string>
                            </property>
                           </widget>
                          </item>
@@ -10822,1379 +10789,1156 @@
                   <attribute name="title">
                    <string>Page</string>
                   </attribute>
-                  <widget class="QCheckBox" name="checkLinkedList">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>11</x>
-                     <y>126</y>
-                     <width>215</width>
-                     <height>22</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Use linked list for kinematic flow</string>
-                   </property>
-                   <property name="checked">
-                    <bool>false</bool>
-                   </property>
-                  </widget>
-                  <widget class="QDoubleSpinBox" name="E_SigmaDiffusion">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>240</x>
-                     <y>340</y>
-                     <width>52</width>
-                     <height>26</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="minimum">
-                    <double>0.200000000000000</double>
-                   </property>
-                   <property name="maximum">
-                    <double>1.000000000000000</double>
-                   </property>
-                   <property name="singleStep">
-                    <double>0.050000000000000</double>
-                   </property>
-                   <property name="value">
-                    <double>0.500000000000000</double>
-                   </property>
-                  </widget>
-                  <widget class="QLabel" name="label_87">
-                   <property name="geometry">
-                    <rect>
-                     <x>11</x>
-                     <y>376</y>
-                     <width>255</width>
-                     <height>17</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Channel perimeter totuosity (1=rectangular)</string>
-                   </property>
-                  </widget>
-                  <widget class="QLabel" name="label_63">
-                   <property name="geometry">
-                    <rect>
-                     <x>10</x>
-                     <y>220</y>
-                     <width>222</width>
-                     <height>17</height>
-                    </rect>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string> - Starting day for the ET data (1-366):</string>
-                   </property>
-                  </widget>
-                  <widget class="QLabel" name="label_101">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>11</x>
-                     <y>347</y>
-                     <width>200</width>
-                     <height>17</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Turbulent Prandtl-Schmidt number</string>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkKETimebased">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>11</x>
-                     <y>155</y>
-                     <width>93</width>
-                     <height>22</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="palette">
-                    <palette>
-                     <active/>
-                     <inactive/>
-                     <disabled/>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>time based</string>
-                   </property>
-                  </widget>
-                  <widget class="QLabel" name="label_129">
-                   <property name="geometry">
-                    <rect>
-                     <x>11</x>
-                     <y>11</y>
-                     <width>393</width>
-                     <height>17</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>true</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>SPARE PAGE, DELETED AT RUNTIME!!! for near obsolete options</string>
-                   </property>
-                  </widget>
-                  <widget class="QFrame" name="radioGroupSnowmelt">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>10</x>
-                     <y>670</y>
-                     <width>363</width>
-                     <height>70</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="frameShape">
-                    <enum>QFrame::Shape::Box</enum>
-                   </property>
-                   <property name="frameShadow">
-                    <enum>QFrame::Shadow::Sunken</enum>
-                   </property>
-                   <layout class="QGridLayout" name="gridLayout_49">
-                    <property name="leftMargin">
-                     <number>8</number>
-                    </property>
-                    <property name="topMargin">
-                     <number>4</number>
-                    </property>
-                    <property name="rightMargin">
-                     <number>8</number>
-                    </property>
-                    <property name="bottomMargin">
-                     <number>4</number>
-                    </property>
-                    <property name="horizontalSpacing">
-                     <number>8</number>
-                    </property>
-                    <property name="verticalSpacing">
-                     <number>4</number>
-                    </property>
-                    <item row="2" column="3">
-                     <widget class="QToolButton" name="toolButton_SnowmeltmapShow">
-                      <property name="text">
-                       <string>...</string>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="../resources/openlisem.qrc">
-                        <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="2">
-                     <widget class="QToolButton" name="toolButton_SnowmeltName">
-                      <property name="text">
-                       <string>...</string>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="../resources/openlisem.qrc">
-                        <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="0">
-                     <widget class="QRadioButton" name="radioButton_10">
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Snowmelt map file list</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="0">
-                     <widget class="QRadioButton" name="radioButton">
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Snowmelt Station file</string>
-                      </property>
-                      <property name="checked">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="1">
-                     <widget class="QLineEdit" name="E_SnowmeltSatName">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="2">
-                     <widget class="QToolButton" name="toolButton_SnowmeltSatName">
-                      <property name="text">
-                       <string>...</string>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="../resources/openlisem.qrc">
-                        <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="1">
-                     <widget class="QLineEdit" name="E_SnowmeltName">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="3">
-                     <widget class="QToolButton" name="toolButton_SnowmeltShow">
-                      <property name="text">
-                       <string>...</string>
-                      </property>
-                      <property name="icon">
-                       <iconset resource="../resources/openlisem.qrc">
-                        <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                  <widget class="QSpinBox" name="E_dayoftheYear">
-                   <property name="geometry">
-                    <rect>
-                     <x>240</x>
-                     <y>220</y>
-                     <width>49</width>
-                     <height>26</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="minimum">
-                    <number>1</number>
-                   </property>
-                   <property name="maximum">
-                    <number>366</number>
-                   </property>
-                   <property name="value">
-                    <number>1</number>
-                   </property>
-                  </widget>
-                  <widget class="QDoubleSpinBox" name="E_CalibrateCHSV">
-                   <property name="geometry">
-                    <rect>
-                     <x>189</x>
-                     <y>744</y>
-                     <width>59</width>
-                     <height>26</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="minimum">
-                    <double>0.010000000000000</double>
-                   </property>
-                   <property name="maximum">
-                    <double>99.000000000000000</double>
-                   </property>
-                   <property name="singleStep">
-                    <double>0.010000000000000</double>
-                   </property>
-                   <property name="value">
-                    <double>1.000000000000000</double>
-                   </property>
-                  </widget>
-                  <widget class="QLabel" name="label_139">
-                   <property name="geometry">
-                    <rect>
-                     <x>10</x>
-                     <y>747</y>
-                     <width>156</width>
-                     <height>17</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Settling Velocity calibration</string>
-                   </property>
-                  </widget>
-                  <widget class="QLabel" name="label_160">
-                   <property name="geometry">
-                    <rect>
-                     <x>60</x>
-                     <y>250</y>
-                     <width>394</width>
-                     <height>17</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Richards equation soil physics: 1 - Brooks-Corey; 2 - Van Genuchten</string>
-                   </property>
-                  </widget>
-                  <widget class="QLineEdit" name="line_FlowBarriers">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>11</x>
-                     <y>279</y>
-                     <width>108</width>
-                     <height>25</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>flowbarriers.txt</string>
-                   </property>
-                  </widget>
-                  <widget class="QDoubleSpinBox" name="GW_slope">
-                   <property name="geometry">
-                    <rect>
-                     <x>369</x>
-                     <y>614</y>
-                     <width>59</width>
-                     <height>26</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="minimum">
-                    <double>0.100000000000000</double>
-                   </property>
-                   <property name="maximum">
-                    <double>10.000000000000000</double>
-                   </property>
-                   <property name="singleStep">
-                    <double>0.100000000000000</double>
-                   </property>
-                   <property name="value">
-                    <double>1.000000000000000</double>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkChannelWFinflow">
-                   <property name="geometry">
-                    <rect>
-                     <x>11</x>
-                     <y>64</y>
-                     <width>373</width>
-                     <height>22</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Include inflow into channel from saturated soil (Ksat based)</string>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkInfilDensfactor">
-                   <property name="geometry">
-                    <rect>
-                     <x>10</x>
-                     <y>780</y>
-                     <width>461</width>
-                     <height>22</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Apply Density Factor correction to Ksat and Porosity (needs densfact.map)</string>
-                   </property>
-                  </widget>
-                  <widget class="QLabel" name="label_85">
-                   <property name="geometry">
-                    <rect>
-                     <x>10</x>
-                     <y>612</y>
-                     <width>338</width>
-                     <height>17</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Baseflow: Distance to river contribution coeff. a: ((dx/L)^a)</string>
-                   </property>
-                  </widget>
-                  <widget class="QGroupBox" name="groupBox_RichardsOptions">
-                   <property name="geometry">
-                    <rect>
-                     <x>10</x>
-                     <y>500</y>
-                     <width>508</width>
-                     <height>60</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>true</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="title">
-                    <string>Richards Finite Element options</string>
-                   </property>
-                   <layout class="QGridLayout" name="gridLayout_75">
-                    <property name="leftMargin">
-                     <number>8</number>
-                    </property>
-                    <property name="topMargin">
-                     <number>4</number>
-                    </property>
-                    <property name="rightMargin">
-                     <number>8</number>
-                    </property>
-                    <property name="bottomMargin">
-                     <number>4</number>
-                    </property>
-                    <property name="horizontalSpacing">
-                     <number>8</number>
-                    </property>
-                    <property name="verticalSpacing">
-                     <number>4</number>
-                    </property>
-                    <item row="1" column="0">
-                     <widget class="QLabel" name="label_152">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>#Nodes in layer 1 </string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="3">
-                     <widget class="QSpinBox" name="spinNodes2">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
-                      </property>
-                      <property name="minimum">
-                       <number>2</number>
-                      </property>
-                      <property name="value">
-                       <number>3</number>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="4">
-                     <widget class="QLabel" name="label_154">
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>#Nodes in layer 3</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="5">
-                     <widget class="QSpinBox" name="spinNodes3">
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
-                      </property>
-                      <property name="minimum">
-                       <number>2</number>
-                      </property>
-                      <property name="value">
-                       <number>3</number>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="2">
-                     <widget class="QLabel" name="label_151">
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>#Nodes in layer 2 </string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="1">
-                     <widget class="QSpinBox" name="spinNodes1">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>8</pointsize>
-                        <bold>false</bold>
-                        <underline>false</underline>
-                        <kerning>true</kerning>
-                       </font>
-                      </property>
-                      <property name="minimum">
-                       <number>2</number>
-                      </property>
-                      <property name="value">
-                       <number>3</number>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                  <widget class="QCheckBox" name="checkInfilOMcorrection">
-                   <property name="geometry">
-                    <rect>
-                     <x>11</x>
-                     <y>825</y>
-                     <width>425</width>
-                     <height>22</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Apply Org.Mat. correction to Ksat and Porosity (needs omcorr.map)</string>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkMutex">
-                   <property name="geometry">
-                    <rect>
-                     <x>11</x>
-                     <y>35</y>
-                     <width>108</width>
-                     <height>22</height>
-                    </rect>
-                   </property>
-                   <property name="text">
-                    <string>mutex display</string>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkNoSedBoundary">
-                   <property name="geometry">
-                    <rect>
-                     <x>11</x>
-                     <y>184</y>
-                     <width>364</width>
-                     <height>22</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>No detachment/deposition at domain boundary (2D flow)</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                  <widget class="QSpinBox" name="spinSoilPhysics">
-                   <property name="geometry">
-                    <rect>
-                     <x>11</x>
-                     <y>246</y>
-                     <width>35</width>
-                     <height>26</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="minimum">
-                    <number>1</number>
-                   </property>
-                   <property name="maximum">
-                    <number>2</number>
-                   </property>
-                  </widget>
-                  <widget class="QSpinBox" name="E_FloodFluxLimiter">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>390</x>
-                     <y>100</y>
-                     <width>35</width>
-                     <height>26</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="palette">
-                    <palette>
-                     <active/>
-                     <inactive/>
-                     <disabled/>
-                    </palette>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="toolTip">
-                    <string>Avoiding oscillations in PDE</string>
-                   </property>
-                   <property name="minimum">
-                    <number>1</number>
-                   </property>
-                   <property name="maximum">
-                    <number>3</number>
-                   </property>
-                   <property name="value">
-                    <number>1</number>
-                   </property>
-                  </widget>
-                  <widget class="QLabel" name="label_100">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>20</x>
-                     <y>100</y>
-                     <width>352</width>
-                     <height>17</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>MUSCL Flux limiter: 1 - Minmod; 2 - van Leer; 3 - van Albeda</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-                   </property>
-                  </widget>
-                  <widget class="QComboBox" name="E_BLMethod">
-                   <property name="geometry">
-                    <rect>
-                     <x>11</x>
-                     <y>311</y>
-                     <width>179</width>
-                     <height>25</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <italic>false</italic>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="currentText">
-                    <string>2 - Van Rijn Simplified</string>
-                   </property>
-                   <property name="currentIndex">
-                    <number>1</number>
-                   </property>
-                   <property name="maxVisibleItems">
-                    <number>4</number>
-                   </property>
-                   <item>
-                    <property name="text">
-                     <string>1 - Govers</string>
-                    </property>
+                  <layout class="QGridLayout" name="gridLayout_86">
+                   <item row="9" column="0" colspan="2">
+                    <widget class="QLineEdit" name="line_FlowBarriers">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>flowbarriers.txt</string>
+                     </property>
+                    </widget>
                    </item>
-                   <item>
-                    <property name="text">
-                     <string>2 - Van Rijn Simplified</string>
-                    </property>
+                   <item row="27" column="1">
+                    <widget class="QLabel" name="label_85">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Baseflow: Distance to river contribution coeff. a: ((dx/L)^a)</string>
+                     </property>
+                    </widget>
                    </item>
-                   <item>
-                    <property name="text">
-                     <string>3 - Van Rijn Full</string>
-                    </property>
+                   <item row="10" column="0" colspan="3">
+                    <widget class="QComboBox" name="E_BLMethod">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <italic>false</italic>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="currentText">
+                      <string>2 - Van Rijn Simplified</string>
+                     </property>
+                     <property name="currentIndex">
+                      <number>1</number>
+                     </property>
+                     <property name="maxVisibleItems">
+                      <number>4</number>
+                     </property>
+                     <item>
+                      <property name="text">
+                       <string>1 - Govers</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>2 - Van Rijn Simplified</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>3 - Van Rijn Full</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>4 - Engelund and Hansen</string>
+                      </property>
+                     </item>
+                    </widget>
                    </item>
-                   <item>
-                    <property name="text">
-                     <string>4 - Engelund and Hansen</string>
-                    </property>
+                   <item row="20" column="1">
+                    <widget class="QLabel" name="label_100">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <italic>false</italic>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>MUSCL Flux limiter: 1 - Minmod; 2 - van Leer; 3 - van Albeda</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                     </property>
+                    </widget>
                    </item>
-                  </widget>
-                  <widget class="QCheckBox" name="checkSnowmelt">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>10</x>
-                     <y>641</y>
-                     <width>84</width>
-                     <height>22</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Snowmelt</string>
-                   </property>
-                  </widget>
-                  <widget class="QDoubleSpinBox" name="E_DepositedCohesion">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>229</x>
-                     <y>574</y>
-                     <width>66</width>
-                     <height>26</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-                   </property>
-                   <property name="decimals">
-                    <number>2</number>
-                   </property>
-                   <property name="minimum">
-                    <double>0.010000000000000</double>
-                   </property>
-                   <property name="maximum">
-                    <double>100.000000000000000</double>
-                   </property>
-                   <property name="singleStep">
-                    <double>0.010000000000000</double>
-                   </property>
-                   <property name="value">
-                    <double>0.500000000000000</double>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkErosionLoop">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>10</x>
-                     <y>460</y>
-                     <width>213</width>
-                     <height>22</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Do erosion outside the 2D loop</string>
-                   </property>
-                   <property name="checked">
-                    <bool>false</bool>
-                   </property>
-                  </widget>
-                  <widget class="QLabel" name="label_130">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>10</x>
-                     <y>575</y>
-                     <width>216</width>
-                     <height>17</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Particle cohesion of deposited layer: </string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
-                   </property>
-                  </widget>
-                  <widget class="QCheckBox" name="checkPsiUser">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>10</x>
-                     <y>430</y>
-                     <width>411</width>
-                     <height>22</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>G&amp;&amp;A: wetting front Psi as input maps (v) or calculated internally ( )</string>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                  <widget class="QDoubleSpinBox" name="E_CalibrateChTor">
-                   <property name="geometry">
-                    <rect>
-                     <x>280</x>
-                     <y>370</y>
-                     <width>59</width>
-                     <height>26</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="minimum">
-                    <double>1.000000000000000</double>
-                   </property>
-                   <property name="maximum">
-                    <double>10.000000000000000</double>
-                   </property>
-                   <property name="singleStep">
-                    <double>0.010000000000000</double>
-                   </property>
-                   <property name="value">
-                    <double>1.000000000000000</double>
-                   </property>
-                  </widget>
-                  <widget class="QDoubleSpinBox" name="E_courantFactorSed">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="geometry">
-                    <rect>
-                     <x>10</x>
-                     <y>400</y>
-                     <width>52</width>
-                     <height>26</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="minimum">
-                    <double>0.010000000000000</double>
-                   </property>
-                   <property name="maximum">
-                    <double>1.000000000000000</double>
-                   </property>
-                   <property name="singleStep">
-                    <double>0.010000000000000</double>
-                   </property>
-                   <property name="value">
-                    <double>0.100000000000000</double>
-                   </property>
-                  </widget>
-                  <widget class="QLabel" name="label_165">
-                   <property name="geometry">
-                    <rect>
-                     <x>380</x>
-                     <y>480</y>
-                     <width>151</width>
-                     <height>17</height>
-                    </rect>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>(0=no dep.; 1=max dep.)</string>
-                   </property>
-                  </widget>
-                  <widget class="QLabel" name="label_157">
-                   <property name="geometry">
-                    <rect>
-                     <x>10</x>
-                     <y>480</y>
-                     <width>231</width>
-                     <height>17</height>
-                    </rect>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>Turbulence factor to limit deposition: </string>
-                   </property>
-                  </widget>
-                  <widget class="QDoubleSpinBox" name="E_TurbulenceFactor">
-                   <property name="geometry">
-                    <rect>
-                     <x>260</x>
-                     <y>470</y>
-                     <width>52</width>
-                     <height>26</height>
-                    </rect>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>8</pointsize>
-                     <bold>false</bold>
-                     <underline>false</underline>
-                     <kerning>true</kerning>
-                    </font>
-                   </property>
-                   <property name="maximum">
-                    <double>1.000000000000000</double>
-                   </property>
-                   <property name="singleStep">
-                    <double>0.010000000000000</double>
-                   </property>
-                   <property name="value">
-                    <double>1.000000000000000</double>
-                   </property>
-                  </widget>
+                   <item row="14" column="0">
+                    <widget class="QDoubleSpinBox" name="E_CalibrateChTor">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="minimum">
+                      <double>1.000000000000000</double>
+                     </property>
+                     <property name="maximum">
+                      <double>10.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>0.010000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>1.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="26" column="1">
+                    <widget class="QLabel" name="label_130">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Particle cohesion of deposited layer: </string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="13" column="0">
+                    <widget class="QDoubleSpinBox" name="E_SigmaDiffusion">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <italic>false</italic>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="minimum">
+                      <double>0.200000000000000</double>
+                     </property>
+                     <property name="maximum">
+                      <double>1.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>0.050000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>0.500000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="23" column="7" colspan="2">
+                    <widget class="QLabel" name="label_165">
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>(0=no dep.; 1=max dep.)</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="8" column="0">
+                    <widget class="QSpinBox" name="spinSoilPhysics">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="minimum">
+                      <number>1</number>
+                     </property>
+                     <property name="maximum">
+                      <number>2</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="24" column="0">
+                    <widget class="QDoubleSpinBox" name="E_TurbulenceFactor">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="maximum">
+                      <double>1.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>0.010000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>1.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="25" column="0" colspan="9">
+                    <widget class="QGroupBox" name="groupBox_RichardsOptions">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>true</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="title">
+                      <string>Richards Finite Element options</string>
+                     </property>
+                     <layout class="QGridLayout" name="gridLayout_75">
+                      <property name="leftMargin">
+                       <number>8</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>4</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>8</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>4</number>
+                      </property>
+                      <property name="horizontalSpacing">
+                       <number>8</number>
+                      </property>
+                      <property name="verticalSpacing">
+                       <number>4</number>
+                      </property>
+                      <item row="1" column="0">
+                       <widget class="QLabel" name="label_152">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>#Nodes in layer 1 </string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="3">
+                       <widget class="QSpinBox" name="spinNodes2">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="minimum">
+                         <number>2</number>
+                        </property>
+                        <property name="value">
+                         <number>3</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="4">
+                       <widget class="QLabel" name="label_154">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>#Nodes in layer 3</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="5">
+                       <widget class="QSpinBox" name="spinNodes3">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="minimum">
+                         <number>2</number>
+                        </property>
+                        <property name="value">
+                         <number>3</number>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="2">
+                       <widget class="QLabel" name="label_151">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>#Nodes in layer 2 </string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="1">
+                       <widget class="QSpinBox" name="spinNodes1">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="minimum">
+                         <number>2</number>
+                        </property>
+                        <property name="value">
+                         <number>3</number>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item row="26" column="0">
+                    <widget class="QDoubleSpinBox" name="E_DepositedCohesion">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                     </property>
+                     <property name="decimals">
+                      <number>2</number>
+                     </property>
+                     <property name="minimum">
+                      <double>0.010000000000000</double>
+                     </property>
+                     <property name="maximum">
+                      <double>100.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>0.010000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>0.500000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="13" column="1">
+                    <widget class="QLabel" name="label_101">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <italic>false</italic>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Turbulent Prandtl-Schmidt number</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="3" column="0" colspan="4">
+                    <widget class="QCheckBox" name="checkLinkedList">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Use linked list for kinematic flow</string>
+                     </property>
+                     <property name="checked">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="21" column="1">
+                    <widget class="QLabel" name="label_118">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Maximum MUSCL steps for dt estimate</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="7" column="1">
+                    <widget class="QLabel" name="label_63">
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string> - Starting day for the ET data (1-366):</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="19" column="0" colspan="2">
+                    <widget class="QDoubleSpinBox" name="E_courantFactorSed">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="minimum">
+                      <double>0.010000000000000</double>
+                     </property>
+                     <property name="maximum">
+                      <double>1.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>0.010000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>0.100000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="4" column="0" colspan="2">
+                    <widget class="QCheckBox" name="checkKETimebased">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>time based</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="20" column="0">
+                    <widget class="QSpinBox" name="E_FloodFluxLimiter">
+                     <property name="enabled">
+                      <bool>true</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="palette">
+                      <palette>
+                       <active/>
+                       <inactive/>
+                       <disabled/>
+                      </palette>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="toolTip">
+                      <string>Avoiding oscillations in PDE</string>
+                     </property>
+                     <property name="minimum">
+                      <number>1</number>
+                     </property>
+                     <property name="maximum">
+                      <number>3</number>
+                     </property>
+                     <property name="value">
+                      <number>1</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="31" column="0">
+                    <widget class="QDoubleSpinBox" name="E_CalibrateCHSV">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <italic>false</italic>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="minimum">
+                      <double>0.010000000000000</double>
+                     </property>
+                     <property name="maximum">
+                      <double>99.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>0.010000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>1.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="14" column="1">
+                    <widget class="QLabel" name="label_87">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Channel perimeter totuosity (1=rectangular)</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="5" column="0" colspan="7">
+                    <widget class="QCheckBox" name="checkNoSedBoundary">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>No detachment/deposition at domain boundary (2D flow)</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="1" column="0" colspan="2">
+                    <widget class="QCheckBox" name="checkMutex">
+                     <property name="text">
+                      <string>mutex display</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="2" column="0" colspan="8">
+                    <widget class="QCheckBox" name="checkChannelWFinflow">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Include inflow into channel from saturated soil (Ksat based)</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="29" column="0" colspan="2">
+                    <widget class="QCheckBox" name="checkSnowmelt">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Snowmelt</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="27" column="0">
+                    <widget class="QDoubleSpinBox" name="GW_slope">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="minimum">
+                      <double>0.100000000000000</double>
+                     </property>
+                     <property name="maximum">
+                      <double>10.000000000000000</double>
+                     </property>
+                     <property name="singleStep">
+                      <double>0.100000000000000</double>
+                     </property>
+                     <property name="value">
+                      <double>1.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="0" column="0" colspan="8">
+                    <widget class="QLabel" name="label_129">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>true</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>SPARE PAGE, DELETED AT RUNTIME!!! for near obsolete options</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="8" column="1" colspan="8">
+                    <widget class="QLabel" name="label_160">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Richards equation soil physics: 1 - Brooks-Corey; 2 - Van Genuchten</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="30" column="0" colspan="7">
+                    <widget class="QFrame" name="radioGroupSnowmelt">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="frameShape">
+                      <enum>QFrame::Shape::Box</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Shadow::Sunken</enum>
+                     </property>
+                     <layout class="QGridLayout" name="gridLayout_49">
+                      <property name="leftMargin">
+                       <number>8</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>4</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>8</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>4</number>
+                      </property>
+                      <property name="horizontalSpacing">
+                       <number>8</number>
+                      </property>
+                      <property name="verticalSpacing">
+                       <number>4</number>
+                      </property>
+                      <item row="2" column="3">
+                       <widget class="QToolButton" name="toolButton_SnowmeltmapShow">
+                        <property name="text">
+                         <string>...</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../resources/openlisem.qrc">
+                          <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="2">
+                       <widget class="QToolButton" name="toolButton_SnowmeltName">
+                        <property name="text">
+                         <string>...</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../resources/openlisem.qrc">
+                          <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="0">
+                       <widget class="QRadioButton" name="radioButton_10">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Snowmelt map file list</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="QRadioButton" name="radioButton">
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Snowmelt Station file</string>
+                        </property>
+                        <property name="checked">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="1">
+                       <widget class="QLineEdit" name="E_SnowmeltSatName">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="2">
+                       <widget class="QToolButton" name="toolButton_SnowmeltSatName">
+                        <property name="text">
+                         <string>...</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../resources/openlisem.qrc">
+                          <normaloff>:/2X/Folder-Open-icon.png</normaloff>:/2X/Folder-Open-icon.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="1">
+                       <widget class="QLineEdit" name="E_SnowmeltName">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="1" column="3">
+                       <widget class="QToolButton" name="toolButton_SnowmeltShow">
+                        <property name="text">
+                         <string>...</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="../resources/openlisem.qrc">
+                          <normaloff>:/2X/onewfile2X.png</normaloff>:/2X/onewfile2X.png</iconset>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                   <item row="21" column="0">
+                    <widget class="QSpinBox" name="spinMaxMUSCL">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="minimum">
+                      <number>1</number>
+                     </property>
+                     <property name="maximum">
+                      <number>9</number>
+                     </property>
+                     <property name="value">
+                      <number>3</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="22" column="0" colspan="9">
+                    <widget class="QCheckBox" name="checkPsiUser">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>G&amp;&amp;A: wetting front Psi as input maps (v) or calculated internally ( )</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="31" column="1">
+                    <widget class="QLabel" name="label_139">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Settling Velocity calibration</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="7" column="0">
+                    <widget class="QSpinBox" name="E_dayoftheYear">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="minimum">
+                      <number>1</number>
+                     </property>
+                     <property name="maximum">
+                      <number>366</number>
+                     </property>
+                     <property name="value">
+                      <number>1</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="24" column="1">
+                    <widget class="QLabel" name="label_157">
+                     <property name="font">
+                      <font>
+                       <pointsize>8</pointsize>
+                       <bold>false</bold>
+                       <underline>false</underline>
+                       <kerning>true</kerning>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Turbulence factor to limit deposition: </string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </widget>
                </item>
@@ -16182,22 +15926,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>checkMUSCL</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>E_FloodFluxLimiter</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>481</x>
-     <y>477</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>135</x>
-     <y>413</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>checkDischargeUser</sender>
    <signal>toggled(bool)</signal>
    <receiver>toolButton_DischargeName</receiver>
@@ -16242,22 +15970,6 @@
     <hint type="destinationlabel">
      <x>651</x>
      <y>417</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>checkMUSCL</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_100</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>481</x>
-     <y>477</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>580</x>
-     <y>429</y>
     </hint>
    </hints>
   </connection>

@@ -37,7 +37,7 @@
 #define VERSION_H_
 
 #define VERSIONNR "7.5.1"
-#define VERSIONDATE "2026/08/18"
+#define VERSIONDATE "2026/08/27"
 
 #define VERSIONNR_pest "1.0"
 

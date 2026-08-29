@@ -310,7 +310,7 @@ void TWorld::GetComboMaps()
     AddComboMap(0,"Water Height","m",hmxWH,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
     AddComboMap(0,"Micro storage","m",WHstore,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
 
-    AddComboMap(0,"swatre n","m",tmshow,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+    AddComboMap(0,"fac","m",tmshow,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
 
 //    AddComboMap(0,"settling","m",tmshow,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
 

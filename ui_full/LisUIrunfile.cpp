@@ -226,8 +226,8 @@ void lisemqt::ParseInputData()
         // FLOW
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(valc);
-        if (p1.compare("Flood solution")==0)                 checkMUSCL->setChecked(check);
-      //  if (p1.compare("Flood Heun 2nd order")==0)           checkHeun->setChecked(check);
+        if (p1.compare("Flood solution")==0)                 E_MUSCLandHeun->setCurrentIndex(iii);
+        //if (p1.compare("Flood Heun 2nd order")==0)           checkHeun->setChecked(check);
         if (p1.compare("Routing Kin Wave 2D")==0)            E_OFWaveType->setCurrentIndex(iii);
         if (p1.compare("Flow Boundary 2D")==0)               E_FlowBoundary->setValue(iii);
         if (p1.compare("Correct DEM")==0)                    checkCorrectDem->setChecked(check);
@@ -385,7 +385,6 @@ void lisemqt::ParseInputData()
         if (p1.compare("Flooding SWOF flux limiter")==0)        E_FloodFluxLimiter->setValue(iii);
         if (p1.compare("Flooding SWOF Reconstruction")==0)      E_FloodReconstruction->setValue(iii);
         if (p1.compare("Use time avg V")==0)                    checkTimeavgV->setChecked(check);
-        if (p1.compare("Erosion outside 2D loop")==0)           checkErosionLoop->setChecked(check);
         if (p1.compare("Correct MB with WH")==0)                checkMB_WH->setChecked(check);
         if (p1.compare("Correct extreme WH")==0)                checkWHextreme->setChecked(check);
         if (p1.compare("WH extreme threshold")==0)              E_WHextreme->setValue(valc);
@@ -1025,8 +1024,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Flow Boundary 2D")==0)               namelist[j].value = E_FlowBoundary->text();
         if (p1.compare("Routing Kin Wave 2D")==0)            namelist[j].value.setNum(E_OFWaveType->currentIndex());
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
-        if (p1.compare("Flood solution")==0)                 namelist[j].value.setNum((int) checkMUSCL->isChecked());
-      //  if (p1.compare("Flood Heun 2nd order")==0)           namelist[j].value.setNum((int) checkHeun->isChecked());
+        if (p1.compare("Flood solution")==0)                 namelist[j].value.setNum(E_MUSCLandHeun->currentIndex());
+       // if (p1.compare("Flood Heun 2nd order")==0)           namelist[j].value.setNum((int) checkHeun->isChecked());
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();
         if (p1.compare("Minimum reported flood height")==0)  namelist[j].value = E_floodMinHeight->text();
@@ -1045,7 +1044,6 @@ void lisemqt::updateModelData()
         if (p1.compare("Minimum WH and V flow")==0)          namelist[j].value = E_minWHVSWOF->text();
         if (p1.compare("Timestep flood")==0)                 namelist[j].value = E_TimestepMinFlood->text();
         if (p1.compare("Use time avg V")==0)                 namelist[j].value.setNum((int) checkTimeavgV->isChecked());
-        if (p1.compare("Erosion outside 2D loop")==0)        namelist[j].value.setNum((int) checkErosionLoop->isChecked());
         if (p1.compare("Correct MB with WH")==0)             namelist[j].value.setNum((int) checkMB_WH->isChecked());
         if (p1.compare("Correct extreme WH")==0)             namelist[j].value.setNum((int) checkWHextreme->isChecked());
         if (p1.compare("WH extreme threshold")==0)           namelist[j].value = E_WHextreme->text();

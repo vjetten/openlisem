@@ -50,6 +50,7 @@ void lisemqt::DefaultMapnames()
     DEFmaps.append("2;Outlet;outlet.map;Main catchment outlet corresponding to LDD map;outlet");
     DEFmaps.append("2;Points;outpoint.map;Reporting points for hydrograph/sedigraph (1,2,3,...);outpoint");
     DEFmaps.append("2;FlowBoundary;flowboundary.map;A value of 1 at the domain boundary means free outflow, a 0 means no flow (-);flowboundary");
+    DEFmaps.append("2;Watersheds;watersheds.map;A map of watersheds in the domain that are hydrologically separated, unique numbers (1-n);watersheds");
 
     DEFmaps.append("0;Landuse");
     DEFmaps.append("2;Units;landunit.map;Classified land unit map (integers 0-n) for output of erosion values;landunit");
@@ -441,8 +442,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("Use 2D Diagonal flow");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Flood solution");
-    // namelist[i].value = QString("0");
-    // namelist[i++].name = QString("Flood Heun 2nd order");
 
     //### Channels and GW
     namelist[i++].name = QString("");
@@ -727,8 +726,6 @@ void lisemqt::defaultRunFile()
     namelist[i++].name = QString("MUSCL max steps");
     namelist[i].value = QString("1");
     namelist[i++].name = QString("Use time avg V");
-    namelist[i].value = QString("1");
-    namelist[i++].name = QString("Erosion outside 2D loop");
     namelist[i].value = QString("1e-6");
     namelist[i++].name = QString("Minimum WH and V flow");
     namelist[i].value = QString("10.0");

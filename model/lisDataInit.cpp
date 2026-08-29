@@ -208,11 +208,12 @@ void TWorld::InitParameters(void)
     if (SwitchChannelMaxV)
        _CHMaxV =  getvaluedouble("Channel Max V");
 
-    int wave = getvalueint("Routing Kin Wave 2D");
-    if (wave == 0) SwitchKinematic2D = K2D_METHOD_KIN;
-    if (wave == 1) SwitchKinematic2D = K2D_METHOD_KINDYN;
-    if (wave == 2) SwitchKinematic2D = K2D_METHOD_DYN;
-    if (wave < 2) SwitchWaveUser = false; // waveuser is an incoming wave at the boundary (tsunami type)
+    // moved to runfile
+    // int wave = getvalueint("Routing Kin Wave 2D");
+    // if (wave == 0) SwitchKinematic2D = K2D_METHOD_KIN;
+    // if (wave == 1) SwitchKinematic2D = K2D_METHOD_KINDYN;
+    // if (wave == 2) SwitchKinematic2D = K2D_METHOD_DYN;
+    // if (wave < 2) SwitchWaveUser = false; // waveuser is an incoming wave at the boundary (tsunami type)
 
     if (SwitchKinematic2D == K2D_METHOD_KIN)
         FlowBoundaryType = 0;
@@ -250,24 +251,32 @@ void TWorld::InitStandardInput(void)
     tmd = NewMap(0); // temp map for aux calculations
     tmshow = NewMap(0); // temp map form reporting when debug stuff
 
-    nrWS = 1;
+    nrWatersheds = 1;
     WaterSheds = ReadMap(LDD, getvaluename("watersheds"));
-    if(WaterSheds != nullptr) {
+    // count nr watersheds
+   // if(WaterSheds != nullptr) {
         QList <int> tmp;
         tmp = countUnits(*WaterSheds);
-        nrWS = tmp.count();
-    }
-    watershedCells.resize(nrWS);
+        nrWatersheds = tmp.count();
+        qDebug() << "nrWatersheds" << nrWatersheds << tmp;
+   // }
 
+
+    // resize to the nr of ws
+    //QVector<QVector<int>> wsCells;
+    wsCells.resize(nrWatersheds);
+
+    // make the cell list and divide this list to watersheds
     FOR_ROW_COL_MV {
         LDD_COOR newcr;
         newcr.r = r;
         newcr.c = c;
-        int index = cr_.size();
+        long index = cr_.size();
         cr_.append(newcr);
-
-        int ws = wsGrid[r][c];
-        watershedCells[ws].append(index);
+        int ws = WaterSheds->Drc - 1;
+        // append the r,c list to the correct ws
+       // qDebug() << index << ws;
+        wsCells[ws].append(index);
     }
 
     FOR_ROW_COL_MV {
@@ -1429,7 +1438,7 @@ void TWorld::InitFlood(void)
     hlly21_1 = NewMap(0);
     hlly21_2 = NewMap(0);
     iter_n = 0;
-
+    forceM = 0;
     dcr_.clear(); // clear list of M_PIts  that need diagonal flow
     if (Switch2DDiagonalFlow)
         DiagonalFlowDEM();
@@ -2102,6 +2111,8 @@ void TWorld::IntializeOptions(void)
     Switch2DDiagonalFlow = true;
     SwitchSWOFopen = true;
     SwitchMUSCL = false;
+    SwitchHeun = false;
+    SwitchMUSCLandHeun = 1; // 1st order
     SwitchFloodInitial = false;
     SwitchErosion = false;
     SwitchUse2Phase = false;
