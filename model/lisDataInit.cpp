@@ -208,6 +208,7 @@ void TWorld::InitParameters(void)
     if (SwitchChannelMaxV)
        _CHMaxV =  getvaluedouble("Channel Max V");
 
+    // moved to runfile
     // int wave = getvalueint("Routing Kin Wave 2D");
     // if (wave == 0) SwitchKinematic2D = K2D_METHOD_KIN;
     // if (wave == 1) SwitchKinematic2D = K2D_METHOD_KINDYN;

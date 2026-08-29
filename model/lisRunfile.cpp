@@ -447,6 +447,7 @@ void TWorld::ParseRunfileData(void)
     if (SwitchGWflow) {
         SwitchImpermeable = false;  //???okay
     }
+    // used to be in datainit
     int wave = getvalueint("Routing Kin Wave 2D");
     if (wave == 0) SwitchKinematic2D = K2D_METHOD_KIN;
     if (wave == 1) SwitchKinematic2D = K2D_METHOD_KINDYN;
