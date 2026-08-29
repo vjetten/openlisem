@@ -535,6 +535,9 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             //  4th component[3]: celerity (time)
 
 
+            //NOTE: the cell adjacent to a MV assumes that the boundary has a waterheight of 0 on the MV side of that boundary.
+            // the reasoning is that it is a watershed boundary, so theoretically there should be no flow in that direction
+
             //left and right hand side of c and c-1 (x and x1)
             //dz_x1 = (Z - z_x1);
             if (bc1) {
@@ -544,7 +547,9 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 // if h_x1r or h_xl < z+barrier then make it zero, no pressure on that boundary
                 // dz_x1 = (Z - z_x1);
             } else {
-                h_x1r = 0.0;
+                h_x1r = h_xl; //0
+                if (FlowBoundary->Drc == 0)
+                    ux1r = -ux1r;
             }
             if (h_x1r == 0) {
                 ux1r = 0;
@@ -562,7 +567,9 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 h_xr  = qMax(0.0, hxr  - qMax(0.0,  dz_x2 + fb_x2));
                 h_x2l = qMax(0.0, hx2l - qMax(0.0, -dz_x2 + fb_x2));
             } else {
-                h_x2l = 0.0;
+                h_x2l = h_xr;//0.0;
+                if (FlowBoundary->Drc == 0)
+                    ux2l = -ux2l;
             }
             if (h_xr == 0) {
                 vxr = 0;
@@ -578,7 +585,9 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 h_y1d = qMax(0.0, hy1d - qMax(0.0,  dz_y1 + fb_y1));
                 h_yu  = qMax(0.0, hyu  - qMax(0.0, -dz_y1 + fb_y1));
             } else {
-                h_y1d = 0.0;
+                h_y1d = h_yu;//0.0;
+                if (FlowBoundary->Drc == 0)
+                    vy1d = -vy1d;
             }
             if (h_yu == 0) {
                 uyu = 0;
@@ -595,7 +604,9 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 h_yd  = qMax(0.0, hyd  - qMax(0.0,  dz_y2 + fb_y2));// lower side of upper cell
                 h_y2u = qMax(0.0, hy2u - qMax(0.0, -dz_y2 + fb_y2));// upper side of lower cell
             } else {
-                h_y2u = 0.0;
+                h_y2u = h_yd; //0.0;
+                if (FlowBoundary->Drc == 0)
+                    vy2u = -vy2u;
             }
             if (h_yd == 0) {
                 uyd = 0;
