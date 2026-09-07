@@ -523,8 +523,6 @@ public:
         SwitchTwoLayer,
         SwitchThreeLayer,
         SwitchHinit4all,
-        // SwitchOMCorrection,
-        // SwitchDensCorrection,
         //SwitchWaterRepellency,
         //SwitchInterceptionLAI,
         SwitchPsiUser,
@@ -553,6 +551,7 @@ public:
         SwitchSedtrap,
         SwitchGrassStrip,
 
+        SwitchUseWatersheds,
 
         // advanced
         SwitchAdvancedOptions,

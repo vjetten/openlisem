@@ -226,6 +226,11 @@ void TWorld::InitParameters(void)
 
 }
 //---------------------------------------------------------------------------
+
+auto bySize = [](const QVector<long>& a, const QVector<long>& b) {
+    return a.size() < b.size();
+};
+
 void TWorld::InitStandardInput(void)
 {
     //## catchment data
@@ -252,18 +257,33 @@ void TWorld::InitStandardInput(void)
     tmshow = NewMap(0); // temp map form reporting when debug stuff
 
     nrWatersheds = 1;
-    WaterSheds = ReadMap(LDD, getvaluename("watersheds"));
-    // count nr watersheds
-   // if(WaterSheds != nullptr) {
-        QList <int> tmp;
-        tmp = countUnits(*WaterSheds);
-        nrWatersheds = tmp.count();
-        qDebug() << "nrWatersheds" << nrWatersheds << tmp;
-   // }
+    QList <int> tmp;
+    if (SwitchUseWatersheds) {
+        WaterSheds = ReadMap(LDD, getvaluename("watersheds"));
+        // count nr watersheds
+        if(WaterSheds != nullptr) {
+            tmp = countUnits(*WaterSheds);
+            nrWatersheds = tmp.count();
+            qDebug() << "nrWatersheds" << nrWatersheds << tmp;
+            // for (int i = 0; i < nrWatersheds; i++) {
+            //     if (tmp[i] <=0) {
+            //         ErrorString = "Watershed number of 0 or negative found, use only numbers of 1..n";
+            //         throw 2;
+            //     }
+            // }
+        }
+    } else {
+        WaterSheds = NewMap(1.0);
+        tmp << 1;
+    }
+
+    QHash<int, int> valueToIndex;
+    for (int i = 0; i < tmp.size(); ++i)
+        valueToIndex.insert(tmp[i], i);
 
 
     // resize to the nr of ws
-    //QVector<QVector<int>> wsCells;
+    //QVector<QVector<long>> wsCells;
     wsCells.resize(nrWatersheds);
 
     // make the cell list and divide this list to watersheds
@@ -273,11 +293,18 @@ void TWorld::InitStandardInput(void)
         newcr.c = c;
         long index = cr_.size();
         cr_.append(newcr);
-        int ws = WaterSheds->Drc - 1;
+        int ws = static_cast<int> (WaterSheds->Drc);
+        int ind = valueToIndex.value(ws, -1);
         // append the r,c list to the correct ws
        // qDebug() << index << ws;
-        wsCells[ws].append(index);
+        wsCells[ind].append(index);
     }
+
+    int tot = 0;
+    for (int j=0;j < nrWatersheds;j++) {
+        tot += wsCells[j].size();
+    }
+    qDebug()<< "sum ws cells" << tot << nrValidCells;
 
     FOR_ROW_COL_MV {
         if (LDD->Drc == 5) {
@@ -2141,6 +2168,8 @@ void TWorld::IntializeOptions(void)
     SwitchIncludeStormDrains = false;
     SwitchUseSWMMflow = false;
     SwitchDrainCircular = false;
+
+    SwitchUseWatersheds = false;
 
     SwitchHardsurface = false;
     SwitchInfilCompact = false;

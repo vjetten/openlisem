@@ -58,7 +58,7 @@ QList <int> countUnits(cTMap const& raster)
                 if (!list.contains((long)raster.data[r][c]))
                     list.append((long)raster.data[r][c]);
             }
-
+    //std::sort(list.begin(), list.end());
     return(list);
 }
 

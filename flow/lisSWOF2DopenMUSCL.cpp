@@ -45,11 +45,11 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
     double timesum = 0;
     double dt_max = qMin(_dt, _dx*0.5); //???? or intuitively qMin(_dt*0.5, _dx*0.5);
-    int count = 0;
+
     double sumh = 0;
-    bool stop;
     double dt_cfl = dt_max;
     double dt_cfl_new = dt_max;
+    QVector <int> cnt;
 
     sumh = getMass(h);
     /*
@@ -60,8 +60,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
      *directly and its second-order version as reconstructing interface values with MUSCL.
      */
 
-
-    Fill(*FloodDT, dt_max);
+    cnt.resize(nrWatersheds);
     minWSDt.clear();
     minWSDtnew.clear();
     timesumWS.clear();
@@ -69,12 +68,16 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         minWSDt << dt_max;
         minWSDtnew << dt_max;
         timesumWS << 0.0;
+        cnt[k_] = 0;
     }
 
+    Fill(*FloodDT, dt_max);
+    Fill(*tmshow,dt_max);
 
 for (int k_; k_ < nrWatersheds; k_++) {
     const QVector<long>& cells = wsCells[k_];
-
+    int count = 0;
+    bool stop;
     do {
 
         //if (SwitchErosion)
@@ -149,11 +152,6 @@ for (int k_; k_ < nrWatersheds; k_++) {
             // Saint-Venant calculations for new h, u, v
             // called maincalcscheme in fullSWOF
         }
-#pragma omp parallel for num_threads(userCores)
-FOR_ROW_COL_MV_Lws {
-    tmshow->Drc = dt_cfl;
-    // save the values at the start of the run for MUSCL/Heun averaging
-}}
      //   correctMassBalance(sumh, h);
 
         // sediment and pesticde must be inside loop using dt_cfl
@@ -177,16 +175,16 @@ FOR_ROW_COL_MV_Lws {
           //  SWOFDiagonalFlow(dt_req_min, z, h, u, v);
         }
 
-        timesumWS[k_] += dt_cfl;
+        timesumWS[k_] += minWSDt[k_];
         count++; // nr loops
 
         stop = timesumWS[k_] > _dt-0.001;
         if(count > F_MaxIter)
         stop = true;
-
+        cnt[k_]++;
     } while (!stop);
 } // watersheds
-
+qDebug() << minWSDt << timesumWS << cnt;
     // small mass balance corrections within 2d flow
     correctMassBalance(sumh, h);
 
@@ -195,8 +193,12 @@ FOR_ROW_COL_MV_Lws {
     }
 
     //floodCount(h);
+    int count = 0;
+    for (int k_; k_ < nrWatersheds; k_++) {
+        count += cnt[k_];
+    }
 
-    iter_n = qMax(1,count);
+    iter_n = qMax(1,count/nrWatersheds);
     return(count > 0 ? _dt/count : _dt);
 
 }
@@ -206,12 +208,13 @@ void TWorld::doSWOFMUSCL(const QVector<long>& cells, int WSnr, bool doMUSCL, cTM
     // for boundary
     double factor = exp(-0.005*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
     double factor2 = factor;//pow(factor,0.667); // manning reduction V=h^2/3
-
+double dt_max = qMin(_dt, _dx*0.5);
     //const QVector<int>& cells = wsCells[WSnr];
 
     // find which cells to process: those with water plus 1 neighbour extra
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_Lws {
+        FloodDT->Drc = dt_max;
         tmd->Drc = 0;
         // if water include this cell and its neighbours
         if (h->Drc > F_minWH) {
@@ -223,10 +226,15 @@ void TWorld::doSWOFMUSCL(const QVector<long>& cells, int WSnr, bool doMUSCL, cTM
            if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
 
         }
-
+        //     // map edges are zero, avoid domain touching the edges
+        //     // ?????????????????
+        //     // if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
+        //     //     tmd->Drc = 0;
         // map edges are zero, avoid domain touching the edges
         if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
             tmd->Drc = 0;
+        if (ChannelWidth->Drc > 0)
+            tmd->Drc = 1;
 
     }}
 
@@ -235,27 +243,7 @@ void TWorld::doSWOFMUSCL(const QVector<long>& cells, int WSnr, bool doMUSCL, cTM
     //     if (WaterSheds->Drc != WSnr)
     //         tmd->Drc = 0;
 
-    // }}
-
-    //     if (tmd->Drc == 1) {
-    //         if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
-    //         if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
-    //         if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
-    //         if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
-    //     }
-    //     // map edges are zero, avoid domain touching the edges
-    //     // ?????????????????
-    //     // if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
-    //     //     tmd->Drc = 0;
-
-    //     // if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
-    //     //     tmd->Drc = 0;
-    //     //tmd->Drc = 1;
-
-    // }}
-
     //do all flow and state calculations
-
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_Lws {
         if (tmd->Drc == 1) {
@@ -673,6 +661,9 @@ double TWorld::findSmallestCFLdt(const QVector<long>& cells, double dt, double t
     }}
     dt_req_min = qMax(TimestepfloodMin, qMin(dt, qMin(dt_req_min, _dt-timesum)));
     // check against remaining time and user min dt
+    FOR_ROW_COL_MV_Lws {
+        tmshow->Drc = dt_req_min;
+    }}
     return dt_req_min;
 }
 //-----------------------------------------------------------------------------------------------------------

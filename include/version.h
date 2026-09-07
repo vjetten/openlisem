@@ -41,6 +41,6 @@
 
 #define VERSIONNR_pest "1.0"
 
-#define VERSION QString("openLISEM version %1 - %2 pesticides %3").arg(VERSIONNR).arg(VERSIONDATE).arg(VERSIONNR_pest)
+#define VERSION QString("openLISEM version %1 - %2 WaterShed").arg(VERSIONNR).arg(VERSIONDATE)
 
 #endif /* VERSION_H_ */

@@ -4887,7 +4887,97 @@
                       <property name="verticalSpacing">
                        <number>4</number>
                       </property>
-                      <item row="1" column="3">
+                      <item row="2" column="0" colspan="3">
+                       <widget class="QLabel" name="label_96">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Courant factor: </string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="2" column="5">
+                       <widget class="QDoubleSpinBox" name="E_TimestepMinFlood">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <property name="decimals">
+                         <number>2</number>
+                        </property>
+                        <property name="minimum">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="maximum">
+                         <double>1000.000000000000000</double>
+                        </property>
+                        <property name="singleStep">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="value">
+                         <double>0.200000000000000</double>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="3" column="0" colspan="7">
+                       <widget class="QComboBox" name="E_MUSCLandHeun">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <pointsize>8</pointsize>
+                          <bold>false</bold>
+                          <underline>false</underline>
+                          <kerning>true</kerning>
+                         </font>
+                        </property>
+                        <item>
+                         <property name="text">
+                          <string>1. Cell centers: 1st order space and time </string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>2. MUSCL for space but 1st order time</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>3. MUSCL and Heun averaging: 2nd order space and time</string>
+                         </property>
+                        </item>
+                       </widget>
+                      </item>
+                      <item row="2" column="3">
                        <widget class="QDoubleSpinBox" name="E_courantFactor">
                         <property name="enabled">
                          <bool>true</bool>
@@ -4923,8 +5013,11 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="0" colspan="3">
-                       <widget class="QLabel" name="label_96">
+                      <item row="0" column="0">
+                       <widget class="QSpinBox" name="E_FlowBoundary">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -4939,11 +5032,14 @@
                           <kerning>true</kerning>
                          </font>
                         </property>
-                        <property name="text">
-                         <string>Courant factor: </string>
+                        <property name="maximum">
+                         <number>2</number>
                         </property>
-                        <property name="alignment">
-                         <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                        <property name="singleStep">
+                         <number>1</number>
+                        </property>
+                        <property name="value">
+                         <number>1</number>
                         </property>
                        </widget>
                       </item>
@@ -4977,7 +5073,7 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="4">
+                      <item row="2" column="4">
                        <widget class="QLabel" name="label_197">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -5001,14 +5097,8 @@
                         </property>
                        </widget>
                       </item>
-                      <item row="2" column="0" colspan="7">
-                       <widget class="QComboBox" name="E_MUSCLandHeun">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
+                      <item row="1" column="0" colspan="8">
+                       <widget class="QCheckBox" name="checkWatersheds">
                         <property name="font">
                          <font>
                           <pointsize>8</pointsize>
@@ -5017,83 +5107,8 @@
                           <kerning>true</kerning>
                          </font>
                         </property>
-                        <item>
-                         <property name="text">
-                          <string>1. Cell centers: 1st order space and time </string>
-                         </property>
-                        </item>
-                        <item>
-                         <property name="text">
-                          <string>2. MUSCL for space but 1st order time</string>
-                         </property>
-                        </item>
-                        <item>
-                         <property name="text">
-                          <string>3. MUSCL and Heun averaging: 2nd order space and time</string>
-                         </property>
-                        </item>
-                       </widget>
-                      </item>
-                      <item row="0" column="0">
-                       <widget class="QSpinBox" name="E_FlowBoundary">
-                        <property name="enabled">
-                         <bool>true</bool>
-                        </property>
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="maximum">
-                         <number>2</number>
-                        </property>
-                        <property name="singleStep">
-                         <number>1</number>
-                        </property>
-                        <property name="value">
-                         <number>1</number>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="1" column="5">
-                       <widget class="QDoubleSpinBox" name="E_TimestepMinFlood">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="font">
-                         <font>
-                          <pointsize>8</pointsize>
-                          <bold>false</bold>
-                          <underline>false</underline>
-                          <kerning>true</kerning>
-                         </font>
-                        </property>
-                        <property name="decimals">
-                         <number>2</number>
-                        </property>
-                        <property name="minimum">
-                         <double>0.010000000000000</double>
-                        </property>
-                        <property name="maximum">
-                         <double>1000.000000000000000</double>
-                        </property>
-                        <property name="singleStep">
-                         <double>0.010000000000000</double>
-                        </property>
-                        <property name="value">
-                         <double>0.200000000000000</double>
+                        <property name="text">
+                         <string>Use (sub-) catchments, defined by used (1..n; watersheds.map)</string>
                         </property>
                        </widget>
                       </item>
