@@ -1,13 +1,17 @@
 <h2>2D Surface Flow</h2>
 <h3>Dynamic Wave parameters</h3>
+The dynamic wave in openLISEM is based on a finite volume approach, which uses its own smallest timestep in the flood domain to find a stable solution. The flood calculations will progress until the model timestep is filled. this solution is from FullSWOF (Delestre et al., 2019). It has a 1st and 2nd order solution.
 <p><strong>Flow boundary (only if 2D flow is activated):</strong></p>
 <p>0 - Closed boundary, outflow not allowed except in outflow points in endpoints of the channel LDD and surface LDD. Water can pool at the edges if the DEM is not perfect.<br />1 - Open Boundary: outflow to all sides possible of flood and overland flow. Outlets always allow outflow. (default)<br />2 - a user defined map (flowboundary.map) allows 2D outflow where the value is 1, and a closed boundary where the value = 0. A map filled with 1 is the same as unchecked, free outflow.</p>
+<p><strong>Use sub-catchments</strong>: based on a watershed map (classified map), the minimum timestep for the numerical solution is now per watershed instea dof the entire flood domain. For large areas consisting of multiple watersheds this can make the simulation faster. The watersheds should be hydrologically separated (users responsibility). 
 <p><strong>Courant factor</strong>: Determines minimum timestep, lower means smaller timesteps in the iteration are used. (def. 0.2, range 0.01- 0.5).</p>
 <p><strong>Minimum timestep</strong>: User defined minimum timestep for dynamic wave solution. In case of instability lower this value (def. 0.2 sec).</p>
 <h3>1st or 2nd order solution</h3>
-1 - the 1st order solution uses the cell centres for u,v and h. It is faster but more diffuse. It can also cause higher discharges because the diffuse flow has sometimes more connectivity, especially on a DEM with steep depressions.
-<br />2 -  use a MUSCL solution (<em>Monotonic Upstream-centered Scheme for Conservation Laws</em>.) but 1st order in time precision. Water pressure and momentum are calculated on cell boundaries, interpolating from cell centres. This gives narrower flow and can be more accurate in certain situations but may have less connectivity with deep depressions which may affect catchment discharge.
-<br />3 -  MUSCL and Heun averaging: MUSCL and Saint Venant equations are calculated twice and averaged according to Heun. Slowest but 2nd order precision in space and time. Narrower flows, which have an effect on connectivity and infiltration and can result in lower cathcment discharges (slowest).</p>
+1 - The 1st order solution uses the cell centres for u,v and h. It is faster but more diffuse. It can also cause higher discharges because the diffuse flow has sometimes more connectivity, especially on a DEM with strong depressions and barriers.
+<br />2 - A MUSCL solution (<em>Monotonic Upstream-centered Scheme for Conservation Laws</em>.) but 1st order in time precision. Water pressure and momentum are calculated on cell boundaries, interpolating from cell centres. This gives narrower flow and can be more accurate in certain situations but may have less connectivity with deep depressions which may affect catchment discharge.
+<br />3 -  MUSCL and Heun averaging: MUSCL and Saint Venant equations are calculated twice and averaged according to Heun. Slowest but 2nd order precision in space and time. Narrower flows, which have an effect on connectivity and infiltration and can result in lower cathcment discharges (slowest).
+<br />NOTE: in the advanced options different types of Riemann solvers can be selected. 
+</p>
 <h3>Boundary inflow</h3>
 <p>There are two ways to impose a water level at the start of the run, this works only when 2D flow is selected for surface flow:</p>
 <p>- A one time waterlevel that at the start that will behave as a flood and spread out (def. name WHlevel.map). The waterlevel is assumed to be in m.</p>
