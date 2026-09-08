@@ -48,13 +48,6 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     double dt_req_min = dt_max;
     sumh = getMass(h);
 
-    // Fill(*tmd,0);
-    // #pragma omp parallel for num_threads(userCores)
-    // FOR_ROW_COL_MV_L {
-    //     if (h->Drc > F_minWH)
-    //         tmd->Drc = 1; // flag which cells have to be calculated
-    // }}
-
     do {
 
         //if (SwitchErosion)
@@ -68,37 +61,37 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             tmb->Drc = u->Drc;
             tmc->Drc = v->Drc;
             // save the values at the start of the run for MUSCL
+            // not used for first order
         }}
 
-        dt_req_min = doSWOFMUSCLdt(dt_max, timesum, h, u, v, z);
+        dt_req_min = doSWOFMUSCLdt(dt_req_min, timesum, h, u, v, z);
         // do MUSCL (optional), Riemann etc, get back smallest dt
         // in the original code this is split in reconstruction/MUSCL and maincalcflux
-
-        if (dt_req_min == -1)
-            return(0);
+        // h,u,v are now the new hn,un,vn, but we replace to save space
 
         doSWOFStV(dt_req_min, h, u, v);
-        // Saint-Venant calculations for new h, u, v
+        // Saint-Venant calculations with new hn, un, vn
         // called maincalcscheme in fullSWOF
 
-        //until here is first order ! just one calculation
-
         // 2nd order, with avg according to Heun, according to fullswof hean should allways be done!
-        int step = 0;
-        double dt1;
+        // this is now second order in space (MUSCL) and in time (Heun)
+
+        double dt1 = dt_req_min;
+        // save this dt to finish the loop
 
         if (SwitchMUSCL) {
-            do {
-                step++;
-                dt1 = dt_req_min;
 
-                dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
+            dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
+            //dt_req_min is the best guess in the next loop
+            // MUSCL has to be calculated again for the new Riemann hn,vn,un => hnn,unn,vnn
 
-            } while (dt1 > dt_req_min && step < 2);
+            doSWOFStV(dt1, h, u, v);
+            // do not use the new dt_req_min, but finish this step with dt1
 
-            doSWOFStV(dt_req_min, h, u, v);
+            // in the original code if dt_req_min < dt1 the loop starts again with original values.
+            // we do not do that!
 
-            //Heun, see SWOF doc
+            //Heun,2nd order in time, see SWOF doc (similar to Runga Kutta)
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 double havg = 0.5*(tma->Drc + h->Drc); // avg original before loops and second estimation
@@ -116,41 +109,25 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             }}
         } // MUSCL
 
-  //      correctMassBalance(sumh, h);
-
         if (SwitchErosion && !SwitchErosionOutsideLoop) {
-            SWOFSediment(dt_req_min, h, FlowWidth, u,v);
+            SWOFSediment(dt1, h, FlowWidth, u,v);
         }
 
         if (Switch2DDiagonalFlow) {
-            SWOFDiagonalFlowLDD(dt_req_min, z, h, u, v);
+            SWOFDiagonalFlowLDD(dt1, z, h, u, v);
           //  SWOFDiagonalFlow(dt_req_min, z, h, u, v);
         }
 
-        timesum += dt_req_min;
+        timesum += dt1;
         count++; // nr loops
 
         stop = timesum > _dt-0.001;
         if(count > F_MaxIter)
         stop = true;
 
-        // #pragma omp parallel for num_threads(userCores)
-        // FOR_ROW_COL_MV_L {
-        //     tmd->Drc = 0;
-        //     if (h->Drc > F_minWH && qSqrt(u->Drc*u->Drc+v->Drc*v->Drc) > F_minWH)
-        //         tmd->Drc = 1;
-        // }}
-
     } while (!stop);
 
-    // small mass balance corrections within 2d flow
-    //     FOR_ROW_COL_MV_L {
-    //         tmshow->Drc = h->Drc;
-    //     }}
     correctMassBalance(sumh, h);
-    // FOR_ROW_COL_MV_L {
-    //     tmshow->Drc -= h->Drc;
-    // }}
 
     if (SwitchErosion && SwitchErosionOutsideLoop) {
         SWOFSediment(_dt, h, FlowWidth, u,v);
