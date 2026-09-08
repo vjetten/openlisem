@@ -477,12 +477,12 @@ void TWorld::GetRainfallMapfromStations(double currenttime)
                     Rain->Drc = 0;
                     continue;
                 }
-                double value = -1;
+                double value = -999;
                 for (int k = 0; k < stationID.size(); k++) {
                     if (static_cast <int>(RainZone->Drc) == RainfallSeries[currentrow].stationnr.at(k))
                         value = RainfallSeries[currentrow].intensity[k]*tt;
                 }
-                if (value == -1) {
+                if (value == -999) {
                     ErrorString = QString("rainzone ID found in map that does not exist in rainfall file %1.").arg(RainZone->Drc);
                     DEBUG(ErrorString);
                     continue;
