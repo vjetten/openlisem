@@ -52,17 +52,18 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
         //if (SwitchErosion)
         //sumS = getMassSed(SSFlood, 0);
-
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            FloodDT->Drc = dt_max;
-            //activeCells->Drc = 0;
-            tma->Drc = h->Drc;
-            tmb->Drc = u->Drc;
-            tmc->Drc = v->Drc;
-            // save the values at the start of the run for MUSCL
-            // not used for first order
-        }}
+        if (SwitchMUSCL) {
+            #pragma omp parallel for num_threads(userCores)
+            FOR_ROW_COL_MV_L {
+                //FloodDT->Drc = dt_max;
+                //activeCells->Drc = 0;
+                tma->Drc = h->Drc;
+                tmb->Drc = u->Drc;
+                tmc->Drc = v->Drc;
+                // save the values at the start of the run for MUSCL
+                // not used for first order
+            }}
+        }
 
         dt_req_min = doSWOFMUSCLdt(dt_req_min, timesum, h, u, v, z);
         // do MUSCL (optional), Riemann etc, get back smallest dt
@@ -79,6 +80,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         double dt1 = dt_req_min;
         // save this dt to finish the loop
 
+        // MUSCL for second order in space and time
         if (SwitchMUSCL) {
 
             dt_req_min = doSWOFMUSCLdt(dt1, timesum, h, u, v, z);
@@ -315,7 +317,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             }
 
             // non-muscl solution, cell centres for boundaries in x and y directions
-            hx1r = h_x1; hxl = H; hxr = H; hx2l = h_x2;  // x-1 r; x l; x r; x+1 l
+            hx1r = h_x1; hxl = H; hxr = H; hx2l = h_x2;  // x-1->r | x->l; and x->r|x+1->l => the right hand side of x-1 compared to the left hand side of x, etc.
             ux1r = u_x1; uxl = U; uxr = U; ux2l = u_x2;
             vx1r = v_x1; vxl = V; vxr = V; vx2l = v_x2;
 
@@ -571,7 +573,7 @@ double TWorld::doSWOFMUSCLdt(double dt, double timesum, cTMap *h, cTMap *u, cTMa
             // determine smallest dt in x and y for each cell
             double dtx = courant_factor*dx/qMax(hll_x1.v[3],hll_x2.v[3]);
             double dty = courant_factor*dy/qMax(hll_y1.v[3],hll_y2.v[3]);
-            FloodDT->Drc = qMin(dtx, dty);
+            FloodDT->Drc = qMin(dt_max, qMin(dtx, dty));
 
             // save the Riemann results in maps, needed for Saint-Venant
             // noite hxl, hxr, hyl, hyr are all equal to H when not using MUSCL, else they have a value based on the minmod limiter
