@@ -833,8 +833,10 @@ public:
     QString satImageFileDir;
 
     // list with class values of land unit map
-    UNIT_LIST unitList[NRUNITS];
-    UNIT_LIST floodList[NRUNITS];
+    //UNIT_LIST unitList[NRUNITS];
+    QVector<UNIT_LIST> erosUnits;
+    QVector<UNIT_LIST> floodList;
+//    UNIT_LIST floodList[NRUNITS];
     int landUnitNr;
 
     // CENTRAL STRUCTURE WITH ALL MAP POINTERS

@@ -864,40 +864,29 @@ void TWorld::ReportTimeseriesCSV(void)
 }
 //---------------------------------------------------------------------------
 /// Land unit statistics: count nr land units in classifiedfile
-// VJ 110110 count nr of land units in classified file
 void TWorld::CountLandunits(void)
 {
     if (!SwitchErosion)
         return;
 
-    int i, j;
-    for (i = 0; i < NRUNITS; i++)
+    QSet<long> classes;
+
+    // Find unique land use classes
+    FOR_ROW_COL_MV_L {
+        long cl = static_cast<long>(LandUnit->Drc);
+        if (cl > 0) // ignore 0?
+            classes.insert(cl); // insert makes a unique list
+    }}
+
+    // Create one UNIT_LIST for each class
+    for (long cl : classes)
     {
-        unitList[i].nr = 0;
-        unitList[i].var0 = 0;
-        unitList[i].var1 = 0;
-        unitList[i].var2 = 0;
-        unitList[i].var3 = 0;
-        unitList[i].var4 = 0;
-        unitList[i].var5 = 0;
+        UNIT_LIST u{}; // initialize to 0
+        u.nr = cl;          // land use class number
+        erosUnits.append(u);
     }
 
-    i = 0;
-    FOR_ROW_COL_MV
-    {
-        bool found = false;
-
-        for(j = 0; j <= i; j++)
-            if ((long)LandUnit->Drc == unitList[j].nr)
-                found = true;
-
-        if(!found && i < NRUNITS)
-        {
-             unitList[i].nr = (long)LandUnit->Drc;
-             i++;
-        }
-    }
-    landUnitNr = i;
+    landUnitNr = erosUnits.size();
 }
 //---------------------------------------------------------------------------
 /// Report the erosion totals per land unit
@@ -907,29 +896,14 @@ void TWorld::ReportErosionLandunits(void)
         return;
 
     #pragma omp parallel for num_threads(userCores)
-    for (int i = 0; i < landUnitNr; i++)//landUnitNr; i++)
-    {
-        unitList[i].var0 = 0;
-        unitList[i].var1 = 0;
-        unitList[i].var2 = 0;
-        unitList[i].var3 = 0;
-    }
-
-   #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        //variables are kg/cell convert to ton/cell
-        for (int i = 0; i < landUnitNr; i++)
-            if (unitList[i].nr == (int)LandUnit->Drc) {
-                unitList[i].var0 += CellArea->Drc/10000;//ha
-             //   unitList[i].var1 += qMax(0.0,TotalSoillossMap->Drc/1000); //ton/cell
-             //   unitList[i].var2 += qMin(0.0,TotalSoillossMap->Drc/1000);
-                unitList[i].var1 += TotalSoillossMap->Drc/1000;
-            }
+        long cl = static_cast<long>(LandUnit->Drc);
+        erosUnits[cl].var0 += CellArea->Drc/10000;;
+        erosUnits[cl].var1 += TotalSoillossMap->Drc/1000;
     }}
 
-
     QString name;
-    name = resultDir + totalLandunitFileName;//QFileInfo(totalLandunitFileName).baseName()+"-"+op.timeStartRun+".csv";
+    name = resultDir + totalLandunitFileName;
     QFile fout(name);
     if (!fout.open(QIODevice::WriteOnly | QIODevice::Text)) {
         ErrorString = "Cannot write the file: "+name;
@@ -943,12 +917,10 @@ void TWorld::ReportErosionLandunits(void)
     // out << "#,ha,ton,ton,ton\n";
     out << "Landunit,Area,Soil Loss\n";
     out << "#,ha,ton\n";
-    for (int i = 0; i < landUnitNr; i++)
-        out << unitList[i].nr << ","
-            << unitList[i].var0 << ","
-            << unitList[i].var1 << "\n";
-          //  << unitList[i].var2 << ","
-          //  << unitList[i].var3 << "\n";
+    for (long i = 0; i < landUnitNr; i++)
+        out << erosUnits[i].nr << ","
+            << erosUnits[i].var0 << ","
+            << erosUnits[i].var1 << "\n";
     fout.close();
 
 }
@@ -958,6 +930,32 @@ void TWorld::FloodStatistics(void)
     if(SwitchKinematic2D == K2D_METHOD_KIN)
         return;
 
+    double hmax = 0;
+    FOR_ROW_COL_MV_L {
+        hmax = qMax(hmax, floodHmxMax->Drc);
+    }}
+    int nrcl = static_cast<int>(hmax/0.05); // 5 cm classes
+    for (int cl = 0; cl < nrcl; cl++) {
+        UNIT_LIST u{}; // initialize to 0
+        u.nr = cl;          // land use class number
+        u.var0 = 0.05*cl; //depth 5 cm intervals
+        floodList.append(u);
+    }
+
+    double area = _dx*_dx;
+    #pragma omp parallel for num_threads(userCores)
+    FOR_ROW_COL_MV_L {
+        int i = static_cast<int>(floodHmxMax->Drc/0.05); // 5 cm classes
+        floodList[i].var1 += area; // area flooded in this class
+        floodList[i].var2 += area*floodHmxMax->Drc; // vol flooded in this class
+        floodList[i].var3 = qMax(floodTime->Drc/60.0,floodList[i].var3); // max time in this class
+        floodList[i].var4 = qMax(floodTimeStart->Drc/60.0,floodList[i].var4); // max time in this class
+        if (SwitchHouses)
+            floodList[i].var5 += HouseCover->Drc*area;
+        if (SwitchRoadsystem)
+            floodList[i].var6 += RoadWidthDX->Drc*DX->Drc; // WRONG: all road pixels is the surface, not the length
+    }}
+ /*
     #pragma omp parallel for num_threads(userCores)
     for (int i = 0; i < NRUNITS; i++)
     {
@@ -993,7 +991,7 @@ void TWorld::FloodStatistics(void)
                 floodList[i].var6 += RoadWidthDX->Drc*DX->Drc; // WRONG: all road pixels is the surface, not the length
         }
     }}
-
+*/
     QFile fp(resultDir + floodStatsFileName);
     if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
@@ -1002,7 +1000,7 @@ void TWorld::FloodStatistics(void)
     double totvol = 0;
     double totbuild = 0;
     double totroad = 0;
-    for (int i = 1; i < nr+1; i++)
+    for (int i = 1; i < floodList.size()+1; i++)
     {
         totarea += floodList[i].var1;
         totvol += floodList[i].var2;
@@ -1020,7 +1018,7 @@ void TWorld::FloodStatistics(void)
     out << "class,Depth,Area,Volume,Duration,Start,Structures,Roads\n";
     out << "#,m,m2,m3,h,h,m2,m2\n";
     out << "total" << ",>0.05," << totarea << "," << totvol << ",,," << totbuild << "," << totroad <<"\n";
-    for (int i = 1; i < nr+1; i++)
+    for (int i = 1; i < floodList.size()+1; i++)
         out << i << ","
             << floodList[i].var0 << ","
             << floodList[i].var1 << ","
