@@ -58,12 +58,6 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
      *directly and its second-order version as reconstructing interface values with MUSCL.
      */
 
-    // forceM++;
-    // if (forceM % 2 == 0)
-    //     SwitchMUSCL = true;
-    // else
-    //     SwitchMUSCL = false;
-
     do {
 
         //if (SwitchErosion)
@@ -71,7 +65,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
         Fill(*FloodDT, dt_max);
 
-        if (SwitchHeun) {
+        if (SwitchMUSCLandHeun) {
               // 2nd order, with avg according to Heun, according to fullswof hean should allways be done!
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
@@ -124,7 +118,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         } else {
             // first order solution in space and time, cell centers are used, just one calculation, no Heun averaging
             // in the original code this is split in reconstruction/MUSCL and maincalcflux
-            doSWOFMUSCL(SwitchMUSCL, h, u, v, z);
+            doSWOFMUSCL(false, h, u, v, z);
             dt_cfl = findSmallestCFLdt(dt_cfl_new, timesum);
             dt_cfl_new = dt_cfl; // best guess for next timestep
             doSWOFStV(dt_cfl, h, u, v);

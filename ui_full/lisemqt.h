@@ -620,7 +620,7 @@ private:
     QAction *fontDecreaseAct;
 
     // the model world
-    TWorld *W;
+    TWorld *W = nullptr;
     QThread *worldThread;
 
 };

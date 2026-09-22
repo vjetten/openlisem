@@ -939,23 +939,25 @@ void TWorld::ReportErosionLandunits(void)
         //erosUnits[i].var6 = 0; // do not reset
     }
 
+    // sum variables per land unit
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         long cl = static_cast<long>(LandUnit->Drc);
         int rec = classToRecEros[cl];
-        erosUnits[rec].var0 += CellArea->Drc/10000;
-     //   if (qAbs(TotalSoillossMap->Drc) > 1e-7) {
-            erosUnits[rec].var1 += CellArea->Drc/10000;
+        erosUnits[rec].var0 += CellArea->Drc;
+        if (qAbs(TotalSoillossMap->Drc) > 1e-7) {
+            erosUnits[rec].var1 += CellArea->Drc;
             erosUnits[rec].var2 += TotalSoillossMap->Drc;
             erosUnits[rec].var3 += DETSplashCum->Drc;
             erosUnits[rec].var4 += DETFlowCum->Drc;
             erosUnits[rec].var5 += DEPCum->Drc;
-      //  }
+        }
     }}
 
-    Fill(*tmshow, 0);
+    //Fill(*tmshow, 0);
+     // sum all sed flux over an edge for the landunit and in time
     FOR_ROW_COL_MV_L {
-       // if (qAbs(TotalSoillossMap->Drc) > 1e-7) {
+      //  if (qAbs(TotalSoillossMap->Drc) > 1e-7) {
             long lu0 = static_cast<long>(LandUnit->Drc);
             bool bc1 = c > 0 && !MV(r,c-1)        ;
             bool bc2 = c < _nrCols-1 && !MV(r,c+1);

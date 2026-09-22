@@ -552,8 +552,9 @@ public:
         SwitchCorrectDEM,
         Switch2DDiagonalFlow,
         SwitchSWOFopen,
-        SwitchMUSCL,
-        SwitchHeun,
+        // SwitchMUSCL,
+        // SwitchHeun,
+        SwitchMUSCLandHeun,
         SwitchUserCores,
         SwitchVariableTimestep,
         SwitchImage,
@@ -572,7 +573,6 @@ public:
          SwitchReadGrainSizeDistribution,
          SwitchD50CHavg;
 
-    int SwitchMUSCLandHeun;
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
     int SwitchEfficiencyDETCH; // channel detachment efficiency
