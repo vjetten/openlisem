@@ -36,23 +36,29 @@
 void TWorld::GetInputData(void)
 {
     InitParameters();
-
+qDebug() << "hier";
     InitStandardInput();
     //## Basic data start of map list etc.
+    qDebug() << "hier";
 
     InitMeteoInput();
+    qDebug() << "hier";
 
     InitLULCInput();
     //## surface related variables
+    qDebug() << "hier";
 
     InitSoilInput();
     //## soil/infiltration data
+    qDebug() << "hier";
 
     InitNewSoilProfile();
     // fin element soil init
+    qDebug() << "hier";
 
     InitErosion();
     //extended sediment stuff
+    qDebug() << "hier";
 
     InitPesticides();
     // pesticide stuff

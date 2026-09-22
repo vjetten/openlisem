@@ -119,7 +119,7 @@ void TWorld::DoModel()
         consoleout << "\nrunning OpenLISEM with:" << op.runfilename << "\n\n";
         consoleout.flush();
     }
-
+qDebug() << "hoi";
     if (!op.doBatchmode)
         temprunname = QString(op.userAppDir+"openlisemtmp.run");
     else
