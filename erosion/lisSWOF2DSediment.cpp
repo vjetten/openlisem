@@ -816,7 +816,7 @@ void TWorld::SedimentDetachmentBL(double dt, cTMap * h, cTMap *w, cTMap * V)
                 }
 
                 if(SwitchGridRetention) {
-                    if (Sed->Drc > 0) {
+                    if (BL > 0) {
                         double depvol = BL/BulkDens; // sed in m3
                         if (GridRetention->Drc < depvol)
                             depvol = GridRetention->Drc;

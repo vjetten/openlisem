@@ -870,7 +870,29 @@ void TWorld::CountLandunits(void)
     if (!SwitchErosion)
         return;
 
-    int i, j;
+        QSet<long> classes;
+
+        // Find unique land use classes
+        FOR_ROW_COL_MV_L {
+            long cl = static_cast<long>(LandUnit->Drc);
+            if (cl > 0) // ignore 0?
+                classes.insert(cl); // insert makes a unique list
+        }}
+
+        // Create one UNIT_LIST for each class
+        erosUnits.clear();
+        int j = 0;
+        for (long cl : classes)
+        {
+            UNIT_LIST u{}; // initialize to 0
+            u.nr = cl;     // land use class number
+            erosUnits.append(u);
+            classToRecEros[cl] = j++;
+        }
+
+        landUnitNr = erosUnits.size();
+/*
+        int i, j;
     for (i = 0; i < NRUNITS; i++)
     {
         unitList[i].nr = 0;
@@ -898,6 +920,7 @@ void TWorld::CountLandunits(void)
         }
     }
     landUnitNr = i;
+    */
 }
 //---------------------------------------------------------------------------
 /// Report the erosion totals per land unit
@@ -906,30 +929,62 @@ void TWorld::ReportErosionLandunits(void)
     if (!SwitchErosion)
         return;
 
-    #pragma omp parallel for num_threads(userCores)
-    for (int i = 0; i < landUnitNr; i++)//landUnitNr; i++)
-    {
-        unitList[i].var0 = 0;
-        unitList[i].var1 = 0;
-        unitList[i].var2 = 0;
-        unitList[i].var3 = 0;
+    for (int i = 0; i < landUnitNr; i++) {
+        erosUnits[i].var0 = 0;
+        erosUnits[i].var1 = 0;
+        erosUnits[i].var2 = 0;
+        erosUnits[i].var3 = 0;
+        erosUnits[i].var4 = 0;
+        erosUnits[i].var5 = 0;
+        //erosUnits[i].var6 = 0; // do not reset
     }
 
-   #pragma omp parallel for num_threads(userCores)
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        //variables are kg/cell convert to ton/cell
-        for (int i = 0; i < landUnitNr; i++)
-            if (unitList[i].nr == (int)LandUnit->Drc) {
-                unitList[i].var0 += CellArea->Drc/10000;//ha
-             //   unitList[i].var1 += qMax(0.0,TotalSoillossMap->Drc/1000); //ton/cell
-             //   unitList[i].var2 += qMin(0.0,TotalSoillossMap->Drc/1000);
-                unitList[i].var1 += TotalSoillossMap->Drc/1000;
-            }
+        long cl = static_cast<long>(LandUnit->Drc);
+        int rec = classToRecEros[cl];
+        erosUnits[rec].var0 += CellArea->Drc/10000;
+        if (qAbs(TotalSoillossMap->Drc) > 1e-7) {
+            erosUnits[rec].var1 += CellArea->Drc/10000;
+            erosUnits[rec].var2 += TotalSoillossMap->Drc;
+            erosUnits[rec].var3 += DETSplashCum->Drc;
+            erosUnits[rec].var4 += DETFlowCum->Drc;
+            erosUnits[rec].var5 += DEPCum->Drc;
+        }
     }}
 
+    Fill(*tmshow, 0);
+    FOR_ROW_COL_MV_L {
+        if (qAbs(TotalSoillossMap->Drc) > 1e-7) {
+            long lu0 = static_cast<long>(LandUnit->Drc);
+            bool bc1 = c > 0 && !MV(r,c-1)        ;
+            bool bc2 = c < _nrCols-1 && !MV(r,c+1);
+            bool br1 = r > 0 && !MV(r-1,c)        ;
+            bool br2 = r < _nrRows-1 && !MV(r+1,c);
+            long luc1 = bc1 ? static_cast<long>(LandUnit->data[r][c-1]) : lu0;
+            long luc2 = bc2 ? static_cast<long>(LandUnit->data[r][c+1]) : lu0;
+            long lur1 = br1 ? static_cast<long>(LandUnit->data[r-1][c]) : lu0;
+            long lur2 = br2 ? static_cast<long>(LandUnit->data[r+1][c]) : lu0;
+            bool sed = false;
+            // flag cell if an outgoing flux at a change of landunit in any direction
+            if (lu0 != luc1 && Uflood->Drc < 0)
+                sed = true;
+            if (lu0 != luc2 && Uflood->Drc > 0)
+                sed = true;
+            if (lu0 != lur1 && Vflood->Drc < 0)
+                sed = true;
+            if (lu0 != lur2 && Vflood->Drc > 0)
+                sed = true;
+            if (sed) {
+    //            tmshow->Drc = TotalConc->Drc*Qn->Drc;
+              int rec = classToRecEros[lu0];
+              erosUnits[rec].var6 += TotalConc->Drc*Qn->Drc;
+            }
+        }
+    }}
 
     QString name;
-    name = resultDir + totalLandunitFileName;//QFileInfo(totalLandunitFileName).baseName()+"-"+op.timeStartRun+".csv";
+    name = resultDir + totalLandunitFileName;
     QFile fout(name);
     if (!fout.open(QIODevice::WriteOnly | QIODevice::Text)) {
         ErrorString = "Cannot write the file: "+name;
@@ -941,14 +996,17 @@ void TWorld::ReportErosionLandunits(void)
 
     // out << "Landunit,Area,Detachment,Deposition,Soil Loss\n";
     // out << "#,ha,ton,ton,ton\n";
-    out << "Landunit,Area,Soil Loss\n";
-    out << "#,ha,ton\n";
-    for (int i = 0; i < landUnitNr; i++)
-        out << unitList[i].nr << ","
-            << unitList[i].var0 << ","
-            << unitList[i].var1 << "\n";
-          //  << unitList[i].var2 << ","
-          //  << unitList[i].var3 << "\n";
+    out << "Landunit,Total area,Erosion area,Erosion,Splash,Flow,Dep,Flux out\n";
+    out << "#,m2,m2,kg/m2,kg/m2,kg/m2,kg/m2,kg/m3\n";
+    for (long i = 0; i < landUnitNr; i++)
+    out << erosUnits[i].nr << ","
+        << erosUnits[i].var0 << ","
+        << erosUnits[i].var1 << ","
+        << erosUnits[i].var2 << ","
+        << erosUnits[i].var3 << ","
+        << erosUnits[i].var4 << ","
+        << erosUnits[i].var5 << ","
+        << erosUnits[i].var6 << "\n";
     fout.close();
 
 }

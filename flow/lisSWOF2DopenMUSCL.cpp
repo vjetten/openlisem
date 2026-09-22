@@ -197,7 +197,7 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
            //     // if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
            //     //     tmd->Drc = 0;
-           tmshow->Drc = tmd->Drc;
+           //tmshow->Drc = tmd->Drc;
         }
     }}
 
