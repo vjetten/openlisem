@@ -40,7 +40,9 @@ void TWorld::GetInputData(void)
     InitStandardInput();
     //## Basic data start of map list etc.
 
+
     InitMeteoInput();
+
 
     InitLULCInput();
     //## surface related variables
@@ -2091,9 +2093,9 @@ void TWorld::IntializeOptions(void)
     SwitchChannelMaxV = true;
     Switch2DDiagonalFlow = true;
     SwitchSWOFopen = true;
-    SwitchMUSCL = false;
-    SwitchHeun = false;
-    SwitchMUSCLandHeun = 1; // 1st order
+    //SwitchMUSCL = false;
+    //SwitchHeun = false;
+    SwitchMUSCLandHeun = false;
     SwitchFloodInitial = false;
     SwitchErosion = false;
     SwitchUse2Phase = false;

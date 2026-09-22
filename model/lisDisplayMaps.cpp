@@ -309,8 +309,8 @@ void TWorld::GetComboMaps()
     cl = 2;
     AddComboMap(0,"Water Height","m",hmxWH,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
     AddComboMap(0,"Micro storage","m",WHstore,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
-
-    AddComboMap(0,"fac","m",tmshow,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
+ cl = 6;
+    AddComboMap(0,"fac","m",tmshow,LegendMap[cl],Legend[cl],false,true,1,0.001);
 
 //    AddComboMap(0,"settling","m",tmshow,LegendMap[cl],Legend[cl],false,false,1.0,0.001);
 
@@ -432,7 +432,7 @@ void TWorld::GetComboMaps()
         }
 
         AddComboMap(1,"Total Soil Loss",unit,TotalSoillossMap,LegendMap[cl],Legend[cl],false,true,factor, step);
-        AddComboMap(1,"frac dep","-",tmshow,LegendMap[cl],Legend[cl],false,false,1.0, step);
+      //  AddComboMap(1,"frac dep","-",tmshow,LegendMap[cl],Legend[cl],false,false,1.0, step);
         cl = 8;
         AddComboMap(1,"Splash detachment",unit,DETSplashCum,LegendMap[cl],Legend[cl],false,false,factor, step);
         AddComboMap(1,"Flow detachment",unit,DETFlowCum,LegendMap[cl],Legend[cl],false,false,factor, step);

@@ -149,7 +149,7 @@
     for (int  c = 0; c < _nrCols; c++)\
     if(!pcr::isMV(LDDTile->data[r][c]))
 
-#define NRUNITS 512  /// \def max number of landunits or depth classes in flooding
+#define NRUNITS 512  /// \def max number depth classes in flooding
 #define NUMNAMES 512   /// \def NUMNAMES runfile namelist max
 #define NUMMAPS 512    /// \def max nr maps
 #define MIN_FLUX 1e-6 /// \def minimum flux (m3/s)
@@ -552,8 +552,9 @@ public:
         SwitchCorrectDEM,
         Switch2DDiagonalFlow,
         SwitchSWOFopen,
-        SwitchMUSCL,
-        SwitchHeun,
+        // SwitchMUSCL,
+        // SwitchHeun,
+        SwitchMUSCLandHeun,
         SwitchUserCores,
         SwitchVariableTimestep,
         SwitchImage,
@@ -572,7 +573,6 @@ public:
          SwitchReadGrainSizeDistribution,
          SwitchD50CHavg;
 
-    int SwitchMUSCLandHeun;
     int SwitchKinematic2D;
     int SwitchEfficiencyDET; // detachment efficiency
     int SwitchEfficiencyDETCH; // channel detachment efficiency
@@ -833,10 +833,11 @@ public:
     QString satImageFileDir;
 
     // list with class values of land unit map
-    //UNIT_LIST unitList[NRUNITS];
-    QVector<UNIT_LIST> erosUnits;
-    QVector<UNIT_LIST> floodList;
-//    UNIT_LIST floodList[NRUNITS];
+
+    QVector<UNIT_LIST> erosUnits; // erosion record for each landunit class
+    QHash<long,int> classToRecEros; // class numer linked to record number, e.g. 2 = 523; 3 = 477 etc.
+
+    UNIT_LIST floodList[NRUNITS];
     int landUnitNr;
 
     // CENTRAL STRUCTURE WITH ALL MAP POINTERS

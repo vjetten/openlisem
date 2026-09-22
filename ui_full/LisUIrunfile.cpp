@@ -226,7 +226,7 @@ void lisemqt::ParseInputData()
         // FLOW
         if (p1.compare("Minimum reported flood height")==0)  E_floodMinHeight->setValue(valc);
         if (p1.compare("Flooding courant factor")==0)        E_courantFactor->setValue(valc);
-        if (p1.compare("Flood solution")==0)                 E_MUSCLandHeun->setCurrentIndex(iii);
+        if (p1.compare("Flood solution")==0)                 checkMUSCLHeun->setChecked(check);
         //if (p1.compare("Flood Heun 2nd order")==0)           checkHeun->setChecked(check);
         if (p1.compare("Routing Kin Wave 2D")==0)            E_OFWaveType->setCurrentIndex(iii);
         if (p1.compare("Flow Boundary 2D")==0)               E_FlowBoundary->setValue(iii);
@@ -1024,7 +1024,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Flow Boundary 2D")==0)               namelist[j].value = E_FlowBoundary->text();
         if (p1.compare("Routing Kin Wave 2D")==0)            namelist[j].value.setNum(E_OFWaveType->currentIndex());
         if (p1.compare("Flooding courant factor")==0)        namelist[j].value = E_courantFactor->text();
-        if (p1.compare("Flood solution")==0)                 namelist[j].value.setNum(E_MUSCLandHeun->currentIndex());
+        if (p1.compare("Flood solution")==0)                 namelist[j].value.setNum((int)checkMUSCLHeun->isChecked());
        // if (p1.compare("Flood Heun 2nd order")==0)           namelist[j].value.setNum((int) checkHeun->isChecked());
         if (p1.compare("Flooding SWOF flux limiter")==0)     namelist[j].value = E_FloodFluxLimiter->text();
         if (p1.compare("Flooding SWOF Reconstruction")==0)   namelist[j].value = E_FloodReconstruction->text();

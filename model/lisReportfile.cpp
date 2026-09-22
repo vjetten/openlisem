@@ -869,6 +869,7 @@ void TWorld::CountLandunits(void)
     if (!SwitchErosion)
         return;
 
+
     QSet<long> classes;
 
     // Find unique land use classes
@@ -878,12 +879,16 @@ void TWorld::CountLandunits(void)
             classes.insert(cl); // insert makes a unique list
     }}
 
+
     // Create one UNIT_LIST for each class
+    erosUnits.clear();
+    int j = 0;
     for (long cl : classes)
     {
         UNIT_LIST u{}; // initialize to 0
-        u.nr = cl;          // land use class number
+        u.nr = cl;     // land use class number
         erosUnits.append(u);
+        classToRecEros[cl] = j++;
     }
 
     landUnitNr = erosUnits.size();
@@ -895,11 +900,60 @@ void TWorld::ReportErosionLandunits(void)
     if (!SwitchErosion)
         return;
 
+    for (int i = 0; i < landUnitNr; i++) {
+        erosUnits[i].var0 = 0;
+        erosUnits[i].var1 = 0;
+        erosUnits[i].var2 = 0;
+        erosUnits[i].var3 = 0;
+        erosUnits[i].var4 = 0;
+        erosUnits[i].var5 = 0;
+        //erosUnits[i].var6 = 0; // do not reset
+    }
+
+    // sum variables per land unit
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         long cl = static_cast<long>(LandUnit->Drc);
-        erosUnits[cl].var0 += CellArea->Drc/10000;;
-        erosUnits[cl].var1 += TotalSoillossMap->Drc/1000;
+        int rec = classToRecEros[cl];
+        erosUnits[rec].var0 += CellArea->Drc;
+        if (qAbs(TotalSoillossMap->Drc) > 1e-7) {
+            erosUnits[rec].var1 += CellArea->Drc;
+            erosUnits[rec].var2 += TotalSoillossMap->Drc;
+            erosUnits[rec].var3 += DETSplashCum->Drc;
+            erosUnits[rec].var4 += DETFlowCum->Drc;
+            erosUnits[rec].var5 += DEPCum->Drc;
+        }
+    }}
+
+    //Fill(*tmshow, 0);
+     // sum all sed flux over an edge for the landunit and in time
+    FOR_ROW_COL_MV_L {
+      //  if (qAbs(TotalSoillossMap->Drc) > 1e-7) {
+            long lu0 = static_cast<long>(LandUnit->Drc);
+            bool bc1 = c > 0 && !MV(r,c-1)        ;
+            bool bc2 = c < _nrCols-1 && !MV(r,c+1);
+            bool br1 = r > 0 && !MV(r-1,c)        ;
+            bool br2 = r < _nrRows-1 && !MV(r+1,c);
+            long luc1 = bc1 ? static_cast<long>(LandUnit->data[r][c-1]) : lu0;
+            long luc2 = bc2 ? static_cast<long>(LandUnit->data[r][c+1]) : lu0;
+            long lur1 = br1 ? static_cast<long>(LandUnit->data[r-1][c]) : lu0;
+            long lur2 = br2 ? static_cast<long>(LandUnit->data[r+1][c]) : lu0;
+            bool sed = false;
+            // flag cell if an outgoing flux at a change of landunit in any direction
+            if (lu0 != luc1 && Uflood->Drc < 0)
+                sed = true;
+            if (lu0 != luc2 && Uflood->Drc > 0)
+                sed = true;
+            if (lu0 != lur1 && Vflood->Drc < 0)
+                sed = true;
+            if (lu0 != lur2 && Vflood->Drc > 0)
+                sed = true;
+            if (sed) {
+    //            tmshow->Drc = TotalConc->Drc*Qn->Drc;
+              int rec = classToRecEros[lu0];
+              erosUnits[rec].var6 += TotalConc->Drc*Qn->Drc;
+            }
+    //    }
     }}
 
     QString name;
@@ -913,14 +967,18 @@ void TWorld::ReportErosionLandunits(void)
     out.setRealNumberPrecision(3);
     out.setRealNumberNotation(QTextStream::FixedNotation);
 
-    // out << "Landunit,Area,Detachment,Deposition,Soil Loss\n";
-    // out << "#,ha,ton,ton,ton\n";
-    out << "Landunit,Area,Soil Loss\n";
-    out << "#,ha,ton\n";
+    out << "Landunit,Total area,Erosion area,Erosion,Splash,Flow,Dep,Flux out\n";
+    out << "#,m2,m2,kg/m2,kg/m2,kg/m2,kg/m2,kg/m3\n";
     for (long i = 0; i < landUnitNr; i++)
-        out << erosUnits[i].nr << ","
-            << erosUnits[i].var0 << ","
-            << erosUnits[i].var1 << "\n";
+    out << erosUnits[i].nr << ","
+        << erosUnits[i].var0 << ","
+        << erosUnits[i].var1 << ","
+        << erosUnits[i].var2 << ","
+        << erosUnits[i].var3 << ","
+        << erosUnits[i].var4 << ","
+        << erosUnits[i].var5 << ","
+        << erosUnits[i].var6 << "\n";
+
     fout.close();
 
 }
@@ -930,32 +988,6 @@ void TWorld::FloodStatistics(void)
     if(SwitchKinematic2D == K2D_METHOD_KIN)
         return;
 
-    double hmax = 0;
-    FOR_ROW_COL_MV_L {
-        hmax = qMax(hmax, floodHmxMax->Drc);
-    }}
-    int nrcl = static_cast<int>(hmax/0.05); // 5 cm classes
-    for (int cl = 0; cl < nrcl; cl++) {
-        UNIT_LIST u{}; // initialize to 0
-        u.nr = cl;          // land use class number
-        u.var0 = 0.05*cl; //depth 5 cm intervals
-        floodList.append(u);
-    }
-
-    double area = _dx*_dx;
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_L {
-        int i = static_cast<int>(floodHmxMax->Drc/0.05); // 5 cm classes
-        floodList[i].var1 += area; // area flooded in this class
-        floodList[i].var2 += area*floodHmxMax->Drc; // vol flooded in this class
-        floodList[i].var3 = qMax(floodTime->Drc/60.0,floodList[i].var3); // max time in this class
-        floodList[i].var4 = qMax(floodTimeStart->Drc/60.0,floodList[i].var4); // max time in this class
-        if (SwitchHouses)
-            floodList[i].var5 += HouseCover->Drc*area;
-        if (SwitchRoadsystem)
-            floodList[i].var6 += RoadWidthDX->Drc*DX->Drc; // WRONG: all road pixels is the surface, not the length
-    }}
- /*
     #pragma omp parallel for num_threads(userCores)
     for (int i = 0; i < NRUNITS; i++)
     {
@@ -991,7 +1023,7 @@ void TWorld::FloodStatistics(void)
                 floodList[i].var6 += RoadWidthDX->Drc*DX->Drc; // WRONG: all road pixels is the surface, not the length
         }
     }}
-*/
+
     QFile fp(resultDir + floodStatsFileName);
     if (!fp.open(QIODevice::WriteOnly | QIODevice::Text))
         return;
@@ -1000,7 +1032,7 @@ void TWorld::FloodStatistics(void)
     double totvol = 0;
     double totbuild = 0;
     double totroad = 0;
-    for (int i = 1; i < floodList.size()+1; i++)
+    for (int i = 1; i < nr+1; i++)
     {
         totarea += floodList[i].var1;
         totvol += floodList[i].var2;
@@ -1018,7 +1050,7 @@ void TWorld::FloodStatistics(void)
     out << "class,Depth,Area,Volume,Duration,Start,Structures,Roads\n";
     out << "#,m,m2,m3,h,h,m2,m2\n";
     out << "total" << ",>0.05," << totarea << "," << totvol << ",,," << totbuild << "," << totroad <<"\n";
-    for (int i = 1; i < floodList.size()+1; i++)
+    for (int i = 1; i < nr+1; i++)
         out << i << ","
             << floodList[i].var0 << ","
             << floodList[i].var1 << ","
@@ -1031,6 +1063,5 @@ void TWorld::FloodStatistics(void)
 
     fp.flush();
     fp.close();
-
 }
 //---------------------------------------------------------------------------
