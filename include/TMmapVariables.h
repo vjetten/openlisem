@@ -459,6 +459,7 @@ cTMap
 *COMBO_SS,
 *COMBO_BL,
 *COMBO_TC,
+*COMBO_SL,
 *ChannelDepthExtended,
 *ChannelWidthExtended,
 *ChannelNeighborsExtended,

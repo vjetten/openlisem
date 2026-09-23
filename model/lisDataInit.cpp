@@ -1808,6 +1808,7 @@ void TWorld::IntializeData(void)
     COMBO_BL = NewMap(0);
     COMBO_TC = NewMap(0);
     COMBO_V = NewMap(0);
+    COMBO_SL = NewMap(0);
 
     SoilETMBcorrection = 0;
     //### infiltration maps

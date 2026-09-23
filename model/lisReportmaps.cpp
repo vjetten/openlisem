@@ -42,6 +42,12 @@ void TWorld::PrepareReportMaps(void)
 
     if(SwitchErosion)
     {
+    double factor = 1.0;
+    if(ErosionUnits == 2)
+        factor = 1.0/(_dx*_dx);  //kg/m2
+    else
+        if (ErosionUnits == 0)
+            factor = 10.0/(_dx*_dx); //ton/ha
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             COMBO_SS->Drc = 0;
@@ -69,6 +75,9 @@ void TWorld::PrepareReportMaps(void)
 
             COMBO_SS->Drc = COMBO_SS->Drc  < 1e-6 ? 0 : COMBO_SS->Drc;
             COMBO_BL->Drc = COMBO_BL->Drc  < 1e-6 ? 0 : COMBO_BL->Drc;
+
+            COMBO_SL->Drc =  qFabs(TotalSoillossMap->Drc)*factor < 1e-3 ? 0.0 : TotalSoillossMap->Drc;
+
         }}
     }
 

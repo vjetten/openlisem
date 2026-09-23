@@ -863,6 +863,7 @@ void TWorld::ReportTimeseriesCSV(void)
 
 }
 //---------------------------------------------------------------------------
+
 /// Land unit statistics: count nr land units in classifiedfile
 void TWorld::CountLandunits(void)
 {
@@ -891,6 +892,10 @@ void TWorld::CountLandunits(void)
         classToRecEros[cl] = j++;
     }
 
+    std::sort(erosUnits.begin(), erosUnits.end(),
+              [](const UNIT_LIST& a, const UNIT_LIST& b) {
+                  return a.nr < b.nr;
+              });
     landUnitNr = erosUnits.size();
 }
 //---------------------------------------------------------------------------
@@ -906,54 +911,73 @@ void TWorld::ReportErosionLandunits(void)
         erosUnits[i].var2 = 0;
         erosUnits[i].var3 = 0;
         erosUnits[i].var4 = 0;
-        erosUnits[i].var5 = 0;
+        //erosUnits[i].var5 = 0;
         //erosUnits[i].var6 = 0; // do not reset
     }
 
-    // sum variables per land unit
+    // spatial sum of variables per land unit, variables are cumulative in time, over the run
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         long cl = static_cast<long>(LandUnit->Drc);
         int rec = classToRecEros[cl];
-        erosUnits[rec].var0 += CellArea->Drc;
-        if (qAbs(TotalSoillossMap->Drc) > 1e-7) {
-            erosUnits[rec].var1 += CellArea->Drc;
-            erosUnits[rec].var2 += TotalSoillossMap->Drc;
-            erosUnits[rec].var3 += DETSplashCum->Drc;
-            erosUnits[rec].var4 += DETFlowCum->Drc;
-            erosUnits[rec].var5 += DEPCum->Drc;
-        }
+        erosUnits[rec].var0 += CellArea->Drc/10000.0;
+        erosUnits[rec].var1 += TotalSoillossMap->Drc;
+        erosUnits[rec].var2 += DETSplashCum->Drc;
+        erosUnits[rec].var3 += DETFlowCum->Drc;
+        erosUnits[rec].var4 += DEPCum->Drc;
     }}
 
     //Fill(*tmshow, 0);
      // sum all sed flux over an edge for the landunit and in time
+    #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-      //  if (qAbs(TotalSoillossMap->Drc) > 1e-7) {
-            long lu0 = static_cast<long>(LandUnit->Drc);
-            bool bc1 = c > 0 && !MV(r,c-1)        ;
-            bool bc2 = c < _nrCols-1 && !MV(r,c+1);
-            bool br1 = r > 0 && !MV(r-1,c)        ;
-            bool br2 = r < _nrRows-1 && !MV(r+1,c);
-            long luc1 = bc1 ? static_cast<long>(LandUnit->data[r][c-1]) : lu0;
-            long luc2 = bc2 ? static_cast<long>(LandUnit->data[r][c+1]) : lu0;
-            long lur1 = br1 ? static_cast<long>(LandUnit->data[r-1][c]) : lu0;
-            long lur2 = br2 ? static_cast<long>(LandUnit->data[r+1][c]) : lu0;
-            bool sed = false;
-            // flag cell if an outgoing flux at a change of landunit in any direction
-            if (lu0 != luc1 && Uflood->Drc < 0)
-                sed = true;
-            if (lu0 != luc2 && Uflood->Drc > 0)
-                sed = true;
-            if (lu0 != lur1 && Vflood->Drc < 0)
-                sed = true;
-            if (lu0 != lur2 && Vflood->Drc > 0)
-                sed = true;
-            if (sed) {
-    //            tmshow->Drc = TotalConc->Drc*Qn->Drc;
-              int rec = classToRecEros[lu0];
-              erosUnits[rec].var6 += TotalConc->Drc*Qn->Drc;
-            }
-    //    }
+        long lu0 = static_cast<long>(LandUnit->Drc);
+        bool bc1 = c > 0 && !MV(r,c-1)        ;
+        bool bc2 = c < _nrCols-1 && !MV(r,c+1);
+        bool br1 = r > 0 && !MV(r-1,c)        ;
+        bool br2 = r < _nrRows-1 && !MV(r+1,c);
+        long luc1 = bc1 ? static_cast<long>(LandUnit->data[r][c-1]) : lu0;
+        long luc2 = bc2 ? static_cast<long>(LandUnit->data[r][c+1]) : lu0;
+        long lur1 = br1 ? static_cast<long>(LandUnit->data[r-1][c]) : lu0;
+        long lur2 = br2 ? static_cast<long>(LandUnit->data[r+1][c]) : lu0;
+
+        double vout = 0;
+        // flag cell if an outgoing flux at a change of landunit in any direction
+        if (lu0 != luc1 && Uflood->Drc < 0)
+            vout += qFabs(Uflood->Drc);
+            //sed = true;
+        if (lu0 != luc2 && Uflood->Drc > 0)
+            vout += qFabs(Uflood->Drc);
+            //sed = true;
+        if (lu0 != lur1 && Vflood->Drc < 0)
+            vout += qFabs(Vflood->Drc);
+            //sed = true;
+        if (lu0 != lur2 && Vflood->Drc > 0)
+            vout += qFabs(Vflood->Drc);
+            //sed = true;
+        if (vout > 0) {
+            int rec = classToRecEros[lu0];
+            erosUnits[rec].var5 += vout*_dt*(_dx*WHrunoff->Drc)*TotalConc->Drc; //kg/m3*m3/s but cumulative in time so m3
+        }
+
+        double vin = 0;
+        // flag cell if an outgoing flux at a change of landunit in any direction
+        if (lu0 != luc1 && Uflood->Drc > 0)
+            vin += qFabs(Uflood->Drc);
+            //sed = true;
+        if (lu0 != luc2 && Uflood->Drc < 0)
+            vin += qFabs(Uflood->Drc);
+            //sed = true;
+        if (lu0 != lur1 && Vflood->Drc > 0)
+            vin += qFabs(Vflood->Drc);
+            //sed = true;
+        if (lu0 != lur2 && Vflood->Drc < 0)
+            vin += qFabs(Vflood->Drc);
+            //sed = true;
+        if (vin > 0) {
+            int rec = classToRecEros[lu0];
+            erosUnits[rec].var6 += vin*_dt*(_dx*WHrunoff->Drc)*TotalConc->Drc; //kg/m3*m3/s but cumulative in time so m3
+        }
     }}
 
     QString name;
@@ -967,8 +991,8 @@ void TWorld::ReportErosionLandunits(void)
     out.setRealNumberPrecision(3);
     out.setRealNumberNotation(QTextStream::FixedNotation);
 
-    out << "Landunit,Total area,Erosion area,Erosion,Splash,Flow,Dep,Flux out\n";
-    out << "#,m2,m2,kg/m2,kg/m2,kg/m2,kg/m2,kg/m3\n";
+    out << "Landunit,area,Erosion,Splash,Flow,Dep,Flux out,Flux in\n";
+    out << "#,ha,kg,kg,kg,kg,kg,kg\n";
     for (long i = 0; i < landUnitNr; i++)
     out << erosUnits[i].nr << ","
         << erosUnits[i].var0 << ","

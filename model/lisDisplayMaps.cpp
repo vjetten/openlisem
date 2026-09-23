@@ -237,18 +237,62 @@ void TWorld::setLegendColors()
     Legend<<Colors; //6
     LegendMap << Colormap;
 
+    // Colormap.clear();
+    // Colormap.append(0.0);
+    // Colormap.append(0.3);
+    // Colormap.append(0.5);
+    // Colormap.append(0.70);
+    // Colormap.append(1.0);
+    // Colors.clear();
+    // Colors.append("#616ca2");
+    // Colors.append("#50B547");
+    // Colors.append("#FFFFFF");
+    // Colors.append("#ffff88");
+    // Colors.append("#FF0000");
+    // Colormap.clear();
+    // Colormap.append(0.0);
+    // Colormap.append(0.1);
+    // Colormap.append(0.2);
+    // Colormap.append(0.3);
+    // Colormap.append(0.4);
+    // Colormap.append(0.5);
+    // Colormap.append(0.6);
+    // Colormap.append(0.7);
+    // Colormap.append(0.8);
+    // Colormap.append(0.9);
+    // Colormap.append(1.0);
+    // Colors.clear();
+    // Colors.append("#E6E6E6");
+    // Colors.append("#C9E1E3");
+    // Colors.append("#9FCACF");
+    // Colors.append("#6FAFB9");
+    // Colors.append("#398C9D");
+    // Colors.append("#006F83");
+    // Colors.append("#C9A08A");
+    // Colors.append("#E58A62");
+    // Colors.append("#D85A3D");
+    // Colors.append("#A92D25");
+    // Colors.append("#8B0000");
     Colormap.clear();
-    Colormap.append(0.0);
-    Colormap.append(0.3);
-    Colormap.append(0.5);
-    Colormap.append(0.70);
-    Colormap.append(1.0);
+    Colormap.append(0.000);
+    Colormap.append(0.125);
+    Colormap.append(0.250);
+    Colormap.append(0.375);
+    Colormap.append(0.500);
+    Colormap.append(0.625);
+    Colormap.append(0.750);
+    Colormap.append(0.875);
+    Colormap.append(1.000);
     Colors.clear();
-    Colors.append("#616ca2");
-    Colors.append("#50B547");
-    Colors.append("#FFFFFF");
-    Colors.append("#ffff88");
-    Colors.append("#FF0000");
+    Colors.append("#2166AC");
+    Colors.append("#4393C3");
+    Colors.append("#92C5DE");
+    Colors.append("#D1E5F0");
+    Colors.append("#F0F0F0");
+    Colors.append("#FDDBC7");
+    Colors.append("#F4A582");
+    Colors.append("#D6604D");
+    Colors.append("#B2182B");
 
     Legend<<Colors; //7
     LegendMap << Colormap;
@@ -429,7 +473,7 @@ void TWorld::GetComboMaps()
             unit = "t/ha";
         }
 
-        AddComboMap(1,"Total Soil Loss",unit,TotalSoillossMap,LegendMap[cl],Legend[cl],false,true,factor, step);
+        AddComboMap(1,"Total Soil Loss",unit,COMBO_SL,LegendMap[cl],Legend[cl],false,true,factor, step);
       //  AddComboMap(1,"frac dep","-",tmshow,LegendMap[cl],Legend[cl],false,false,1.0, step);
         cl = 8;
         AddComboMap(1,"Splash detachment",unit,DETSplashCum,LegendMap[cl],Legend[cl],false,false,factor, step);

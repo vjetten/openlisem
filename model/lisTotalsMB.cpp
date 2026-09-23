@@ -494,10 +494,18 @@ void TWorld::TotalsSediment(void)
 
         // with all det and dep calculate the soil loss, excl channel
         // kg/cell
+        // double factor = 1.0;
+        // if(ErosionUnits == 2)
+        // {
+        //     factor = 1.0/(_dx*_dx);
+        // }else if (ErosionUnits == 0)
+        // {
+        //     factor = 10.0/(_dx*_dx);
+        // }
         #pragma omp parallel for num_threads(userCores)
         FOR_ROW_COL_MV_L {
             TotalSoillossMap->Drc = DETSplashCum->Drc + DETFlowCum->Drc + DEPCum->Drc;
-            TotalSoillossMap->Drc = fabs(TotalSoillossMap->Drc) < 1e-4 ? 0.0 : TotalSoillossMap->Drc;
+            //TotalSoillossMap->Drc = qFabs(TotalSoillossMap->Drc)*factor < 1e-3 ? 0.0 : TotalSoillossMap->Drc;
             // 0.001 kg/cellarea = 1/cellarea g/m2
         }}
 
