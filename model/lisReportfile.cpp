@@ -876,8 +876,8 @@ void TWorld::CountLandunits(void)
     // Find unique land use classes
     FOR_ROW_COL_MV_L {
         long cl = static_cast<long>(LandUnit->Drc);
-        if (cl > 0) // ignore 0?
-            classes.insert(cl); // insert makes a unique list
+       // if (cl > 0) // ignore 0?
+        classes.insert(cl); // insert makes a unique list
     }}
 
 
@@ -991,7 +991,7 @@ void TWorld::ReportErosionLandunits(void)
     out.setRealNumberPrecision(3);
     out.setRealNumberNotation(QTextStream::FixedNotation);
 
-    out << "Landunit,area,Erosion,Splash,Flow,Dep,Flux out,Flux in\n";
+    out << "Landunit,Area,Nat Erosion,Splash,Flow,Dep,Flux in,Flux out\n";
     out << "#,ha,kg,kg,kg,kg,kg,kg\n";
     for (long i = 0; i < landUnitNr; i++)
     out << erosUnits[i].nr << ","
@@ -1000,8 +1000,8 @@ void TWorld::ReportErosionLandunits(void)
         << erosUnits[i].var2 << ","
         << erosUnits[i].var3 << ","
         << erosUnits[i].var4 << ","
-        << erosUnits[i].var5 << ","
-        << erosUnits[i].var6 << "\n";
+        << erosUnits[i].var6 << ","
+        << erosUnits[i].var5 << "\n";
 
     fout.close();
 
