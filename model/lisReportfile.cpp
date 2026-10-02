@@ -991,7 +991,7 @@ void TWorld::ReportErosionLandunits(void)
     out.setRealNumberPrecision(3);
     out.setRealNumberNotation(QTextStream::FixedNotation);
 
-    out << "Landunit,Area,Nat Erosion,Splash,Flow,Dep,Flux in,Flux out\n";
+    out << "Landunit,Area,Net Erosion,Splash,Flow,Dep,Flux in,Flux out\n";
     out << "#,ha,kg,kg,kg,kg,kg,kg\n";
     for (long i = 0; i < landUnitNr; i++)
     out << erosUnits[i].nr << ","
