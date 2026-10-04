@@ -271,7 +271,8 @@ void TWorld::ChannelFlow(void)
             for(int j = 0; j < crlinkedlddch_.at(i_).nr; j++) {
                 int rr = crlinkedlddch_.at(i_).inn[j].r;
                 int cr = crlinkedlddch_.at(i_).inn[j].c;
-                Qin += ChannelQn->Drcr;
+                //Qin += ChannelQn->Drcr;
+                Qin += ChannelQ->Drcr; // Qt
             }
 
             // if total inflow causes vol > max volume, adjust inflow incoming Qn
@@ -303,7 +304,7 @@ void TWorld::ChannelFlow(void)
 
         }
         if (ChannelCulvert->Drc == 0 || ChannelCulvert->Drc == 5) //!SwitchCulverts) //
-            ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, beta, _dt, DX->Drc, 0,0);
+            ChannelQn->Drc = IterateToQnewV(Qin, ChannelQ->Drc, ChannelAlpha->Drc, beta, _dt, DX->Drc,ChannelWaterVol->Drc, 0,0);
         else
             ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, beta, _dt, DX->Drc, tma->Drc, tmb->Drc);
         ChannelQn->Drc = qMin(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
@@ -346,9 +347,9 @@ void TWorld::ChannelFlow(void)
         ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(QinKW->Drc - ChannelQn->Drc);
         ChannelWaterVol->Drc = qMax(0.0, ChannelWaterVol->Drc);
 
-        if(ChannelWaterVol->Drc == 0 && ChannelQn->Drc > 0) {
-            ChannelWaterVol->Drc = ChannelDX->Drc * ChannelAlpha->Drc*qPow(ChannelQn->Drc, BETArect);
-        }
+        // if(ChannelWaterVol->Drc == 0 && ChannelQn->Drc > 0) {
+        //     ChannelWaterVol->Drc = ChannelDX->Drc * ChannelAlpha->Drc*qPow(ChannelQn->Drc, BETArect);
+        // }
 
         // calc  channel WH and perimeter
         switch (crch_[i_].shape) {

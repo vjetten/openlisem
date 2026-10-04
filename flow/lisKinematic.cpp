@@ -142,6 +142,89 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
  * @return new water discharge
  *
  */
+
+double TWorld::IterateToQnewV(
+    double Qin,
+    double Qold,
+    double alpha,
+    double beta,
+    double deltaT,
+    double deltaX,
+    double Vol,
+    double Qm,
+    double Am)
+{
+    double deltaTX;
+    double C;
+    double Qkx;
+    double fQkx;
+    double dfQkx;
+
+    const double _epsilon = 1e-12;
+
+    if (Qin <= 0.0 && Vol <= 0.0)
+        return 0.0;
+
+    deltaTX = deltaT / deltaX;
+
+    // Actual old cross-sectional storage area.
+    // V = A * DX
+    double Aold = Vol / deltaX;
+
+    // ---------------------------------------------------------
+    // Conservation equation:
+    //
+    // dt/dx * Qnew + alpha * Qnew^beta
+    //
+    // =
+    //
+    // dt/dx * Qin + Aold
+    // ---------------------------------------------------------
+
+    C = deltaTX * Qin + Aold;
+
+    // Initial guess.
+    Qkx = qMax(Qold, 1e-30);
+
+    int count = 0;
+
+    do
+    {
+        fQkx =
+            deltaTX * Qkx
+            + alpha * pow(Qkx, beta)
+            - C;
+
+        dfQkx =
+            deltaTX
+            + alpha * beta * pow(Qkx, beta - 1.0);
+
+        Qkx -= fQkx / dfQkx;
+
+        Qkx = qMax(Qkx, 1e-30);
+
+        // Optional culvert/pipe limitation
+        if (Qm > 0.0)
+        {
+            Qkx = qMin(Qkx, Qm);
+
+            if (Qkx == Qm)
+            {
+                alpha = Am;
+                count = MAX_ITERS;
+            }
+        }
+
+        count++;
+
+    } while (fabs(fQkx) > _epsilon &&
+             count < MAX_ITERS);
+
+    return qMax(0.0, Qkx);
+}
+
+
+
 double TWorld::IterateToQnew(double Qin, double Qold, double alpha, double beta, double deltaT, double deltaX, double Qm, double Am)
 {
     double  ab_pQ, deltaTX, C;  //auxillary vars
