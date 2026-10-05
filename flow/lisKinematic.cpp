@@ -186,7 +186,7 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha, double beta,
         count++;
     } while(fabs(fQkx) > _epsilon && count < MAX_ITERS);
     // stop when mass balance function ~0
-   // itercount = count; // not used
+    itercount = count; // not used
 
     return qMax(0.0, Qkx);
 }

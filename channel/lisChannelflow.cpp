@@ -271,7 +271,8 @@ void TWorld::ChannelFlow(void)
             for(int j = 0; j < crlinkedlddch_.at(i_).nr; j++) {
                 int rr = crlinkedlddch_.at(i_).inn[j].r;
                 int cr = crlinkedlddch_.at(i_).inn[j].c;
-                Qin += ChannelQn->Drcr;
+                //Qin += 0.5*(ChannelQn->Drcr+ChannelQ->Drcr);
+                Qin += ChannelQ->Drcr;
             }
 
             // if total inflow causes vol > max volume, adjust inflow incoming Qn
@@ -308,6 +309,11 @@ void TWorld::ChannelFlow(void)
             ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, beta, _dt, DX->Drc, tma->Drc, tmb->Drc);
         ChannelQn->Drc = qMin(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
         // no more outflow than there is water
+qDebug() << itercount;
+        ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(QinKW->Drc - ChannelQn->Drc);
+        ChannelWaterVol->Drc = qMax(0.0, ChannelWaterVol->Drc);
+        ChannelPerimeter->Drc = ChannelWaterVol->Drc/ChannelDX->Drc;
+        ChannelAlpha->Drc = pow(ChannelN->Drc/qSqrt(ChannelGrad->Drc) * pow(ChannelPerimeter->Drc, 2.0/3.0),beta);
 
         // check if there is a culvert downstream and limit outflow if necessary
         int ldd = fabs(crlinkedlddch_.at(i_).ldd);
@@ -343,12 +349,13 @@ void TWorld::ChannelFlow(void)
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
 
-        ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(QinKW->Drc - ChannelQn->Drc);
-        ChannelWaterVol->Drc = qMax(0.0, ChannelWaterVol->Drc);
+//        ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(QinKW->Drc - ChannelQn->Drc);
+//        ChannelWaterVol->Drc = qMax(0.0, ChannelWaterVol->Drc);
 
-        if(ChannelWaterVol->Drc == 0 && ChannelQn->Drc > 0) {
-            ChannelWaterVol->Drc = ChannelDX->Drc * ChannelAlpha->Drc*qPow(ChannelQn->Drc, BETArect);
-        }
+      //  if(ChannelWaterVol->Drc == 0 && ChannelQn->Drc > 0) {
+      //      ChannelWaterVol->Drc = ChannelDX->Drc * ChannelAlpha->Drc*qPow(ChannelQn->Drc, BETArect);
+     //   }
+      //      ChannelWaterVol->Drc = qMax(0.0, ChannelWaterVol->Drc);
 
         // calc  channel WH and perimeter
         switch (crch_[i_].shape) {
