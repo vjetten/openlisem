@@ -182,6 +182,8 @@ void TWorld::InitParameters(void)
         SwatrePrecision = getvaluedouble("SWATRE precision");
         SwitchDfDpExponential = getvalueint("Deposition exponential") == 1;
         SwitchDepositionContinuous = getvalueint("Deposition continuous") == 1;
+        channelRoutingFraction = 1.0;
+        channelTortuosity = 1.0;
     } else {
         F_MaxIter = 200;
         F_maxMUSCL = 3;
@@ -201,8 +203,10 @@ void TWorld::InitParameters(void)
         nN3_ = 6;
         SoilWBdtfactor = 2;
 
-        SwatrePrecision = 6;
+        SwatrePrecision = 12;
         //SwitchGWChangeSD = true;
+        channelRoutingFraction = 1.0;
+        channelTortuosity = 1.0;
     }
 
     rillfactor = 1.0;

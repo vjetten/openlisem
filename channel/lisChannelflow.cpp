@@ -69,8 +69,9 @@ void TWorld:: ChannelFlowandErosion()
 //---------------------------------------------------------------------------
 void TWorld::ChannelVelocityandDischarge()
 {
-  //  int dy[10] = {0,1,1,1,0,0,0,-1,-1,-1};
-  //  int dx[10] = {0,-1,0,1,-1,0,1,-1,0,1};
+   // IMPORTANT: the channelperimeter now includes a routingfraction between 0.1 and 1.0 (1.0 = no delay)
+   // so perimeter cannot be used for massbalance, ONLY for velocity and discharge and alpha
+
     // velocity, alpha, Q
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
@@ -87,11 +88,12 @@ void TWorld::ChannelVelocityandDischarge()
             case SHAPETRAP : beta = BETAtrap; chanHandPTrap(r,c); break;
             case SHAPETRIA : beta = BETAtria; chanHandPTria(r,c); break;
         }
-        double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
+
+        double Area = ChannelWaterVol->Drc/ChannelDX->Drc * channelRoutingFraction;
         double Radius = (ChannelPerimeter->Drc > 1e-6 ? Area/ChannelPerimeter->Drc : 0);
         ChannelV->Drc = qMin(_CHMaxV,std::pow(Radius, 2.0/3.0)*qSqrt(ChannelGrad->Drc)/ChannelN->Drc);
         ChannelQ->Drc = ChannelV->Drc * Area;
-        ChannelAlpha->Drc = pow(ChannelN->Drc/qSqrt(ChannelGrad->Drc) * pow(ChannelPerimeter->Drc, 2.0/3.0),beta);  // no difference
+        ChannelAlpha->Drc = pow(ChannelN->Drc/qSqrt(ChannelGrad->Drc) * pow(ChannelPerimeter->Drc, 2.0/3.0),beta);
 
     }}
 }
@@ -271,8 +273,7 @@ void TWorld::ChannelFlow(void)
             for(int j = 0; j < crlinkedlddch_.at(i_).nr; j++) {
                 int rr = crlinkedlddch_.at(i_).inn[j].r;
                 int cr = crlinkedlddch_.at(i_).inn[j].c;
-                //Qin += ChannelQn->Drcr;
-                Qin += ChannelQ->Drcr; // Qt
+                Qin += ChannelQn->Drcr;
             }
 
             // if total inflow causes vol > max volume, adjust inflow incoming Qn
@@ -286,7 +287,8 @@ void TWorld::ChannelFlow(void)
                 for(int j = 0; j < crlinkedlddch_.at(i_).nr; j++) {
                     int rr = crlinkedlddch_.at(i_).inn[j].r;
                     int cr = crlinkedlddch_.at(i_).inn[j].c;
-                    ChannelQn->Drcr = maxq * ChannelQn->Drcr/Qin;
+                    //ChannelQn->Drcr = maxq * ChannelQn->Drcr/Qin;
+                    ChannelQ->Drcr = maxq * ChannelQn->Drcr/Qin;
                     // incoming Qn is a fraction of maxq
                 }
                 Qin = maxq;
@@ -303,15 +305,15 @@ void TWorld::ChannelFlow(void)
             case SHAPETRIA : beta = BETAtria; break;
 
         }
+        int ldd = fabs(crlinkedlddch_.at(i_).ldd);
         if (ChannelCulvert->Drc == 0 || ChannelCulvert->Drc == 5) //!SwitchCulverts) //
-            ChannelQn->Drc = IterateToQnewV(Qin, ChannelQ->Drc, ChannelAlpha->Drc, beta, _dt, DX->Drc,ChannelWaterVol->Drc, 0,0);
+            ChannelQn->Drc = IterateToQnew(ldd, channelTortuosity, Qin, ChannelQ->Drc, ChannelAlpha->Drc, beta, _dt, DX->Drc, 0,0);
         else
-            ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, beta, _dt, DX->Drc, tma->Drc, tmb->Drc);
+            ChannelQn->Drc = IterateToQnew(ldd, 1.0, Qin, ChannelQ->Drc, ChannelAlpha->Drc, beta, _dt, DX->Drc, tma->Drc, tmb->Drc);
         ChannelQn->Drc = qMin(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
         // no more outflow than there is water
 
         // check if there is a culvert downstream and limit outflow if necessary
-        int ldd = fabs(crlinkedlddch_.at(i_).ldd);
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
         if (!pcr::isMV(LDDChannel->Drcr) && ChannelCulvert->Drcr > 0 && ChannelCulvert->Drcr < 5) {
@@ -347,6 +349,7 @@ void TWorld::ChannelFlow(void)
         ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(QinKW->Drc - ChannelQn->Drc);
         ChannelWaterVol->Drc = qMax(0.0, ChannelWaterVol->Drc);
 
+        // ???? kan niet voorkomen
         // if(ChannelWaterVol->Drc == 0 && ChannelQn->Drc > 0) {
         //     ChannelWaterVol->Drc = ChannelDX->Drc * ChannelAlpha->Drc*qPow(ChannelQn->Drc, BETArect);
         // }

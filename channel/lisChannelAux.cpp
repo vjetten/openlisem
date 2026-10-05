@@ -80,7 +80,7 @@ void TWorld::chanHandPTrap(int r, int c)//, double Area)
         double dh = (ChannelWaterVol->Drc-ChannelMaxArea->Drc*ChannelDX->Drc)/(ChannelWidth->Drc*DX->Drc);
         ChannelWH->Drc = ChannelDepth->Drc + dh;//(Area-ChannelMaxArea->Drc)/ChannelWidth->Drc;
     }
-    ChannelPerimeter->Drc = ChannelWidthB->Drc+2*ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+    ChannelPerimeter->Drc = ChannelWidthB->Drc + 2 * channelRoutingFraction * ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
 }
 //---------------------------------------------------------------------------
 void TWorld::chanHandPTria(int r, int c)//, double Area)
@@ -93,10 +93,10 @@ void TWorld::chanHandPTria(int r, int c)//, double Area)
     double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
     if (Area < ChannelMaxArea->Drc) {
         ChannelWH->Drc = std::sqrt(Area/ChannelSide->Drc);
-        ChannelPerimeter->Drc = 2*ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+        ChannelPerimeter->Drc = 2*channelRoutingFraction*ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
     } else {
         ChannelWH->Drc = ChannelDepth->Drc + (Area-ChannelMaxArea->Drc)/ChannelWidth->Drc;
-        ChannelPerimeter->Drc = 2*ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+        ChannelPerimeter->Drc = 2 * channelRoutingFraction * ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
     }
 }
 //---------------------------------------------------------------------------
@@ -104,6 +104,6 @@ void TWorld::chanHandPRect(int r, int c)//, double Area)
 {
     double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
     ChannelWH->Drc = Area/ChannelWidth->Drc;
-    ChannelPerimeter->Drc = ChannelWidth->Drc+2*ChannelWH->Drc;
+    ChannelPerimeter->Drc = ChannelWidth->Drc+2*ChannelWH->Drc*channelRoutingFraction;
 }
 
