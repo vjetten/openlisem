@@ -46,10 +46,10 @@ void TWorld:: ChannelFlowandErosion()
     ChannelRainandInfil();          // subtract infil, add rainfall
     ChannelBaseflow();              // add stationary and GW baseflow if selected
 
-    // looping a smaller dt doesn't work or doesn't make difference
-    // _dt_user = _dt;
-    // for (double t = 0; t < _dt_user; t+=_dt)
-    // {
+    _dt_user = _dt;
+    _dt = _dt_user/2.0;
+    for (double t = 0; t <= _dt_user; t+=_dt)
+    {
 
         ChannelVelocityandDischarge();  // mannings V Q Aplha
 
@@ -58,12 +58,14 @@ void TWorld:: ChannelFlowandErosion()
         else
             ChannelFlowDetachment();     // detachment, deposition for SS and BL
 
+        // looping a smaller dt doesn't work or doesn't make difference
         ChannelFlow();                  // kin wave for water
+        // restore _dt
+        }
+        _dt = _dt_user;
 
         ChannelSedimentFlow();          // kin wave for sediment and substances
 
-        // restore _dt
-    // _dt = _dt_user;
 
 }
 //---------------------------------------------------------------------------
@@ -73,18 +75,7 @@ void TWorld::ChannelVelocityandDischarge()
    // so perimeter cannot be used for massbalance, ONLY for velocity and discharge and alpha
 //Fill(*tmshow, 0);
     channelRoutingFraction = channelAttenuation;
-// double havg = 0;
-// double count = 0;
-// FOR_ROW_COL_MV_CHL {
-//     havg += ChannelWH->Drc;
-//     count+= 1.0;
-// }}
-// havg = havg / count;
 
-//     channelRoutingFraction = qBound(1.0, exp(-qPow((havg-0.1)/0.7,2.0)),channelAttenuation);
-//     // if (havg < 0.1)
-//     //     channelRoutingFraction = 1.0;
-//     qDebug() << channelRoutingFraction << havg;
     // velocity, alpha, Q
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
@@ -111,9 +102,6 @@ void TWorld::ChannelVelocityandDischarge()
         ChannelV->Drc = qMin(_CHMaxV,std::pow(Radius, 2.0/3.0)*qSqrt(ChannelGrad->Drc)/ChannelN->Drc);
         ChannelQ->Drc = ChannelV->Drc * Area;
         ChannelAlpha->Drc = pow(ChannelN->Drc/qSqrt(ChannelGrad->Drc) * pow(ChannelPerimeter->Drc, 2.0/3.0),beta);
-
-
-
 
     }}
 }
@@ -329,6 +317,12 @@ void TWorld::ChannelFlow(void)
             ChannelQn->Drc = IterateToQnew(ldd, Qin, ChannelQ->Drc, ChannelAlpha->Drc, beta, _dt, DX->Drc, 0,0);
         else
             ChannelQn->Drc = IterateToQnew(ldd, Qin, ChannelQ->Drc, ChannelAlpha->Drc, beta, _dt, DX->Drc, tma->Drc, tmb->Drc);
+
+        // h based iteration, seems te almost the same
+        //ChannelQn->Drc = IterateToHnew(Qin, ChannelQ->Drc, ChannelWH->Drc,
+        //                   ChannelWidthO->Drc, ChannelN->Drc, ChannelGrad->Drc ,ChannelWaterVol->Drc, ChannelDX->Drc);
+
+        tmshow->Drc = itercount;
 
         // no more outflow than there is water
         ChannelQn->Drc = qMin(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);

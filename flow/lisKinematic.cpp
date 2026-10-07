@@ -57,36 +57,47 @@ functions: \n
 
 
 //---------------------------------------------------------------------------
-double TWorld::IterateToHnew(double Qin, double  Qout, double Hold, double FW, double N, double grad, double Am)
+double TWorld::IterateToHnew(double Qin, double  Qout, double Hold, double FW, double N, double grad, double Vol, double dx)
 {
-
-    double h = Hold;  // first guess new h , 1m?
-    double h1 = h;
+    double h = Hold;
+    double Am = Vol/dx;
     double sqrtN = qSqrt(grad)/N;
-    double A = 0;
+    int i;
+    int itercount = 0;
+    for (i = 0; i < MAX_ITERS; ++i)
+    {
+        double A = FW * h;
+        double P = FW + 2.0 * h;
+if (h < 1e-12)
+    return(0);
+        double Q = sqrtN * A * pow(A / P, 2.0 / 3.0);
 
-    // newton rapson iteration
-    if (Qin > 0) {
-        double F, dF;
-        int count = 0;
-        double hr;
-        do{
-            h = h1/channelRoutingFraction;
-            if (h < 1e-10)
-                break;
-            hr = h * channelRoutingFraction;
-            double P = FW + 2.0*hr;
-            A = FW*hr;
-            F = qMax(0.0, 1.0 - (Qin-Qout)/(sqrtN*pow(A/P,5.0/3.0))); // function
-            dF = (5.0*FW+6.0*hr)/(3.0*hr*P); // derivative
-            h1 = hr - F/dF;
-            h1 = qMax(h1, 1e-30);
-            count++;
-        } while(fabs(h1-hr) > 1e-10 && count < MAX_ITERS);
+        double dQdh = Q * (5.0 * FW + 6.0 * h) / (3.0 * h * P);
+
+        double F = Am * (h - Hold)/_dt + Q - Qin;
+
+        double dFdh = Am / _dt + dQdh;
+
+        double hnew = h - F / dFdh;
+
+        hnew = qMax(hnew, 0.0);//1e-12);
+
+        if (fabs(hnew - h) < 1e-12)
+        {
+            h = hnew;
+            break;
+        }
+
+        h = hnew;
     }
+itercount = i;
+    double A = FW * h;
+    double P = FW + 2.0 * h;
 
-    return (h);
+    double Qn = sqrtN * A * pow(A / P, 2.0 / 3.0);
+    return (Qn);
 }
+
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed)
