@@ -312,6 +312,7 @@ cTMap
 //*ChannelQb,                   //!<
 *ChannelQ,                   //!<
 *ChannelQn,                  //!<
+*ChannelLagQ,
 *ChannelQntot,
 *ChannelQs,                  //!<
 *ChannelQsn,                 //!<

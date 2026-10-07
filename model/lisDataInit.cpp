@@ -138,8 +138,6 @@ void TWorld::InitParameters(void)
 
     WaveCalibration = getvaluedouble("Boundary water level calibration");
 
-    //ChnTortuosity = 1.0;
-    ChnTortuosity = getvaluedouble("Channel tortuosity");
     if (ChnCalibration == 0)
     {
         ErrorString = QString("Calibration: the calibration factor for Mannings n for channels cannot be zero.");
@@ -182,9 +180,10 @@ void TWorld::InitParameters(void)
         SwatrePrecision = getvaluedouble("SWATRE precision");
         SwitchDfDpExponential = getvalueint("Deposition exponential") == 1;
         SwitchDepositionContinuous = getvalueint("Deposition continuous") == 1;
-        channelRoutingFraction = 1.0;
-        channelTortuosity = 1.0;
+        channelAttenuation = getvaluedouble("Channel attenuation");; //(0.3-1.0)
+
     } else {
+    //    channelTortuosity = 1.0;  //(0-9)
         F_MaxIter = 200;
         F_maxMUSCL = 3;
         F_minWH = he_ca;
@@ -205,10 +204,9 @@ void TWorld::InitParameters(void)
 
         SwatrePrecision = 12;
         //SwitchGWChangeSD = true;
-        channelRoutingFraction = 1.0;
-        channelTortuosity = 1.0;
+        channelAttenuation = 1.0;
+     //   channelTortuosity = 1.0;
     }
-
     rillfactor = 1.0;
     _CHMaxV = 20.0;
     if (SwitchChannelMaxV)
@@ -969,6 +967,7 @@ void TWorld::InitChannel(void)
     ChannelQ = NewMap(0);
     //ChannelQb = NewMap(0); //baseflow not used
     ChannelQn = NewMap(0);
+    ChannelLagQ = NewMap(0);
     ChannelQntot = NewMap(0);
 
     ChannelQs = NewMap(0);
@@ -2166,13 +2165,11 @@ void TWorld::FindStationaryBaseFlow()
     BaseFlowDischarges = ReadMap(LDD, getvaluename("baseflow"));
     BaseFlowInflow = NewMap(0.0);
     BaseFlowInitialVolume = NewMap(0.0);
-
-    FOR_ROW_COL_MV_CH
-    {
+    channelRoutingFraction = channelAttenuation;
+    FOR_ROW_COL_MV_CH {
         pcr::setMV(tma->Drc);
         pcr::setMV(tmb->Drc);
         tmc->Drc = 0;
-        tmd->Drc = 0;
     }
 
     for (int  ro = 0; ro < _nrRows; ro++){
@@ -2196,8 +2193,8 @@ void TWorld::FindStationaryBaseFlow()
                     list->rowNr = ro;
                     list->colNr = co;
 
-                    while (list != nullptr)
-                    {
+                    // make a list iof a branch from upstream to downstream
+                    while (list != nullptr) {
                         int i = 0;
                         bool  subCachDone = true;
                         int rowNr = list->rowNr;
@@ -2234,14 +2231,12 @@ void TWorld::FindStationaryBaseFlow()
                             }
                         }
 
-                        // all cells above a cell are linked in a "sub-catchment or branch
-                        // continue with water and sed calculations
-                        // rowNr and colNr are the last upstream cell linked
+                        // count the nr cells in this branch
                         if (subCachDone)
                         {
                             int r = rowNr;
                             int c = colNr;
-                            tma->Drc = 0;
+                            tma->Drc = 0; // flag for this branch, set to non-MV
                             ncells ++;
 
                             temp=list;
@@ -2250,10 +2245,9 @@ void TWorld::FindStationaryBaseFlow()
                             // go to the previous cell in the list
 
                         }/* eof subcatchment done */
-                    } /* eowhile list != nullptr */
+                    }
 
-
-                    inflow = baseflow/ ncells;
+                    inflow = baseflow/ncells; // baseflow outlet divided by nr cells above this outlet
 
                     list = nullptr;
                     temp = nullptr;
@@ -2264,6 +2258,7 @@ void TWorld::FindStationaryBaseFlow()
                     list->rowNr = ro;
                     list->colNr = co;
 
+                    // do branch again
                     while (list != nullptr)
                     {
                         int i = 0;
@@ -2302,9 +2297,6 @@ void TWorld::FindStationaryBaseFlow()
                             }
                         }
 
-                        // all cells above a cell are linked in a "sub-catchment or branch
-                        // continue with water and sed calculations
-                        // rowNr and colNr are the last upstreM cell linked
                         if (subCachDone)
                         {
                             int r = list->rowNr;
@@ -2334,49 +2326,46 @@ void TWorld::FindStationaryBaseFlow()
                                         FLOWS_TO(ldd, r,c,rowNr, colNr) &&
                                         !pcr::isMV(LDDChannel->Drc) )
                                 {
-                                    tmc->data[list->rowNr][list->colNr] += tmc->Drc;
-                                    tmd->data[list->rowNr][list->colNr] += tmd->Drc;
+                                    tmc->data[list->rowNr][list->colNr] += tmc->Drc; // counter
+                                 //   tmd->data[list->rowNr][list->colNr] += tmd->Drc;
                                 }
                             }
 
                             r = list->rowNr;
                             c = list->colNr;
 
-                            double q = (tmc->Drc * inflow - tmd->Drc);
+                            double Qin = (tmc->Drc * inflow);// - tmd->Drc); // tmc*inflow is the total of upstream inflow at a point
+                            // tmc is just an accuflux(1) map!!!
 
                             double h, h1;
-                            h = 1;
-                            // first guess new h with old alpha
+                            h = 1;  // first guess new h , 1m?
                             h1 = h;
+                            double sqrtN = qSqrt(ChannelGrad->Drc)/ChannelN->Drc;
                             double A = 0;
-
-                            // newton raphson iteration
-                            if (q > 0)
+                            // newton rapson iteration
+                            if (Qin > 0)
                             {
                                 double F, dF;
                                 int count = 0;
-
+                                double hr;
                                 do{
-                                    h = h1;
+                                    h = h1/channelRoutingFraction;
                                     if (h < 1e-10)
                                         break;
-
-                                    double P,R;
+                                    hr = h * channelRoutingFraction;
                                     double FW = ChannelWidth->Drc;
-                                    P = FW + 2.0*h;
-                                    A = FW*h;
-                                    F = qMax(0.0, 1.0 - q/(qSqrt(ChannelGrad->Drc)/ChannelN->Drc*A*pow(A/P,2.0/3.0)));
-                                    dF = (5.0*FW+6.0*h)/(3.0*h*P);
-                                    h1 = h - F/dF;
-                                    // function divided by derivative
+                                    double P = FW + 2.0*hr;
+                                    A = FW*hr;
+                                    F = qMax(0.0, 1.0 - Qin/(sqrtN*pow(A/P,5.0/3.0))); // function
+                                    dF = (5.0*FW+6.0*hr)/(3.0*hr*P); // derivative
+                                    h1 = hr - F/dF;
+
                                     count++;
-                                }while(fabs(h1-h) > 1e-10 && count < 20);
+                                }while(fabs(h1-hr) > 1e-10 && count < 20);
                             }
 
-                            if (h > ChannelDepth->data[list->rowNr][list->colNr]) {
-                                h = ChannelDepth->data[list->rowNr][list->colNr];
-                                A = ChannelWidth->Drc*h;
-                            }
+                            h = qMin(ChannelDepth->data[list->rowNr][list->colNr], h) ;
+                            A = ChannelWidth->Drc*h;
                             BaseFlowInitialVolume->data[list->rowNr][list->colNr] = A*ChannelDX->Drc;
 
                             temp=list;
@@ -2391,11 +2380,7 @@ void TWorld::FindStationaryBaseFlow()
         }
     }
 
-    #pragma omp parallel for num_threads(userCores)
-    FOR_ROW_COL_MV_CHL {
-        tmc->Drc = 0;
-        tmd->Drc = 0;
-    }}
+    Fill(*tmc, 0);
 }
 //---------------------------------------------------------------------------
 void TWorld::InitImages()

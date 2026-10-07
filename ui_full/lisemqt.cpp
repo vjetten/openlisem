@@ -1054,6 +1054,12 @@ void lisemqt::resetTabChannel()
     E_DischargeInName->setText("");
     checkGWflowexplicit->setChecked(true);
     checkGWflow->setChecked(false);
+    E_ChannelAttenuation->setValue(1.0);
+    GW_recharge->setValue(1.0);
+    GW_flow->setValue(1.0);
+    GW_slope->setValue(1.0);
+    GW_deep->setValue(0.0);
+    GW_threshold->setValue(0.2);
 }
 //--------------------------------------------------------------------
 void lisemqt::resetTabFlow()
@@ -1070,11 +1076,7 @@ void lisemqt::resetTabFlow()
 
     checkMUSCLHeun->setChecked(false);
 
-    GW_recharge->setValue(1.0);
-    GW_flow->setValue(1.0);
-    GW_slope->setValue(1.0);
-    GW_deep->setValue(0.0);
-    GW_threshold->setValue(0.2);
+
 }
 //--------------------------------------------------------------------
 void lisemqt::resetTabErosion()

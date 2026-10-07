@@ -54,6 +54,39 @@ functions: \n
      / | \
     1  2  3
  */
+
+
+//---------------------------------------------------------------------------
+double TWorld::IterateToHnew(double Qin, double  Qout, double Hold, double FW, double N, double grad, double Am)
+{
+
+    double h = Hold;  // first guess new h , 1m?
+    double h1 = h;
+    double sqrtN = qSqrt(grad)/N;
+    double A = 0;
+
+    // newton rapson iteration
+    if (Qin > 0) {
+        double F, dF;
+        int count = 0;
+        double hr;
+        do{
+            h = h1/channelRoutingFraction;
+            if (h < 1e-10)
+                break;
+            hr = h * channelRoutingFraction;
+            double P = FW + 2.0*hr;
+            A = FW*hr;
+            F = qMax(0.0, 1.0 - (Qin-Qout)/(sqrtN*pow(A/P,5.0/3.0))); // function
+            dF = (5.0*FW+6.0*hr)/(3.0*hr*P); // derivative
+            h1 = hr - F/dF;
+            h1 = qMax(h1, 1e-30);
+            count++;
+        } while(fabs(h1-hr) > 1e-10 && count < MAX_ITERS);
+    }
+
+    return (h);
+}
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed)
@@ -143,7 +176,7 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
  *
  */
 
-double TWorld::IterateToQnew(int ldd, double tort, double Qin, double Qold, double alpha, double beta, double deltaT, double deltaX, double Qm, double Am)
+double TWorld::IterateToQnew(int ldd, double Qin, double Qold, double alpha, double beta, double deltaT, double deltaX, double Qm, double Am)
 {
     double  ab_pQ, deltaTX, C;  //auxillary vars
     int   count;
@@ -164,7 +197,7 @@ double TWorld::IterateToQnew(int ldd, double tort, double Qin, double Qold, doub
     double factor = 1.0;
     if (ldd % 2 == 1)
         factor = 1.41421;
-    deltaTX = deltaT/(deltaX*factor*tort);
+    deltaTX = deltaT/(deltaX*factor);
     C = deltaTX*Qin + alpha*pow(Qold,beta);
     //C is unit volume of water, dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
 
@@ -225,7 +258,7 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
         QinKW->Drc = Qin;
 
         int ldd = fabs(_crlinked_.at(i_).ldd); // negative is a culvert
-        _Qn->Drc = IterateToQnew(ldd, 1.0, Qin, _Q->Drc, _Alpha->Drc, BETArect, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
+        _Qn->Drc = IterateToQnew(ldd, Qin, _Q->Drc, _Alpha->Drc, BETArect, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
         if (_Qmax->Drcr > 0)
@@ -401,7 +434,7 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
             itercount = 0;
             int ldd = static_cast <int>(_LDD->data[rowNr][colNr]);
             _Qn->data[rowNr][colNr] =
-                    IterateToQnew(ldd, 1.0, Qin, _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], BETArect, _dt, _DX->data[rowNr][colNr],
+                    IterateToQnew(ldd, Qin, _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], BETArect, _dt, _DX->data[rowNr][colNr],
                                   _Qmax->data[rowNr][colNr], _Amax->data[rowNr][colNr] );
 
             int cr = colNr+dx[ldd];

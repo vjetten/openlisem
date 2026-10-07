@@ -264,6 +264,9 @@ void lisemqt::ParseInputData()
         if (p1.compare("GW deep percolation")==0)            GW_deep->setValue(valc);
         if (p1.compare("GW threshold factor")==0)            GW_threshold->setValue(valc);
 
+        if (p1.compare("Channel attenuation")==0)            E_ChannelAttenuation->setValue(valc);
+
+
         // INFRASTRUCTURE
         if (p1.compare("Include Infrastructure")==0)        checkInfrastructure->setChecked(check);
         if (p1.compare("Include buildings")==0)             checkHouses->setChecked(check);
@@ -415,7 +418,7 @@ void lisemqt::ParseInputData()
         if (p1.compare("Channel Ksat calibration")==0)          E_CalibrateChKsat->setValue(valc);
         if (p1.compare("Boundary water level calibration")==0)  E_CalibrateWave->setValue(valc);
         if (p1.compare("Culvert size calibration")==0)             E_CalibrateCulvert->setValue(valc);
-        if (p1.compare("Channel tortuosity")==0)                E_CalibrateChTor->setValue(valc);
+       // if (p1.compare("Channel tortuosity")==0)                E_CalibrateChTor->setValue(valc);
         if (p1.compare("Aggregate stability calibration")==0)   E_CalibrateAS->setValue(valc);
         if (p1.compare("Cohesion calibration")==0)              E_CalibrateCOH->setValue(valc);
         if (p1.compare("Grain Size calibration D50")==0)        E_CalibrateD50->setValue(valc);
@@ -1007,7 +1010,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel beta constant")==0)          namelist[j].value.setNum((int)checkChannelConstantBeta->isChecked());
         if (p1.compare("Include channel inflow")==0)         namelist[j].value.setNum((int)checkDischargeUser->isChecked());
         if (p1.compare("Include water height inflow")==0)    namelist[j].value.setNum((int)checkWaterUserIn->isChecked());
-
+        if (p1.compare("Channel attenuation")==0)            namelist[j].value = E_ChannelAttenuation->text();
         // groundwater
         if (p1.compare("Include GW flow")==0)                namelist[j].value.setNum((int)checkGWflow->isChecked());
         if (p1.compare("GW flow explicit")==0)               namelist[j].value.setNum((int)checkGWflowexplicit->isChecked());
@@ -1214,7 +1217,7 @@ void lisemqt::updateModelData()
         if (p1.compare("Channel N calibration")==0) namelist[j].value = E_CalibrateChN->text();
         if (p1.compare("Culvert size calibration")==0) namelist[j].value = E_CalibrateCulvert->text();
         if (p1.compare("Boundary water level calibration")==0) namelist[j].value = E_CalibrateWave->text();
-        if (p1.compare("Channel tortuosity")==0) namelist[j].value = E_CalibrateChTor->text();
+      //  if (p1.compare("Channel tortuosity")==0) namelist[j].value = E_CalibrateChTor->text();
         if (p1.compare("Cohesion calibration")==0) namelist[j].value = E_CalibrateCOH->text();
         if (p1.compare("Cohesion Channel calibration")==0) namelist[j].value = E_CalibrateCHCOH->text();
         if (p1.compare("Grain Size calibration D50")==0)   namelist[j].value = E_CalibrateD50->text();
