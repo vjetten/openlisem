@@ -586,6 +586,8 @@ public:
     double splashb; // splash strength coef b limburg equtions,
     double crustingRate;
     double WHextreme;
+    double channelRoutingFraction;
+    double channelAttenuation;
 
     // flow bloundaries
     QList<int> FBid;
@@ -656,7 +658,6 @@ public:
     double ChnCalibration;
     double CulvertCalibration;
     double WaveCalibration;
-    double ChnTortuosity;
     double ChKsatCalibration;
     double COHCalibration;
     double COHCHCalibration;
@@ -1153,7 +1154,9 @@ public:
                                 cTMap *_Alpha, cTMap *_DX, cTMap*_Sed);//,cTMap*_VolStore, cTMap*_SedStore);
     void KinematicSubstance(QVector<LDD_COORIN> _crlinked_, cTMap *_Q, cTMap *_Qn, cTMap *_Qs, cTMap *_Qsn,
                             cTMap *_Alpha,cTMap *_DX, cTMap *_Sed, cTMap *_Qmax);
-    double IterateToQnew(double Qin, double Qold, double alpha, double beta, double deltaT, double deltaX, double Qm, double Am);
+    double IterateToQnew(int ldd, double Qin, double Qold, double alpha, double beta, double deltaT, double deltaX, double Qm, double Am);
+    double IterateToHnew(double Qin, double  Qout, double Hold, double FW, double N, double grad, double Vol, double dx);
+
     double simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double vol, double sed);
     double complexSedCalc(double Qj1i1, double Qj1i, double Qji1, double Sj1i,double Sji1, double alpha, double dx);
     void upstream(QVector <LDD_COORIN>_crlinked_, cTMap *_Q, cTMap *_Qn);

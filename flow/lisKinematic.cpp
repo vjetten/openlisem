@@ -54,6 +54,50 @@ functions: \n
      / | \
     1  2  3
  */
+
+
+//---------------------------------------------------------------------------
+double TWorld::IterateToHnew(double Qin, double  Qout, double Hold, double FW, double N, double grad, double Vol, double dx)
+{
+    double h = Hold;
+    double Am = Vol/dx;
+    double sqrtN = qSqrt(grad)/N;
+    int i;
+    int itercount = 0;
+    for (i = 0; i < MAX_ITERS; ++i)
+    {
+        double A = FW * h;
+        double P = FW + 2.0 * h;
+if (h < 1e-12)
+    return(0);
+        double Q = sqrtN * A * pow(A / P, 2.0 / 3.0);
+
+        double dQdh = Q * (5.0 * FW + 6.0 * h) / (3.0 * h * P);
+
+        double F = Am * (h - Hold)/_dt + Q - Qin;
+
+        double dFdh = Am / _dt + dQdh;
+
+        double hnew = h - F / dFdh;
+
+        hnew = qMax(hnew, 0.0);//1e-12);
+
+        if (fabs(hnew - h) < 1e-12)
+        {
+            h = hnew;
+            break;
+        }
+
+        h = hnew;
+    }
+itercount = i;
+    double A = FW * h;
+    double P = FW + 2.0 * h;
+
+    double Qn = sqrtN * A * pow(A / P, 2.0 / 3.0);
+    return (Qn);
+}
+
 //---------------------------------------------------------------------------
 /**
  * @fn double TWorld::simpleSedCalc(double Qj1i1, double Qj1i, double Sj1i, double dt, double vol, double sed)
@@ -142,12 +186,13 @@ double TWorld::complexSedCalc(double Qj1i1, double Qj1i, double Qji1,double Sj1i
  * @return new water discharge
  *
  */
-double TWorld::IterateToQnew(double Qin, double Qold, double alpha, double beta, double deltaT, double deltaX, double Qm, double Am)
+
+double TWorld::IterateToQnew(int ldd, double Qin, double Qold, double alpha, double beta, double deltaT, double deltaX, double Qm, double Am)
 {
     double  ab_pQ, deltaTX, C;  //auxillary vars
     int   count;
     double Qkx; //iterated discharge, becomes Qnew
-    double fQkx = 1.0; //function
+    double fQkx; //function
     double dfQkx;  //derivative
     const double _epsilon = 1e-12;
 
@@ -160,9 +205,13 @@ double TWorld::IterateToQnew(double Qin, double Qold, double alpha, double beta,
     //common terms
     ab_pQ = alpha*beta*pow(((Qold+Qin)/2.0),beta-1);
     // derivative of diagonal average (space-time)
-    deltaTX = deltaT/deltaX;
-    C = deltaTX*Qin + alpha*pow(Qold,beta);// + deltaT*q;
+    double factor = 1.0;
+    if (ldd % 2 == 1)
+        factor = 1.41421;
+    deltaTX = deltaT/(deltaX*factor);
+    C = deltaTX*Qin + alpha*pow(Qold,beta);
     //C is unit volume of water, dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
+
     Qkx = (deltaTX*Qin + Qold*ab_pQ) / (deltaTX + ab_pQ);
     // explicit first guess Qkx
     Qkx = qMax(Qkx, 1e-30);
@@ -219,8 +268,8 @@ void TWorld::KinematicExplicit(QVector <LDD_COORIN>_crlinked_ , cTMap *_Q, cTMap
         }
         QinKW->Drc = Qin;
 
-        _Qn->Drc = IterateToQnew(Qin, _Q->Drc, _Alpha->Drc, BETArect, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
         int ldd = fabs(_crlinked_.at(i_).ldd); // negative is a culvert
+        _Qn->Drc = IterateToQnew(ldd, Qin, _Q->Drc, _Alpha->Drc, BETArect, _dt, _DX->Drc, _Qmax->Drc, _Amax->Drc);
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
         if (_Qmax->Drcr > 0)
@@ -394,12 +443,11 @@ void TWorld::Kinematic(int pitRowNr, int pitColNr, cTMap *_LDD,cTMap *_Q, cTMap 
             QinKW->data[rowNr][colNr] = Qin;
 
             itercount = 0;
-            //double f = ((int) _LDD->data[rowNr][colNr] % 2 == 1) ? 1.414214 : 1.0;
+            int ldd = static_cast <int>(_LDD->data[rowNr][colNr]);
             _Qn->data[rowNr][colNr] =
-                    IterateToQnew(Qin, _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], BETArect, _dt, _DX->data[rowNr][colNr],
+                    IterateToQnew(ldd, Qin, _Q->data[rowNr][colNr], _Alpha->data[rowNr][colNr], BETArect, _dt, _DX->data[rowNr][colNr],
                                   _Qmax->data[rowNr][colNr], _Amax->data[rowNr][colNr] );
 
-            int ldd = static_cast <int>(_LDD->data[rowNr][colNr]);
             int cr = colNr+dx[ldd];
             int rr = rowNr+dy[ldd];
             if (_Qmax->Drcr > 0)

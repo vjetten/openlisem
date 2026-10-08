@@ -193,7 +193,7 @@ void TWorld::TileFlow(void)
 
         double beta = BETArect;
         if (SwitchDrainCircular) beta = BETAcirc;
-        TileQn->Drc = IterateToQnew(Qin, TileQ->Drc, TileAlpha->Drc, beta, _dt, DX->Drc, TileMaxQ->Drc, TileMaxAlpha->Drc);
+        TileQn->Drc = IterateToQnew(static_cast<int> (qAbs(LDDTile->Drc)), Qin, TileQ->Drc, TileAlpha->Drc, beta, _dt, DX->Drc, TileMaxQ->Drc, TileMaxAlpha->Drc);
         // if LDDTile->Drc == 5 then block flow - done in LisDataInit.cpp
         TileQn->Drc = qMin(Qin+TileWaterVol->Drc/_dt, TileQn->Drc);
         TileQn->Drc = qMin(TileQn->Drc, TileMaxQ->Drc);
