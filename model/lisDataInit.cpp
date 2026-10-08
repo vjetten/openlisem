@@ -2157,6 +2157,9 @@ void TWorld::IntializeOptions(void)
     addedbaseflow = false;
 }
 //---------------------------------------------------------------------------
+// we have the baseflow at the outlet in m3/s,
+// calculate the baseflow in every cell in m3/s,
+// convert to a volume to add to Channelvolume at the start of channel flow each dt
 void TWorld::FindStationaryBaseFlow()
 {
     int dx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
@@ -2167,22 +2170,21 @@ void TWorld::FindStationaryBaseFlow()
     BaseFlowInitialVolume = NewMap(0.0);
     channelRoutingFraction = channelAttenuation;
     FOR_ROW_COL_MV_CH {
-        pcr::setMV(tma->Drc);
-        pcr::setMV(tmb->Drc);
-        tmc->Drc = 0;
+        tma->Drc = 0; // flag //pcr::setMV(tma->Drc);
+        tmc->Drc = 0; // counter
     }
 
     for (int  ro = 0; ro < _nrRows; ro++){
         for (int  co = 0; co < _nrCols; co++){
             if(!pcr::isMV(LDDChannel->data[ro][co]))
             {
+                // for each outlet:
                 if(LDDChannel->data[ro][co] == 5)
                 {
 
                     int ncells = 0;
                     double inflow = 0;
-                    double baseflow = BaseFlowDischarges->data[ro][co];
-                    // in m3/s
+                    double baseflow = BaseFlowDischarges->data[ro][co];                     // in m3/s
                     if (BaseFlowDischarges->data[ro][co] == 0)
                         break;
 
@@ -2193,15 +2195,14 @@ void TWorld::FindStationaryBaseFlow()
                     list->rowNr = ro;
                     list->colNr = co;
 
-                    // make a list iof a branch from upstream to downstream
+                    // all cells above a pit
                     while (list != nullptr) {
                         int i = 0;
                         bool  subCachDone = true;
                         int rowNr = list->rowNr;
                         int colNr = list->colNr;
 
-                        for (i=1; i<=9; i++)
-                        {
+                        for (i=1; i<=9; i++) {
                             int r, c;
                             int ldd = 0;
 
@@ -2216,9 +2217,8 @@ void TWorld::FindStationaryBaseFlow()
                                 ldd = static_cast <int>(LDDChannel->Drc);
                             else
                                 continue;
-
-                            // check if there are more cells upstream, if not subCatchDone remains true
-                            if (pcr::isMV(tma->Drc) &&
+                            //pcr::isMV(tma->Drc)
+                            if (tma->Drc == 0 &&
                                     FLOWS_TO(ldd, r, c, rowNr, colNr) &&
                                     INSIDE(r, c))
                             {
@@ -2232,33 +2232,31 @@ void TWorld::FindStationaryBaseFlow()
                         }
 
                         // count the nr cells in this branch
-                        if (subCachDone)
-                        {
+                        if (subCachDone) {
                             int r = rowNr;
                             int c = colNr;
-                            tma->Drc = 0; // flag for this branch, set to non-MV
+                            tma->Drc = 1; // flag for this branch, set to non-MV
                             ncells ++;
 
                             temp=list;
                             list=list->prev;
                             free(temp);
-                            // go to the previous cell in the list
-
-                        }/* eof subcatchment done */
+                        }
                     }
 
                     inflow = baseflow/ncells; // baseflow outlet divided by nr cells above this outlet
 
+                    // reset list and temp
                     list = nullptr;
                     temp = nullptr;
                     list = (LDD_LINKEDLIST *)malloc(sizeof(LDD_LINKEDLIST));
-
                     list->prev = nullptr;
                     // start gridcell: outflow point of area
                     list->rowNr = ro;
                     list->colNr = co;
+                    Fill(*tma, 0);
 
-                    // do branch again
+                    // do network above outlet again
                     while (list != nullptr)
                     {
                         int i = 0;
@@ -2284,7 +2282,8 @@ void TWorld::FindStationaryBaseFlow()
                                 continue;
 
                             // check if there are more cells upstream, if not subCatchDone remains true
-                            if (pcr::isMV(tmb->Drc) &&
+                            //pcr::isMV(tmb->Drc)
+                            if (tma->Drc == 0 &&
                                     FLOWS_TO(ldd, r, c, rowNr, colNr) &&
                                     INSIDE(r, c))
                             {
@@ -2301,10 +2300,10 @@ void TWorld::FindStationaryBaseFlow()
                         {
                             int r = list->rowNr;
                             int c = list->colNr;
-                            tmb->Drc = 0;
+                            tma->Drc = 1; // flag done
                             BaseFlowInflow->Drc = inflow; // will be added in baseflow every timestep is in m3/s!
 
-                            tmc->Drc += 1;
+                            tmc->Drc += 1; // nr cells in this branch
 
                             for (i=1;i<=9;i++)
                             {
@@ -2327,7 +2326,7 @@ void TWorld::FindStationaryBaseFlow()
                                         !pcr::isMV(LDDChannel->Drc) )
                                 {
                                     tmc->data[list->rowNr][list->colNr] += tmc->Drc; // counter
-                                 //   tmd->data[list->rowNr][list->colNr] += tmd->Drc;
+                                 //   tmd->data[list->rowNr][list->colNr] += tmd->Drc; // tmd = 0!
                                 }
                             }
 
@@ -2335,11 +2334,10 @@ void TWorld::FindStationaryBaseFlow()
                             c = list->colNr;
 
                             double Qin = (tmc->Drc * inflow);// - tmd->Drc); // tmc*inflow is the total of upstream inflow at a point
-                            // tmc is just an accuflux(1) map!!!
+                            // tmc is just an accuflux(1) map, 1,2,..n!!!
 
-                            double h, h1;
-                            h = 1;  // first guess new h , 1m?
-                            h1 = h;
+                            double h = 1;  // first guess new h , 1m?
+                            double h1 = h;
                             double sqrtN = qSqrt(ChannelGrad->Drc)/ChannelN->Drc;
                             double A = 0;
                             // newton rapson iteration
@@ -2347,16 +2345,16 @@ void TWorld::FindStationaryBaseFlow()
                             {
                                 double F, dF;
                                 int count = 0;
-                                double hr;
+                                double hr = h;
+                                double FW = ChannelWidth->Drc;
                                 do{
                                     h = h1/channelRoutingFraction;
                                     if (h < 1e-10)
                                         break;
                                     hr = h * channelRoutingFraction;
-                                    double FW = ChannelWidth->Drc;
                                     double P = FW + 2.0*hr;
                                     A = FW*hr;
-                                    F = qMax(0.0, 1.0 - Qin/(sqrtN*pow(A/P,5.0/3.0))); // function
+                                    F = qMax(0.0, 1.0 - Qin/(sqrtN*A*pow(A/P,2.0/3.0))); // function
                                     dF = (5.0*FW+6.0*hr)/(3.0*hr*P); // derivative
                                     h1 = hr - F/dF;
 

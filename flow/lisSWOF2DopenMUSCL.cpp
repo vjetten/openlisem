@@ -66,7 +66,7 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         Fill(*FloodDT, dt_max);
 
         if (SwitchMUSCLandHeun) {
-              // 2nd order, with avg according to Heun, according to fullswof hean should allways be done!
+              // 2nd order in space (muscl), with avg according to Heunn (2nd order in tine), according to fullswof hean should allways be done!
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
                 tma->Drc = h->Drc;

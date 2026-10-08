@@ -46,10 +46,10 @@ void TWorld:: ChannelFlowandErosion()
     ChannelRainandInfil();          // subtract infil, add rainfall
     ChannelBaseflow();              // add stationary and GW baseflow if selected
 
-    _dt_user = _dt;
-    _dt = _dt_user/2.0;
-    for (double t = 0; t <= _dt_user; t+=_dt)
-    {
+    // _dt_user = _dt;
+    // _dt = _dt_user/2.0;
+    // for (double t = 0; t <= _dt_user; t+=_dt)
+    // {
 
         ChannelVelocityandDischarge();  // mannings V Q Aplha
 
@@ -61,8 +61,8 @@ void TWorld:: ChannelFlowandErosion()
         // looping a smaller dt doesn't work or doesn't make difference
         ChannelFlow();                  // kin wave for water
         // restore _dt
-        }
-        _dt = _dt_user;
+        // }
+        // _dt = _dt_user;
 
         ChannelSedimentFlow();          // kin wave for sediment and substances
 
