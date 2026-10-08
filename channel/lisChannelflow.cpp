@@ -69,8 +69,6 @@ void TWorld:: ChannelFlowandErosion()
 //---------------------------------------------------------------------------
 void TWorld::ChannelVelocityandDischarge()
 {
-  //  int dy[10] = {0,1,1,1,0,0,0,-1,-1,-1};
-  //  int dx[10] = {0,-1,0,1,-1,0,1,-1,0,1};
     // velocity, alpha, Q
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
@@ -271,8 +269,7 @@ void TWorld::ChannelFlow(void)
             for(int j = 0; j < crlinkedlddch_.at(i_).nr; j++) {
                 int rr = crlinkedlddch_.at(i_).inn[j].r;
                 int cr = crlinkedlddch_.at(i_).inn[j].c;
-                //Qin += 0.5*(ChannelQn->Drcr+ChannelQ->Drcr);
-                Qin += ChannelQ->Drcr;
+                Qin += ChannelQn->Drcr;
             }
 
             // if total inflow causes vol > max volume, adjust inflow incoming Qn
@@ -309,11 +306,6 @@ void TWorld::ChannelFlow(void)
             ChannelQn->Drc = IterateToQnew(Qin, ChannelQ->Drc, ChannelAlpha->Drc, beta, _dt, DX->Drc, tma->Drc, tmb->Drc);
         ChannelQn->Drc = qMin(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
         // no more outflow than there is water
-qDebug() << itercount;
-        ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(QinKW->Drc - ChannelQn->Drc);
-        ChannelWaterVol->Drc = qMax(0.0, ChannelWaterVol->Drc);
-        ChannelPerimeter->Drc = ChannelWaterVol->Drc/ChannelDX->Drc;
-        ChannelAlpha->Drc = pow(ChannelN->Drc/qSqrt(ChannelGrad->Drc) * pow(ChannelPerimeter->Drc, 2.0/3.0),beta);
 
         // check if there is a culvert downstream and limit outflow if necessary
         int ldd = fabs(crlinkedlddch_.at(i_).ldd);
@@ -349,29 +341,26 @@ qDebug() << itercount;
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
 
-//        ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(QinKW->Drc - ChannelQn->Drc);
-//        ChannelWaterVol->Drc = qMax(0.0, ChannelWaterVol->Drc);
-
-      //  if(ChannelWaterVol->Drc == 0 && ChannelQn->Drc > 0) {
-      //      ChannelWaterVol->Drc = ChannelDX->Drc * ChannelAlpha->Drc*qPow(ChannelQn->Drc, BETArect);
-     //   }
-      //      ChannelWaterVol->Drc = qMax(0.0, ChannelWaterVol->Drc);
+        ChannelWaterVol->Drc = ChannelWaterVol->Drc + _dt*(QinKW->Drc - ChannelQn->Drc);
+        ChannelWaterVol->Drc = qMax(0.0, ChannelWaterVol->Drc);
 
         // calc  channel WH and perimeter
+        double beta = BETArect;
         switch (crch_[i_].shape) {
-            case SHAPERECT : chanHandPRect(r,c); break;
-            case SHAPECIRC : chanHandPCirc(r,c); break; // this is always a culvert!
-            case SHAPETRAP : chanHandPTrap(r,c); break;
-            case SHAPETRIA : chanHandPTria(r,c); break;
-            case SHAPEFREE : chanHandPRect(r,c); break;
+            case SHAPEFREE :
+            case SHAPERECT : chanHandPRect(r,c);
+                beta = SwitchConstantBeta ? BETArect : beta = 1.0/(1.0+2.0/3.0*ChannelWidth->Drc/ChannelPerimeter->Drc);
+                break;
+            case SHAPECIRC : chanHandPCirc(r,c); beta = BETAcirc; break; // this is always a culvert!
+            case SHAPETRAP : chanHandPTrap(r,c); beta = BETAtrap; break;
+            case SHAPETRIA : chanHandPTria(r,c); beta = BETAtria; break;
         }
+
+        ChannelPerimeter->Drc = ChannelWaterVol->Drc/ChannelDX->Drc;
         double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
         ChannelV->Drc = qMin(_CHMaxV, (Area > 1e-20 ? ChannelQn->Drc/Area : 0.0));
+        //ChannelAlpha->Drc = pow(ChannelN->Drc/qSqrt(ChannelGrad->Drc) * pow(ChannelPerimeter->Drc, 2.0/3.0),beta);
         // erosion is calculated with new V
-    //    if(ChannelV->Drc == 0 && ChannelQn->Drc > 0)
-        //    qDebug() << r<<c<<"Q" << ChannelQn->Drc << Area << ChannelWaterVol->Drc << QinKW->Drc;
-
-        // ChannelAlpha->Drc = Area > 1e-6 ? ChannelQn->Drc/std::pow(Area, 0.6) : 0.0;
         // DO NOT recalculate alpha after the kin wave because we need it in erosion kin wave
 
         // get the maximum for output
