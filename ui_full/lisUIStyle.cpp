@@ -172,7 +172,7 @@ void lisemqt::lightStyleUI()
     tabWidgetOptions->setTabIcon(5,QIcon(":/river4.png"));
     tabWidgetOptions->setTabIcon(6,QIcon(":/house.png"));
     tabWidgetOptions->setTabIcon(7,QIcon(":/eros1bw.png"));
-    tabWidgetOptions->setTabIcon(8,QIcon(":/eros1bw.png"));
+    tabWidgetOptions->setTabIcon(8,QIcon(":/chem3.png"));
     tabWidgetOptions->setTabIcon(9,QIcon(":/advanced.png"));
     tabWidgetOptions->setTabIcon(10,QIcon(":/settings1.png"));
 
@@ -245,7 +245,7 @@ void lisemqt::darkStyleUI()
     tabWidgetOptions->setTabIcon(5,QIcon(":/d_river3.png"));
     tabWidgetOptions->setTabIcon(6,QIcon(":/house.png"));
     tabWidgetOptions->setTabIcon(7,QIcon(":/d_eros1bw.png"));
-    tabWidgetOptions->setTabIcon(8,QIcon(":/d_eros1bw.png"));
+    tabWidgetOptions->setTabIcon(8,QIcon(":/d_chem4.png"));
     tabWidgetOptions->setTabIcon(9,QIcon(":/d_advanced.png"));
     tabWidgetOptions->setTabIcon(10,QIcon(":/d_settings1.png"));
 

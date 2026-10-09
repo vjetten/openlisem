@@ -2246,7 +2246,7 @@
                   <enum>QTabWidget::TabShape::Rounded</enum>
                  </property>
                  <property name="currentIndex">
-                  <number>5</number>
+                  <number>8</number>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -8314,8 +8314,12 @@
                   </layout>
                  </widget>
                  <widget class="QWidget" name="tab_pest">
+                  <attribute name="icon">
+                   <iconset resource="../resources/openlisem.qrc">
+                    <normaloff>:/chem3.png</normaloff>:/chem3.png</iconset>
+                  </attribute>
                   <attribute name="title">
-                   <string>Page</string>
+                   <string/>
                   </attribute>
                   <layout class="QGridLayout" name="gridLayout_134">
                    <item row="1" column="1">
