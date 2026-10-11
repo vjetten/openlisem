@@ -77,7 +77,6 @@ void TWorld::ChannelVelocityandDischarge()
     // velocity, alpha, Q
     #pragma omp parallel num_threads(userCores)
     FOR_ROW_COL_MV_CHL {
-       // tmshow->Drc = channelRoutingFraction;
         double beta = BETArect;
         switch (crch_[i_].shape) {
             case SHAPEFREE :
@@ -304,7 +303,9 @@ void TWorld::ChannelFlow(void)
         double beta = BETArect;
         switch ((int)ChannelCulvert->Drc) {
             case SHAPEFREE :
-            case SHAPERECT : beta = SwitchConstantBeta ? BETArect : beta = 1.0/(1.0+2.0/3.0*ChannelWidth->Drc/ChannelPerimeter->Drc);
+            case SHAPERECT : if (!SwitchConstantBeta)
+                                beta = 1.0/(1.0+2.0/3.0*ChannelWidthO->Drc/ChannelPerimeter->Drc);
+                             break;
             case SHAPECIRC : beta = BETAcirc; break;
             case SHAPETRAP : beta = BETAtrap; break;
             case SHAPETRIA : beta = BETAtria; break;
@@ -359,6 +360,7 @@ void TWorld::ChannelFlow(void)
         ChannelWaterVol->Drc = qMax(0.0, ChannelWaterVol->Drc);
 
         // calc new channel WH and perimeter
+        channelRoutingFraction = 1.0; // switch back to 1.0 because the attenuation is only for Qn
         double beta = BETArect;
         switch (crch_[i_].shape) {
             case SHAPEFREE :

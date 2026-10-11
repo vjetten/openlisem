@@ -206,8 +206,8 @@ double TWorld::IterateToQnew(int ldd, double Qin, double Qold, double alpha, dou
     ab_pQ = alpha*beta*pow(((Qold+Qin)/2.0),beta-1);
     // derivative of diagonal average (space-time)
     double factor = 1.0;
-    if (ldd % 2 == 1)
-        factor = 1.41421;
+    // if (ldd % 2 == 1)
+    //     factor = 1.41421;
     deltaTX = deltaT/(deltaX*factor);
     C = deltaTX*Qin + alpha*pow(Qold,beta);
     //C is unit volume of water, dt/dx*Q = m3/s*s/m=m2; a*Q^b = A = m2; q*dt = s*m2/s = m2
