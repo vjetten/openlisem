@@ -118,12 +118,16 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
         } else {
             // first order solution in space and time, cell centers are used, just one calculation, no Heun averaging
             // in the original code this is split in reconstruction/MUSCL and maincalcflux
+//qDebug() << "hoi";
             doSWOFMUSCL(false, h, u, v, z);
             dt_cfl = findSmallestCFLdt(dt_cfl_new, timesum);
-            dt_cfl_new = dt_cfl; // best guess for next timestep
+         //   qDebug() << "hoi";
             doSWOFStV(dt_cfl, h, u, v);
+          //  qDebug() << "hoi";
             // Saint-Venant calculations for new h, u, v
             // called maincalcscheme in fullSWOF
+            qDebug() << time <<dt_cfl <<dt_cfl_new << _dt-timesum;
+            dt_cfl_new = dt_cfl; // best guess for next timestep
         }
 
      //   correctMassBalance(sumh, h);
@@ -178,12 +182,13 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
     double factor2 = factor;//pow(factor,0.667); // manning reduction V=h^2/3
 
     Fill(*tmd,0);
+    bool do_it = false;
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
         // if water include
         if (h->Drc > F_minWH) {
             tmd->Drc = 1;
-
+do_it = true;
            if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
            if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
            if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
@@ -194,6 +199,10 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
            //tmshow->Drc = tmd->Drc;
         }
     }}
+if (!do_it) {
+    qDebug() << do_it;
+    return;
+}
 
     // #pragma omp parallel for num_threads(userCores)
     // FOR_ROW_COL_MV_L {
@@ -534,6 +543,7 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 
             //left and right hand side of c and c-1 (x and x1)
             //dz_x1 = (Z - z_x1);
+//qDebug() << "muscl1" << c << r;
             if (bc1) {
                 h_x1r = qMax(0.0, hx1r - qMax(0.0,  dz_x1 + fb_x1)); //rechts van c-1
                 h_xl  = qMax(0.0, hxl  - qMax(0.0, -dz_x1 + fb_x1)); //links van het midden
@@ -542,8 +552,8 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 // dz_x1 = (Z - z_x1);
             } else {
                 h_x1r = h_xl; //0
-                if (FlowBoundary->Drc == 0)
-                    ux1r = -ux1r;
+                // if (FlowBoundary->Drc == 0)
+                //     ux1r = -ux1r;
             }
             if (h_x1r == 0) {
                 ux1r = 0;
@@ -562,8 +572,8 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 h_x2l = qMax(0.0, hx2l - qMax(0.0, -dz_x2 + fb_x2));
             } else {
                 h_x2l = h_xr;//0.0;
-                if (FlowBoundary->Drc == 0)
-                    ux2l = -ux2l;
+                // if (FlowBoundary->Drc == 0)
+                //     ux2l = -ux2l;
             }
             if (h_xr == 0) {
                 vxr = 0;
@@ -580,8 +590,8 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 h_yu  = qMax(0.0, hyu  - qMax(0.0, -dz_y1 + fb_y1));
             } else {
                 h_y1d = h_yu;//0.0;
-                if (FlowBoundary->Drc == 0)
-                    vy1d = -vy1d;
+                // if (FlowBoundary->Drc == 0)
+                //     vy1d = -vy1d;
             }
             if (h_yu == 0) {
                 uyu = 0;
@@ -599,8 +609,8 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 h_y2u = qMax(0.0, hy2u - qMax(0.0, -dz_y2 + fb_y2));// upper side of lower cell
             } else {
                 h_y2u = h_yd; //0.0;
-                if (FlowBoundary->Drc == 0)
-                    vy2u = -vy2u;
+                // if (FlowBoundary->Drc == 0)
+                //     vy2u = -vy2u;
             }
             if (h_yd == 0) {
                 uyd = 0;
@@ -650,9 +660,10 @@ double TWorld::findSmallestCFLdt(double dt, double timesum)
     FOR_ROW_COL_MV_L {
         dt_req_min = qMin(dt_req_min, FloodDT->Drc);
     }}
-    dt_req_min = qMax(TimestepfloodMin, qMin(dt, qMin(dt_req_min, _dt-timesum)));
+    dt_req_min = qMin(dt, dt_req_min);
+    dt_req_min = qMax(TimestepfloodMin, dt_req_min);
     // check against remaining time and user min dt
-
+    dt_req_min = _dt-timesum > 0 ? qMin(dt_req_min, _dt-timesum): dt_req_min;
     return dt_req_min;
 }
 //-----------------------------------------------------------------------------------------------------------

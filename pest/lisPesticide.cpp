@@ -433,11 +433,11 @@ void TWorld::KinematicPestDissolved(QVector <LDD_COORIN> _crlinked_,
             // use explicit backwards method from Chow
             _Qpwn->Drc = ChowSubstance(_Qn->Drc, QinKW->Drc, _Q->Drc, QpinKW->Drc, _Qpw->Drc,
                                         _Alpha->Drc, _DX->Drc, _dt); //mg/sec
-            _Qpwn->Drc = std::min(_Qpwn->Drc, QpinKW->Drc + PMrw->Drc / _dt);
+            _Qpwn->Drc = qMin(_Qpwn->Drc, QpinKW->Drc + PMrw->Drc / _dt);
         } //runoff occurs
             //substract discharge
             //mg = mg - (mg sec-1 * sec)
-        PMrw->Drc = std::max(0.0, PMrw->Drc - (_Qpwn->Drc * _dt) + (QpinKW->Drc * _dt));
+        PMrw->Drc = qMax(0.0, PMrw->Drc - (_Qpwn->Drc * _dt) + (QpinKW->Drc * _dt));
     }//end ldd loop
 }
 
@@ -509,12 +509,12 @@ void TWorld::KinematicPestAdsorbed(QVector <LDD_COORIN> _crlinked_,
             // use explicit backwards method from Chow
             _Qpsn->Drc = ChowSubstance(_Qn->Drc, QinKW->Drc, _Q->Drc, SpinKW->Drc, _Qps->Drc,
                                      _Alpha->Drc, _DX->Drc, _dt); //mg/sec
-            _Qpsn->Drc = std::min(_Qpsn->Drc, SpinKW->Drc + _PMS->Drc / _dt);
+            _Qpsn->Drc = qMin(_Qpsn->Drc, SpinKW->Drc + _PMS->Drc / _dt);
             }
         } // erosion occurs
         // can move outside ldd loop to parralel section
         // mg = mg sec-1 * sec
-        PMrs->Drc = std::max(0.0, PMrs->Drc - (_Qpsn->Drc * _dt) + (SpinKW->Drc * _dt));
+        PMrs->Drc = qMax(0.0, PMrs->Drc - (_Qpsn->Drc * _dt) + (SpinKW->Drc * _dt));
         PCrs->Drc = Sed->Drc > 1e-6 ? PMrs->Drc / Sed->Drc : 0.0; // divide by Sed after kin wave
         // 0,001 g
     }// end ldd loop

@@ -15,24 +15,31 @@ NOTE: since version 7.4.7.R7 a 4Byte floating point version is maintained that t
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 
+261009 - v7.5.2
+- Added: channel relaxation/attenuation factor, that slows down the kinematic wave by not using the entire volume for velcoity and discharge calculation. Meant for flow delay in larger channels.
+- Added: channel shapes can be rectangular, triagular and trapezium shaped. These are detemrine by giving chanside.map a value > 0 (chanside is the angle with the vertical).
+- Added: subsurface drainage and culverts can be rectangular or circular. If chandiameter.map has a value > 0, the branch is assumed to be circular.
+- Added: in A = alphaQ^beta, beta was 0.6 always, but beta depends on the shape of the channel
+- Added: continuous deposition instead of per timestep either deposition or erosion (Advanced options)
+- Added: choice of linear detachment and deposition or exponential decline in detachment and deposition (Advanced options)
+- IN DEVELOPMENT: pesticide in 2D flow and combined with erosion (does not work yet! 
+- FIXED: small bug in 2nd order MUSCL with HEun timsestep, should not give much difference
+- FIXED: small bug in boundary definition of Riemann solvers
+- FIXED: dot or comma for decimals in interface, for languages that use a comma.
+
+v7.5.1 - internal version, not released
+
 260417 - v7.5.0
 - Tagged version WRL project
-- Added a correction in advanced for surious water heigths that sometimes occur due to water piling up behind in front of a culvert. 
-- FIXED: the number of cpu cores could not go to 0 (max cores) in advanced
-
-260322 - v7.5.0.R3.beta
-- Changed: dynamic crusting for SWATRE, simplified. profcrst.map gives the are that will crust (0-1)
+- Changed: dynamic crusting for SWATRE, simplified. profcrst.map gives the area that will crust (0-1)
 - Added dynamic crusting rate, default -0.02
-- Added spurious water height correction
-- Changed: behaviour of pause/play: pause is wait, play is continue
-- FIXED: bug in model waiting for drawing of maps in UI to finish.
-- FIXED: bug in model waiting for drawing of maps in UI to finish.
-
-260306 - v7.5.0.R1.beta
-- BUG-FIX: Windows region setting: if decimals are comma they are always translated to dot
-- BUG-FIX: Culverts: adjust maxarea to user defined channel max Q if provided, else calculate channel max Q from dimensions
-- BUG-FIX: fixed errors in reading of user-defined discharge data
+- Added spurious water height correction in advanced (experimental)
 - Changed: calibration factor from culvert diameter to calibration of culvert max Q
+- Changed: behaviour of pause/play: pause is wait, play is continue
+- BUG-FIX: bug in model waiting for drawing of maps in UI to finish.
+- BUG-FIX: Windows region setting: if decimals are comma they are always translated to dot
+- BUG-FIX: Culverts: adjust maxarea to user-defined channel max Q if provided, else calculate channel max Q from dimensions
+- BUG-FIX: fixed errors in reading of user-defined discharge data
 
 260205 - v7.4.9
 - Added: show buffers in the map view
