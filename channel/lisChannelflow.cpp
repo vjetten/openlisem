@@ -360,7 +360,6 @@ void TWorld::ChannelFlow(void)
         ChannelWaterVol->Drc = qMax(0.0, ChannelWaterVol->Drc);
 
         // calc new channel WH and perimeter
-        channelRoutingFraction = 1.0; // switch back to 1.0 because the attenuation is only for Qn
         double beta = BETArect;
         switch (crch_[i_].shape) {
             case SHAPEFREE :

@@ -108,12 +108,12 @@ void TWorld::OverlandFlow(void)
 void TWorld::OverlandFlow2Ddyn(void)
 {
     double dtOF = 0;
-qDebug() << "hier 1";
+
     // NOTE: only broad crested weir works with different channel shapes!
     ChannelOverflowBroadWeir(WHrunoff, V);
     // this changes channel and surface water volume
     // after this new ChannelHW and WHrunoff, and Susp sediment values ChannelSSSed and SSFlood->Drc
-    qDebug() << "hier 2";
+
 
     startFlood = false;
     #pragma omp parallel for num_threads(userCores)
@@ -123,7 +123,7 @@ qDebug() << "hier 1";
     }}
 
     if(startFlood) {
-    qDebug() << "hier 3";
+
 
         dtOF = fullSWOF2openMUSCL(WHrunoff, Uflood, Vflood, DEM);
         TIMEDB(QString("Average dynamic timestep in flooded cells (dt %1 sec, n %2)").arg(dtOF,6,'f',3).arg(iter_n,4));

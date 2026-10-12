@@ -2348,10 +2348,10 @@ void TWorld::FindStationaryBaseFlow()
                                 double hr = h;
                                 double FW = ChannelWidth->Drc;
                                 do{
-                                    h = h1/channelRoutingFraction;
+                                    h = h1;///channelRoutingFraction;
                                     if (h < 1e-10)
                                         break;
-                                    hr = h * channelRoutingFraction;
+                                    hr = h;// * channelRoutingFraction;
                                     double P = FW + 2.0*hr;
                                     A = FW*hr;
                                     F = qMax(0.0, 1.0 - Qin/(sqrtN*A*pow(A/P,2.0/3.0))); // function
