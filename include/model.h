@@ -1062,9 +1062,9 @@ public:
     void ChannelOverflow(cTMap *_h, cTMap *_V);
     void ChannelOverflowBroadWeir(cTMap *_h, cTMap *_V);
     void chanHandPCirc(int r, int c);
-    void chanHandPRect(int r, int c);
-    void chanHandPTrap(int r, int c);
-    void chanHandPTria(int r, int c);
+    void chanHandPRect(double fraction,int r, int c);
+    void chanHandPTrap(double fraction,int r, int c);
+    void chanHandPTria(double fraction,int r, int c);
 
     // tiles/stormdrains
     void TileFlow(void);

@@ -57,11 +57,11 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
         if (!crch_[i_].culvert) {//FloodDomain->Drc > 0 &&
 
             switch (crch_[i_].shape) {
-                case SHAPERECT : chanHandPRect(r,c); break;
+                case SHAPERECT : chanHandPRect(1.0,r,c); break;
                 case SHAPECIRC : chanHandPCirc(r,c); break; // this is always a culvert!
-                case SHAPETRAP : chanHandPTrap(r,c); break;
-                case SHAPETRIA : chanHandPTria(r,c); break;
-                case SHAPEFREE : chanHandPRect(r,c); break;
+                case SHAPETRAP : chanHandPTrap(1.0,r,c); break;
+                case SHAPETRIA : chanHandPTria(1.0,r,c); break;
+                case SHAPEFREE : chanHandPRect(1.0,r,c); break;
             }
 
             double Ac = ChannelWidth->Drc * ChannelDX->Drc;
@@ -137,11 +137,11 @@ void TWorld::ChannelOverflowBroadWeir(cTMap *_h, cTMap *V)
             }
             //Update channel water height from volume
             switch (crch_[i_].shape) {
-                case SHAPERECT : chanHandPRect(r,c); break;
+                case SHAPEFREE :
+                case SHAPERECT : chanHandPRect(1.0, r,c); break;
                 case SHAPECIRC : chanHandPCirc(r,c); break;
-                case SHAPETRAP : chanHandPTrap(r,c); break;
-                case SHAPETRIA : chanHandPTria(r,c); break;
-                case SHAPEFREE : chanHandPRect(r,c); break;
+                case SHAPETRAP : chanHandPTrap(1.0, r,c); break;
+                case SHAPETRIA : chanHandPTria(1.0, r,c); break;
             }
 
             // update surface water height

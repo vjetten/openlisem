@@ -81,20 +81,18 @@ void TWorld::ChannelVelocityandDischarge()
         switch (crch_[i_].shape) {
             case SHAPEFREE :
             case SHAPERECT :
-                // use real perimeter for velocity, not chanHandPRect(r,c,Area);
+                // use real perimeter for velocity, not chanHandPRect(r,c);
                 ChannelWH->Drc = ChannelWaterVol->Drc/(ChannelDX->Drc*ChannelWidthO->Drc);
-                ChannelPerimeter->Drc = ChannelWidthO->Drc+2*ChannelWH->Drc*channelRoutingFraction;
+                ChannelPerimeter->Drc = ChannelWidthO->Drc+2*ChannelWH->Drc*channelAttenuation;
                 if (!SwitchConstantBeta)
                     beta = 1.0/(1.0+2.0/3.0*ChannelWidthO->Drc/ChannelPerimeter->Drc);
                 break;
             case SHAPECIRC : beta = BETAcirc; chanHandPCirc(r,c); break; // this is always a culvert!
-            case SHAPETRAP : beta = BETAtrap; chanHandPTrap(r,c); break;
-            case SHAPETRIA : beta = BETAtria; chanHandPTria(r,c); break;
+            case SHAPETRAP : beta = BETAtrap; chanHandPTrap(channelAttenuation, r,c); break;
+            case SHAPETRIA : beta = BETAtria; chanHandPTria(channelAttenuation, r,c); break;
         }
 
-        // if (ChannelWH->Drc <= 0.1)
-        //     channelRoutingFraction = 1.0;
-        double Area = ChannelWaterVol->Drc/ChannelDX->Drc * channelRoutingFraction;
+        double Area = ChannelWaterVol->Drc/ChannelDX->Drc * channelAttenuation;
         double Radius = (ChannelPerimeter->Drc > 1e-6 ? Area/ChannelPerimeter->Drc : 0);
         ChannelV->Drc = qMin(_CHMaxV,std::pow(Radius, 2.0/3.0)*qSqrt(ChannelGrad->Drc)/ChannelN->Drc);
         ChannelQ->Drc = ChannelV->Drc * Area;
@@ -202,11 +200,11 @@ void TWorld::ChannelRainandInfil(void)
         FOR_ROW_COL_MV_CHL {
             if (!crch_[i_].culvert) {
                 switch (crch_[i_].shape) {
-                    case SHAPERECT : chanHandPRect(r,c); break;
+                    case SHAPERECT : chanHandPRect(1.0, r,c); break;
                     case SHAPECIRC : chanHandPCirc(r,c); break;
-                    case SHAPETRAP : chanHandPTrap(r,c); break;
-                    case SHAPETRIA : chanHandPTria(r,c); break;
-                    case SHAPEFREE : chanHandPRect(r,c); break;
+                    case SHAPETRAP : chanHandPTrap(1.0, r,c); break;
+                    case SHAPETRIA : chanHandPTria(1.0, r,c); break;
+                    case SHAPEFREE : chanHandPRect(1.0, r,c); break;
                 }
                 ChannelInfM3->Drc = ChannelPerimeter->Drc * ChannelKsat->Drc * _dt/3600000.0 * ChannelDX->Drc;
                 // infiltration over entire perimeter !
@@ -317,15 +315,17 @@ void TWorld::ChannelFlow(void)
         else
             ChannelQn->Drc = IterateToQnew(ldd, Qin, ChannelQ->Drc, ChannelAlpha->Drc, beta, _dt, DX->Drc, tma->Drc, tmb->Drc);
 
-        // h based iteration, seems te almost the same
+        // h based iteration for trial, is almost the same and slower
         //ChannelQn->Drc = IterateToHnew(Qin, ChannelQ->Drc, ChannelWH->Drc,
         //                   ChannelWidthO->Drc, ChannelN->Drc, ChannelGrad->Drc ,ChannelWaterVol->Drc, ChannelDX->Drc);
 
         // no more outflow than there is water
         ChannelQn->Drc = qMin(Qin+ChannelWaterVol->Drc/_dt, ChannelQn->Drc);
         // check if there is a culvert downstream and limit outflow if necessary
+
         int cr = c+dx[ldd];
         int rr = r+dy[ldd];
+        // if inflow is culvert
         if (!pcr::isMV(LDDChannel->Drcr) && ChannelCulvert->Drcr > 0 && ChannelCulvert->Drcr < 5) {
             ChannelQn->Drc = qMin(ChannelQn->Drc, tma->Drcr);
 
@@ -364,12 +364,16 @@ void TWorld::ChannelFlow(void)
         double beta = BETArect;
         switch (crch_[i_].shape) {
             case SHAPEFREE :
-            case SHAPERECT : chanHandPRect(r,c);
-                beta = SwitchConstantBeta ? BETArect : beta = 1.0/(1.0+2.0/3.0*ChannelWidth->Drc/ChannelPerimeter->Drc);
+            case SHAPERECT : chanHandPRect(1.0, r,c);
+                if (!SwitchConstantBeta)
+                    beta = 1.0/(1.0+2.0/3.0*ChannelWidth->Drc/ChannelPerimeter->Drc);
                 break;
             case SHAPECIRC : chanHandPCirc(r,c); beta = BETAcirc; break; // this is always a culvert!
-            case SHAPETRAP : chanHandPTrap(r,c); beta = BETAtrap; break;
-            case SHAPETRIA : chanHandPTria(r,c); beta = BETAtria; break;
+            case SHAPETRAP : chanHandPTrap(1.0, r,c); beta = BETAtrap; break;
+            case SHAPETRIA : chanHandPTria(1.0, r,c); beta = BETAtria; break;
+        }
+        if(ChannelWaterVol->Drc == 0 && ChannelQn->Drc > 0) {
+            ChannelWaterVol->Drc = ChannelDX->Drc * ChannelAlpha->Drc*qPow(ChannelQn->Drc, beta);
         }
         double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
         ChannelV->Drc = qMin(_CHMaxV, (Area > 1e-20 ? ChannelQn->Drc/Area : 0.0));

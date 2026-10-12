@@ -59,13 +59,13 @@ void TWorld::chanHandPCirc(int r, int c)//, double Area)
     ChannelWH->Drc = 0.5*ChannelDiameter->Drc*(1-cos(theta/2.0));
 }
 //---------------------------------------------------------------------------
-void TWorld::chanHandPTrap(int r, int c)//, double Area)
+void TWorld::chanHandPTrap(double fraction, int r, int c)//, double Area)
 {
     // if not drowned use abc rule, else assume a rectangular section above trapezium channel
     double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
 
     if (ChannelSide->Drc == 0) {
-        chanHandPRect(r,c);
+        chanHandPRect(fraction,r,c);
         return;
     }
     // A = h*(wb + m*h)
@@ -80,13 +80,13 @@ void TWorld::chanHandPTrap(int r, int c)//, double Area)
         double dh = (ChannelWaterVol->Drc-ChannelMaxArea->Drc*ChannelDX->Drc)/(ChannelWidth->Drc*DX->Drc);
         ChannelWH->Drc = ChannelDepth->Drc + dh;//(Area-ChannelMaxArea->Drc)/ChannelWidth->Drc;
     }
-    ChannelPerimeter->Drc = ChannelWidthB->Drc +  channelRoutingFraction*2*ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+    ChannelPerimeter->Drc = ChannelWidthB->Drc +  fraction *2*ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
 }
 //---------------------------------------------------------------------------
-void TWorld::chanHandPTria(int r, int c)//, double Area)
+void TWorld::chanHandPTria(double fraction, int r, int c)//, double Area)
 {
     if (ChannelSide->Drc == 0) {
-        chanHandPRect(r,c);
+        chanHandPRect(fraction, r,c);
         return;
     }
     // if drowned assume a rectangular section above triangular channel
@@ -96,13 +96,13 @@ void TWorld::chanHandPTria(int r, int c)//, double Area)
     } else {
         ChannelWH->Drc = ChannelDepth->Drc + (Area-ChannelMaxArea->Drc)/ChannelWidth->Drc;
     }
-    ChannelPerimeter->Drc = channelRoutingFraction* 2*ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
+    ChannelPerimeter->Drc = fraction * 2*ChannelWH->Drc*std::sqrt(1+ChannelSide->Drc*ChannelSide->Drc);
 }
 //---------------------------------------------------------------------------
-void TWorld::chanHandPRect(int r, int c)//, double Area)
+void TWorld::chanHandPRect(double fraction, int r, int c)//, double Area)
 {
     double Area = ChannelWaterVol->Drc/ChannelDX->Drc;
     ChannelWH->Drc = Area/ChannelWidth->Drc;
-    ChannelPerimeter->Drc = ChannelWidth->Drc+2*ChannelWH->Drc*channelRoutingFraction;
+    ChannelPerimeter->Drc = ChannelWidth->Drc+2*ChannelWH->Drc*fraction;
 }
 

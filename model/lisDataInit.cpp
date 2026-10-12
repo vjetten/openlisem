@@ -1094,7 +1094,7 @@ void TWorld::InitChannel(void)
             ChannelWidth->Drc = 0.95*_dx;
         }
 
-        ChannelWidthB->Drc = ChannelWidth->Drc;
+        ChannelWidthB->Drc = ChannelWidth->Drc; // bottom width
         if (ChannelSide->Drc > 0) {
             ChannelWidthB->Drc = qMax(0.0,ChannelWidth->Drc - 2*ChannelDepth->Drc*ChannelSide->Drc);
             crch_[i_].shape = SHAPETRAP;
