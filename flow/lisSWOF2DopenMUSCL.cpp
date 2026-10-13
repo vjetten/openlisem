@@ -305,37 +305,37 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
             double Uc = factor2*U;
             double Vc = factor2*V;
 
-            if (FlowBoundary->Drc > 0) {
-                //if left does not exist and right exist estimate gradient
-                if (c > 0 && MV(r,c-1) && !MV(r,c+1)) {
-                    if (h_x2+z_x2 > H+Z) {
-                        h_x1 = Hc;
-                        u_x1 = Uc;
-                        v_x1 = Vc;
-                    }
-                }
-                if (c < _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
-                    if (h_x1+z_x1 > H+Z){
-                        h_x2 = Hc;
-                        u_x2 = Uc;
-                        v_x2 = Vc;
-                    }
-                }
-                if (r > 0 && MV(r-1,c) && !MV(r+1,c)) {
-                    if (h_y2+z_y2 > H+Z) {
-                        h_y1 = Hc;
-                        u_y1 = Uc;
-                        v_y1 = Vc;
-                    }
-                }
-                if (r < _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
-                    if (h_y1+z_y1 > H+Z) {
-                        h_y2 = Hc;
-                        u_y2 = Uc;
-                        v_y2 = Vc;
-                    }
-                }
-            }
+            // if (FlowBoundary->Drc > 0) {
+            //     //if left does not exist and right exist estimate gradient
+            //     if (c > 0 && MV(r,c-1) && !MV(r,c+1)) {
+            //         if (h_x2+z_x2 > H+Z) {
+            //             h_x1 = Hc;
+            //             u_x1 = Uc;
+            //             v_x1 = Vc;
+            //         }
+            //     }
+            //     if (c < _nrCols-1 && MV(r,c+1) && !MV(r,c-1)) {
+            //         if (h_x1+z_x1 > H+Z){
+            //             h_x2 = Hc;
+            //             u_x2 = Uc;
+            //             v_x2 = Vc;
+            //         }
+            //     }
+            //     if (r > 0 && MV(r-1,c) && !MV(r+1,c)) {
+            //         if (h_y2+z_y2 > H+Z) {
+            //             h_y1 = Hc;
+            //             u_y1 = Uc;
+            //             v_y1 = Vc;
+            //         }
+            //     }
+            //     if (r < _nrRows-1 && MV(r+1,c) && !MV(r-1,c)) {
+            //         if (h_y1+z_y1 > H+Z) {
+            //             h_y2 = Hc;
+            //             u_y2 = Uc;
+            //             v_y2 = Vc;
+            //         }
+            //     }
+            // }
 
             dz_x1 = (Z - z_x1);
             dz_x2 = (z_x2 - Z);
