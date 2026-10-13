@@ -32,7 +32,7 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
 {
     QBoundary = 0;
     QsBoundary = 0;
-
+return;
     // TODO barriers!
 //    #pragma omp parallel for num_threads(userCores)
     #pragma omp parallel for reduction(+:QBoundary, QsBoundary) num_threads(userCores)
@@ -42,25 +42,42 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
             int flag = 0;
             double Area = h->Drc*ChannelAdj->Drc;
 
-            if (c > 0 && c < _nrCols-1 ) {
-                if (MV(r,c-1) && !MV(r,c+1) && u->Drc < 0) {
-                    flag  = 1;
-                }
-                if (MV(r,c+1) && !MV(r,c-1) && u->Drc > 0) {
+            if (c > 0 && c < _nrCols-1 && !pcr::isMV(h->Drc)) {
+                if (pcr::isMV(h->data[c-1][r]) && u->Drc < 0)
+                    flag = 1;
+                    // MV(r,c-1) && !MV(r,c) && u->Drc < 0) {
+                    // flag  = 1;
+                //}
+                if (pcr::isMV(h->data[c+1][r]) && u->Drc > 0)
                     flag = 2;
-                }
+                // if (MV(r,c+1) && !MV(r,c) && u->Drc > 0) {
+                //     flag = 2;
+                //}
             }
 
-            if (r > 0 && r < _nrRows-1) {
-                if (MV(r-1,c) && !MV(r+1,c) && v->Drc < 0) {
+            if (r > 0 && r < _nrRows-1 && !pcr::isMV(h->Drc)) {
+                if (pcr::isMV(h->data[c][r-1]) && v->Drc < 0)
                     flag = 3;
-                }
-                if (MV(r+1,c) && !MV(r-1,c) && v->Drc > 0) {
+                if (pcr::isMV(h->data[c][r+1]) && v->Drc > 0)
                     flag = 4;
-                }
+                // if (MV(r-1,c) && !MV(r,c) && v->Drc < 0) {
+                //     flag = 3;
+                // }
+                // if (MV(r+1,c) && !MV(r,c) && v->Drc > 0) {
+                //     flag = 4;
+                // }
             }
+            if (c == 0 && !pcr::isMV(h->Drc) && u->Drc < 0)
+                flag = 1;
+            if (c == _nrCols-1 && !pcr::isMV(h->Drc) && u->Drc > 0)
+                flag = 2;
+            if (r == 0 && !pcr::isMV(h->Drc) && v->Drc < 0)
+                flag = 3;
+            if (r == _nrRows-1 && !pcr::isMV(h->Drc) && v->Drc > 0)
+                flag = 4;
 
             if (flag > 0) {
+                qDebug() << flag;
                 //adjust boundary cells
                 double Vvec = sqrt(u->Drc*u->Drc + v->Drc*v->Drc);
                 double Vmax = h->Drc/dt;
