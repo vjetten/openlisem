@@ -520,8 +520,8 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 // if h_x1r or h_xl < z+barrier then make it zero, no pressure on that boundary
                 // dz_x1 = (Z - z_x1);
             } else {
-                h_x1r = h_xl;
-                //ux1r = 0.0;
+                h_x1r = qMax(0.0, h_xl);
+             //   ux1r = 0.0;
                 if (FlowBoundary->Drc == 0)
                     ux1r = -ux1r;
             }
@@ -541,8 +541,8 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 h_xr  = qMax(0.0, hxr  - qMax(0.0,  dz_x2 + fb_x2));
                 h_x2l = qMax(0.0, hx2l - qMax(0.0, -dz_x2 + fb_x2));
             } else {
-                h_x2l = h_xr;
-                //ux2l = 0.0;
+                h_x2l =qMax(0.0, h_xr);
+               // ux2l = 0.0;
                 if (FlowBoundary->Drc == 0)
                     ux2l = -ux2l;
             }
@@ -560,8 +560,8 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 h_y1d = qMax(0.0, hy1d - qMax(0.0,  dz_y1 + fb_y1));
                 h_yu  = qMax(0.0, hyu  - qMax(0.0, -dz_y1 + fb_y1));
             } else {
-                h_y1d =  h_yu;//0.0;
-                //vy1d = 0.0;
+                h_y1d =  qMax(0.0,h_yu);//0.0;
+              //  vy1d = 0.0;
                 if (FlowBoundary->Drc == 0)
                     vy1d = -vy1d;
             }
@@ -580,8 +580,8 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 h_yd  = qMax(0.0, hyd  - qMax(0.0,  dz_y2 + fb_y2));// lower side of upper cell
                 h_y2u = qMax(0.0, hy2u - qMax(0.0, -dz_y2 + fb_y2));// upper side of lower cell
             } else {
-                h_y2u = H_yd; //0.0;
-                //vy2u = 0.0;
+                h_y2u = qMax(0.0,h_yd); //0.0;
+            //    vy2u = 0.0;
                 if (FlowBoundary->Drc == 0)
                     vy2u = -vy2u;
             }

@@ -24,7 +24,6 @@
 
 #include "model.h"
 
-
 //---------------------------------------------------------------------------
 // just use the flux outward if the sign of u or v is pointing outward at the boundary
 // nothing fancy, this is the most stable
@@ -34,7 +33,6 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
     QsBoundary = 0;
 
     // TODO barriers!
-//    #pragma omp parallel for num_threads(userCores)
     #pragma omp parallel for reduction(+:QBoundary, QsBoundary) num_threads(userCores)
     FOR_ROW_COL_MV_L {
         // flag outflowing cells
@@ -42,25 +40,30 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
             int flag = 0;
             double Area = h->Drc*ChannelAdj->Drc;
 
-            if (c > 0 && c < _nrCols-1 ) {
-                if (MV(r,c-1) && !MV(r,c+1) && u->Drc < 0) {
-                    flag  = 1;
-                }
-                if (MV(r,c+1) && !MV(r,c-1) && u->Drc > 0) {
+            if (c > 0 && c < _nrCols-1 && !MV(r,c)) {
+                if (MV(r,c-1) && u->Drc < 0)
+                    flag = 1;
+                if (MV(r,c+1) && u->Drc > 0)
                     flag = 2;
-                }
             }
+            if (c == 0 && u->Drc < 0)
+                flag = 1;
+            if (c == _nrCols-1 && u->Drc >0)
+                flag = 2;
 
-            if (r > 0 && r < _nrRows-1) {
-                if (MV(r-1,c) && !MV(r+1,c) && v->Drc < 0) {
+            if (r > 0 && r < _nrRows-1 && !MV(r,c)) {
+                if (MV(r-1,c) && v->Drc < 0)
                     flag = 3;
-                }
-                if (MV(r+1,c) && !MV(r-1,c) && v->Drc > 0) {
+                if (MV(r+1,c) && v->Drc > 0)
                     flag = 4;
-                }
             }
+            if (r == 0 && v->Drc < 0)
+                flag = 3;
+            if (r == _nrRows-1 && v->Drc > 0)
+                flag = 4;
 
             if (flag > 0) {
+              //  qDebug() << flag;
                 //adjust boundary cells
                 double Vvec = sqrt(u->Drc*u->Drc + v->Drc*v->Drc);
                 double Vmax = h->Drc/dt;
@@ -91,5 +94,5 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
         } //flowboundary
     }}
 
-//    qDebug() << "boundary flux m3/s" << QBoundary << "kg/s" << QsBoundary;
+    qDebug() << "boundary flux m3/s" << QBoundary << "kg/s" << QsBoundary;
 }
