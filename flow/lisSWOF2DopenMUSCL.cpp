@@ -173,15 +173,15 @@ double TWorld::fullSWOF2openMUSCL(cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 //------------------------------------------------------------------------------------------------------
 void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
 {
-    // boundary
-    double factor = exp(-0.005*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
-    double factor2 = factor;//pow(factor,0.667); // manning reduction V=h^2/3
+    // boundary => DOES NOT WORK, CRASH in some instances
+   // double factor = exp(-0.005*_dx); // sort of cell size dpendent, if large cells, farther away so more dip
+   // double factor2 = factor;//pow(factor,0.667); // manning reduction V=h^2/3
 
     Fill(*tmd,0);
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
-        // if water include
+        // if water include 1 cell NESW
         if (h->Drc > F_minWH) {
             tmd->Drc = 1;
 
@@ -190,32 +190,8 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
            if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
            if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
 
-           //     // if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
-           //     //     tmd->Drc = 0;
-           //tmshow->Drc = tmd->Drc;
         }
     }}
-
-
-    // #pragma omp parallel for num_threads(userCores)
-    // FOR_ROW_COL_MV_L {
-
-    //     if (tmd->Drc == 1) {
-    //         if (c > 0 && !MV(r,c-1)        )  tmd->data[r][c-1] = 1;
-    //         if (c < _nrCols-1 && !MV(r,c+1))  tmd->data[r][c+1] = 1;
-    //         if (r > 0 && !MV(r-1,c)        )  tmd->data[r-1][c] = 1;
-    //         if (r < _nrRows-1 && !MV(r+1,c))  tmd->data[r+1][c] = 1;
-    //     }
-    //     // map edges are zero, avoid domain touching the edges
-    //     // ?????????????????
-    //     // if (r == 0 || r == _nrRows-1 || c == 0 || c == _nrCols-1)
-    //     //     tmd->Drc = 0;
-
-    //     // if (DomainEdge->Drc > 0 && FlowBoundary->Drc == 0)
-    //     //     tmd->Drc = 0;
-    //     //tmd->Drc = 1;
-
-    // }}
 
     //do all flow and state calculations
     #pragma omp parallel for num_threads(userCores)
@@ -301,10 +277,11 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 u_y2 = U;
                 v_y2 = V;
             }
-            double Hc = factor*H;
-            double Uc = factor2*U;
-            double Vc = factor2*V;
 
+            // DOES NOT WORK, CRASHES
+            // double Hc = factor*H;
+            // double Uc = factor2*U;
+            // double Vc = factor2*V;
             // if (FlowBoundary->Drc > 0) {
             //     //if left does not exist and right exist estimate gradient
             //     if (c > 0 && MV(r,c-1) && !MV(r,c+1)) {
@@ -543,11 +520,10 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 // if h_x1r or h_xl < z+barrier then make it zero, no pressure on that boundary
                 // dz_x1 = (Z - z_x1);
             } else {
-                //h_x1r = qMax(0.0, h_xl); //0
-                h_x1r = 0.0;
-                ux1r = 0.0;
-                // if (FlowBoundary->Drc == 0)
-                //     ux1r = -ux1r;
+                h_x1r = h_xl;
+                //ux1r = 0.0;
+                if (FlowBoundary->Drc == 0)
+                    ux1r = -ux1r;
             }
             if (h_x1r == 0) {
                 ux1r = 0;
@@ -565,10 +541,10 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 h_xr  = qMax(0.0, hxr  - qMax(0.0,  dz_x2 + fb_x2));
                 h_x2l = qMax(0.0, hx2l - qMax(0.0, -dz_x2 + fb_x2));
             } else {
-                h_x2l =  0.0;//qMax(0.0, h_xr);//0.0;
-                ux2l = 0.0;
-                // if (FlowBoundary->Drc == 0)
-                //     ux2l = -ux2l;
+                h_x2l = h_xr;
+                //ux2l = 0.0;
+                if (FlowBoundary->Drc == 0)
+                    ux2l = -ux2l;
             }
             if (h_xr == 0) {
                 vxr = 0;
@@ -584,10 +560,10 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 h_y1d = qMax(0.0, hy1d - qMax(0.0,  dz_y1 + fb_y1));
                 h_yu  = qMax(0.0, hyu  - qMax(0.0, -dz_y1 + fb_y1));
             } else {
-                h_y1d =  0.0;//qMax(0.0, h_yu);//0.0;
-                vy1d = 0.0;
-                // if (FlowBoundary->Drc == 0)
-                //     vy1d = -vy1d;
+                h_y1d =  h_yu;//0.0;
+                //vy1d = 0.0;
+                if (FlowBoundary->Drc == 0)
+                    vy1d = -vy1d;
             }
             if (h_yu == 0) {
                 uyu = 0;
@@ -604,10 +580,10 @@ void TWorld::doSWOFMUSCL(bool doMUSCL, cTMap *h, cTMap *u, cTMap *v, cTMap *z)
                 h_yd  = qMax(0.0, hyd  - qMax(0.0,  dz_y2 + fb_y2));// lower side of upper cell
                 h_y2u = qMax(0.0, hy2u - qMax(0.0, -dz_y2 + fb_y2));// upper side of lower cell
             } else {
-                h_y2u =  0.0;//qMax(0.0, h_yd); //0.0;
-                vy2u = 0.0;
-                // if (FlowBoundary->Drc == 0)
-                //     vy2u = -vy2u;
+                h_y2u = H_yd; //0.0;
+                //vy2u = 0.0;
+                if (FlowBoundary->Drc == 0)
+                    vy2u = -vy2u;
             }
             if (h_yd == 0) {
                 uyd = 0;
