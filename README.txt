@@ -4,7 +4,7 @@ The model can be downloaded from:
 https://github.com/vjetten/openlisem/releases/tag/lisem_bin
 
 ============
-Date: 2603202
+Date: 261014
 ============
 
 This software is under the copyright model GPLv3 (distributed with the model) and subject to additional disclaimers.
@@ -15,7 +15,7 @@ NOTE: since version 7.4.7.R7 a 4Byte floating point version is maintained that t
 NOTE: only a 64bit version exists, 32 bit is not supported
 NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, update version 7.2)
 
-261009 - v7.5.2
+261014 - v7.5.2
 - Added: channel relaxation/attenuation factor, that slows down the kinematic wave by not using the entire volume for velcoity and discharge calculation. Meant for flow delay in larger channels.
 - Added: channel shapes can be rectangular, triagular and trapezium shaped. These are detemrine by giving chanside.map a value > 0 (chanside is the angle with the vertical).
 - Added: subsurface drainage and culverts can be rectangular or circular. If chandiameter.map has a value > 0, the branch is assumed to be circular.
@@ -23,6 +23,7 @@ NOTE: The code since version 5.6 is compilable under linux (checked for Ubuntu, 
 - Added: continuous deposition instead of per timestep either deposition or erosion (Advanced options)
 - Added: choice of linear detachment and deposition or exponential decline in detachment and deposition (Advanced options)
 - IN DEVELOPMENT: pesticide in 2D flow and combined with erosion (does not work yet! 
+- FIXED: small bug in boundary when the dem touches the edge of the map without a misssing value.
 - FIXED: small bug in 2nd order MUSCL with HEun timsestep, should not give much difference
 - FIXED: small bug in boundary definition of Riemann solvers
 - FIXED: dot or comma for decimals in interface, for languages that use a comma.
