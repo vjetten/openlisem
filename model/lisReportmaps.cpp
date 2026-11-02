@@ -76,7 +76,7 @@ void TWorld::PrepareReportMaps(void)
             COMBO_SS->Drc = COMBO_SS->Drc  < 1e-6 ? 0 : COMBO_SS->Drc;
             COMBO_BL->Drc = COMBO_BL->Drc  < 1e-6 ? 0 : COMBO_BL->Drc;
 
-            COMBO_SL->Drc =  qFabs(TotalSoillossMap->Drc)*factor < 1e-3 ? 0.0 : TotalSoillossMap->Drc;
+            COMBO_SL->Drc =  /*qFabs(TotalSoillossMap->Drc)*factor < 1e-3 ? 0.0 : */ TotalSoillossMap->Drc;
 
         }}
     }

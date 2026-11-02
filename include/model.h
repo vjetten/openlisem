@@ -422,6 +422,9 @@ public:
 
     // vector of soil structure
     QVector <SOIL_LIST> crSoil;
+    // equivalent of typedef struct SOIL_MODEL {
+    // struct PIXEL_INFO  *pixel;
+    // } SOIL_MODEL;
 
   //  QVector <IDI_POINT> IDIpoints;
     QVector <IDI_POINT> IDIpointsRC;

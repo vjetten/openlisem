@@ -94,5 +94,5 @@ void TWorld::Boundary2Ddyn(double dt, cTMap *h, cTMap *u, cTMap *v)
         } //flowboundary
     }}
 
-    qDebug() << "boundary flux m3/s" << QBoundary << "kg/s" << QsBoundary;
+   // qDebug() << "boundary flux m3/s" << QBoundary << "kg/s" << QsBoundary;
 }
