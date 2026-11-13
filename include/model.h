@@ -448,6 +448,8 @@ public:
         // input rniafall and inflow
         SwitchRainfall,
         SwitchEventbased,
+        SwitchRainInterval,
+        SwitchRainDepth,
         SwitchIDinterpolation,
         SwitchUseIDmap,
         SwitchDailyET,

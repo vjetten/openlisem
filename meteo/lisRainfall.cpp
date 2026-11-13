@@ -184,7 +184,7 @@ void TWorld::GetSpatialMeteoData(QString name, int type)
     rainRecs.clear();
 }
 //---------------------------------------------------------------------------
-// get station data for ID map, or inv distance
+// get station data from the records using ID map, or inv distance
 void TWorld::GetRainfallStationData(QString name)
 {
     RAIN_LIST rl;
@@ -235,7 +235,7 @@ void TWorld::GetRainfallStationData(QString name)
         throw 1;
     }
 
-    // check first if PCRaster graph format
+    // check first PCRaster graph format
     int count = rainRecs[1].toInt(&ok, 10); // nr of cols in file
     // header + second line is only one integer + third line is time,, forth etc lines are names of stations
     if (ok) {
@@ -324,8 +324,7 @@ void TWorld::GetRainfallStationData(QString name)
         QList <int> tmp;
         tmp = countUnits(*RainZone);
         int nrmap = tmp.count();
-        if (nrmap > nrStations)
-        {
+        if (nrmap > nrStations) {
             ErrorString = QString("Number of stations in rainfall file (%1) < nr of rainfall zones in ID map (%2)").arg(nrStations).arg(nrmap);
             throw 1;
         }
@@ -358,7 +357,7 @@ void TWorld::GetRainfallStationData(QString name)
             QStringList SL1 = rainRecs[r_+1].split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
             double time1 = getTimefromString(SL1[0]);
             if (time1 < time) {
-                ErrorString = QString("Time in rainfall is not increasing from row %1 to %2: %3 and %4. Check your file!")
+                ErrorString = QString("Time in rainfall is not increasing from row %1 to %2: %3 and %4. Check your file or switch on event based!")
                                   .arg(r_).arg(r_+1).arg(time).arg(time1);
                 throw 1;
             }
@@ -368,8 +367,8 @@ void TWorld::GetRainfallStationData(QString name)
         for (int i = 1; i <= nrStations; i++)
         {
             bool ok = false;
+            rl.intensity << toDOUBLE(SL[i],&ok);
 
-            rl.intensity << toDOUBLE(SL[i],&ok);//SL[i].toDouble(&ok);
             if (!ok) {
                 ErrorString = QString("Rainfall at time %1 has unreadable value: %2.").arg(SL[0]).arg(SL[i]);
                 throw 1;
@@ -384,23 +383,19 @@ void TWorld::GetRainfallStationData(QString name)
     nrRainfallseries = RainfallSeries.size();
     rainRecs.clear();
 
-    //for testing if read properly
-    // for (int i = 0; i < nrRainfallseries; i++) {
-    //     qDebug() << RainfallSeries[i].time;
-    //     QString S, S1;
-    //     for (int j = 0; j < RainfallSeries[i].stationnr.size(); j++) {
-    //         S1 = QString("%1 ").arg(RainfallSeries[i].stationnr[j]);
-    //         S = S + S1;
-    //     }
-    //     qDebug() << S;
-    //     S = "";
-    //     for (int j = 0; j < RainfallSeries[i].stationnr.size(); j++) {
-    //         S1 = QString("%1 ").arg(RainfallSeries[i].intensity[j]);
-    //         S = S + S1;
-    //     }
-    //     qDebug() << S;
-
-    // }
+    // recalculate amount to intensity
+    // amount is usually a tip (0.1mm) and the time the tip was registred
+    if (SwitchRainDepth) {
+        for (int i = 1; i < RainfallSeries.size(); i++) {
+            for (int j = 0; j < RainfallSeries[i].stationnr.size(); j++) {
+                double V = RainfallSeries[i].intensity[j];
+                double dt = RainfallSeries[i].time - RainfallSeries[i-1].time;
+                V /= (dt/3600.0);
+                RainfallSeries[i].intensity[j] = V;
+                //qDebug() << j << RainfallSeries[i].intensity[j];
+            }
+        }
+    }
 
 }
 //---------------------------------------------------------------------------
@@ -408,10 +403,11 @@ void TWorld::GetRainfallStationData(QString name)
 // and return as map based on id.map or inv dist interpolation
 void TWorld::GetRainfallMapfromStations(double currenttime)
 {
-    //double currenttime = (time);
-    double tt = _dt/3600000.0 * PBiasCorrection; // biascorrection for stations?
-    bool samerain = false;
+    double tt = _dt/3600000.0 * PBiasCorrection; // intensity from mm/h to m/interval
 
+    bool samerain = false;
+    int next = 0;
+    if (SwitchRainInterval) next = 1;
     // from time t to t+1 the rain is the rain of t
 
     // if time is outside records then use map with zeros
@@ -435,60 +431,69 @@ void TWorld::GetRainfallMapfromStations(double currenttime)
     else
         currentrow = std::distance(raintime.begin(), it-1);
 
-    if (currentrow < 0) currentrow = 0;
+    if (currentrow < 0)
+        currentrow = 0;
 
     if (currentrow == currentRainfallrow && currentrow > 0)
         samerain = true;
+        // no need to change interval if these two are the same
+
    //qDebug() << currenttime << *it << currentrow << samerain << RainfallSeries[currentrow].intensity[0] << RainfallSeries[currentrow].time;
 
     // get the next map from file
     if (!samerain) {
-        if (SwitchIDinterpolation) {
+        // fill the rain map with values of the timeinterval,
+        // next is used to get the end or the beginning of a timeinterval
 
-            bool found = false;
-            for (int j = 0; j < IDIpointsRC.size(); j++) {
-                // select the right station nr
-                for (int k = 0; k < IDIpointsRC.size(); k++) {
-                //    qDebug() << j << k << IDIpointsRC.at(j).nr << RainfallSeries[currentrow].stationnr.at(k);
-                    if (IDIpointsRC.at(j).nr == RainfallSeries[currentrow].stationnr.at(k)) {
-                        IDI_POINT p;
-                        p.r = IDIpointsRC.at(j).c;
-                        p.c = IDIpointsRC.at(j).r;
-                        p.nr = IDIpointsRC.at(j).nr;
-                        p.V = RainfallSeries[currentrow].intensity[k]*tt;
-                        IDIpointsRC.replace(j,p);
-                        found = true;
+        if (currentrow+next <= raintime.size()) {
+
+            if (SwitchIDinterpolation) {
+                bool found = false;
+                for (int j = 0; j < IDIpointsRC.size(); j++) {
+                    // select the right station nr
+                    for (int k = 0; k < IDIpointsRC.size(); k++) {
+                    //    qDebug() << j << k << IDIpointsRC.at(j).nr << RainfallSeries[currentrow].stationnr.at(k);
+                        if (IDIpointsRC.at(j).nr == RainfallSeries[currentrow + next].stationnr.at(k)) {
+                            IDI_POINT p;
+                            p.r = IDIpointsRC.at(j).c;
+                            p.c = IDIpointsRC.at(j).r;
+                            p.nr = IDIpointsRC.at(j).nr;
+                            p.V = RainfallSeries[currentrow].intensity[k]*tt;
+                            IDIpointsRC.replace(j,p);
+                            found = true;
+                        }
                     }
                 }
-            }
-            if (!found) {
-                ErrorString = "IDI value not found";
-                throw 1;
-            }
+                if (!found) {
+                    ErrorString = "IDI value not found";
+                    throw 1;
+                }
 
-            IDInterpolation();
-
+                IDInterpolation();
+            } else {
+                // make a map with new value for each rainfall zone
+                #pragma omp parallel for num_threads(userCores)
+                FOR_ROW_COL_MV_L {
+                    double value = -1;
+                    for (int k = 0; k < stationID.size(); k++) {
+                        if (static_cast <int>(RainZone->Drc) == RainfallSeries[currentrow].stationnr.at(k))
+                            value = RainfallSeries[currentrow + next].intensity[k]*tt;
+                    }
+                    if (value == -1) {
+                        ErrorString = QString("rainzone ID found in map that does not exist in rainfall file %1.").arg(RainZone->Drc);
+                        DEBUG(ErrorString);
+                        continue;
+                        //throw 1;
+                    }
+                    Rain->Drc = value; //rain in m per timestep
+                    if (Rain->Drc > 0)
+                        rainStarted = true;
+                }}
+            }
         } else {
-            #pragma omp parallel for num_threads(userCores)
-            FOR_ROW_COL_MV_L {
-                double value = -1;
-                for (int k = 0; k < stationID.size(); k++) {
-                    if (static_cast <int>(RainZone->Drc) == RainfallSeries[currentrow].stationnr.at(k))
-                        value = RainfallSeries[currentrow].intensity[k]*tt;
-                }
-                if (value == -1) {
-                    ErrorString = QString("rainzone ID found in map that does not exist in rainfall file %1.").arg(RainZone->Drc);
-                    DEBUG(ErrorString);
-                    continue;
-                    //throw 1;
-                }
-                Rain->Drc = value; //rain in m per timestep
-
-                if (Rain->Drc > 0)
-                    rainStarted = true;
-            }}
+            Fill(*Rain, 0.0);
         }
-    }
+    } // !samerain
 
     #pragma omp parallel for num_threads(userCores)
     FOR_ROW_COL_MV_L {
@@ -522,7 +527,8 @@ void TWorld::GetRainfallMapfromSat(double currenttime)
 {
     double tt = _dt/3600000.0 * PBiasCorrection; // mm/h to m -> mm/h = mm X/3600*_dt -> X*0.0001
     bool samerain = false;
-
+    int next = 0;
+    if (SwitchRainInterval) next = 1;
     // NOTE: from time t to t+1 the rain is the rain of t
     // where are we in the series ?
 
@@ -551,43 +557,47 @@ void TWorld::GetRainfallMapfromSat(double currenttime)
     bool SwitchdoRrainAverage = false;
     // get the next map from file
     if (!samerain) {
-        // create an empty map and read the file
-        auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
-        //  cTMap *_M = new cTMap(readRaster(RainfallSeriesMaps[currentrow].name));
-        double calibration = RainfallSeriesMaps[currentrow].calib;
+        if (currentrow+next <= RainfallSeriesMaps.size()) {
+            // create an empty map and read the file
+            auto _M = std::unique_ptr<cTMap>(new cTMap(readRaster(RainfallSeriesMaps[currentrow].name)));
+            //  cTMap *_M = new cTMap(readRaster(RainfallSeriesMaps[currentrow].name));
+            double calibration = RainfallSeriesMaps[currentrow].calib;
 
-        if (_M->nrCols() != _nrCols || _M->nrRows() != _nrRows) {
-            ErrorString = "Nr of rows or Cols in the rainfall map does not match the database";
-            throw 1;
-        }
+            if (_M->nrCols() != _nrCols || _M->nrRows() != _nrRows) {
+                ErrorString = "Nr of rows or Cols in the rainfall map does not match the database";
+                throw 1;
+            }
 
-        #pragma omp parallel for num_threads(userCores)
-        FOR_ROW_COL_MV_L {
-            double rain_ = 0;
-
-            if (pcr::isMV(_M->Drc)) {
-                QString sr, sc;
-                sr.setNum(r); sc.setNum(c);
-                ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[currentrow].name;
-            } else
-                rain_ = _M->Drc * tt; // * RainfallSeriesMaps[currentrow].calib;
-
-            if (rain_ < 0)
-                rain_ = 0;
-            if (rain_ > 0)
-                rainStarted = true;
-            if (!SwitchdoRrainAverage)
-                Rain->Drc= rain_ * calibration;
-            else
-                tma->Drc = rain_ * calibration;
-        }}
-
-        if (SwitchdoRrainAverage) {
-            double avg = mapAverage(*tma);
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                Rain->Drc = avg;
+                double rain_ = 0;
+
+                if (pcr::isMV(_M->Drc)) {
+                    QString sr, sc;
+                    sr.setNum(r); sc.setNum(c);
+                    ErrorString = "Missing value at row="+sr+" and col="+sc+" in map: "+RainfallSeriesMaps[currentrow].name;
+                } else
+                    rain_ = _M->Drc * tt; // * RainfallSeriesMaps[currentrow].calib;
+
+                if (rain_ < 0)
+                    rain_ = 0;
+                if (rain_ > 0)
+                    rainStarted = true;
+                if (!SwitchdoRrainAverage)
+                    Rain->Drc= rain_ * calibration;
+                else
+                    tma->Drc = rain_ * calibration;
             }}
+
+            if (SwitchdoRrainAverage) {
+                double avg = mapAverage(*tma);
+                #pragma omp parallel for num_threads(userCores)
+                FOR_ROW_COL_MV_L {
+                    Rain->Drc = avg;
+                }}
+            }
+        } else {
+            Fill(*Rain, 0.0);
         }
     } //samerain
 
