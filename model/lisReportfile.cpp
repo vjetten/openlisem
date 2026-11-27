@@ -897,7 +897,7 @@ void TWorld::CountLandunits(void)
                   return a.nr < b.nr;
               });
     for (int i = 0; i < erosUnits.size(); i++)
-    qDebug() << erosUnits[i];
+
     landUnitNr = erosUnits.size();
 }
 //---------------------------------------------------------------------------
