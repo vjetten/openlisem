@@ -1,7 +1,7 @@
 openLISEM
 A spatial model for simulation of the full waterbalance, overland flow, flooding and sediment erosion, transport and deposition in all flows.
 The model can be downloaded from:
-https://github.com/vjetten/openlisem/releases/tag/lisem_bin
+https://github.com/vjetten/openlisem/releases/
 
 ============
 Date: 261014

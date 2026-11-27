@@ -323,6 +323,7 @@ void TWorld::GetRainfallStationData(QString name)
 
         QList <int> tmp;
         tmp = countUnits(*RainZone);
+        tmp.removeAll(-1);          // -1 in ID.map means no rain on that area.
         int nrmap = tmp.count();
         if (nrmap > nrStations)
         {
@@ -471,12 +472,17 @@ void TWorld::GetRainfallMapfromStations(double currenttime)
         } else {
             #pragma omp parallel for num_threads(userCores)
             FOR_ROW_COL_MV_L {
-                double value = -1;
+                // -1 in ID.map means no rain on that area.
+                if (static_cast<int>(RainZone->Drc) == -1) {
+                    Rain->Drc = 0;
+                    continue;
+                }
+                double value = -999;
                 for (int k = 0; k < stationID.size(); k++) {
                     if (static_cast <int>(RainZone->Drc) == RainfallSeries[currentrow].stationnr.at(k))
                         value = RainfallSeries[currentrow].intensity[k]*tt;
                 }
-                if (value == -1) {
+                if (value == -999) {
                     ErrorString = QString("rainzone ID found in map that does not exist in rainfall file %1.").arg(RainZone->Drc);
                     DEBUG(ErrorString);
                     continue;
