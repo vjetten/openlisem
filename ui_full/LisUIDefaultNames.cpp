@@ -312,6 +312,10 @@ void lisemqt::defaultRunFile()
     namelist[i].value = QString("1.0");
     namelist[i++].name = QString("Rainfall Bias Correction");
     namelist[i].value = QString("0");
+    namelist[i++].name = QString("Rainfall interval");
+    namelist[i].value = QString("0");
+    namelist[i++].name = QString("Rainfall depth");
+    namelist[i].value = QString("0");
     namelist[i++].name = QString("Include ET");
     namelist[i].value = QString("0");
     namelist[i++].name = QString("Daily ET");

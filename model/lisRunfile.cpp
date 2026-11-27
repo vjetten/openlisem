@@ -234,6 +234,8 @@ void TWorld::ParseRunfileData(void)
         // meteo
         if (p1.compare("Include Rainfall")==0)         SwitchRainfall = iii == 1;
         if (p1.compare("Event based")==0)              SwitchEventbased = iii == 1;
+        if (p1.compare("Rainfall interval")==0)        SwitchRainInterval = iii == 1;
+        if (p1.compare("Rainfall depth")==0)           SwitchRainDepth = iii == 1;
         if (p1.compare("Use Rainfall maps")==0)        SwitchRainfallSatellite = iii == 1;
         if (p1.compare("Daily ET")==0)                 SwitchDailyET = iii == 1;
         if (p1.compare("ET latitude")==0)              ETlatitude = valc;

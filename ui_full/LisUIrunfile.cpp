@@ -159,7 +159,8 @@ void lisemqt::ParseInputData()
         if (p1.compare("Use Rainfall maps")==0)             setRainmaps = check;
         if (p1.compare("Rainfall ID interpolation")==0)     checkIDinterpolation->setChecked(check);
         if (p1.compare("IDI factor")==0)                    E_IDIfactor->setValue(valc);
-        if (p1.compare("Rainfall Bias Correction")==0)      E_biasCorrectionP->setValue(valc);
+        if (p1.compare("Rainfall interval")==0)             checkRainInterval->setChecked(check);
+        if (p1.compare("Rainfall depth")==0)                checkRainDepth->setChecked(check);
 
         if (p1.compare("Include ET")==0)                    checkET->setChecked(check);
         if (p1.compare("Use ET maps")==0)                   setETmaps = check;
@@ -920,6 +921,8 @@ void lisemqt::updateModelData()
         if (p1.compare("Rainfall maplist name")==0)          namelist[j].value = RainSatFileName;
         if (p1.compare("Rainfall Map Directory")==0)         namelist[j].value = RainSatFileDir;
         if (p1.compare("Rainfall Bias Correction")==0)       namelist[j].value = E_biasCorrectionP->text();
+        if (p1.compare("Rainfall interval")==0)              namelist[j].value.setNum((int)checkRainInterval->isChecked());
+        if (p1.compare("Rainfall depth")==0)                 namelist[j].value.setNum((int)checkRainDepth->isChecked());
 
         if (p1.compare("Include ET")==0)                     namelist[j].value.setNum((int)checkET->isChecked());
         if (p1.compare("Daily ET")==0)                       namelist[j].value.setNum((int)checkDailyET->isChecked());

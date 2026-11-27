@@ -36,7 +36,7 @@
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define VERSIONNR "7.5.3"
+#define VERSIONNR "7.5.3beta"
 #define VERSIONDATE "2026/11/26"
 
 #define VERSIONNR_pest "1.0"
